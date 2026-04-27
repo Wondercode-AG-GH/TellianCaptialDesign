@@ -5,19 +5,19 @@ import { FaqAccordion, type FaqItem } from "./FaqAccordion";
 
 const ANLAGESTRATEGIEN_FAQ: readonly FaqItem[] = [
   {
-    question: "Welche Strategie passt zu mir?",
+    question: "Was unterscheidet Ihren quantitativen Ansatz von anderen?",
     answer:
-      "Die passende Strategie ergibt sich aus Ihren Anlagezielen, Ihrer Risikotoleranz und Ihrem Anlagehorizont. Wir entwickeln diese Grundlagen gemeinsam im Erstgespräch und empfehlen darauf basierend eine Strategie oder einen Mix mehrerer Strategien.",
+      "Wir arbeiten seit 1996 mit quantitativen Modellen — deutlich vor dem Branchen-Mainstream. Diese Erfahrung steckt in unserem Prozess: Inhouse-Modelle, ein eigenes Anlagekomitee und ein internationales Netzwerk aus Partner Asset Managern und Marktexperten. Die Modelle treffen keine Entscheidungen für sich allein. Sie liefern die Grundlage, auf der das Komitee monatlich entscheidet.",
   },
   {
-    question: "Kann ich meine Strategie später wechseln?",
+    question: "Wie schützen Sie mein Vermögen in volatilen Märkten?",
     answer:
-      "Ja. Ihr Portfolio wird laufend überwacht, und wenn sich Ihre Lebenssituation oder Ihre Ziele ändern, passen wir die Strategie entsprechend an. Strategiewechsel erfolgen nach Rücksprache mit Ihnen und werden vom Anlagekomitee umgesetzt.",
+      "Durch Disziplin im Prozess. Jede Position hat definierte Verlustschwellen. Wenn diese erreicht werden, handeln wir — unabhängig davon, ob die aktuelle Stimmung dafür oder dagegen spricht. Die strategische Allokation bleibt das Fundament, auch in nervösen Phasen. Bei ausserordentlichen Marktentwicklungen tagt das Anlagekomitee kurzfristig.",
   },
   {
     question: "Wie viel Risiko ist in welcher Strategie enthalten?",
     answer:
-      "Jede Strategie hat definierte Risikokennzahlen wie Value at Risk und maximale Drawdown-Limits. Diese werden im Detail im Erstgespräch vorgestellt und regelmässig überwacht. Die Einhaltung der Risikovorgaben ist Teil unserer laufenden Verwaltung.",
+      "Jede Strategie hat definierte Risikokennzahlen und maximale Verlustgrenzen. Diese werden im Erstgespräch im Detail vorgestellt und regelmässig überwacht. Die Einhaltung der Risikovorgaben ist Teil unserer laufenden Verwaltung.",
   },
 ];
 
@@ -56,6 +56,16 @@ export function AnlagestrategienDetail({
         color: C.dark,
       }}
     >
+      {/* Lead paragraph */}
+      <div style={{ maxWidth: "760px", paddingBottom: isMobile ? "40px" : "56px" }}>
+        <p style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, margin: 0 }}>
+          Tellian Capital arbeitet seit 1996 mit einem quantitativen Anlageansatz — als eine der ersten Schweizer Vermögensverwaltungen. Damals war datengestützte Analyse in der Branche die Ausnahme. Heute ist sie Standard.
+        </p>
+        <p style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, margin: "20px 0 0 0" }}>
+          Was uns unterscheidet, ist die Erfahrung von fast drei Jahrzehnten, in denen wir den Prozess durch Marktkrisen und regulatorische Umbrüche hindurch verfeinert haben.
+        </p>
+      </div>
+
       {ANLAGESTRATEGIEN_SECTIONS.map((section, i) => (
         <section
           key={section.key}
@@ -166,6 +176,92 @@ export function AnlagestrategienDetail({
         </section>
       ))}
 
+      {/* ═══ Inhouse-Expertise ═══ */}
+      <section
+        style={{
+          paddingTop: isMobile ? "56px" : "80px",
+          paddingBottom: isMobile ? "56px" : "80px",
+          borderTop: `1px solid ${C.line}`,
+        }}
+      >
+        <div style={{ maxWidth: "760px" }}>
+          <span style={{ fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em", textTransform: "uppercase", color: C.stone, display: "block" }}>
+            Inhouse-Expertise
+          </span>
+          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "clamp(28px, 8vw, 36px)" : "32px", lineHeight: 1.12, letterSpacing: "-0.02em", fontWeight: 400, margin: "14px 0 0 0", color: C.dark }}>
+            Wer hinter den Modellen steht
+          </h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginTop: "32px" }}>
+            <p style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, margin: 0 }}>
+              Beide Perspektiven werden von einem Netzwerk getragen, das über die quantitativen Modelle hinausgeht.
+            </p>
+            <p style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, margin: 0 }}>
+              Das Anlagekomitee tagt monatlich und vereint:
+            </p>
+          </div>
+          <ul style={{ listStyle: "none", padding: 0, margin: "16px 0 0 0", display: "flex", flexDirection: "column", gap: "10px" }}>
+            {[
+              "Geschäftsleitung und Chef Anlagestrategie",
+              "Internationale Partner Asset Manager",
+              "Marktexperten für alternative Anlageklassen",
+            ].map((item, j) => (
+              <li key={j} style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, display: "flex", gap: "12px" }}>
+                <span aria-hidden style={{ color: C.stone, flexShrink: 0 }}>—</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+          <p style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, margin: "24px 0 0 0" }}>
+            Hinzu kommen externe Quellen: Branchenexperten, Unternehmensanalysten und unabhängige Research Teams, mit denen wir in laufendem Austausch stehen.
+          </p>
+          <p style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, margin: "20px 0 0 0" }}>
+            Dieses Netzwerk stellt sicher, dass keine Anlageentscheidung aus einer einzelnen Sichtweise entsteht.
+          </p>
+        </div>
+      </section>
+
+      {/* ═══ Risikokontrolle ═══ */}
+      <section
+        style={{
+          paddingTop: isMobile ? "56px" : "80px",
+          paddingBottom: isMobile ? "56px" : "80px",
+          borderTop: `1px solid ${C.line}`,
+        }}
+      >
+        <div style={{ maxWidth: "760px" }}>
+          <span style={{ fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em", textTransform: "uppercase", color: C.stone, display: "block" }}>
+            Risikokontrolle
+          </span>
+          <h2 style={{ fontFamily: serif, fontSize: isMobile ? "clamp(28px, 8vw, 36px)" : "32px", lineHeight: 1.12, letterSpacing: "-0.02em", fontWeight: 400, margin: "14px 0 0 0", color: C.dark }}>
+            Wie wir Verluste begrenzen
+          </h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginTop: "32px" }}>
+            <p style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, margin: 0 }}>
+              Risikokontrolle ist kein nachgelagerter Schritt. Sie ist Teil jeder Allokationsentscheidung.
+            </p>
+            <p style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, margin: 0 }}>
+              Was wir laufend prüfen:
+            </p>
+          </div>
+          <ul style={{ listStyle: "none", padding: 0, margin: "16px 0 0 0", display: "flex", flexDirection: "column", gap: "10px" }}>
+            {[
+              "Überschreitung definierter Verlustschwellen",
+              "Passive Verletzungen des Anlegerprofils durch Marktbewegungen",
+              "Aktive Abweichungen durch Anlageentscheide",
+              "Realisierung von Gewinnen nach klaren Regeln",
+            ].map((item, j) => (
+              <li key={j} style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, display: "flex", gap: "12px" }}>
+                <span aria-hidden style={{ color: C.stone, flexShrink: 0 }}>—</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+          <p style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, margin: "24px 0 0 0" }}>
+            Wenn eine Schwelle erreicht ist, handeln wir. Das ist im Prozess verankert — nicht eine Frage individueller Einschätzung im Moment.
+          </p>
+        </div>
+      </section>
+
       {/* ═══ FAQ — thematic questions about strategy selection and adjustment ═══ */}
       <div
         style={{
@@ -210,7 +306,7 @@ export function AnlagestrategienDetail({
             color: C.dark,
           }}
         >
-          Reden wir über <em style={{ fontStyle: "italic", fontWeight: 400 }}>Ihre</em> Strategie.
+          Reden wir über <em style={{ fontStyle: "italic", fontWeight: 400 }}>Ihre Strategie.</em>
         </h3>
         <p
           style={{
@@ -222,8 +318,7 @@ export function AnlagestrategienDetail({
             margin: 0,
           }}
         >
-          Jede Strategie beginnt mit einer Frage: Was wollen Sie erreichen?
-          Lassen Sie uns die Antwort zusammen finden.
+          Wenn Sie unseren Ansatz bis hierher verfolgt haben — sprechen wir über Ihre konkrete Situation. Ein erstes Gespräch ist unverbindlich, persönlich und vertraulich.
         </p>
         <CtaButton
           href="/#contact"

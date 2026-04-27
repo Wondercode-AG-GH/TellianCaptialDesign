@@ -815,11 +815,8 @@ function Section4Anlagestrategien({
   };
 
   const bodyParagraphs = [
-    "Der Investmentansatz von Tellian Capital verbindet zwei Analyseperspektiven: eine Top-Down-Betrachtung der globalen Finanzmärkte und eine Bottom-Up-Selektion einzelner Anlagen. Beide stützen sich auf quantitative Modelle und eigene Datenanalyse.",
-    "Die strategische Vermögensallokation bildet den Kern. Sie basiert auf Makroindikatoren, einer systematischen Bewertung von Anlageklassen und einem Anlagehorizont von drei bis fünf Jahren. Ziel ist eine Portfoliostruktur, die langfristig trägt — nicht eine, die auf kurzfristige Marktbewegungen reagiert.",
-    "Die taktische Allokation ergänzt diesen Kern. Hier nutzt das Anlagekomitee kurzfristige Trends, technische Analyse und Erkenntnisse aus der Marktpsychologie, um Opportunitäten zu identifizieren. Die Gewichtung zwischen strategischem Kern und taktischen Positionen wird laufend vom Komitee gesteuert.",
-    "Tellian Capital investiert über Anlageklassen hinweg. Aktien, Anleihen, alternative Anlagen — die Auswahl richtet sich nach der Analyse, nicht nach Produktkategorien. Wo die Daten eine Position stützen, handeln wir. Wo nicht, halten wir Liquidität. Das schliesst auch Absicherungsstrategien und den gezielten Einsatz von Instrumenten ein, die in konventionellen Mandaten selten Platz finden.",
-    "Auf Basis der eigenen quantitativen Analyse bietet Tellian Capital zusätzlich ausgewählte Investmentfonds an. Diese Strategien richten sich an Anleger, die von der Methodik profitieren wollen, ohne ein individuelles Mandat zu führen.",
+    "Der Investmentansatz von Tellian Capital verbindet zwei Perspektiven: eine Top-Down-Betrachtung der globalen Finanzmärkte und eine Bottom-Up-Selektion einzelner Anlagen. Beide stützen sich auf quantitative Modelle und eigene Datenanalyse.",
+    "Die strategische Allokation bildet den Kern und trägt das Portfolio über drei bis fünf Jahre. Die taktische Allokation ergänzt diesen Kern und nutzt kurzfristige Marktchancen. Die Gewichtung zwischen beiden steuert das Anlagekomitee.",
   ];
 
   if (isVertical) {
@@ -976,8 +973,6 @@ function Section4Anlagestrategien({
             display: "flex",
             flexDirection: "column",
             gap: SPACING.bodyParagraphGap,
-            flex: 1,
-            minHeight: 0,
           }}
         >
           {bodyParagraphs.map((text, i) => (
@@ -994,12 +989,40 @@ function Section4Anlagestrategien({
               {text}
             </p>
           ))}
-        </div>
 
-        <div style={{ marginTop: SPACING.bodyToCta, flexShrink: 0 }}>
-          <CtaButton href="/anlagestrategien" onClick={handleOpenDetail}>
-            Strategien im Detail
-          </CtaButton>
+          {/* CTA — inline with body text, left-aligned */}
+          <a
+            href="/anlagestrategien"
+            onClick={handleOpenDetail}
+            className="inline-flex items-center gap-3 uppercase"
+            style={{
+              marginTop: "32px",
+              padding: "16px 24px",
+              border: `1px solid ${C.dark}`,
+              borderRadius: 0,
+              background: "transparent",
+              fontFamily: sans,
+              fontSize: "11px",
+              fontWeight: 500,
+              letterSpacing: "0.18em",
+              color: C.dark,
+              textDecoration: "none",
+              lineHeight: 1,
+              alignSelf: "flex-start",
+              transition: "background-color 250ms ease-out, color 250ms ease-out",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = C.dark;
+              e.currentTarget.style.color = C.bg;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.color = C.dark;
+            }}
+          >
+            <span>Strategien im Detail</span>
+            <span aria-hidden>→</span>
+          </a>
         </div>
       </div>
     </div>
