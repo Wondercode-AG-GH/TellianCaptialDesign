@@ -475,9 +475,11 @@ function Section3Vermoegensverwaltung({
       <Section3Timeline scrollX={scrollX} isDetailMode={isDetail} />
 
       <div
-        className="relative z-10 h-full flex flex-col"
+        className="relative z-10 flex flex-col justify-center"
         style={{
           ...textColStyle,
+          minHeight: "100vh",
+          paddingBottom: "clamp(80px, 10vh, 120px)",
           opacity: isDetail ? 0 : 1,
           transform: isDetail ? "translateX(-50px)" : "translateX(0)",
           transition: `opacity 500ms ${EASE.standard}, transform 500ms ${EASE.standard}`,
@@ -521,7 +523,6 @@ function Section3Vermoegensverwaltung({
             maxWidth: layout.bodyMaxWidth,
             display: "flex", flexDirection: "column",
             gap: SPACING.bodyParagraphGap,
-            flex: 1, minHeight: 0,
           }}
         >
           {bodyParagraphs.map((text, i) => (
@@ -537,9 +538,12 @@ function Section3Vermoegensverwaltung({
           ))}
         </div>
 
-        <div style={{ marginTop: SPACING.bodyToCta, flexShrink: 0 }}>
+        <div style={{ marginTop: SPACING.bodyToCta, display: "flex", flexDirection: "column", gap: "12px" }}>
           <CtaButton href="/vermoegensverwaltung" onClick={handleAnlageprozess}>
             Mehr zur Vermögensverwaltung
+          </CtaButton>
+          <CtaButton href="#contact" variant="ghost" onClick={(e) => { e.preventDefault(); handleContactClick(); }}>
+            Gespräch vereinbaren
           </CtaButton>
         </div>
       </div>
