@@ -521,7 +521,6 @@ function Section3Vermoegensverwaltung({
             maxWidth: layout.bodyMaxWidth,
             display: "flex", flexDirection: "column",
             gap: SPACING.bodyParagraphGap,
-            flex: 1, minHeight: 0,
           }}
         >
           {bodyParagraphs.map((text, i) => (
@@ -535,12 +534,40 @@ function Section3Vermoegensverwaltung({
               {text}
             </p>
           ))}
-        </div>
 
-        <div style={{ marginTop: SPACING.bodyToCta, flexShrink: 0 }}>
-          <CtaButton href="/vermoegensverwaltung" onClick={handleAnlageprozess}>
-            Mehr zur Vermögensverwaltung
-          </CtaButton>
+          {/* CTA — inline with body text, left-aligned */}
+          <a
+            href="/vermoegensverwaltung"
+            onClick={handleAnlageprozess}
+            className="inline-flex items-center gap-3 uppercase"
+            style={{
+              marginTop: "32px",
+              padding: "16px 24px",
+              border: `1px solid ${C.dark}`,
+              borderRadius: 0,
+              background: "transparent",
+              fontFamily: sans,
+              fontSize: "11px",
+              fontWeight: 500,
+              letterSpacing: "0.18em",
+              color: C.dark,
+              textDecoration: "none",
+              lineHeight: 1,
+              alignSelf: "flex-start",
+              transition: "background-color 250ms ease-out, color 250ms ease-out",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = C.dark;
+              e.currentTarget.style.color = C.bg;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.color = C.dark;
+            }}
+          >
+            <span>Mehr zur Vermögensverwaltung</span>
+            <span aria-hidden>→</span>
+          </a>
         </div>
       </div>
     </div>
