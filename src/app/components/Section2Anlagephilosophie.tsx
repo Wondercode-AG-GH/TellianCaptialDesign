@@ -51,8 +51,6 @@ interface Props {
 const BODY_PARAGRAPHS = [
   "Tellian Capital verwaltet Vermögen nach einem quantitativen Prozess. Anlageentscheide entstehen aus Daten, Modellen und systematischer Marktanalyse — nicht aus Prognosen einzelner Personen und nicht aus der Nachrichtenlage einer Woche.",
   "Wir nehmen Positionen ein, wenn unsere Analyse sie stützt. Und wir halten sie, solange die Grundlage trägt. Das erfordert Disziplin — besonders dann, wenn die Märkte nervös werden und der Impuls zum Handeln am grössten ist.",
-  "Diese Arbeitsweise ist kein Zufall. Tellian Capital wurde 1996 als eine der ersten Schweizer Vermögensverwaltungen mit quantitativem Ansatz gegründet. Seither haben wir den Prozess verfeinert, aber das Prinzip nicht verändert: Methodik vor Meinung.",
-  "Wir sind unabhängig von Banken, Produktanbietern und Vertriebsinteressen. Das bedeutet: Jede Anlageentscheidung dient einem Interesse — dem des Kunden.",
 ];
 
 export function Section2Anlagephilosophie({ scrollX, isVertical = false, breakpoint = "desktop" }: Props) {
@@ -174,7 +172,7 @@ export function Section2Anlagephilosophie({ scrollX, isVertical = false, breakpo
                 letterSpacing: "-0.01em",
               }}
             >
-              {"\u00AB"}Ihr Vermögen verdient bessere Gründe als ein Bauchgefühl.{"\u00BB"}
+              {"\u00AB"}Methodik vor Meinung.{"\u00BB"}
             </p>
           </div>
         </div>
@@ -237,7 +235,7 @@ export function Section2Anlagephilosophie({ scrollX, isVertical = false, breakpo
               willChange: "opacity, transform",
             }}
           >
-            {"\u00AB"}Ihr Vermögen verdient bessere Gründe als ein Bauchgefühl.{"\u00BB"}
+            {"\u00AB"}Methodik vor Meinung.{"\u00BB"}
           </p>
         </div>
       </div>
