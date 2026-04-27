@@ -364,10 +364,6 @@ function Section3Vermoegensverwaltung({
   const bodyParagraphs = [
     "Tellian Capital verwaltet Vermögen auf Mandatsbasis. Das bedeutet: Sie erteilen uns eine Verwaltungsvollmacht, Ihr Vermögen bleibt auf Ihrem eigenen Depot bei einer Kooperationsbank. Wir treffen die Anlageentscheide — Sie behalten die Kontrolle über Ihre Bankbeziehung.",
     "Jeder Kunde erhält ein eigenes Portfolio. Keine Modellportfolios, keine Standardallokation. Die Zusammenstellung richtet sich nach Ihren Zielen, Ihrer Risikotoleranz und Ihrer finanziellen Gesamtsituation.",
-    "Der Weg zum Portfolio folgt einem klaren Ablauf: Zuerst definieren wir gemeinsam Ihre Anlageziele. Dann prüfen wir Risikotoleranz und Eignung. Auf dieser Basis filtern wir das Investmentuniversum, bestimmen die Vermögensallokation und bauen Ihr Portfolio auf. Danach beginnt die aktive Verwaltung.",
-    "Anlageentscheide trifft nicht eine einzelne Person. Das Anlagekomitee von Tellian Capital tagt monatlich und vereint Geschäftsleitung, Chef Anlagestrategie, internationale Partner Asset Manager und Experten für alternative Anlageklassen. Bei ausserordentlichen Marktentwicklungen tagt das Komitee kurzfristig. Entschieden wird mit einfachem Mehr.",
-    "Die Portfolios folgen einer Core-/Satelliten-Struktur. Der Kern besteht aus Positionen mit einem Anlagehorizont von drei bis fünf Jahren. Der Satellitenanteil nutzt kurzfristige Marktchancen und taktische Opportunitäten. Die Gewichtung zwischen beiden wird vom Anlagekomitee festgelegt.",
-    "Ihr Portfolio wird laufend überwacht. Definierte Verlustschwellen, aktive Kontrolle der Anlegerprofile und ein klarer Prozess für Gewinnmitnahmen sind Teil der Verwaltung. Die Berichterstattung erfolgt vierteljährlich — automatisch, konsolidiert und bei Bedarf mit kundenspezifischen Zusatzauswertungen.",
   ];
 
   if (isVertical) {

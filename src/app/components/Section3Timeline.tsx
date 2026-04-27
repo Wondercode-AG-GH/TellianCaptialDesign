@@ -404,32 +404,6 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
             );
           })}
 
-          {/* ── Footer: reporting cycle hint ── */}
-          <div
-            style={{
-              opacity:    getItemP(scrolledPast, STEPS.length, staggerPx, windowPx) * 0.5,
-              display:    "flex",
-              alignItems: "center",
-              gap:        "10px",
-              marginTop:  "clamp(12px, 2vh, 28px)",
-              willChange: "opacity",
-            }}
-          >
-            <RotateCcw
-              size={18}
-              style={{ color: C.warm, flexShrink: 0 }}
-            />
-            <span
-              style={{
-                fontFamily: sans,
-                fontSize:   isVertical ? "12px" : "14px",
-                color:      C.warm,
-                fontStyle:  "italic",
-              }}
-            >
-              Vierteljährliches Reporting an den Kunden
-            </span>
-          </div>
         </div>
       </div>
     </div>

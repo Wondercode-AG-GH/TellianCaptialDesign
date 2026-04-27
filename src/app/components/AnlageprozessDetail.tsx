@@ -11,7 +11,7 @@ const VERMOEGENSVERWALTUNG_FAQ: readonly FaqItem[] = [
   {
     question: "Wer entscheidet über Anlagen in meinem Portfolio?",
     answer:
-      "Die Entscheidungen trifft unser Anlagekomitee, das monatlich tagt und Geschäftsleitung, Chef Anlagestrategie, internationale Partner Asset Manager und Experten für alternative Anlageklassen vereint. Bei ausserordentlichen Marktentwicklungen tagt das Komitee kurzfristig.",
+      "Die Entscheidungen trifft unser Anlagekomitee. Es tagt monatlich und vereint Geschäftsleitung, Chef Anlagestrategie, internationale Partner Asset Manager und Experten für alternative Anlageklassen. Bei ausserordentlichen Marktentwicklungen tagt das Komitee kurzfristig.",
   },
   {
     question: "Wie oft erhalte ich ein Reporting?",
@@ -213,8 +213,7 @@ export function AnlageprozessDetail({ isMobile, onContactClick }: AnlageprozessD
             margin: 0,
           }}
         >
-          Wenn Sie unseren Prozess bis hierher verfolgt haben — sprechen wir über Ihren.
-          Ein erstes Gespräch ist unverbindlich, persönlich und vertraulich.
+          Wenn Sie unseren Prozess bis hierher verfolgt haben — sprechen wir über Ihren. Ein erstes Gespräch ist unverbindlich, persönlich und vertraulich.
         </p>
         <CtaButton
           href="/#contact"

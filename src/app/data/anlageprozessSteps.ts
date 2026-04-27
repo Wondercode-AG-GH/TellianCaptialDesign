@@ -42,7 +42,7 @@ export const ANLAGEPROZESS_STEPS: AnlageprozessStep[] = [
     detailHeadline: "Ihre Ziele definieren",
     detailSubline: "Anlageziele, Zeithorizont und Erwartungen klären",
     detailBody: [
-      "Am Anfang steht das Gespräch. Wir wollen verstehen, was Sie mit Ihrem Vermögen erreichen möchten — und was Sie nachts ruhig schlafen lässt.",
+      "Am Anfang steht das Gespräch. Wir wollen verstehen, was Sie mit Ihrem Vermögen erreichen möchten.",
       "Dabei klären wir drei Fragen:",
     ],
     detailBullets: [
@@ -51,7 +51,7 @@ export const ANLAGEPROZESS_STEPS: AnlageprozessStep[] = [
       "Welche Erwartungen haben Sie an Rendite und Risiko?",
     ],
     detailClosing:
-      "Diese Grundlagen bestimmen alles, was danach kommt. Ohne klare Ziele gibt es keine klare Strategie.",
+      "Diese Grundlagen bestimmen alles, was danach kommt.",
     showCta: true,
   },
   {
@@ -64,7 +64,7 @@ export const ANLAGEPROZESS_STEPS: AnlageprozessStep[] = [
     detailHeadline: "Risikotoleranz & Eignung",
     detailSubline: "Finanzielle Gesamtsituation und Anlegerprofil prüfen",
     detailBody: [
-      "Bevor wir investieren, prüfen wir Ihre finanzielle Gesamtsituation. Das ist keine Formsache — es ist die Basis für jede Entscheidung.",
+      "Bevor wir investieren, prüfen wir Ihre finanzielle Gesamtsituation. Sie ist die Basis für jede spätere Entscheidung.",
       "Wir analysieren:",
     ],
     detailBullets: [
@@ -87,13 +87,13 @@ export const ANLAGEPROZESS_STEPS: AnlageprozessStep[] = [
     detailHeadline: "Investmentuniversum filtern",
     detailSubline: "Quantitative Modelle und systematische Selektion",
     detailBody: [
-      "Ab hier arbeiten unsere Modelle. Wir filtern das globale Investmentuniversum systematisch — nicht nach Bauchgefühl, sondern nach quantitativen Kriterien.",
+      "Ab hier arbeiten unsere Modelle. Wir filtern das globale Investmentuniversum systematisch nach quantitativen Kriterien.",
       "Unser Prozess:",
     ],
     detailBullets: [
-      "Makroökonomische Analyse und Marktregime-Erkennung",
+      "Analyse der globalen Finanzmärkte und Makroindikatoren",
       "Screening über alle Anlageklassen (Aktien, Anleihen, Alternative)",
-      "Bewertungsmodelle basierend auf fundamentalen und technischen Faktoren",
+      "Quantitative und qualitative Bewertung der Anlagen",
       "Ausschluss von Positionen, die unsere Risikokriterien nicht erfüllen",
     ],
     detailClosing:
@@ -110,7 +110,7 @@ export const ANLAGEPROZESS_STEPS: AnlageprozessStep[] = [
     detailHeadline: "Vermögensallokation",
     detailSubline: "Strategische und taktische Verteilung über Anlageklassen",
     detailBody: [
-      "Die Allokation ist die wichtigste Entscheidung im Anlageprozess. Studien zeigen: über 90% der Renditeunterschiede gehen auf die Vermögensverteilung zurück, nicht auf die Titelauswahl.",
+      "Die strategische Allokation ist die wichtigste Entscheidung im Anlageprozess. Sie bestimmt, wie Ihr Vermögen über Anlageklassen, Regionen und Sektoren verteilt wird.",
       "Zwei Ebenen:",
     ],
     detailBullets: [
@@ -131,16 +131,16 @@ export const ANLAGEPROZESS_STEPS: AnlageprozessStep[] = [
     detailHeadline: "Portfolio aktiv verwalten",
     detailSubline: "Laufende Überwachung, Risikokontrolle, Reporting",
     detailBody: [
-      "Ihr Portfolio wird nicht einmal aufgesetzt und dann vergessen. Wir überwachen es laufend und handeln, wenn die Daten es erfordern.",
+      "Ihr Portfolio wird laufend überwacht. Wir handeln, wenn die Daten es erfordern.",
       "Was wir täglich tun:",
     ],
     detailBullets: [
-      "Risikokennzahlen überwachen (Value at Risk, Drawdown-Limits)",
-      "Positionen gegen definierte Verlustschwellen prüfen",
+      "Risikokennzahlen und Verlustschwellen überwachen",
+      "Passive und aktive Verletzungen des Anlegerprofils prüfen",
       "Rebalancing bei Abweichungen von der Zielallokation",
     ],
     detailClosing:
-      "Was Sie erhalten: Vierteljährliche Berichterstattung, automatisch und konsolidiert. Zugang zum Kundenportal mit Echtzeit-Überblick. Persönliche Besprechung auf Wunsch — jederzeit.",
+      "Was Sie erhalten: Vierteljährliche Berichterstattung, automatisch und konsolidiert. Zugang zum Kundenportal mit Echtzeit-Überblick. Persönliche Besprechung auf Wunsch.",
     showCta: true,
   },
 ];
