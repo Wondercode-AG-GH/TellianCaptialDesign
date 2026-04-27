@@ -76,11 +76,8 @@ const TEAM: TeamMember[] = [
 ];
 
 const BODY = [
-  "Tellian Capital ist eine unabhängige Vermögensverwaltung mit Sitz in Zürich und einem Standort in Balzers, Liechtenstein. Die Firma ist FINMA-lizenziert und verwaltet Vermögen für private und institutionelle Anleger auf Mandatsbasis.",
-  "Das Team ist bewusst klein. Jeder Kunde hat einen persönlichen Relationship Manager, der sein Portfolio kennt und seine Anlageziele versteht. Die Entscheidungswege sind kurz. Wer bei Tellian Capital anruft, erreicht die Menschen, die sein Vermögen verwalten.",
-  "Die Firma wurde 1996 gegründet — als eine der ersten Schweizer Vermögensverwaltungen mit einem quantitativen Investmentansatz. Damals war datengestützte Analyse in der Branche kaum verbreitet. Tellian Capital hat diesen Ansatz über fast drei Jahrzehnte weiterentwickelt, durch Marktkrisen hindurch und über mehrere regulatorische Umbrüche hinweg.",
-  "Das Anlagekomitee bringt verschiedene Perspektiven zusammen: Geschäftsleitung, Chef Anlagestrategie, internationale Partner Asset Manager und Spezialisten für alternative Anlageklassen. Bei Bedarf werden externe Finanzexperten hinzugezogen. Die Breite im Komitee stellt sicher, dass Anlageentscheide nicht aus einer einzelnen Sichtweise entstehen.",
-  "Tellian Capital war bis 2026 unter dem Namen Dr. Blumer & Partner bekannt. Der neue Name steht für den Anspruch, mit dem die Firma heute arbeitet: methodisch, unabhängig und mit klarer Überzeugung. Was sich nicht verändert hat, ist die Art, wie wir Kundenbeziehungen verstehen — persönlich, verbindlich und auf lange Sicht angelegt.",
+  "Tellian Capital ist eine unabhängige Vermögensverwaltung mit Sitz in Zürich. Das Team ist bewusst klein. Jeder Kunde hat einen persönlichen Ansprechpartner, der sein Portfolio kennt und seine Anlageziele versteht. Wer bei uns anruft, erreicht die Menschen, die sein Vermögen verwalten.",
+  "Die Firma wurde 1996 gegründet — als eine der ersten Schweizer Vermögensverwaltungen mit einem quantitativen Investmentansatz. Was uns seither getragen hat, ist die Verbindung aus methodischer Arbeit und persönlicher Verbindlichkeit. Anlageentscheide entstehen im Anlagekomitee, nicht aus einer einzelnen Sichtweise. Kundenbeziehungen sind auf lange Sicht angelegt, nicht auf das nächste Quartal.",
 ];
 
 /* ═══════════════════════════════════════════════════════════
@@ -478,8 +475,6 @@ export function Section5UeberTellian({
             display: "flex",
             flexDirection: "column",
             gap: SPACING.bodyParagraphGap,
-            flex: 1,
-            minHeight: 0,
           }}
         >
           {BODY.map((text, i) => (
@@ -496,12 +491,40 @@ export function Section5UeberTellian({
               {text}
             </p>
           ))}
-        </div>
 
-        <div style={{ marginTop: SPACING.bodyToCta, flexShrink: 0 }}>
-          <CtaButton href="#contact">
-            Gespräch vereinbaren
-          </CtaButton>
+          {/* CTA — inline with body text, left-aligned */}
+          <a
+            href="#contact"
+            onClick={(e) => e.preventDefault()}
+            className="inline-flex items-center gap-3 uppercase"
+            style={{
+              marginTop: "32px",
+              padding: "16px 24px",
+              border: `1px solid ${C.dark}`,
+              borderRadius: 0,
+              background: "transparent",
+              fontFamily: sans,
+              fontSize: "11px",
+              fontWeight: 500,
+              letterSpacing: "0.18em",
+              color: C.dark,
+              textDecoration: "none",
+              lineHeight: 1,
+              alignSelf: "flex-start",
+              transition: "background-color 250ms ease-out, color 250ms ease-out",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = C.dark;
+              e.currentTarget.style.color = C.bg;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.color = C.dark;
+            }}
+          >
+            <span>Gespräch vereinbaren</span>
+            <span aria-hidden>→</span>
+          </a>
         </div>
       </div>
 
