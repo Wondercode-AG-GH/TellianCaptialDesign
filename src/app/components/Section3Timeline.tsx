@@ -5,6 +5,7 @@ import { AnlageprozessStepOrdinal, ORDINAL_FONT_SIZE } from "./AnlageprozessStep
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
 import { C, serif, sans } from "../tokens";
+import { SectionDivider } from "./SectionDivider";
 
 /* ─── Step definitions ─── */
 const STEPS = [
@@ -203,19 +204,17 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
             ════════════════════════════════════════════ */}
         <div
           style={{
-            width:           "6px",
+            width:           "1px",
             flexShrink:      0,
-            borderRadius:    "2px",
             overflow:        "hidden",
             transform:       `scaleY(${stripScale.toFixed(4)})`,
             transformOrigin: "top",
             willChange:      "transform",
             marginRight:     isVertical ? "16px" : "36px",
+            backgroundColor: C.dark,
+            opacity:         0.3,
           }}
-        >
-          <div style={{ height: "40%", backgroundColor: C.line }} />
-          <div style={{ height: "60%", backgroundColor: C.dark }} />
-        </div>
+        />
 
         {/* ════════════════════════════════════════════
             Step list
@@ -228,6 +227,11 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
             gap:           "clamp(8px, 1.4vh, 20px)",
           }}
         >
+          {/* Upper label — structural symmetry with "TELLIAN CAPITAL ÜBERNIMMT" */}
+          <div style={{ marginBottom: "clamp(8px, 1.4vh, 16px)" }}>
+            <SectionDivider label="Ihre Ausgangslage" compact={isVertical} />
+          </div>
+
           {STEPS.map((step, i) => {
             // Desktop uses scroll-driven progress; vertical uses IO state
             const sp = isVertical
@@ -235,12 +239,12 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
               : getItemP(scrolledPast, i, staggerPx, windowPx);
 
             const isActive  = isVertical && activeStep === i;
-            const numColor  = step.accent ? C.dark  : C.line;
-            const descColor = step.accent ? C.charcoal : C.stone;
+            const numColor  = C.dark;
+            const descColor = C.charcoal;
 
             // Ordinal opacity boost when active in vertical mode
             const numOpacity = isVertical
-              ? (isActive ? 1 : (step.accent ? 0.6 : 0.4))
+              ? (isActive ? 1 : 0.5)
               : 1;
 
             return (
@@ -286,25 +290,7 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
                         : (isVertical ? "opacity 600ms ease-out" : undefined),
                     }}
                   >
-                    <div
-                      style={{
-                        width:           "32px",
-                        height:          "1px",
-                        backgroundColor: C.dark,
-                        flexShrink:      0,
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontFamily:    sans,
-                        fontSize:      isVertical ? "10px" : "13px",
-                        letterSpacing: "0.2em",
-                        color:         C.dark,
-                        textTransform: "uppercase" as const,
-                      }}
-                    >
-                      Tellian Capital übernimmt
-                    </span>
+                    <SectionDivider label="Tellian Capital übernimmt" compact={isVertical} />
                   </div>
                 )}
 
@@ -385,12 +371,13 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
                     <span
                       style={{
                         fontFamily: sans,
-                        fontSize:   isVertical ? "13px" : "16px",
-                        color:      descColor,
+                        fontSize:   "14px",
+                        fontWeight: 400,
+                        color:      C.charcoal,
                         display:    "block",
-                        marginTop:  "6px",
+                        marginTop:  "10px",
                         lineHeight: 1.5,
-                        opacity: descriptionsHidden ? 0 : descriptionsFading ? 0 : 1,
+                        opacity: descriptionsHidden ? 0 : descriptionsFading ? 0 : 0.65,
                         transform: descriptionsFading ? "translateY(4px)" : "translateY(0)",
                         transition: "opacity 500ms cubic-bezier(0.4, 0, 0.2, 1), transform 500ms cubic-bezier(0.4, 0, 0.2, 1)",
                       }}

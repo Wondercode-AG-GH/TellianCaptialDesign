@@ -476,9 +476,10 @@ function Section3Vermoegensverwaltung({
       <Section3Timeline scrollX={scrollX} isDetailMode={isDetail} />
 
       <div
-        className="relative z-10 h-full flex flex-col"
+        className="relative z-10 h-full flex flex-col justify-center"
         style={{
           ...textColStyle,
+          maxWidth: "calc(420px + clamp(36px, 5vw, 120px) + 4vw)",
           opacity: isDetail ? 0 : 1,
           transform: isDetail ? "translateX(-50px)" : "translateX(0)",
           transition: `opacity 500ms ${EASE.standard}, transform 500ms ${EASE.standard}`,
@@ -542,7 +543,7 @@ function Section3Vermoegensverwaltung({
             onClick={handleAnlageprozess}
             className="inline-flex items-center gap-3 uppercase"
             style={{
-              marginTop: "32px",
+              marginTop: "56px",
               padding: "16px 24px",
               border: `1px solid ${C.dark}`,
               borderRadius: 0,
