@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { Breakpoint } from "./useBreakpoint";
+import { FloatingField } from "./FloatingField";
 import {
   LEGAL_PATHS,
   LEGAL_LINK_LABELS,
@@ -350,28 +351,18 @@ function MapOverlay({ open, onClose, returnFocusRef }: MapOverlayProps) {
    ═══════════════════════════════════════════════════════════ */
 function ContactForm({ stack = false }: { stack?: boolean } = {}) {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", phone: "", message: "",
   });
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    // TODO: replace with real form submission
+    await new Promise((r) => setTimeout(r, 1000));
+    setLoading(false);
     setSubmitted(true);
-  };
-
-  const fieldStyle: React.CSSProperties = {
-    fontFamily: sans,
-    fontSize: stack ? "14px" : "13px",
-    color: C.dark,
-    backgroundColor: "transparent",
-    border: `0.5px solid ${C.line}`,
-    borderRadius: "6px",
-    padding: stack ? "12px 14px" : "10px 12px",
-    minHeight: stack ? "44px" : undefined, // Apple HIG touch target on mobile
-    outline: "none",
-    width: "100%",
-    transition: "border-color 0.3s ease",
-    appearance: "none",
   };
 
   if (submitted) {
@@ -380,125 +371,81 @@ function ContactForm({ stack = false }: { stack?: boolean } = {}) {
         <span style={{ fontFamily: serif, fontSize: "24px", color: C.dark, display: "block", lineHeight: 1.15 }}>
           Vielen Dank.
         </span>
-        <span style={{ fontFamily: sans, fontSize: "12px", color: C.charcoal, display: "block", marginTop: "12px", lineHeight: 1.6 }}>
-          Wir melden uns innerhalb von 24 Stunden.
+        <span style={{ fontFamily: sans, fontSize: "13px", color: C.charcoal, display: "block", marginTop: "12px", lineHeight: 1.6 }}>
+          Wir melden uns innert 24 Stunden.
         </span>
       </div>
     );
   }
 
-  /* Stack mode: every field gets its own row (mobile / vertical).
-     Default mode: two-column pairs (Vorname+Nachname, E-Mail+Telefon). */
   const pairStyle: React.CSSProperties = stack
-    ? { display: "flex", flexDirection: "column", gap: "10px" }
-    : { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" };
+    ? { display: "flex", flexDirection: "column", gap: "16px" }
+    : { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       <div style={pairStyle}>
-        <input
-          type="text" placeholder="Vorname" required
-          value={form.firstName}
-          onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-          style={fieldStyle}
-          className="placeholder:text-tellian-muted focus:border-tellian-dark"
-        />
-        <input
-          type="text" placeholder="Nachname" required
-          value={form.lastName}
-          onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-          style={fieldStyle}
-          className="placeholder:text-tellian-muted focus:border-tellian-dark"
-        />
+        <FloatingField label="Vorname" required value={form.firstName} onChange={(v) => setForm({ ...form, firstName: v })} />
+        <FloatingField label="Nachname" required value={form.lastName} onChange={(v) => setForm({ ...form, lastName: v })} />
       </div>
       <div style={pairStyle}>
-        <input
-          type="email" placeholder="E-Mail" required
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-          style={fieldStyle}
-          className="placeholder:text-tellian-muted focus:border-tellian-dark"
-        />
-        <input
-          type="tel" placeholder="Telefon"
-          value={form.phone}
-          onChange={(e) => setForm({ ...form, phone: e.target.value })}
-          style={fieldStyle}
-          className="placeholder:text-tellian-muted focus:border-tellian-dark"
-        />
+        <FloatingField label="E-Mail" type="email" required value={form.email} onChange={(v) => setForm({ ...form, email: v })} />
+        <FloatingField label="Telefon" type="tel" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
       </div>
-      <textarea
-        placeholder="Nachricht" required
-        value={form.message}
-        onChange={(e) => setForm({ ...form, message: e.target.value })}
-        style={{ ...fieldStyle, height: stack ? "100px" : "80px", resize: "none" }}
-        className="placeholder:text-tellian-muted focus:border-tellian-dark"
-      />
+      <FloatingField label="Nachricht" required multiline rows={5} value={form.message} onChange={(v) => setForm({ ...form, message: v })} />
 
-      {stack ? (
-        /* Mobile: full-width button + caption underneath, centered */
-        <div style={{ marginTop: "10px" }}>
-          <button
-            type="submit"
-            style={{
-              fontFamily: sans,
-              fontSize: "11px",
-              letterSpacing: "0.2em",
-              textTransform: "uppercase",
-              color: "#FFFFFF",
-              backgroundColor: C.dark,
-              border: "none",
-              borderRadius: "6px",
-              padding: "16px",
-              cursor: "pointer",
-              transition: "background-color 0.3s ease",
-              appearance: "none",
-              width: "100%",
-            }}
-            className="hover:bg-tellian-charcoal"
-          >
-            Anfrage senden →
-          </button>
-          <span
-            style={{
-              fontFamily: sans,
-              fontSize: "11px",
-              color: C.stone,
-              display: "block",
-              textAlign: "center",
-              marginTop: "10px",
-            }}
-          >
-            Antwort innert 24h
-          </span>
-        </div>
-      ) : (
-        <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "6px" }}>
-          <button
-            type="submit"
-            style={{
-              fontFamily: sans,
-              fontSize: "10px",
-              letterSpacing: "0.2em",
-              textTransform: "uppercase",
-              color: "#FFFFFF",
-              backgroundColor: C.dark,
-              border: "none",
-              borderRadius: "6px",
-              padding: "13px 28px",
-              cursor: "pointer",
-              transition: "background-color 0.3s ease",
-              appearance: "none",
-            }}
-            className="hover:bg-tellian-charcoal"
-          >
-            Anfrage senden →
-          </button>
-          <span style={{ fontFamily: sans, fontSize: "10px", color: C.stone }}>
-            Antwort innert 24h
-          </span>
-        </div>
-      )}
+      {/* Datenschutz-Hinweis */}
+      <p style={{ fontFamily: sans, fontSize: "12px", color: C.charcoal, opacity: 0.65, lineHeight: 1.5, margin: 0 }}>
+        Mit dem Absenden stimmen Sie unseren{" "}
+        <a
+          href="/datenschutz"
+          style={{ color: "inherit", textDecoration: "none", transition: "text-decoration 200ms" }}
+          onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+          onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+        >
+          Datenschutzbestimmungen
+        </a>{" "}
+        zu.
+      </p>
+
+      {/* Submit */}
+      <button
+        type="submit"
+        disabled={loading}
+        className="hover:bg-tellian-charcoal active:scale-[0.98]"
+        style={{
+          fontFamily: sans,
+          fontSize: "11px",
+          fontWeight: 500,
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          color: "#FFFFFF",
+          backgroundColor: C.dark,
+          border: "none",
+          borderRadius: 0,
+          padding: "16px 24px",
+          cursor: loading ? "not-allowed" : "pointer",
+          opacity: loading ? 0.8 : 1,
+          transition: "background-color 200ms ease, opacity 200ms ease",
+          appearance: "none",
+          width: stack ? "100%" : undefined,
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "10px",
+        }}
+      >
+        {loading ? "Wird gesendet..." : "Anfrage senden"}
+        {!loading && <span aria-hidden>→</span>}
+      </button>
+
+      {/* Response time hint */}
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <span style={{ display: "inline-block", width: "12px", height: "1px", backgroundColor: C.stone, opacity: 0.5 }} aria-hidden />
+        <span style={{ fontFamily: sans, fontSize: "12px", letterSpacing: "0.1em", textTransform: "uppercase", color: C.stone, opacity: 0.65 }}>
+          Antwort innert 24h
+        </span>
+      </div>
     </form>
   );
 }
