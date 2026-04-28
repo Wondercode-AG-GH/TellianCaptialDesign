@@ -104,41 +104,41 @@ function teamEmail(name: string): string {
    ═══════════════════════════════════════════════════════════ */
 function SendMessageLink({ email }: { email: string }) {
   const [hover, setHover] = useState(false);
-  const accent = hover ? C.dark : C.stone;
+  const color = hover ? C.dark : C.stone;
   return (
     <a
       href={`mailto:${email}`}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
-        display: "flex",
+        display: "inline-flex",
         alignItems: "center",
-        gap: "6px",
+        gap: "8px",
         textDecoration: "none",
+        cursor: "pointer",
       }}
     >
       <span
-        aria-hidden
-        style={{
-          display: "inline-block",
-          width: hover ? "24px" : "14px",
-          height: "0.5px",
-          backgroundColor: accent,
-          transition:
-            "width 300ms cubic-bezier(0.16, 1, 0.3, 1), background-color 300ms cubic-bezier(0.16, 1, 0.3, 1)",
-        }}
-      />
-      <span
         style={{
           fontFamily: sans,
-          fontSize: "10px",
+          fontSize: "13px",
           letterSpacing: "0.1em",
           textTransform: "uppercase",
-          color: accent,
-          transition: "color 300ms cubic-bezier(0.16, 1, 0.3, 1)",
+          color,
+          transition: "color 200ms ease",
         }}
       >
         Nachricht senden
+      </span>
+      <span
+        aria-hidden
+        style={{
+          color,
+          fontSize: "13px",
+          transition: "color 200ms ease",
+        }}
+      >
+        →
       </span>
     </a>
   );
@@ -150,25 +150,22 @@ function SendMessageLink({ email }: { email: string }) {
 function PortraitCard({
   member,
   width,
-  nameSize = "16px",
-  roleSize = "13px",
-  /** Aspect ratio (height/width %). Default 3:4 portrait (133.333%). */
-  aspectPct = "133.333%",
+  nameSize = "18px",
+  roleSize = "14px",
   nameWeight = 600,
 }: {
   member: TeamMember;
   width: string;
   nameSize?: string;
   roleSize?: string;
-  aspectPct?: string;
   nameWeight?: number;
 }) {
   return (
     <div style={{ width, flexShrink: 0 }}>
-      {/* Photo */}
+      {/* Photo — 4:5 aspect, head in upper third */}
       <div
         className="w-full relative overflow-hidden"
-        style={{ paddingBottom: aspectPct }}
+        style={{ paddingBottom: "125%" }}
       >
         <div
           className="absolute inset-0 bg-cover bg-no-repeat"
@@ -180,8 +177,8 @@ function PortraitCard({
         />
       </div>
 
-      {/* Name */}
-      <div style={{ marginTop: "12px" }}>
+      {/* Caption */}
+      <div style={{ marginTop: "24px" }}>
         <span
           style={{
             fontFamily: sans,
@@ -201,22 +198,15 @@ function PortraitCard({
             fontWeight: 400,
             color: C.stone,
             display: "block",
-            marginTop: "4px",
+            marginTop: "5px",
             lineHeight: 1.3,
           }}
         >
           {member.role}
         </span>
 
-        {/* Divider + Send-message mailto link */}
-        <div
-          style={{
-            height: "0.5px",
-            backgroundColor: C.line,
-            marginTop: "10px",
-          }}
-        />
-        <div style={{ marginTop: "8px" }}>
+        {/* Action link */}
+        <div style={{ marginTop: "18px" }}>
           <SendMessageLink email={teamEmail(member.name)} />
         </div>
       </div>
@@ -419,15 +409,13 @@ export function Section5UeberTellian({
         backgroundColor: C.bg,
       }}
     >
-      {/* Text column — absolute, covers leftmost 56vw (first portrait starts at 60vw) */}
+      {/* Text column — absolute, covers leftmost 56vw, vertically centered */}
       <div
-        className="absolute z-10 top-0 left-0 h-full flex flex-col"
+        className="absolute z-10 top-0 left-0 h-full flex flex-col justify-center"
         style={{
           width:         LAYOUT.columnWidth,
           paddingLeft:   LAYOUT.paddingLeft,
           paddingRight:  LAYOUT.paddingRight,
-          paddingTop:    LAYOUT.paddingTop,
-          paddingBottom: LAYOUT.paddingBottom,
           backgroundColor: C.bg,
         }}
       >
@@ -498,7 +486,7 @@ export function Section5UeberTellian({
             onClick={(e) => e.preventDefault()}
             className="inline-flex items-center gap-3 uppercase"
             style={{
-              marginTop: "32px",
+              marginTop: "56px",
               padding: "16px 24px",
               border: `1px solid ${C.dark}`,
               borderRadius: 0,
