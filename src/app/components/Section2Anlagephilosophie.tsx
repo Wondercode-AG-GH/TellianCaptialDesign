@@ -1,6 +1,7 @@
 import { HeroExpandingImage, ScrollFade } from "./ScrollAnimations";
 import { ExpandableBody } from "./ExpandableBody";
 import philosophyImg from "figma:asset/a44e63e47eecf6c5811f4525d593bd929e31be63.png";
+import sardonaImg from "../../assets/sardona-1.jpg";
 import { LAYOUT, getLayout, getTextColumnStyle, SPACING } from "../layout";
 import type { Breakpoint } from "./useBreakpoint";
 
@@ -130,49 +131,50 @@ export function Section2Anlagephilosophie({ scrollX, isVertical = false, breakpo
             overflow: "hidden",
           }}
         >
-          <HeroExpandingImage
-            src={philosophyImg}
-            scrollX={0}
+          <img
+            src={sardonaImg}
+            alt="Tektonikarena Sardona — UNESCO-Welterbe im Kanton Glarus. Sichtbare geologische Schichtung der Glarner Hauptüberschiebung."
             className="w-full h-full"
-            isVertical
+            style={{ objectFit: "cover", objectPosition: "center" }}
           />
-          {/* Dark overlay */}
+          {/* Gradient overlay for quote readability */}
           <div
             style={{
               position: "absolute",
               inset: 0,
-              backgroundColor: "rgba(0,0,0,0.35)",
+              background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.25) 100%)",
               pointerEvents: "none",
               zIndex: 2,
             }}
           />
-          {/* Quote */}
+          {/* Quote — bottom third, compact block */}
           <div
             style={{
               position: "absolute",
-              inset: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
               display: "flex",
-              alignItems: "center",
               justifyContent: "center",
               pointerEvents: "none",
               zIndex: 3,
-              padding: breakpoint === "mobile" ? "0 24px" : "0 10%",
+              padding: breakpoint === "mobile" ? "0 24px 32px" : "0 10% 40px",
             }}
           >
             <p
               style={{
                 fontFamily: serif,
-                fontSize: breakpoint === "mobile" ? "28px" : "36px",
+                fontSize: breakpoint === "mobile" ? "22px" : "28px",
                 fontStyle: "italic",
-                color: "#ffffff",
-                lineHeight: 1.3,
-                maxWidth: breakpoint === "mobile" ? "90%" : "70%",
+                color: "#FAFAF8",
+                lineHeight: 1.35,
+                maxWidth: "400px",
                 textAlign: "center",
                 margin: 0,
                 letterSpacing: "-0.01em",
               }}
             >
-              {"\u00AB"}Methodik vor Meinung.{"\u00BB"}
+              {"\u00AB"}Manche Dinge entstehen nicht über Nacht.{"\u00BB"}
             </p>
           </div>
         </div>
@@ -193,49 +195,52 @@ export function Section2Anlagephilosophie({ scrollX, isVertical = false, breakpo
         style={{ top: 0, bottom: 0, left: LAYOUT.imageLeft, right: 0 }}
       >
         <HeroExpandingImage
-          src={philosophyImg}
+          src={sardonaImg}
           scrollX={scrollX}
           className="w-full h-full"
+          alt="Tektonikarena Sardona — UNESCO-Welterbe im Kanton Glarus. Sichtbare geologische Schichtung der Glarner Hauptüberschiebung."
         />
+        {/* Gradient overlay for quote readability */}
         <div
           style={{
             position: "absolute",
             inset: 0,
-            backgroundColor: `rgba(0,0,0,${overlayAlpha.toFixed(4)})`,
+            background: `linear-gradient(to bottom, transparent 40%, rgba(0,0,0,${(overlayAlpha * 0.8).toFixed(4)}) 100%)`,
             pointerEvents: "none",
             zIndex: 2,
           }}
         />
+        {/* Quote — bottom third, compact block */}
         <div
           style={{
             position: "absolute",
-            inset: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             display: "flex",
-            alignItems: "center",
             justifyContent: "center",
             pointerEvents: "none",
             zIndex: 3,
-            padding: "0 10%",
+            padding: "0 10% 56px",
           }}
         >
           <p
             style={{
               fontFamily: serif,
-              fontSize: "48px",
+              fontSize: "clamp(28px, 3.5vh, 40px)",
               fontStyle: "italic",
-              color: "#ffffff",
-              lineHeight: 1.3,
-              maxWidth: "45%",
+              fontWeight: 400,
+              color: "#FAFAF8",
+              lineHeight: 1.35,
+              maxWidth: "400px",
               textAlign: "center",
               margin: 0,
               letterSpacing: "-0.01em",
               opacity: quoteOpacity,
-              transform: `scale(${scale.toFixed(4)})`,
-              transformOrigin: "center center",
-              willChange: "opacity, transform",
+              willChange: "opacity",
             }}
           >
-            {"\u00AB"}Methodik vor Meinung.{"\u00BB"}
+            {"\u00AB"}Manche Dinge entstehen nicht über Nacht.{"\u00BB"}
           </p>
         </div>
       </div>
