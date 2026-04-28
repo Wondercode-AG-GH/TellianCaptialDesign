@@ -3,302 +3,235 @@ import { motion } from "motion/react";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 import { C, serif, sans } from "../tokens";
 
-/* ─── Accent line + text row ─── */
-function AccentRow({
-  text,
-  lineColor,
-}: {
-  text:      string;
-  lineColor: string;
-}) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-      <div
-        style={{
-          width:           "16px",
-          height:          "1px",
-          backgroundColor: lineColor,
-          flexShrink:      0,
-        }}
-      />
-      <span
-        style={{
-          fontFamily: sans,
-          fontSize:   "clamp(13px, 3.5vw, 15px)",
-          color:      C.stone,
-          lineHeight: 1.4,
-        }}
-      >
-        {text}
-      </span>
-    </div>
-  );
-}
+/* ── Card data ── */
+const CARDS = [
+  {
+    key: "topdown",
+    eyebrow: "Globale Perspektive",
+    title: "Top-Down",
+    bullets: [
+      "Makroindikatoren und Konjunkturzyklen",
+      "Systematische Bewertung der Anlageklassen",
+      "Strategischer Horizont: 3–5 Jahre",
+    ],
+  },
+  {
+    key: "bottomup",
+    eyebrow: "Einzeltitel-Perspektive",
+    title: "Bottom-Up",
+    bullets: [
+      "Quantitative Modelle und Datenanalyse",
+      "Technische Analyse und Marktpsychologie",
+      "Kurzfristige Trends und Opportunitäten",
+    ],
+  },
+] as const;
+
+/* ── CSS variable references for easy rebrand ── */
+const V = {
+  cardBg: "var(--tellian-card-bg)",
+  cardText: "var(--tellian-card-text)",
+  cardBullet: "var(--tellian-card-bullet)",
+  cardEyebrow: "var(--tellian-card-eyebrow)",
+  goldBg: "var(--tellian-accent-gold)",
+  goldText: "var(--tellian-accent-gold-text)",
+};
 
 interface Props {
   scrollX: number;
   isVertical?: boolean;
-  /** When true (Anlagestrategien subpage open), the FLIP'd headlines unmount
-   *  so the subpage's detail instances become the Framer Motion targets. */
   isDetailMode?: boolean;
 }
 
-export function Section4TopDownBottomUp({ scrollX, isVertical = false, isDetailMode = false }: Props) {
-  const panelRef              = useRef<HTMLDivElement>(null);
+export function Section4TopDownBottomUp({
+  scrollX,
+  isVertical = false,
+  isDetailMode = false,
+}: Props) {
+  const reducedMotion = usePrefersReducedMotion();
+  const canFlip = !isVertical && !reducedMotion;
+
+  /* ── Viewport entry detection for mobile ── */
+  const containerRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
-  const reducedMotion         = usePrefersReducedMotion();
-  const enableFlip            = !isVertical && !reducedMotion;
 
   useEffect(() => {
-    if (visible || !panelRef.current) return;
+    if (!isVertical) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.2 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [isVertical]);
 
-    if (isVertical) {
-      // Vertical: use IntersectionObserver
-      const observer = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-        { threshold: 0.15 }
-      );
-      observer.observe(panelRef.current);
-      return () => observer.disconnect();
-    }
-
-    const rect = panelRef.current.getBoundingClientRect();
-    if (rect.left < window.innerWidth) setVisible(true);
-  }, [scrollX, visible, isVertical]);
+  const isMobile = isVertical;
+  const cardPad = isMobile ? "24px" : "40px";
+  const headlineSize = isMobile ? "clamp(32px, 8vw, 40px)" : "clamp(48px, 5vh, 56px)";
+  const bulletDash = isMobile ? "10px" : "14px";
 
   return (
     <div
-      ref={panelRef}
+      ref={containerRef}
       className={isVertical ? "" : "absolute z-0"}
       style={isVertical ? {
-        width:          "100%",
-        height:         "100%",
-        display:        "flex",
-        alignItems:     "center",
+        width: "100%",
+        display: "flex",
         justifyContent: "center",
-        opacity:        visible ? 1 : 0,
-        transition:     "opacity 600ms ease-out",
-        backgroundColor: C.bg,
-        padding:        "24px",
+        padding: isMobile ? "32px 16px" : "40px 32px",
       } : {
-        top:            0,
-        bottom:         0,
-        left:           "44vw",
-        right:          0,
-        display:        "flex",
-        alignItems:     "center",
+        top: 0,
+        bottom: 0,
+        left: "44vw",
+        right: 0,
+        display: "flex",
+        alignItems: "center",
         justifyContent: "center",
-        opacity:        visible ? 1 : 0,
-        transition:     "opacity 600ms ease-out",
+        padding: "0 clamp(24px, 3vw, 48px)",
       }}
     >
-      {/* ── Contained block: mobile uses full viewport width + natural height ── */}
       <div
         style={{
-          width:         isVertical ? "100%" : "clamp(460px, 34vw, 540px)",
-          maxWidth:      isVertical ? "540px" : undefined,
-          display:       "flex",
-          flexDirection: "column",
-          height:        isVertical ? "auto" : "72vh",
-          minHeight:     isVertical ? undefined : "480px",
-          maxHeight:     isVertical ? undefined : "680px",
+          width: "100%",
+          maxWidth: isMobile ? "600px" : "680px",
+          opacity: isDetailMode ? 0 : 1,
+          transform: isDetailMode ? "scale(0.96)" : "scale(1)",
+          transition: "opacity 400ms ease-out, transform 400ms ease-out",
         }}
       >
-        {/* ════════════════════════════════════════════════
-            OBERE ZONE — dunkel, Inhalt unten verankert
-            ════════════════════════════════════════════════ */}
+        {/* Cards row */}
         <div
           style={{
-            flex:            1,
-            backgroundColor: C.dark,
-            display:         "flex",
-            flexDirection:   "column",
-            justifyContent:  "flex-end",
-            padding:         "clamp(24px, 6vw, 44px) clamp(20px, 6vw, 52px)",
-            minHeight:       isVertical ? "240px" : undefined,
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            gap: isMobile ? "16px" : "20px",
           }}
         >
-          {/* Kleine Überschrift */}
-          <span
-            style={{
-              fontFamily:    sans,
-              fontSize:      "10px",
-              letterSpacing: "0.2em",
-              color:         C.accent,
-              textTransform: "uppercase",
-              display:       "block",
-              marginBottom:  "20px",
-            }}
-          >
-            Globale Perspektive
-          </span>
-
-          {/* FLIP anchor — unmounts in detail mode so the sub-page instance
-              becomes Framer Motion's target via shared layoutId. */}
-          {!isDetailMode && (
-            enableFlip ? (
-              <motion.span
-                layoutId="anlagestrategien-headline-topdown"
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                style={{
-                  fontFamily:    serif,
-                  fontSize:      "clamp(40px, 9vw, 64px)",
-                  letterSpacing: "-0.03em",
-                  color:         C.bg,
-                  lineHeight:    1,
-                  display:       "block",
-                }}
-              >
-                Top-Down
-              </motion.span>
-            ) : (
+          {CARDS.map((card) => (
+            <div
+              key={card.key}
+              style={{
+                flex: 1,
+                background: V.cardBg,
+                padding: cardPad,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              {/* Eyebrow */}
               <span
                 style={{
-                  fontFamily:    serif,
-                  fontSize:      "clamp(40px, 9vw, 64px)",
-                  letterSpacing: "-0.03em",
-                  color:         C.bg,
-                  lineHeight:    1,
-                  display:       "block",
+                  fontFamily: sans,
+                  fontSize: "10px",
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  color: V.cardEyebrow,
                 }}
               >
-                Top-Down
+                {card.eyebrow}
               </span>
-            )
-          )}
 
-          {/* Drei Zeilen */}
-          <div
-            style={{
-              marginTop:     "28px",
-              display:       "flex",
-              flexDirection: "column",
-              gap:           "14px",
-            }}
-          >
-            <AccentRow text="Makroindikatoren und Konjunkturzyklen"     lineColor={C.warm} />
-            <AccentRow text="Systematische Bewertung der Anlageklassen" lineColor={C.warm} />
-            <AccentRow text="Strategischer Horizont: 3–5 Jahre"         lineColor={C.warm} />
-          </div>
+              {/* Headline — FLIP target */}
+              {isDetailMode ? null : canFlip ? (
+                <motion.h3
+                  layoutId={`strategy-${card.key}`}
+                  style={{
+                    fontFamily: serif,
+                    fontSize: headlineSize,
+                    lineHeight: 1.02,
+                    letterSpacing: "-0.02em",
+                    color: V.cardText,
+                    fontWeight: 400,
+                    margin: "12px 0 0 0",
+                  }}
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  {card.title}
+                </motion.h3>
+              ) : (
+                <h3
+                  style={{
+                    fontFamily: serif,
+                    fontSize: headlineSize,
+                    lineHeight: 1.02,
+                    letterSpacing: "-0.02em",
+                    color: V.cardText,
+                    fontWeight: 400,
+                    margin: "12px 0 0 0",
+                  }}
+                >
+                  {card.title}
+                </h3>
+              )}
+
+              {/* Bullets */}
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  margin: "24px 0 0 0",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "16px",
+                }}
+              >
+                {card.bullets.map((text, j) => (
+                  <li
+                    key={j}
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: "16px",
+                      fontFamily: sans,
+                      fontSize: "15px",
+                      color: V.cardText,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    <span
+                      aria-hidden
+                      style={{
+                        display: "inline-block",
+                        width: bulletDash,
+                        height: "1px",
+                        backgroundColor: V.cardBullet,
+                        flexShrink: 0,
+                        marginTop: "11px",
+                      }}
+                    />
+                    <span>{text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
-        {/* ═══════════════════��════════════════════════════
-            MITTLERE ZONE — Akzentbalken
-            ════════════════════════════════════════════════ */}
+        {/* Gold bar — connecting sockel under both cards */}
         <div
           style={{
-            height:          isVertical ? "auto" : "72px",
-            minHeight:       isVertical ? "56px" : undefined,
-            flexShrink:      0,
-            backgroundColor: C.warm,
-            display:         "flex",
-            alignItems:      "center",
-            justifyContent:  "space-between",
-            padding:         isVertical ? "12px clamp(20px, 6vw, 52px)" : "0 52px",
-            gap:             "12px",
+            background: V.goldBg,
+            padding: "22px 40px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "16px",
           }}
         >
           <span
             style={{
-              fontFamily: serif,
-              fontSize:   "clamp(18px, 5vw, 24px)",
-              fontStyle:  "italic",
-              color:      C.bg,
-              lineHeight: 1,
-            }}
-          >
-            Anlageentscheid
-          </span>
-
-          <span
-            style={{
-              fontFamily:    sans,
-              fontSize:      "clamp(9px, 2.5vw, 10px)",
-              letterSpacing: "0.15em",
-              color:         C.line,
+              fontFamily: sans,
+              fontSize: "14px",
+              fontWeight: 500,
+              letterSpacing: "0.12em",
               textTransform: "uppercase",
-              whiteSpace:    "nowrap",
+              color: V.goldText,
             }}
           >
-            Anlagekomitee
+            Anlageentscheid · Anlagekomitee
           </span>
-        </div>
-
-        {/* ════════════════════════════════════════════════
-            UNTERE ZONE — hell, Inhalt oben verankert
-            ════════════════════════════════════════════════ */}
-        <div
-          style={{
-            flex:            1,
-            backgroundColor: C.bg,
-            display:         "flex",
-            flexDirection:   "column",
-            justifyContent:  "flex-start",
-            padding:         "clamp(24px, 6vw, 44px) clamp(20px, 6vw, 52px)",
-            minHeight:       isVertical ? "240px" : undefined,
-          }}
-        >
-          {/* FLIP anchor — unmounts in detail mode */}
-          {!isDetailMode && (
-            enableFlip ? (
-              <motion.span
-                layoutId="anlagestrategien-headline-bottomup"
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.08 }}
-                style={{
-                  fontFamily:    serif,
-                  fontSize:      "clamp(40px, 9vw, 64px)",
-                  letterSpacing: "-0.03em",
-                  color:         C.dark,
-                  lineHeight:    1,
-                  display:       "block",
-                }}
-              >
-                Bottom-Up
-              </motion.span>
-            ) : (
-              <span
-                style={{
-                  fontFamily:    serif,
-                  fontSize:      "clamp(40px, 9vw, 64px)",
-                  letterSpacing: "-0.03em",
-                  color:         C.dark,
-                  lineHeight:    1,
-                  display:       "block",
-                }}
-              >
-                Bottom-Up
-              </span>
-            )
-          )}
-
-          {/* Kleine Überschrift */}
-          <span
-            style={{
-              fontFamily:    sans,
-              fontSize:      "10px",
-              letterSpacing: "0.2em",
-              color:         C.muted,
-              textTransform: "uppercase",
-              display:       "block",
-              marginTop:     "20px",
-            }}
-          >
-            Einzeltitel-Perspektive
-          </span>
-
-          {/* Drei Zeilen */}
-          <div
-            style={{
-              marginTop:     "28px",
-              display:       "flex",
-              flexDirection: "column",
-              gap:           "14px",
-            }}
-          >
-            <AccentRow text="Quantitative Modelle und Datenanalyse"   lineColor={C.line} />
-            <AccentRow text="Technische Analyse und Marktpsychologie" lineColor={C.line} />
-            <AccentRow text="Kurzfristige Trends und Opportunitäten"  lineColor={C.line} />
-          </div>
         </div>
       </div>
     </div>

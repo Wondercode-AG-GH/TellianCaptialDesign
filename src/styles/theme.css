@@ -59,6 +59,14 @@
   --tellian-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
   --tellian-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
 
+  /* ── Strategy cards (Section 4) — swap these for rebrand ── */
+  --tellian-card-bg: #1A1916;
+  --tellian-card-text: #F9F9F7;
+  --tellian-card-bullet: rgba(249, 249, 247, 0.7);
+  --tellian-card-eyebrow: rgba(249, 249, 247, 0.5);
+  --tellian-accent-gold: #989071;
+  --tellian-accent-gold-text: #F9F9F7;
+
   /* ── Z-index scale ── */
   --tellian-z-dropdown: 100;
   --tellian-z-sticky: 200;
