@@ -1108,7 +1108,7 @@ export default function App() {
       const el = document.getElementById("section-kontakt");
       if (el) el.scrollIntoView({ behavior: "smooth" });
     } else {
-      scrollTo(0.88);
+      scrollTo(1.0);
     }
   }, [isVertical, scrollTo, isDetailMode, vvw, ast]);
 
@@ -1177,6 +1177,7 @@ export default function App() {
         <Section5UeberTellian
           isVertical
           breakpoint={breakpoint}
+          onContactClick={navigateToContact}
         />
 
         {/* ── KONTAKT (mobile/tablet — 5-field form, MapOverlay trigger) ── */}
@@ -1321,7 +1322,7 @@ export default function App() {
                 href="#contact"
                 variant="ghost"
                 fullWidth={false}
-                onClick={(e) => { e.preventDefault(); scrollTo(0.88); }}
+                onClick={(e) => { e.preventDefault(); navigateToContact(); }}
               >
                 Gespräch vereinbaren
               </CtaButton>
@@ -1425,7 +1426,7 @@ export default function App() {
         />
 
         {/* CHAPTER 5 — ÜBER TELLIAN (Teil 1 + Filmstrip als Fragment) */}
-        <Section5UeberTellian />
+        <Section5UeberTellian onContactClick={navigateToContact} />
 
         <div
           className="flex-shrink-0 h-screen"

@@ -279,9 +279,11 @@ export function Section5UeberTellian({
   scrollX,
   isVertical = false,
   breakpoint = "desktop",
+  onContactClick,
 }: {
   scrollX?: number;
   isVertical?: boolean;
+  onContactClick?: () => void;
   breakpoint?: Breakpoint;
 }) {
   // scrollX is kept as optional prop for API compatibility but unused
@@ -354,7 +356,7 @@ export function Section5UeberTellian({
 
           <ScrollFade scrollX={0} isVertical yOffset={16}>
             <div style={{ marginTop: SPACING.bodyToCta }}>
-              <CtaButton href="#contact">
+              <CtaButton href="#contact" onClick={(e) => { e.preventDefault(); onContactClick?.(); }}>
                 Gespräch vereinbaren
               </CtaButton>
             </div>
@@ -483,7 +485,7 @@ export function Section5UeberTellian({
           {/* CTA — inline with body text, left-aligned */}
           <a
             href="#contact"
-            onClick={(e) => e.preventDefault()}
+            onClick={(e) => { e.preventDefault(); onContactClick?.(); }}
             className="inline-flex items-center gap-3 uppercase"
             style={{
               marginTop: "56px",
