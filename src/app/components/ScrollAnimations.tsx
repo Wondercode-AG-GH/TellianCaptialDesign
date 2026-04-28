@@ -119,7 +119,7 @@ export function ScrollImage({
           transform: `scale(${scale})`,
           clipPath: isVertical ? undefined : `inset(0 ${clipRight} 0 0)`,
           transition: isVertical
-            ? `transform 1.2s ${EASE_CINEMATIC}`
+            ? `transform 1.2s ${EASE.standard}`
             : `transform ${T_MEDIUM}, clip-path ${T_MEDIUM}`,
         }}
       >
@@ -229,7 +229,7 @@ export function ParallaxText({
           : `translate3d(${offset}px, 0, 0)`,
         opacity,
         transition: isVertical
-          ? `transform 0.8s ${EASE_CINEMATIC}, opacity 0.8s ${EASE}`
+          ? `transform 0.8s ${EASE.standard}, opacity 0.8s ${EASE.nav}`
           : `transform ${T_FAST}, opacity ${T_SLOW}`,
         ...style,
       }}
@@ -287,7 +287,7 @@ export function ScrollFade({
         transform: `translate3d(0, ${y}px, 0)`,
         opacity,
         transition: isVertical
-          ? `transform 0.7s ${EASE_CINEMATIC}, opacity 0.7s ${EASE}`
+          ? `transform 0.7s ${EASE.standard}, opacity 0.7s ${EASE.nav}`
           : `transform ${T_FAST}, opacity ${T_SLOW}`,
         ...style,
       }}
@@ -343,7 +343,7 @@ export function RevealLine({
             : `scaleY(${scale})`,
         transformOrigin: "left center",
         transition: isVerticalMode
-          ? `transform 0.8s ${EASE_CINEMATIC}`
+          ? `transform 0.8s ${EASE.standard}`
           : `transform ${T_MEDIUM}`,
       }}
     />
@@ -400,8 +400,8 @@ export function CinematicPanelImage({
         style={{
           transform: `scale(${scale}) translate3d(0, ${shiftY}px, 0)`,
           transition: isVerticalMode
-            ? `transform 1.2s ${EASE_CINEMATIC}`
-            : `transform 2.4s ${EASE_CINEMATIC}`,
+            ? `transform 1.2s ${EASE.standard}`
+            : `transform 2.4s ${EASE.standard}`,
         }}
       >
         <img
