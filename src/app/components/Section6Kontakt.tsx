@@ -772,7 +772,7 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
           }}
         />
 
-        {/* Headline — same wording as desktop */}
+        {/* Headline */}
         <h2
           style={{
             fontFamily: serif,
@@ -784,9 +784,7 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
             fontWeight: 400,
           }}
         >
-          Ein Gespräch ist
-          <br />
-          <em style={{ fontStyle: "italic", fontWeight: 400 }}>der Anfang.</em>
+          Sprechen <em style={{ fontStyle: "italic", fontWeight: 400 }}>wir.</em>
         </h2>
 
         {/* Body */}
@@ -800,8 +798,53 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
             marginTop: "24px",
           }}
         >
-          Wenn Sie wissen möchten, ob unsere Arbeitsweise zu Ihren Erwartungen passt, laden wir Sie zu einem unverbindlichen Erstgespräch ein. Persönlich, vertraulich, in unseren Räumen an der Löwenstrasse oder digital.
+          Ein erstes Gespräch ist unverbindlich. Persönlich an der Löwenstrasse, oder digital.
         </p>
+
+        {/* Phone — prominent */}
+        <div style={{ marginTop: "28px" }}>
+          <a
+            href="tel:+41442244024"
+            style={{
+              fontFamily: serif,
+              fontSize: "26px",
+              fontWeight: 400,
+              color: C.dark,
+              textDecoration: "none",
+              letterSpacing: "-0.01em",
+              display: "block",
+              lineHeight: 1.2,
+            }}
+          >
+            +41 44 224 40 24
+          </a>
+          <span
+            style={{
+              fontFamily: sans,
+              fontSize: "11px",
+              color: C.stone,
+              display: "block",
+              marginTop: "6px",
+            }}
+          >
+            Montag bis Freitag, 8 bis 18 Uhr
+          </span>
+        </div>
+
+        {/* Email — secondary */}
+        <a
+          href="mailto:info@telliancapital.ch"
+          style={{
+            fontFamily: sans,
+            fontSize: "13px",
+            color: C.charcoal,
+            textDecoration: "none",
+            display: "inline-block",
+            marginTop: "12px",
+          }}
+        >
+          info@telliancapital.ch
+        </a>
 
         {/* Form section header — replaces the Card on mobile */}
         <div style={{ marginTop: "32px" }}>
@@ -851,7 +894,7 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
               marginTop: "2px",
             }}
           >
-            Vermögensverwaltung Zürich AG
+            Vermögensverwaltung Zürich AG (vormals Dr. Blumer &amp; Partner)
           </span>
           <span
             style={{
@@ -1003,9 +1046,7 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
             fontWeight: 400,
           }}
         >
-          Ein Gespräch ist
-          <br />
-          <em style={{ fontStyle: "italic", fontWeight: 400 }}>der Anfang.</em>
+          Sprechen <em style={{ fontStyle: "italic", fontWeight: 400 }}>wir.</em>
         </h2>
 
         {/* Body */}
@@ -1019,8 +1060,58 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
             marginTop: "20px",
           }}
         >
-          Wenn Sie wissen möchten, ob unsere Arbeitsweise zu Ihren Erwartungen passt, laden wir Sie zu einem unverbindlichen Erstgespräch ein. Persönlich, vertraulich, in unseren Räumen an der Löwenstrasse oder digital.
+          Ein erstes Gespräch ist unverbindlich. Persönlich an der Löwenstrasse, oder digital.
         </p>
+
+        {/* Phone — prominent */}
+        <div style={{ marginTop: "32px" }}>
+          <a
+            href="tel:+41442244024"
+            style={{
+              fontFamily: serif,
+              fontSize: "28px",
+              fontWeight: 400,
+              color: C.dark,
+              textDecoration: "none",
+              letterSpacing: "-0.01em",
+              display: "block",
+              lineHeight: 1.2,
+              transition: "color 300ms ease-out",
+            }}
+            className="hover:text-tellian-warm"
+          >
+            +41 44 224 40 24
+          </a>
+          <span
+            style={{
+              fontFamily: sans,
+              fontSize: "11px",
+              color: C.stone,
+              display: "block",
+              marginTop: "6px",
+              letterSpacing: "0.02em",
+            }}
+          >
+            Montag bis Freitag, 8 bis 18 Uhr
+          </span>
+        </div>
+
+        {/* Email — secondary */}
+        <a
+          href="mailto:info@telliancapital.ch"
+          style={{
+            fontFamily: sans,
+            fontSize: "13px",
+            color: C.charcoal,
+            textDecoration: "none",
+            display: "inline-block",
+            marginTop: "16px",
+            transition: "color 300ms ease-out",
+          }}
+          className="hover:text-tellian-dark"
+        >
+          info@telliancapital.ch
+        </a>
 
         {/* Bottom block — pushed down */}
         <div style={{ marginTop: "auto", paddingTop: "24px" }}>
@@ -1054,7 +1145,7 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
               marginTop: "2px",
             }}
           >
-            Vermögensverwaltung Zürich AG
+            Vermögensverwaltung Zürich AG (vormals Dr. Blumer &amp; Partner)
           </span>
           <span
             style={{
@@ -1068,31 +1159,7 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
             Löwenstrasse 1, CH-8001 Zürich
           </span>
 
-          {/* Contact row */}
-          <div
-            style={{
-              display: "flex",
-              gap: "20px",
-              marginTop: "12px",
-            }}
-          >
-            <a
-              href="tel:+41442244024"
-              style={{ fontFamily: sans, fontSize: "11px", color: C.charcoal }}
-              className="hover:text-tellian-dark transition-colors duration-300"
-            >
-              +41 44 224 40 24
-            </a>
-            <a
-              href="mailto:info@telliancapital.ch"
-              style={{ fontFamily: sans, fontSize: "11px", color: C.charcoal }}
-              className="hover:text-tellian-dark transition-colors duration-300"
-            >
-              info@telliancapital.ch
-            </a>
-          </div>
-
-          {/* Legal links — below contact row */}
+          {/* Legal links */}
           <LegalLinksRow onOpenLegal={onOpenLegal} />
         </div>
       </div>
