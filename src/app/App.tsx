@@ -1263,11 +1263,27 @@ export default function App() {
             />
           </div>
 
-          {/* Text column — headline + trust line + ghost CTA, vertically centered */}
+          {/* Text column — eyebrow + headline + CTA, vertically centered */}
           <div
             className="relative z-10 h-full flex flex-col justify-center"
             style={{ ...textColStyle }}
           >
+            {/* Eyebrow — above headline */}
+            <span
+              style={{
+                fontFamily: sans,
+                fontSize: "11px",
+                fontWeight: 400,
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+                color: C.stone,
+                opacity: heroAnimate ? 1 : 0,
+                transition: "opacity 600ms ease-out 200ms",
+              }}
+            >
+              FINMA-lizenziert · Unabhängig · Zürich · Seit 1996
+            </span>
+
             {/* Headline */}
             <h1
               style={{
@@ -1279,32 +1295,16 @@ export default function App() {
                 maxWidth: "520px",
                 fontWeight: 400,
                 margin: 0,
+                marginTop: "28px",
                 opacity: heroAnimate ? 1 : 0,
                 transform: heroAnimate ? "translateY(0)" : "translateY(24px)",
-                transition: "opacity 800ms ease-out 200ms, transform 800ms cubic-bezier(0.16,1,0.3,1) 200ms",
+                transition: "opacity 800ms ease-out 400ms, transform 800ms cubic-bezier(0.16,1,0.3,1) 400ms",
               }}
             >
               Vermögen
               <br />
               <em style={{ fontStyle: "italic", fontWeight: 400 }}>mit Methode</em>
             </h1>
-
-            {/* Trust line — directly under headline */}
-            <span
-              style={{
-                fontFamily: sans,
-                fontSize: "11px",
-                fontWeight: 400,
-                letterSpacing: "0.22em",
-                textTransform: "uppercase",
-                color: C.stone,
-                marginTop: "32px",
-                opacity: heroAnimate ? 1 : 0,
-                transition: "opacity 600ms ease-out 600ms",
-              }}
-            >
-              FINMA-lizenziert · Unabhängig · Zürich · Seit 1996
-            </span>
 
             {/* CTA — ghost button */}
             <div
