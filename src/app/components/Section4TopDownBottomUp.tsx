@@ -68,9 +68,9 @@ export function Section4TopDownBottomUp({
   }, [isVertical]);
 
   const isMobile = isVertical;
-  const cardPad = isMobile ? "24px" : "40px";
+  const cardPad = isMobile ? "32px" : "40px";
   const headlineSize = isMobile ? "clamp(32px, 8vw, 40px)" : "clamp(48px, 5vh, 56px)";
-  const bulletDash = isMobile ? "10px" : "14px";
+  const bulletDash = isMobile ? "12px" : "14px";
 
   return (
     <div
@@ -106,7 +106,7 @@ export function Section4TopDownBottomUp({
           style={{
             display: "flex",
             flexDirection: isMobile ? "column" : "row",
-            gap: isMobile ? "16px" : "20px",
+            gap: "20px",
           }}
         >
           {CARDS.map((card) => (
@@ -183,9 +183,9 @@ export function Section4TopDownBottomUp({
                     style={{
                       display: "flex",
                       alignItems: "flex-start",
-                      gap: "16px",
+                      gap: isMobile ? "12px" : "16px",
                       fontFamily: sans,
-                      fontSize: "15px",
+                      fontSize: isMobile ? "14px" : "15px",
                       color: V.cardText,
                       lineHeight: 1.5,
                     }}
@@ -213,24 +213,46 @@ export function Section4TopDownBottomUp({
         <div
           style={{
             background: V.goldBg,
-            padding: "22px 40px",
+            padding: isMobile ? "20px 32px" : "22px 40px",
+            marginTop: isMobile ? "20px" : 0,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: "16px",
           }}
         >
           <span
             style={{
               fontFamily: sans,
-              fontSize: "14px",
+              fontSize: isMobile ? "12px" : "14px",
               fontWeight: 500,
               letterSpacing: "0.12em",
               textTransform: "uppercase",
-              color: V.goldText,
+              color: isMobile ? C.dark : V.goldText,
             }}
           >
-            Anlageentscheid · Anlagekomitee
+            Anlageentscheid
+          </span>
+          <span
+            style={{
+              fontFamily: sans,
+              fontSize: isMobile ? "12px" : "14px",
+              color: isMobile ? C.stone : V.goldText,
+              margin: "0 8px",
+            }}
+          >
+            ·
+          </span>
+          <span
+            style={{
+              fontFamily: sans,
+              fontSize: isMobile ? "12px" : "14px",
+              fontWeight: 500,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: isMobile ? C.dark : V.goldText,
+            }}
+          >
+            Anlagekomitee
           </span>
         </div>
       </div>
