@@ -1142,7 +1142,7 @@ export default function App() {
 
         {/* ── HERO (mobile/tablet — page-load stagger animation) ── */}
         <HeroVertical
-          imageSrc={IMG.hero}
+          imageSrc={heroDesktopImg}
           introComplete={introComplete}
           breakpoint={breakpoint}
           onCtaClick={navigateToContact}
