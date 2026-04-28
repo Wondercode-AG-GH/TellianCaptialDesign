@@ -1007,159 +1007,155 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
           padding: "clamp(36px, 5vh, 80px) clamp(36px, 5vw, 80px) clamp(24px, 3vh, 56px)",
           display: "flex",
           flexDirection: "column",
+          justifyContent: "space-between",
           backgroundColor: C.bg,
         }}
       >
-        {/* Eyebrow */}
-        <span
-          style={{
-            fontFamily: sans,
-            fontSize: "10px",
-            letterSpacing: "2.5px",
-            color: C.stone,
-            display: "block",
-            textTransform: "uppercase",
-          }}
-        >
-          Kontakt
-        </span>
-
-        {/* Accent line */}
-        <div
-          style={{
-            width: "28px",
-            height: "1.5px",
-            backgroundColor: C.dark,
-            margin: "12px 0",
-          }}
-        />
-
-        {/* Headline */}
-        <h2
-          style={{
-            fontFamily: serif,
-            fontSize: "32px",
-            lineHeight: 1.12,
-            color: C.dark,
-            letterSpacing: "-0.02em",
-            margin: 0,
-            fontWeight: 400,
-          }}
-        >
-          Sprechen <em style={{ fontStyle: "italic", fontWeight: 400 }}>wir.</em>
-        </h2>
-
-        {/* Body */}
-        <p
-          style={{
-            fontFamily: sans,
-            fontSize: "14px",
-            color: C.charcoal,
-            lineHeight: 1.6,
-            maxWidth: "320px",
-            marginTop: "20px",
-          }}
-        >
-          Ein erstes Gespräch ist unverbindlich. Persönlich an der Löwenstrasse, oder digital.
-        </p>
-
-        {/* Phone — prominent */}
-        <div style={{ marginTop: "32px" }}>
-          <a
-            href="tel:+41442244024"
-            style={{
-              fontFamily: serif,
-              fontSize: "28px",
-              fontWeight: 400,
-              color: C.dark,
-              textDecoration: "none",
-              letterSpacing: "-0.01em",
-              display: "block",
-              lineHeight: 1.2,
-              transition: "color 300ms ease-out",
-            }}
-            className="hover:text-tellian-warm"
-          >
-            +41 44 224 40 24
-          </a>
+        {/* Main content — vertically centered */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          {/* 1. Eyebrow */}
           <span
             style={{
               fontFamily: sans,
-              fontSize: "11px",
+              fontSize: "10px",
+              letterSpacing: "0.22em",
               color: C.stone,
               display: "block",
-              marginTop: "6px",
-              letterSpacing: "0.02em",
+              textTransform: "uppercase",
             }}
           >
-            Montag bis Freitag, 8 bis 18 Uhr
+            Kontakt
           </span>
-        </div>
 
-        {/* Email — secondary */}
-        <a
-          href="mailto:info@telliancapital.ch"
-          style={{
-            fontFamily: sans,
-            fontSize: "13px",
-            color: C.charcoal,
-            textDecoration: "none",
-            display: "inline-block",
-            marginTop: "16px",
-            transition: "color 300ms ease-out",
-          }}
-          className="hover:text-tellian-dark"
-        >
-          info@telliancapital.ch
-        </a>
+          {/* 2. Eyebrow divider */}
+          <div style={{ width: "28px", height: "1.5px", backgroundColor: C.dark, marginTop: "16px" }} />
 
-        {/* Bottom block — pushed down */}
-        <div style={{ marginTop: "auto", paddingTop: "24px" }}>
-          <div
+          {/* 3. Headline */}
+          <h2
             style={{
-              width: "100%",
-              height: "0.5px",
-              backgroundColor: C.line,
-              marginBottom: "20px",
+              fontFamily: serif,
+              fontSize: "32px",
+              lineHeight: 1.12,
+              color: C.dark,
+              letterSpacing: "-0.02em",
+              margin: 0,
+              marginTop: "32px",
+              fontWeight: 400,
             }}
-          />
+          >
+            Sprechen <em style={{ fontStyle: "italic", fontWeight: 400 }}>wir.</em>
+          </h2>
 
-          {/* Company */}
-          <span
+          {/* 4. Body */}
+          <p
+            style={{
+              fontFamily: sans,
+              fontSize: "14px",
+              color: C.charcoal,
+              lineHeight: 1.6,
+              maxWidth: "320px",
+              margin: 0,
+              marginTop: "24px",
+            }}
+          >
+            Ein erstes Gespräch ist unverbindlich. Persönlich an der Löwenstrasse, oder digital.
+          </p>
+
+          {/* 5. Phone — prominent */}
+          <div style={{ marginTop: "48px" }}>
+            <a
+              href="tel:+41442244024"
+              style={{
+                fontFamily: serif,
+                fontSize: "28px",
+                fontWeight: 400,
+                color: C.dark,
+                textDecoration: "none",
+                letterSpacing: "-0.01em",
+                display: "block",
+                lineHeight: 1.2,
+                transition: "color 300ms ease-out",
+              }}
+              className="hover:text-tellian-warm"
+            >
+              +41 44 224 40 24
+            </a>
+            <span
+              style={{
+                fontFamily: sans,
+                fontSize: "14px",
+                color: C.charcoal,
+                opacity: 0.7,
+                display: "block",
+                marginTop: "8px",
+              }}
+            >
+              Montag bis Freitag, 8 bis 18 Uhr
+            </span>
+          </div>
+
+          {/* 6. Email */}
+          <a
+            href="mailto:info@telliancapital.ch"
             style={{
               fontFamily: sans,
               fontSize: "13px",
-              fontWeight: 500,
-              color: C.dark,
-              display: "block",
+              color: C.charcoal,
+              textDecoration: "none",
+              display: "inline-block",
+              marginTop: "32px",
+              transition: "color 300ms ease-out",
             }}
+            className="hover:text-tellian-dark"
           >
-            Tellian Capital
-          </span>
-          <span
-            style={{
-              fontFamily: sans,
-              fontSize: "11px",
-              color: C.stone,
-              display: "block",
-              marginTop: "2px",
-            }}
-          >
-            Vermögensverwaltung Zürich AG (vormals Dr. Blumer &amp; Partner)
-          </span>
-          <span
-            style={{
-              fontFamily: sans,
-              fontSize: "11px",
-              color: C.stone,
-              display: "block",
-              marginTop: "4px",
-            }}
-          >
-            Löwenstrasse 1, CH-8001 Zürich
-          </span>
+            info@telliancapital.ch
+          </a>
 
-          {/* Legal links */}
+          {/* 7. Address block */}
+          <div style={{ marginTop: "64px" }}>
+            <span style={{ fontFamily: sans, fontSize: "13px", fontWeight: 500, color: C.dark, display: "block" }}>
+              Tellian Capital
+            </span>
+            <span style={{ fontFamily: sans, fontSize: "11px", color: C.stone, display: "block", marginTop: "4px" }}>
+              Vermögensverwaltung Zürich AG (vormals Dr. Blumer &amp; Partner)
+            </span>
+            <span style={{ fontFamily: sans, fontSize: "11px", color: C.stone, display: "block", marginTop: "4px" }}>
+              Löwenstrasse 1, CH-8001 Zürich
+            </span>
+
+            {/* "Auf Karte anzeigen" — action link under address */}
+            <button
+              ref={openBtnRef}
+              onClick={() => setMapOpen(true)}
+              aria-expanded={mapOpen}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                marginTop: "16px",
+                fontFamily: sans,
+                fontSize: "13px",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: C.stone,
+                transition: "color 200ms ease",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = C.dark)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = C.stone)}
+            >
+              <span>Auf Karte anzeigen</span>
+              <span aria-hidden>→</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 8. Footer — anchored to bottom */}
+        <div style={{ paddingTop: "32px" }}>
+          <div style={{ width: "100%", height: "1px", backgroundColor: C.dark, opacity: 0.25, marginBottom: "24px" }} />
           <LegalLinksRow onOpenLegal={onOpenLegal} />
         </div>
       </div>
@@ -1175,74 +1171,35 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          position: "relative",
         }}
       >
-        {/* Form card */}
+        {/* Form container */}
         <div
           style={{
             width: "100%",
-            maxWidth: "440px",
+            maxWidth: "480px",
             backgroundColor: C.bg,
             border: `0.5px solid ${C.line}`,
             borderRadius: "12px",
-            padding: "28px",
+            padding: "32px",
           }}
         >
+          {/* Form eyebrow + divider */}
           <span
             style={{
               fontFamily: sans,
               fontSize: "10px",
-              letterSpacing: "2px",
+              letterSpacing: "0.2em",
               color: C.stone,
               display: "block",
               textTransform: "uppercase",
-              marginBottom: "16px",
             }}
           >
             Schreiben Sie uns
           </span>
+          <div style={{ width: "28px", height: "1.5px", backgroundColor: C.dark, marginTop: "12px", marginBottom: "24px" }} />
           <ContactForm />
         </div>
-
-        {/* "Auf Karte anzeigen" — bottom right, triggers overlay */}
-        <button
-          ref={openBtnRef}
-          onClick={() => setMapOpen(true)}
-          aria-expanded={mapOpen}
-          style={{
-            position: "absolute",
-            bottom: "clamp(24px, 3vh, 48px)",
-            right: "clamp(36px, 4vw, 64px)",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            padding: "4px",
-            fontFamily: sans,
-            fontSize: "9px",
-            letterSpacing: "1px",
-            textTransform: "uppercase",
-            color: C.stone,
-            transition: "color 0.3s ease",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = C.charcoal)}
-          onMouseLeave={(e) => (e.currentTarget.style.color = C.stone)}
-        >
-          <span
-            style={{
-              display: "inline-block",
-              width: "4px",
-              height: "4px",
-              borderRadius: "50%",
-              backgroundColor: "currentColor",
-            }}
-            aria-hidden
-          />
-          Auf Karte anzeigen
-        </button>
       </div>
 
       {/* ═══ OVERLAY — rendered via portal to document.body ═══ */}
