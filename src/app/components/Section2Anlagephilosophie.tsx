@@ -109,7 +109,7 @@ export function Section2Anlagephilosophie({ scrollX, isVertical = false, breakpo
           </ScrollFade>
 
           <ScrollFade scrollX={0} isVertical yOffset={20}>
-            <div style={{ marginTop: SPACING.headlineToBody, paddingBottom: "32px" }}>
+            <div style={{ marginTop: SPACING.headlineToBody }}>
               <ExpandableBody
                 paragraphs={BODY_PARAGRAPHS}
                 visibleCount={1}
@@ -120,63 +120,45 @@ export function Section2Anlagephilosophie({ scrollX, isVertical = false, breakpo
               />
             </div>
           </ScrollFade>
+
+          {/* Quote — in text column, after body */}
+          <ScrollFade scrollX={0} isVertical yOffset={16}>
+            <div style={{ marginTop: "48px", paddingBottom: "32px" }}>
+              <div style={{ width: "28px", height: "1.5px", backgroundColor: C.dark }} />
+              <p
+                style={{
+                  fontFamily: serif,
+                  fontSize: breakpoint === "mobile" ? "20px" : "24px",
+                  fontStyle: "italic",
+                  fontWeight: 400,
+                  color: C.dark,
+                  lineHeight: 1.4,
+                  maxWidth: "320px",
+                  margin: 0,
+                  marginTop: "20px",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                {"\u00AB"}Manche Dinge entstehen nicht über Nacht.{"\u00BB"}
+              </p>
+            </div>
+          </ScrollFade>
         </div>
 
-        {/* Image with quote overlay — comes AFTER text on mobile/tablet */}
+        {/* Image — clean, no overlay */}
         <div
           style={{
             width: "100%",
-            height: breakpoint === "mobile" ? "50vh" : "55vh",
-            position: "relative",
+            height: breakpoint === "mobile" ? "60vh" : "55vh",
             overflow: "hidden",
           }}
         >
           <img
             src={sardonaImg}
-            alt="Tektonikarena Sardona — UNESCO-Welterbe im Kanton Glarus. Sichtbare geologische Schichtung der Glarner Hauptüberschiebung."
+            alt="Tektonikarena Sardona — UNESCO-Welterbe im Kanton Glarus."
             className="w-full h-full"
             style={{ objectFit: "cover", objectPosition: "center" }}
           />
-          {/* Gradient overlay for quote readability */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.25) 100%)",
-              pointerEvents: "none",
-              zIndex: 2,
-            }}
-          />
-          {/* Quote — bottom third, compact block */}
-          <div
-            style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              bottom: 0,
-              display: "flex",
-              justifyContent: "center",
-              pointerEvents: "none",
-              zIndex: 3,
-              padding: breakpoint === "mobile" ? "0 24px 32px" : "0 10% 40px",
-            }}
-          >
-            <p
-              style={{
-                fontFamily: serif,
-                fontSize: breakpoint === "mobile" ? "22px" : "28px",
-                fontStyle: "italic",
-                color: "#FAFAF8",
-                lineHeight: 1.35,
-                maxWidth: "400px",
-                textAlign: "center",
-                margin: 0,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              {"\u00AB"}Manche Dinge entstehen nicht über Nacht.{"\u00BB"}
-            </p>
-          </div>
         </div>
       </section>
     );
@@ -190,6 +172,7 @@ export function Section2Anlagephilosophie({ scrollX, isVertical = false, breakpo
       className="flex-shrink-0 h-screen relative"
       style={{ width: "110vw", backgroundColor: C.bg }}
     >
+      {/* Image — right, clean (no overlay, no quote) */}
       <div
         className="absolute z-0"
         style={{ top: 0, bottom: 0, left: LAYOUT.imageLeft, right: 0 }}
@@ -200,108 +183,69 @@ export function Section2Anlagephilosophie({ scrollX, isVertical = false, breakpo
           className="w-full h-full"
           alt="Tektonikarena Sardona — UNESCO-Welterbe im Kanton Glarus. Sichtbare geologische Schichtung der Glarner Hauptüberschiebung."
         />
-        {/* Gradient overlay for quote readability */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: `linear-gradient(to bottom, transparent 40%, rgba(0,0,0,${(overlayAlpha * 0.8).toFixed(4)}) 100%)`,
-            pointerEvents: "none",
-            zIndex: 2,
-          }}
-        />
-        {/* Quote — bottom third, compact block */}
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: "flex",
-            justifyContent: "center",
-            pointerEvents: "none",
-            zIndex: 3,
-            padding: "0 10% 56px",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: serif,
-              fontSize: "clamp(28px, 3.5vh, 40px)",
-              fontStyle: "italic",
-              fontWeight: 400,
-              color: "#FAFAF8",
-              lineHeight: 1.35,
-              maxWidth: "400px",
-              textAlign: "center",
-              margin: 0,
-              letterSpacing: "-0.01em",
-              opacity: quoteOpacity,
-              willChange: "opacity",
-            }}
-          >
-            {"\u00AB"}Manche Dinge entstehen nicht über Nacht.{"\u00BB"}
-          </p>
-        </div>
       </div>
 
+      {/* Left column — eyebrow + headline + body + quote, vertically centered */}
       <div
-        className="relative z-10 h-full flex flex-col justify-end"
+        className="relative z-10 h-full flex flex-col justify-center"
         style={{
           width: LAYOUT.columnWidth,
-          paddingLeft: LAYOUT.paddingLeft,
-          paddingRight: LAYOUT.paddingRight,
-          paddingBottom: "clamp(56px, 8vh, 96px)",
+          paddingLeft: "clamp(36px, 8vw, 120px)",
+          paddingRight: "clamp(36px, 5vw, 80px)",
+          maxWidth: "calc(480px + clamp(36px, 8vw, 120px) + clamp(36px, 5vw, 80px))",
         }}
       >
-        <div style={{ marginBottom: "clamp(100px, 18vh, 240px)" }}>
-          <span
-            style={{
-              fontFamily: sans,
-              fontSize: "10px",
-              letterSpacing: "0.22em",
-              color: C.stone,
-              display: "block",
-              textTransform: "uppercase",
-            }}
-          >
-            Anlagephilosophie
-          </span>
+        {/* Eyebrow */}
+        <span
+          style={{
+            fontFamily: sans,
+            fontSize: "14px",
+            letterSpacing: "0.15em",
+            color: C.stone,
+            display: "block",
+            textTransform: "uppercase",
+          }}
+        >
+          Anlagephilosophie
+        </span>
 
-          <div
-            style={{
-              width: "28px",
-              height: "1.5px",
-              backgroundColor: C.dark,
-              marginTop: SPACING.eyebrowToAccent,
-            }}
-          />
+        {/* Eyebrow divider */}
+        <div
+          style={{
+            width: "28px",
+            height: "1.5px",
+            backgroundColor: C.dark,
+            marginTop: "16px",
+          }}
+        />
 
-          <h2
-            style={{
-              fontFamily: serif,
-              fontSize: "clamp(48px, 7vh, 80px)",
-              lineHeight: 0.94,
-              color: C.dark,
-              letterSpacing: "-0.03em",
-              marginTop: SPACING.accentToHeadline,
-            }}
-          >
-            Analyse entscheidet.
-            <br />
-            <em>Nicht Stimmung.</em>
-          </h2>
+        {/* Headline */}
+        <h2
+          style={{
+            fontFamily: serif,
+            fontSize: "clamp(48px, 7vh, 80px)",
+            lineHeight: 0.94,
+            color: C.dark,
+            letterSpacing: "-0.03em",
+            marginTop: "32px",
+          }}
+        >
+          Analyse entscheidet.
+          <br />
+          <em>Nicht Stimmung.</em>
+        </h2>
 
-          <div
-            style={{
-              marginTop: SPACING.headlineToBody,
-              maxWidth: LAYOUT.bodyMaxWidth,
-              display: "flex",
-              flexDirection: "column",
-              gap: SPACING.bodyParagraphGap,
-            }}
-          >
-            {BODY_PARAGRAPHS.map((text, i) => (
+        {/* Body */}
+        <div
+          style={{
+            marginTop: "32px",
+            maxWidth: "480px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "16px",
+          }}
+        >
+          {BODY_PARAGRAPHS.map((text, i) => (
               <p
                 key={i}
                 style={{
@@ -316,7 +260,34 @@ export function Section2Anlagephilosophie({ scrollX, isVertical = false, breakpo
               </p>
             ))}
           </div>
-        </div>
+
+          {/* Quote divider — reusable pattern (28px, 1.5px) */}
+          <div
+            style={{
+              width: "28px",
+              height: "1.5px",
+              backgroundColor: C.dark,
+              marginTop: "80px",
+            }}
+          />
+
+          {/* Pullquote */}
+          <p
+            style={{
+              fontFamily: serif,
+              fontSize: "24px",
+              fontStyle: "italic",
+              fontWeight: 400,
+              color: C.dark,
+              lineHeight: 1.4,
+              maxWidth: "320px",
+              margin: 0,
+              marginTop: "20px",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            {"\u00AB"}Manche Dinge entstehen nicht über Nacht.{"\u00BB"}
+          </p>
       </div>
     </div>
   );
