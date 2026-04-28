@@ -4,7 +4,7 @@
 // When a color changes: update theme.css first, then this file.
 
 export const C = {
-  bg:           "#FAFAF7",
+  bg:           "#F8F6F2",
   bgSecondary:  "#F2F1EC",
   dark:         "#1A1916",
   charcoal:     "#3A3835",
