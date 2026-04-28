@@ -33,6 +33,7 @@ import { Section2Anlagephilosophie } from "./components/Section2Anlagephilosophi
 import { Section3Timeline } from "./components/Section3Timeline";
 import { LAYOUT, TEXT_COLUMN_STYLE, getLayout, getTextColumnStyle, SPACING } from "./layout";
 import heroImg from "figma:asset/f68e696a94d5501be4f500478f5085490ea6351a.png";
+import heroDesktopImg from "../assets/zh-3.jpg";
 import strategyImg from "figma:asset/868d6afdf0335422ce32d497da0c82ae30b6012c.png";
 import notebookImg from "figma:asset/29fb6897d14923649548800503cc773b55cb5083.png";
 import teamPhotoImg from "figma:asset/b4ed6cb147950f15472091157e857a2d7f1ce0e8.png";
@@ -1245,68 +1246,29 @@ export default function App() {
             : "opacity 400ms ease-out",
         }}
       >
-        {/* CHAPTER 1 — HERO (desktop — emotional dominant headline) */}
+        {/* CHAPTER 1 — HERO (desktop — headline + trust + ghost CTA) */}
         <div
           className="flex-shrink-0 h-screen relative"
           style={{ width: layout.heroWidth, backgroundColor: C.bg }}
         >
-          {/* Image — right, unchanged */}
+          {/* Image — right */}
           <div
             className="absolute z-0"
             style={{ top: 0, bottom: 0, left: layout.imageLeft, right: 0 }}
           >
             <HeroExpandingImage
-              src={IMG.hero}
+              src={heroDesktopImg}
               scrollX={scrollX}
               className="w-full h-full"
             />
           </div>
 
-          {/* Subheadline — top-left, next to vertical TELLIAN logo (safe from image growth) */}
+          {/* Text column — headline + trust line + ghost CTA, vertically centered */}
           <div
-            style={{
-              position: "absolute",
-              top: "40px",
-              left: "68px",
-              zIndex: 5,
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              opacity: heroAnimate ? 1 : 0,
-              transform: heroAnimate ? "translateX(0)" : "translateX(-8px)",
-              transition: "opacity 600ms ease-out 500ms, transform 600ms cubic-bezier(0.16,1,0.3,1) 500ms",
-            }}
+            className="relative z-10 h-full flex flex-col justify-center"
+            style={{ ...textColStyle }}
           >
-            <span
-              aria-hidden
-              style={{
-                display: "inline-block",
-                width: "16px",
-                height: "1px",
-                backgroundColor: C.muted,
-                flexShrink: 0,
-              }}
-            />
-            <span
-              style={{
-                fontFamily: sans,
-                fontSize: "10px",
-                letterSpacing: "0.16em",
-                color: C.stone,
-                textTransform: "uppercase",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Unabhängige Vermögensverwaltung · Zürich · Seit 1996
-            </span>
-          </div>
-
-          {/* Text column — only headline + CTA + trust badge now */}
-          <div
-            className="relative z-10 h-full flex flex-col justify-end"
-            style={{ ...textColStyle, paddingBottom: "80px" }}
-          >
-            {/* Headline — dominant, fades in first */}
+            {/* Headline */}
             <h1
               style={{
                 fontFamily: serif,
@@ -1327,12 +1289,27 @@ export default function App() {
               <em style={{ fontStyle: "italic", fontWeight: 400 }}>mit Methode</em>
             </h1>
 
-            {/* Breathing space between headline and CTA */}
-            <div style={{ height: "clamp(48px, 6vh, 80px)" }} />
+            {/* Trust line — directly under headline */}
+            <span
+              style={{
+                fontFamily: sans,
+                fontSize: "11px",
+                fontWeight: 400,
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+                color: C.stone,
+                marginTop: "32px",
+                opacity: heroAnimate ? 1 : 0,
+                transition: "opacity 600ms ease-out 600ms",
+              }}
+            >
+              FINMA-lizenziert · Unabhängig · Zürich · Seit 1996
+            </span>
 
-            {/* CTA — solid black (variant override) */}
+            {/* CTA — ghost button */}
             <div
               style={{
+                marginTop: "64px",
                 opacity: heroAnimate ? 1 : 0,
                 transform: heroAnimate ? "translateX(0)" : "translateX(-16px)",
                 transition: "opacity 500ms ease-out 900ms, transform 500ms cubic-bezier(0.16,1,0.3,1) 900ms",
@@ -1340,38 +1317,12 @@ export default function App() {
             >
               <CtaButton
                 href="#contact"
-                variant="solid"
+                variant="ghost"
                 fullWidth={false}
-                style={{ padding: "14px 32px" }}
                 onClick={(e) => { e.preventDefault(); scrollTo(0.88); }}
               >
                 Gespräch vereinbaren
               </CtaButton>
-            </div>
-
-            {/* Trust badge — unchanged */}
-            <div
-              className="flex items-center gap-3"
-              style={{
-                marginTop: "14px",
-                opacity: heroAnimate ? 1 : 0,
-                transition: "opacity 400ms ease-out 1200ms",
-              }}
-            >
-              <div
-                style={{ width: "16px", height: "1px", backgroundColor: C.muted }}
-              />
-              <span
-                style={{
-                  fontFamily: sans,
-                  fontSize: "10px",
-                  letterSpacing: "0.16em",
-                  color: C.stone,
-                }}
-                className="uppercase"
-              >
-                FINMA-LIZENZIERT · ZÜRICH
-              </span>
             </div>
           </div>
 
