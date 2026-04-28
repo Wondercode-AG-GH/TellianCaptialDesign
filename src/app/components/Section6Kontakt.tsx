@@ -367,7 +367,7 @@ function ContactForm({ stack = false }: { stack?: boolean } = {}) {
 
   if (submitted) {
     return (
-      <div style={{ padding: "20px 0" }}>
+      <div style={{ padding: "20px 0" }} role="status" aria-live="polite">
         <span style={{ fontFamily: serif, fontSize: "24px", color: C.dark, display: "block", lineHeight: 1.15 }}>
           Vielen Dank.
         </span>
@@ -793,21 +793,21 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
           info@telliancapital.ch
         </a>
 
-        {/* Form section header — replaces the Card on mobile */}
-        <div style={{ marginTop: "32px" }}>
+        {/* Form section — mobile */}
+        <div style={{ marginTop: "40px" }}>
           <span
             style={{
               fontFamily: sans,
               fontSize: "10px",
-              letterSpacing: "2px",
+              letterSpacing: "0.2em",
               color: C.stone,
               display: "block",
               textTransform: "uppercase",
-              marginBottom: "16px",
             }}
           >
             Schreiben Sie uns
           </span>
+          <div style={{ width: "28px", height: "1.5px", backgroundColor: C.dark, marginTop: "12px", marginBottom: "24px" }} />
           <ContactForm stack />
         </div>
 
