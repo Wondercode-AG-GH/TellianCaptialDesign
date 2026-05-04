@@ -14,7 +14,7 @@ const TOKENS = {
   desktop: {
     columnWidth: "56vw",
     imageLeft: "44vw",
-    breathingSpace: "8vw",
+    breathingSpace: "4vw",
     contentGap: "4vw",
     paddingLeft: "clamp(36px, 5vw, 120px)",
     paddingRight: "4vw",
