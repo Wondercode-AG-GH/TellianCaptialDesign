@@ -43,16 +43,16 @@ export function DotNavigation({ scrollProgress, onNavigate }: DotNavigationProps
         left: "50%",
         transform: "translateX(-50%)",
         zIndex: 150,
-        height: "clamp(44px, 6vh, 56px)",
-        padding: "0 clamp(16px, 2vw, 28px)",
-        borderRadius: "28px",
+        height: "36px",
+        padding: "0 20px",
+        borderRadius: "18px",
         background: V.bg,
-        backdropFilter: "blur(24px) saturate(140%)",
-        WebkitBackdropFilter: "blur(24px) saturate(140%)",
+        backdropFilter: "blur(16px) saturate(120%)",
+        WebkitBackdropFilter: "blur(16px) saturate(120%)",
         border: `0.5px solid ${V.border}`,
         display: "flex",
         alignItems: "center",
-        gap: "clamp(18px, 3vw, 32px)",
+        gap: "clamp(16px, 2.5vw, 24px)",
         pointerEvents: "auto",
       }}
     >
@@ -81,9 +81,9 @@ export function DotNavigation({ scrollProgress, onNavigate }: DotNavigationProps
               aria-hidden
               style={{
                 display: "block",
-                width: isActive ? "14px" : "5px",
-                height: isActive ? "2px" : "5px",
-                borderRadius: isActive ? "0" : "50%",
+                width: isActive ? "12px" : "4px",
+                height: isActive ? "1.5px" : "4px",
+                borderRadius: isActive ? "1px" : "50%",
                 backgroundColor: isActive ? V.indicator : V.indicatorInactive,
                 transition: "all 200ms ease",
               }}
@@ -94,7 +94,7 @@ export function DotNavigation({ scrollProgress, onNavigate }: DotNavigationProps
               className="hidden sm:block"
               style={{
                 fontFamily: sans,
-                fontSize: "clamp(9px, 1vw, 10px)",
+                fontSize: "8px",
                 letterSpacing: "0.16em",
                 textTransform: "uppercase",
                 lineHeight: 1,
@@ -114,7 +114,7 @@ export function DotNavigation({ scrollProgress, onNavigate }: DotNavigationProps
       <style>{`
         @supports not (backdrop-filter: blur(24px)) {
           nav[aria-label="Sektion-Navigation"] {
-            background: rgba(20, 18, 14, 0.85) !important;
+            background: rgba(255, 255, 255, 0.8) !important;
           }
         }
       `}</style>
