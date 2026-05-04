@@ -67,6 +67,14 @@
   --tellian-accent-gold: #989071;
   --tellian-accent-gold-text: #F9F9F7;
 
+  /* ── Section navigation pill ── */
+  --tellian-nav-bg: rgba(20, 18, 14, 0.55);
+  --tellian-nav-text: rgba(255, 255, 255, 1);
+  --tellian-nav-text-inactive: rgba(255, 255, 255, 0.75);
+  --tellian-nav-indicator: rgba(255, 255, 255, 1);
+  --tellian-nav-indicator-inactive: rgba(255, 255, 255, 0.5);
+  --tellian-nav-border: rgba(255, 255, 255, 0.15);
+
   /* ── Z-index scale ── */
   --tellian-z-dropdown: 100;
   --tellian-z-sticky: 200;
