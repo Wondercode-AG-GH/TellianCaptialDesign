@@ -446,7 +446,7 @@ export function Section5UeberTellian({
         <h2
           style={{
             fontFamily: serif,
-            fontSize: "clamp(36px, 5vh, 60px)",
+            fontSize: "clamp(48px, 7vh, 80px)",
             lineHeight: 0.94,
             color: C.dark,
             letterSpacing: "-0.03em",

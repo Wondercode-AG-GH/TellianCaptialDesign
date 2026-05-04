@@ -505,7 +505,7 @@ function Section3Vermoegensverwaltung({
 
         <h2
           style={{
-            fontFamily: serif, fontSize: "clamp(40px, 5.5vh, 64px)",
+            fontFamily: serif, fontSize: "clamp(48px, 7vh, 80px)",
             lineHeight: 0.94, color: C.dark, letterSpacing: "-0.03em",
             marginTop: SPACING.accentToHeadline,
           }}
@@ -957,7 +957,7 @@ function Section4Anlagestrategien({
         <h2
           style={{
             fontFamily: serif,
-            fontSize: "clamp(40px, 5.5vh, 64px)",
+            fontSize: "clamp(48px, 7vh, 80px)",
             lineHeight: 0.94,
             color: C.dark,
             letterSpacing: "-0.03em",

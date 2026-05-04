@@ -981,10 +981,10 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
           <h2
             style={{
               fontFamily: serif,
-              fontSize: "32px",
-              lineHeight: 1.12,
+              fontSize: "clamp(48px, 7vh, 80px)",
+              lineHeight: 0.94,
               color: C.dark,
-              letterSpacing: "-0.02em",
+              letterSpacing: "-0.03em",
               margin: 0,
               marginTop: "32px",
               fontWeight: 400,
