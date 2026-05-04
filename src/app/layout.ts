@@ -20,7 +20,7 @@ const TOKENS = {
     paddingRight: "4vw",
     paddingTop: "clamp(36px, 5vh, 80px)",
     paddingBottom: "clamp(24px, 3vh, 56px)",
-    bodyMaxWidth: "500px",
+    bodyMaxWidth: "480px",
     sectionWidth: "110vw",
     heroWidth: "110vw",
   },

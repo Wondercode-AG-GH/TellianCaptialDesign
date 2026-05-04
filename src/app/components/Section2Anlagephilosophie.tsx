@@ -192,7 +192,7 @@ export function Section2Anlagephilosophie({ scrollX, isVertical = false, breakpo
           width: LAYOUT.columnWidth,
           paddingLeft: "clamp(36px, 8vw, 120px)",
           paddingRight: "clamp(36px, 5vw, 80px)",
-          maxWidth: "calc(480px + clamp(36px, 8vw, 120px) + clamp(36px, 5vw, 80px))",
+          maxWidth: "calc(460px + clamp(36px, 5vw, 120px) + 4vw)",
         }}
       >
         {/* Eyebrow */}

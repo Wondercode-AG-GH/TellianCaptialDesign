@@ -479,7 +479,7 @@ function Section3Vermoegensverwaltung({
         className="relative z-10 h-full flex flex-col justify-center"
         style={{
           ...textColStyle,
-          maxWidth: "calc(420px + clamp(36px, 5vw, 120px) + 4vw)",
+          maxWidth: "calc(460px + clamp(36px, 5vw, 120px) + 4vw)",
           opacity: isDetail ? 0 : 1,
           transform: isDetail ? "translateX(-50px)" : "translateX(0)",
           transition: `opacity 500ms ${EASE.standard}, transform 500ms ${EASE.standard}`,
@@ -925,7 +925,7 @@ function Section4Anlagestrategien({
         className="relative z-10 h-full flex flex-col justify-center"
         style={{
           ...textColStyle,
-          maxWidth: "calc(400px + clamp(36px, 5vw, 120px) + 4vw)",
+          maxWidth: "calc(460px + clamp(36px, 5vw, 120px) + 4vw)",
           opacity: isDetail ? 0 : 1,
           transform: isDetail ? "translateX(-50px)" : "translateX(0)",
           transition: `opacity 500ms ${EASE.in}, transform 500ms ${EASE.in}`,
