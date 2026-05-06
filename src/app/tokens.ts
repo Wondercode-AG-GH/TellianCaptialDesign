@@ -7,7 +7,7 @@ export const C = {
   bg:           "#F8F6F2",
   bgSecondary:  "#F2F1EC",
   dark:         "#191718",
-  charcoal:     "#3A3835",
+  charcoal:     "#191718",
   stone:        "#8A857C",
   muted:        "#B0ACA5",
   line:         "#D8D5CF",
