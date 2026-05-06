@@ -528,9 +528,9 @@ function Section3Vermoegensverwaltung({
             style={{
               marginTop: "56px",
               padding: "16px 24px",
-              border: `1px solid ${C.dark}`,
+              border: `1px solid ${C.button}`,
               borderRadius: 0,
-              background: "transparent",
+              backgroundColor: C.button,
               fontFamily: sans,
               fontSize: "11px",
               fontWeight: 500,
@@ -539,17 +539,7 @@ function Section3Vermoegensverwaltung({
               textDecoration: "none",
               lineHeight: 1,
               alignSelf: "flex-start",
-              transition: "background-color 250ms ease-out, color 250ms ease-out, border-color 250ms ease-out",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = C.button;
-              e.currentTarget.style.borderColor = C.button;
-              e.currentTarget.style.color = C.dark;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.borderColor = C.dark;
-              e.currentTarget.style.color = C.dark;
+              transition: "background-color 250ms ease-out",
             }}
           >
             <span>Mehr zur Vermögensverwaltung</span>
@@ -986,9 +976,9 @@ function Section4Anlagestrategien({
             style={{
               marginTop: "56px",
               padding: "16px 24px",
-              border: `1px solid ${C.dark}`,
+              border: `1px solid ${C.button}`,
               borderRadius: 0,
-              background: "transparent",
+              backgroundColor: C.button,
               fontFamily: sans,
               fontSize: "11px",
               fontWeight: 500,
@@ -997,17 +987,7 @@ function Section4Anlagestrategien({
               textDecoration: "none",
               lineHeight: 1,
               alignSelf: "flex-start",
-              transition: "background-color 250ms ease-out, color 250ms ease-out, border-color 250ms ease-out",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = C.button;
-              e.currentTarget.style.borderColor = C.button;
-              e.currentTarget.style.color = C.dark;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.borderColor = C.dark;
-              e.currentTarget.style.color = C.dark;
+              transition: "background-color 250ms ease-out",
             }}
           >
             <span>Strategien im Detail</span>
