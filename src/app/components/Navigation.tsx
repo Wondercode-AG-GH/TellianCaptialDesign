@@ -462,7 +462,7 @@ export function Navigation({
               width: "23vh",
               height: "auto",
               display: "block",
-              transform: "rotate(-90deg) translateX(-100%)",
+              transform: "rotate(90deg)",
               transformOrigin: "top left",
             }}
           >
