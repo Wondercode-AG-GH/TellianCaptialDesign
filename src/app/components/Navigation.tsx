@@ -271,7 +271,7 @@ export function Navigation({
                     userSelect: "none",
                   }}
                 >
-                  TELLIAN<span style={{ fontWeight: 400 }}>{"\u00A0"}CAPITAL</span>
+                  TELLIAN
                 </span>
                 <button
                   onClick={() => setExpanded(false)}
@@ -651,8 +651,6 @@ export function Navigation({
                     }}
                   >
                     <span style={{ fontWeight: 700 }}>TELLIAN</span>
-                    {"\u00A0"}
-                    <span style={{ fontWeight: 400 }}>CAPITAL</span>
                   </span>
                 </button>
 
