@@ -211,7 +211,7 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
             transformOrigin: "top",
             willChange:      "transform",
             marginRight:     isVertical ? "16px" : "36px",
-            backgroundColor: C.dark,
+            backgroundColor: C.button,
             opacity:         0.3,
           }}
         />
@@ -229,7 +229,7 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
         >
           {/* Upper label — structural symmetry with "TELLIAN CAPITAL ÜBERNIMMT" */}
           <div style={{ marginBottom: "clamp(8px, 1.4vh, 16px)" }}>
-            <SectionDivider label="Ihre Ausgangslage" compact={isVertical} />
+            <SectionDivider label="Ihre Ausgangslage" compact={isVertical} color={C.button} />
           </div>
 
           {STEPS.map((step, i) => {
@@ -239,8 +239,8 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
               : getItemP(scrolledPast, i, staggerPx, windowPx);
 
             const isActive  = isVertical && activeStep === i;
-            const numColor  = C.dark;
-            const descColor = C.charcoal;
+            const numColor  = C.button;
+            const descColor = C.button;
 
             // Ordinal opacity boost when active in vertical mode
             const numOpacity = isVertical
@@ -290,7 +290,7 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
                         : (isVertical ? "opacity 600ms ease-out" : undefined),
                     }}
                   >
-                    <SectionDivider label="Tellian Capital übernimmt" compact={isVertical} />
+                    <SectionDivider label="Tellian Capital übernimmt" compact={isVertical} color={C.button} />
                   </div>
                 )}
 
@@ -361,7 +361,7 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
                       style={{
                         fontFamily: serif,
                         fontSize:   isVertical ? "20px" : "28px",
-                        color:      C.dark,
+                        color:      numColor,
                         display:    "block",
                         lineHeight: 1.2,
                       }}
@@ -373,7 +373,7 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
                         fontFamily: sans,
                         fontSize:   "14px",
                         fontWeight: 400,
-                        color:      C.charcoal,
+                        color:      descColor,
                         display:    "block",
                         marginTop:  "10px",
                         lineHeight: 1.5,

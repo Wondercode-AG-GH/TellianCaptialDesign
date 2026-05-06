@@ -3,6 +3,7 @@ import { C, sans } from "../tokens";
 interface SectionDividerProps {
   label: string;
   compact?: boolean;
+  color?: string;
 }
 
 /**
@@ -10,7 +11,7 @@ interface SectionDividerProps {
  * Used in timeline (above step 01, between step 02/03)
  * and other sections for structural separation.
  */
-export function SectionDivider({ label, compact = false }: SectionDividerProps) {
+export function SectionDivider({ label, compact = false, color = C.dark }: SectionDividerProps) {
   return (
     <div
       style={{
@@ -23,7 +24,7 @@ export function SectionDivider({ label, compact = false }: SectionDividerProps) 
         style={{
           width: "28px",
           height: "1px",
-          backgroundColor: C.dark,
+          backgroundColor: color,
           flexShrink: 0,
         }}
       />
@@ -32,7 +33,7 @@ export function SectionDivider({ label, compact = false }: SectionDividerProps) 
           fontFamily: sans,
           fontSize: compact ? "10px" : "13px",
           letterSpacing: "0.2em",
-          color: C.dark,
+          color,
           textTransform: "uppercase",
           whiteSpace: "nowrap",
         }}
