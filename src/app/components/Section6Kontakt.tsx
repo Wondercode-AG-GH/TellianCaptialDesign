@@ -323,7 +323,7 @@ function MapOverlay({ open, onClose, returnFocusRef }: MapOverlayProps) {
         <div
           style={{
             height: "48px",
-            backgroundColor: "#1A1A1A",
+            backgroundColor: C.dark,
             padding: "0 24px",
             display: "flex",
             alignItems: "center",
