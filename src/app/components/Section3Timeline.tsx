@@ -211,7 +211,7 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
             transformOrigin: "top",
             willChange:      "transform",
             marginRight:     isVertical ? "16px" : "36px",
-            backgroundColor: C.button,
+            backgroundColor: "#3f212a",
             opacity:         0.3,
           }}
         />
@@ -229,7 +229,7 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
         >
           {/* Upper label — structural symmetry with "TELLIAN CAPITAL ÜBERNIMMT" */}
           <div style={{ marginBottom: "clamp(8px, 1.4vh, 16px)" }}>
-            <SectionDivider label="Ihre Ausgangslage" compact={isVertical} color={C.button} />
+            <SectionDivider label="Ihre Ausgangslage" compact={isVertical} color="#3f212a" />
           </div>
 
           {STEPS.map((step, i) => {
@@ -239,8 +239,8 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
               : getItemP(scrolledPast, i, staggerPx, windowPx);
 
             const isActive  = isVertical && activeStep === i;
-            const numColor  = C.button;
-            const descColor = C.button;
+            const numColor  = "#3f212a";
+            const descColor = "#3f212a";
 
             // Ordinal opacity boost when active in vertical mode
             const numOpacity = isVertical
@@ -290,7 +290,7 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
                         : (isVertical ? "opacity 600ms ease-out" : undefined),
                     }}
                   >
-                    <SectionDivider label="Tellian Capital übernimmt" compact={isVertical} color={C.button} />
+                    <SectionDivider label="Tellian Capital übernimmt" compact={isVertical} color="#3f212a" />
                   </div>
                 )}
 
