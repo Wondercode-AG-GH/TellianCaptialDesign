@@ -455,14 +455,14 @@ export function Navigation({
         >
           {/* Wrapper has post-rotation dimensions so layout is correct.
               SVG is absolutely centered and rotated inside. */}
-          <div style={{ width: "24px", height: "23vh", position: "relative" }}>
+          <div style={{ width: "16px", height: "14vh", position: "relative" }}>
             <svg
               viewBox="170 220 580 100"
               xmlns="http://www.w3.org/2000/svg"
               role="img"
               aria-label="Tellian"
               style={{
-                width: "23vh",
+                width: "14vh",
                 height: "auto",
                 position: "absolute",
                 top: "50%",
