@@ -91,7 +91,7 @@ function PreloadScreen({ onComplete }: { onComplete: () => void }) {
         src={preloadLogo}
         alt="Tellian Capital"
         style={{
-          width: "clamp(280px, 40vw, 460px)",
+          width: "clamp(560px, 80vw, 920px)",
           height: "auto",
           opacity: textVisible ? 1 : 0,
           transition: textVisible ? "opacity 0.6s ease-out" : "none",
