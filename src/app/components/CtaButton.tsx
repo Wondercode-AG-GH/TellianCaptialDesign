@@ -66,7 +66,7 @@ export function CtaButton({
         `}
         style={{
           fontFamily: sans,
-          color: "#FFFFFF",
+          color: C.dark,
           backgroundColor: C.button,
           letterSpacing: "0.18em",
           lineHeight: 1,
@@ -103,9 +103,9 @@ export function CtaButton({
       `}
       style={{
         fontFamily: sans,
-        color: hovered ? "#FFFFFF" : C.button,
+        color: hovered ? C.dark : C.dark,
         backgroundColor: hovered ? C.button : "transparent",
-        border: `1px solid ${C.button}`,
+        border: `1px solid ${hovered ? C.button : C.dark}`,
         letterSpacing: "0.16em",
         lineHeight: 1,
         transition: "background-color 400ms cubic-bezier(0.16,1,0.3,1), color 400ms cubic-bezier(0.16,1,0.3,1)",

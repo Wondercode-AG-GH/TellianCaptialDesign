@@ -409,7 +409,7 @@ export function Navigation({
                     aria-haspopup="dialog"
                     style={{
                       display: "flex", alignItems: "center", gap: 8,
-                      backgroundColor: C.button, color: "#FFFFFF",
+                      backgroundColor: C.button, color: C.dark,
                       fontFamily: sans, fontSize: "11px", fontWeight: 700,
                       letterSpacing: "1.5px", textTransform: "uppercase",
                       padding: "10px 16px", border: "none", cursor: "pointer",
@@ -807,7 +807,7 @@ export function Navigation({
                       onMouseLeave={() => setPortalHover(false)}
                       style={{
                         display: "flex", alignItems: "center", gap: "8px",
-                        backgroundColor: portalHover ? C.buttonHover : C.button, color: "#FFFFFF",
+                        backgroundColor: portalHover ? C.buttonHover : C.button, color: C.dark,
                         fontFamily: sans, fontSize: "11px", fontWeight: 700, letterSpacing: "1.5px",
                         textTransform: "uppercase", padding: "12px 20px", border: "none",
                         borderRadius: 0, cursor: "pointer",

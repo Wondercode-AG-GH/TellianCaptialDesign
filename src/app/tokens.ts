@@ -14,8 +14,8 @@ export const C = {
   warm:         "#989071",
   subtle:       "#E8E6E1",
   accent:       "#6B665E",
-  button:       "#3f212a",
-  buttonHover:  "#331b23",
+  button:       "#c6d2d6",
+  buttonHover:  "#b3c1c6",
   dotInactive:  "#C8C5BB",
   dotActive:    "#8A8575",
 } as const;

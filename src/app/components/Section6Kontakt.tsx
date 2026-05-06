@@ -419,7 +419,7 @@ function ContactForm({ stack = false }: { stack?: boolean } = {}) {
           fontWeight: 500,
           letterSpacing: "0.18em",
           textTransform: "uppercase",
-          color: "#FFFFFF",
+          color: C.dark,
           backgroundColor: C.button,
           border: "none",
           borderRadius: 0,
