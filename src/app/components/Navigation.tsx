@@ -327,7 +327,7 @@ export function Navigation({
                               transform: "translateY(-50%)",
                               width: 2,
                               height: 28,
-                              backgroundColor: C.warm,
+                              backgroundColor: C.button,
                             }}
                           />
                         )}
@@ -335,7 +335,7 @@ export function Navigation({
                           style={{
                             fontFamily: sans,
                             fontSize: "11px",
-                            color: isActive ? C.warm : "#bbb",
+                            color: isActive ? C.button : "#bbb",
                             display: "block",
                             marginBottom: 3,
                           }}
@@ -569,7 +569,7 @@ export function Navigation({
           >
             <LockIcon
               size={18}
-              color={loginHover ? C.warm : C.dark}
+              color={loginHover ? C.button : C.dark}
               strokeWidth={1.5}
             />
             <span
@@ -579,7 +579,7 @@ export function Navigation({
                 fontWeight:    600,
                 letterSpacing: "1.5px",
                 textTransform: "uppercase",
-                color:         loginHover ? C.warm : C.dark,
+                color:         loginHover ? C.button : C.dark,
                 transition:    `color 0.25s ${EASE.nav}`,
                 userSelect:    "none",
               }}
@@ -712,7 +712,7 @@ export function Navigation({
                                 transform:       "translateY(-50%)",
                                 width:           2,
                                 height:          32,
-                                backgroundColor: C.warm,
+                                backgroundColor: C.button,
                               }}
                               transition={{ duration: 0.35, ease: EASE.navArr }}
                             />
@@ -723,7 +723,7 @@ export function Navigation({
                           style={{
                             fontFamily:   sans,
                             fontSize:     "11px",
-                            color:        isActive ? C.warm : "#bbb",
+                            color:        isActive ? C.button : "#bbb",
                             display:      "block",
                             marginBottom: "3px",
                             transition:   `color 0.35s ${EASE.nav}`,
@@ -807,7 +807,7 @@ export function Navigation({
                       onMouseLeave={() => setPortalHover(false)}
                       style={{
                         display: "flex", alignItems: "center", gap: "8px",
-                        backgroundColor: portalHover ? C.warm : C.dark, color: C.bgSecondary,
+                        backgroundColor: portalHover ? C.buttonHover : C.button, color: "#FFFFFF",
                         fontFamily: sans, fontSize: "11px", fontWeight: 700, letterSpacing: "1.5px",
                         textTransform: "uppercase", padding: "12px 20px", border: "none",
                         borderRadius: 0, cursor: "pointer",

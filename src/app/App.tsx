@@ -1320,8 +1320,9 @@ export default function App() {
             >
               <CtaButton
                 href="#contact"
-                variant="ghost"
+                variant="solid"
                 fullWidth={false}
+                style={{ padding: "14px 32px" }}
                 onClick={(e) => { e.preventDefault(); navigateToContact(); }}
               >
                 Gespräch vereinbaren
