@@ -459,7 +459,7 @@ export function Navigation({
             role="img"
             aria-label="Tellian"
             style={{
-              width: "30vh",
+              width: "23vh",
               height: "auto",
               display: "block",
               transform: "rotate(-90deg)",
