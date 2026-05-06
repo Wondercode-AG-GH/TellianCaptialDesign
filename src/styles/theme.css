@@ -62,12 +62,12 @@
   --tellian-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
 
   /* ── Strategy cards (Section 4) — swap these for rebrand ── */
-  --tellian-card-bg: #191718;
+  --tellian-card-bg: #3f212a;
   --tellian-card-text: #F9F9F7;
   --tellian-card-bullet: rgba(249, 249, 247, 0.7);
   --tellian-card-eyebrow: rgba(249, 249, 247, 0.6);
-  --tellian-accent-gold: #989071;
-  --tellian-accent-gold-text: #F9F9F7;
+  --tellian-accent-gold: #c6d2d6;
+  --tellian-accent-gold-text: #191718;
 
   /* ── Section navigation pill ── */
   --tellian-nav-bg: rgba(255, 255, 255, 0.45);
