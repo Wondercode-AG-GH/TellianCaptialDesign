@@ -6,7 +6,7 @@
 export const C = {
   bg:           "#F8F6F2",
   bgSecondary:  "#F2F1EC",
-  dark:         "#1A1916",
+  dark:         "#191718",
   charcoal:     "#3A3835",
   stone:        "#8A857C",
   muted:        "#B0ACA5",

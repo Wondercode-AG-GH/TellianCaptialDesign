@@ -35,7 +35,7 @@
   /* ── Tellian Capital — brand palette ── */
   --tellian-bg: #F8F6F2;
   --tellian-bg-secondary: #F2F1EC;
-  --tellian-dark: #1A1916;
+  --tellian-dark: #191718;
   --tellian-charcoal: #3A3835;
   --tellian-stone: #8A857C;
   --tellian-muted: #B0ACA5;
@@ -60,7 +60,7 @@
   --tellian-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
 
   /* ── Strategy cards (Section 4) — swap these for rebrand ── */
-  --tellian-card-bg: #1A1916;
+  --tellian-card-bg: #191718;
   --tellian-card-text: #F9F9F7;
   --tellian-card-bullet: rgba(249, 249, 247, 0.7);
   --tellian-card-eyebrow: rgba(249, 249, 247, 0.6);
