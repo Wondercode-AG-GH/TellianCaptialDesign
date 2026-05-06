@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import React from "react";
 import type { Breakpoint } from "./useBreakpoint";
 import { C, serif, sans } from "../tokens";
+import tellianLogo from "../../assets/Tellian-logo.png";
 import { EASE } from "../../styles/motion";
 
 const BAR_W   = 48;
@@ -446,28 +447,28 @@ export function Navigation({
           pointerEvents: visible ? "auto" : "none",
         }}
       >
-        {/* ── TOP: "TELLIAN" bottom → top ── */}
+        {/* ── TOP: Tellian logo, vertical (rotated -90°, reads bottom-to-top) ── */}
         <button
           onClick={() => onNavigate(0)}
           style={{ outline: "none", cursor: "pointer", border: "none", background: "transparent", padding: 0 }}
           aria-label="Zurück zum Anfang"
         >
-          <span
-            style={{
-              fontFamily:    sans,
-              fontSize:      "15px",
-              fontWeight:    700,
-              letterSpacing: "4px",
-              color:         C.dark,
-              textTransform: "uppercase",
-              writingMode:   "vertical-rl",
-              transform:     "rotate(180deg)",
-              display:       "block",
-              userSelect:    "none",
-            }}
-          >
-            TELLIAN
-          </span>
+          <div style={{ width: "32px", height: "100px", position: "relative" }}>
+            <img
+              src={tellianLogo}
+              alt="Tellian"
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%) rotate(-90deg)",
+                width: "100px",
+                height: "auto",
+                userSelect: "none",
+                pointerEvents: "none",
+              }}
+            />
+          </div>
         </button>
 
         {/* Spacer pushes hamburger to vertical center */}
