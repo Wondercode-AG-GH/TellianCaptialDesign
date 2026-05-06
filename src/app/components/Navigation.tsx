@@ -447,29 +447,31 @@ export function Navigation({
           pointerEvents: visible ? "auto" : "none",
         }}
       >
-        {/* ── TOP: Tellian logo, vertical (rotated -90°, reads bottom-to-top) ── */}
+        {/* ── TOP: Tellian logo, vertical (reads bottom-to-top) ── */}
         <button
           onClick={() => onNavigate(0)}
-          style={{ outline: "none", cursor: "pointer", border: "none", background: "transparent", padding: 0 }}
+          style={{
+            outline: "none",
+            cursor: "pointer",
+            border: "none",
+            background: "transparent",
+            padding: 0,
+            writingMode: "vertical-rl",
+            transform: "rotate(180deg)",
+          }}
           aria-label="Zurück zum Anfang"
         >
-          <div style={{ width: "40px", overflow: "visible", position: "relative" }}>
-            <img
-              src={tellianLogo}
-              alt="Tellian"
-              style={{
-                width: "480px",
-                height: "auto",
-                position: "absolute",
-                top: "0",
-                left: "50%",
-                transformOrigin: "top left",
-                transform: "rotate(-90deg) translateX(-100%)",
-                userSelect: "none",
-                pointerEvents: "none",
-              }}
-            />
-          </div>
+          <img
+            src={tellianLogo}
+            alt="Tellian"
+            style={{
+              height: "28px",
+              width: "auto",
+              display: "block",
+              userSelect: "none",
+              pointerEvents: "none",
+            }}
+          />
         </button>
 
         {/* Spacer pushes hamburger to vertical center */}
