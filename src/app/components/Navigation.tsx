@@ -453,7 +453,7 @@ export function Navigation({
           style={{ outline: "none", cursor: "pointer", border: "none", background: "transparent", padding: 0 }}
           aria-label="Zurück zum Anfang"
         >
-          <div style={{ width: "32px", height: "100px", position: "relative" }}>
+          <div style={{ width: "40px", height: "200px", position: "relative" }}>
             <img
               src={tellianLogo}
               alt="Tellian"
@@ -462,7 +462,7 @@ export function Navigation({
                 top: "50%",
                 left: "50%",
                 transform: "translate(-50%, -50%) rotate(-90deg)",
-                width: "100px",
+                width: "200px",
                 height: "auto",
                 userSelect: "none",
                 pointerEvents: "none",
