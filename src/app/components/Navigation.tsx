@@ -447,27 +447,21 @@ export function Navigation({
           pointerEvents: visible ? "auto" : "none",
         }}
       >
-        {/* ── TOP: Tellian logo, vertical (reads bottom-to-top) ── */}
+        {/* ── TOP: Tellian logo, vertical (rotated, reads bottom-to-top) ── */}
         <button
           onClick={() => onNavigate(0)}
-          style={{
-            outline: "none",
-            cursor: "pointer",
-            border: "none",
-            background: "transparent",
-            padding: 0,
-            writingMode: "vertical-rl",
-            transform: "rotate(180deg)",
-          }}
+          style={{ outline: "none", cursor: "pointer", border: "none", background: "transparent", padding: 0 }}
           aria-label="Zurück zum Anfang"
         >
           <img
             src={tellianLogo}
             alt="Tellian"
             style={{
-              height: "28px",
-              width: "auto",
+              width: "160px",
+              height: "auto",
               display: "block",
+              transform: "rotate(-90deg)",
+              transformOrigin: "center center",
               userSelect: "none",
               pointerEvents: "none",
             }}
