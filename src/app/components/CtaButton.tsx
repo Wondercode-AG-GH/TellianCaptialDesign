@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { useBreakpoint } from "./useBreakpoint";
 
 import { C, sans } from "../tokens";
@@ -82,19 +82,19 @@ export function CtaButton({
     );
   }
 
-  /* Ghost variant (default desktop) — subtle hover: border darkens,
-     bg gets a light tint, arrow nudges right. Text color is preserved. */
+  /* Ghost variant (default desktop) — outline in button color,
+     fills button color + white text on hover. */
+  const [hovered, setHovered] = useState(false);
   return (
     <a
       href={href}
       onClick={handleClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       className={`
         group inline-flex items-center gap-3
         uppercase tracking-[0.16em]
-        border border-tellian-button
         rounded-none
-        transition-[background-color,border-color,color] duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)]
-        hover:border-tellian-button hover:bg-tellian-button hover:text-white
         active:scale-[0.98]
         px-6 py-3 md:px-8 md:py-4
         text-[10px] md:text-[11px]
@@ -103,9 +103,12 @@ export function CtaButton({
       `}
       style={{
         fontFamily: sans,
-        color: C.button,
+        color: hovered ? "#FFFFFF" : C.button,
+        backgroundColor: hovered ? C.button : "transparent",
+        border: `1px solid ${C.button}`,
         letterSpacing: "0.16em",
         lineHeight: 1,
+        transition: "background-color 400ms cubic-bezier(0.16,1,0.3,1), color 400ms cubic-bezier(0.16,1,0.3,1)",
         ...style,
       }}
     >
