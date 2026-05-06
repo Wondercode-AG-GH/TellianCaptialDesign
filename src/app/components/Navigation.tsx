@@ -457,7 +457,7 @@ export function Navigation({
             src={tellianLogo}
             alt="Tellian"
             style={{
-              width: "160px",
+              width: "30vh",
               height: "auto",
               display: "block",
               transform: "rotate(-90deg)",
