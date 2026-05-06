@@ -409,7 +409,7 @@ export function Navigation({
                     aria-haspopup="dialog"
                     style={{
                       display: "flex", alignItems: "center", gap: 8,
-                      backgroundColor: C.dark, color: C.bgSecondary,
+                      backgroundColor: C.button, color: "#FFFFFF",
                       fontFamily: sans, fontSize: "11px", fontWeight: 700,
                       letterSpacing: "1.5px", textTransform: "uppercase",
                       padding: "10px 16px", border: "none", cursor: "pointer",
@@ -522,7 +522,7 @@ export function Navigation({
                   style={{
                     width:           32,
                     height:          20,
-                    backgroundColor: isActive ? C.dark : "transparent",
+                    backgroundColor: isActive ? C.button : "transparent",
                     color:           isActive ? "#ffffff" : "#999",
                     fontFamily:      sans,
                     fontSize:        "10px",

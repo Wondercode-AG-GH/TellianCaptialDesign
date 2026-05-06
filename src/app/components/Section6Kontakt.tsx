@@ -412,7 +412,7 @@ function ContactForm({ stack = false }: { stack?: boolean } = {}) {
       <button
         type="submit"
         disabled={loading}
-        className="hover:bg-tellian-charcoal active:scale-[0.98]"
+        className="hover:bg-tellian-button-hover active:scale-[0.98]"
         style={{
           fontFamily: sans,
           fontSize: "11px",
@@ -420,7 +420,7 @@ function ContactForm({ stack = false }: { stack?: boolean } = {}) {
           letterSpacing: "0.18em",
           textTransform: "uppercase",
           color: "#FFFFFF",
-          backgroundColor: C.dark,
+          backgroundColor: C.button,
           border: "none",
           borderRadius: 0,
           padding: "16px 24px",

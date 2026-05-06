@@ -490,26 +490,26 @@ export function Section5UeberTellian({
             style={{
               marginTop: "56px",
               padding: "16px 24px",
-              border: `1px solid ${C.dark}`,
+              border: `1px solid ${C.button}`,
               borderRadius: 0,
               background: "transparent",
               fontFamily: sans,
               fontSize: "11px",
               fontWeight: 500,
               letterSpacing: "0.18em",
-              color: C.dark,
+              color: C.button,
               textDecoration: "none",
               lineHeight: 1,
               alignSelf: "flex-start",
-              transition: "background-color 250ms ease-out, color 250ms ease-out",
+              transition: "background-color 250ms ease-out, color 250ms ease-out, border-color 250ms ease-out",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = C.dark;
-              e.currentTarget.style.color = C.bg;
+              e.currentTarget.style.backgroundColor = C.button;
+              e.currentTarget.style.color = "#FFFFFF";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = C.dark;
+              e.currentTarget.style.color = C.button;
             }}
           >
             <span>Gespräch vereinbaren</span>

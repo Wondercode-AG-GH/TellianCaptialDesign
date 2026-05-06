@@ -43,6 +43,8 @@
   --tellian-warm: #989071;
   --tellian-subtle: #E8E6E1;
   --tellian-accent: #6B665E;
+  --tellian-button: #3f212a;
+  --tellian-button-hover: #331b23;
   --tellian-dot-inactive: #C8C5BB;
   --tellian-dot-active: #8A8575;
 
@@ -175,6 +177,8 @@
   --color-tellian-warm: var(--tellian-warm);
   --color-tellian-subtle: var(--tellian-subtle);
   --color-tellian-accent: var(--tellian-accent);
+  --color-tellian-button: var(--tellian-button);
+  --color-tellian-button-hover: var(--tellian-button-hover);
   --color-tellian-dot-inactive: var(--tellian-dot-inactive);
   --color-tellian-dot-active: var(--tellian-dot-active);
 
