@@ -453,22 +453,16 @@ export function Navigation({
           style={{ outline: "none", cursor: "pointer", border: "none", background: "transparent", padding: 0 }}
           aria-label="Zurück zum Anfang"
         >
-          <div style={{ width: "40px", height: "200px", position: "relative" }}>
-            <img
-              src={tellianLogo}
-              alt="Tellian"
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%) rotate(-90deg)",
-                width: "200px",
-                height: "auto",
-                userSelect: "none",
-                pointerEvents: "none",
-              }}
-            />
-          </div>
+          <img
+            src={tellianLogo}
+            alt="Tellian"
+            style={{
+              width: "120px",
+              height: "auto",
+              userSelect: "none",
+              pointerEvents: "none",
+            }}
+          />
         </button>
 
         {/* Spacer pushes hamburger to vertical center */}
