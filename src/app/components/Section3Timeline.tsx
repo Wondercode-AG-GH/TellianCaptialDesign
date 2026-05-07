@@ -175,7 +175,9 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
         alignItems:     "center",
         justifyContent: "center",
         overflow:       "hidden",
-        backgroundColor: C.bg,
+        backgroundColor: "#3f212a",
+        paddingTop:     "clamp(32px, 6vh, 56px)",
+        paddingBottom:  "clamp(32px, 6vh, 56px)",
       } : {
         top:            0,
         bottom:         0,
@@ -185,6 +187,7 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
         alignItems:     "center",
         justifyContent: "center",
         overflow:       "hidden",
+        backgroundColor: "#3f212a",
       }}
     >
       {/* ── Inner wrapper: strip + content ── */}
@@ -198,23 +201,24 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
         }}
       >
         {/* ════════════════════════════════════════════
-            Vertical colour strip  (6 px, grows top→bottom)
-            Top 40 %  → #D8D5CF  (steps 01–02)
-            Bottom 60 % → #1A1916 (steps 03–05)
+            Vertical colour strip — Desktop only.
+            Mobile uses per-number borderRight instead.
             ════════════════════════════════════════════ */}
-        <div
-          style={{
-            width:           "1px",
-            flexShrink:      0,
-            overflow:        "hidden",
-            transform:       `scaleY(${stripScale.toFixed(4)})`,
-            transformOrigin: "top",
-            willChange:      "transform",
-            marginRight:     isVertical ? "16px" : "36px",
-            backgroundColor: "#3f212a",
-            opacity:         0.3,
-          }}
-        />
+        {!isVertical && (
+          <div
+            style={{
+              width:           "1px",
+              flexShrink:      0,
+              overflow:        "hidden",
+              transform:       `scaleY(${stripScale.toFixed(4)})`,
+              transformOrigin: "top",
+              willChange:      "transform",
+              marginRight:     "36px",
+              backgroundColor: "#f4f4f0",
+              opacity:         0.3,
+            }}
+          />
+        )}
 
         {/* ════════════════════════════════════════════
             Step list
@@ -224,12 +228,12 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
             flex:          1,
             display:       "flex",
             flexDirection: "column",
-            gap:           "clamp(8px, 1.4vh, 20px)",
+            gap:           isVertical ? "clamp(24px, 4vh, 36px)" : "clamp(8px, 1.4vh, 20px)",
           }}
         >
           {/* Upper label — structural symmetry with "TELLIAN CAPITAL ÜBERNIMMT" */}
-          <div style={{ marginBottom: "clamp(8px, 1.4vh, 16px)" }}>
-            <SectionDivider label="Ihre Ausgangslage" compact={isVertical} color="#3f212a" />
+          <div style={{ marginBottom: isVertical ? "clamp(4px, 1vh, 8px)" : "clamp(8px, 1.4vh, 16px)" }}>
+            <SectionDivider label="Ihre Ausgangslage" compact={isVertical} color="#f4f4f0" />
           </div>
 
           {STEPS.map((step, i) => {
@@ -239,8 +243,8 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
               : getItemP(scrolledPast, i, staggerPx, windowPx);
 
             const isActive  = isVertical && activeStep === i;
-            const numColor  = "#3f212a";
-            const descColor = "#3f212a";
+            const numColor  = "#f4f4f0";
+            const descColor = "#f4f4f0";
 
             // Ordinal opacity boost when active in vertical mode
             const numOpacity = isVertical
@@ -249,21 +253,6 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
 
             return (
               <React.Fragment key={step.num}>
-
-                {/* ── Separator between steps (vertical only, not before first) ── */}
-                {isVertical && i > 0 && (
-                  <div
-                    style={{
-                      width:           "100%",
-                      height:          "1px",
-                      backgroundColor: C.line,
-                      opacity:         stepInView[i] ? 0.5 : 0,
-                      transition:      "opacity 600ms ease-out",
-                      marginTop:       "8px",
-                      marginBottom:    "8px",
-                    }}
-                  />
-                )}
 
                 {/* ── Section separator before step 03 (both modes) ── */}
                 {i === 2 && (
@@ -281,8 +270,8 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
                       flexDirection: "row",
                       alignItems:    "center",
                       gap:           "14px",
-                      paddingTop:    descriptionsFading || descriptionsHidden ? "0" : "clamp(10px, 1.6vh, 22px)",
-                      paddingBottom: descriptionsFading || descriptionsHidden ? "0" : "clamp(10px, 1.6vh, 22px)",
+                      paddingTop:    descriptionsFading || descriptionsHidden ? "0" : (isVertical ? "clamp(4px, 1vh, 8px)" : "clamp(10px, 1.6vh, 22px)"),
+                      paddingBottom: descriptionsFading || descriptionsHidden ? "0" : (isVertical ? "clamp(4px, 1vh, 8px)" : "clamp(10px, 1.6vh, 22px)"),
                       overflow:      "hidden",
                       willChange:    "opacity, max-height",
                       transition:    descriptionsFading || descriptionsHidden
@@ -290,7 +279,7 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
                         : (isVertical ? "opacity 600ms ease-out" : undefined),
                     }}
                   >
-                    <SectionDivider label="Tellian Capital übernimmt" compact={isVertical} color="#3f212a" />
+                    <SectionDivider label="Tellian Capital übernimmt" compact={isVertical} color="#f4f4f0" />
                   </div>
                 )}
 
@@ -305,35 +294,44 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
                     transformOrigin: "left center",
                     willChange:      "opacity, transform",
                     display:         "flex",
-                    flexDirection:   isVertical ? "column" : "row",
+                    flexDirection:   "row",
                     alignItems:      "flex-start",
-                    gap:             isVertical ? "4px" : "20px",
+                    gap:             isVertical ? "16px" : "20px",
                     transition:      isVertical
                       ? "opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1)"
                       : undefined,
-                    paddingLeft:     isVertical ? "12px" : undefined,
-                    borderLeft:      isVertical
-                      ? `2px solid ${isActive ? C.dark : "transparent"}`
-                      : undefined,
                   }}
                 >
-                  {/* Ordinal number — shared FLIP target on desktop */}
+                  {/* Ordinal number — shared FLIP target on desktop;
+                      on mobile: dedicated column with borderRight axis */}
                   {isVertical ? (
-                    <span
+                    <div
                       style={{
-                        fontFamily: serif,
-                        fontSize:   "32px",
-                        fontWeight: 400,
-                        color:      numColor,
-                        opacity:    numOpacity,
-                        lineHeight: 1,
-                        flexShrink: 0,
-                        display:    "block",
-                        transition: "opacity 350ms ease-out",
+                        width:       "56px",
+                        flexShrink:  0,
+                        display:     "flex",
+                        alignItems:  "flex-start",
+                        justifyContent: "center",
+                        borderRight: `1px solid rgba(244,244,240,${isActive ? "0.5" : "0.15"})`,
+                        paddingRight: "16px",
+                        transition:  "border-color 350ms ease-out",
                       }}
                     >
-                      {step.num}
-                    </span>
+                      <span
+                        style={{
+                          fontFamily: serif,
+                          fontSize:   "clamp(36px, 10vw, 48px)",
+                          fontWeight: 400,
+                          color:      numColor,
+                          opacity:    numOpacity,
+                          lineHeight: 1,
+                          display:    "block",
+                          transition: "opacity 350ms ease-out",
+                        }}
+                      >
+                        {step.num}
+                      </span>
+                    </div>
                   ) : (
                     <div
                       style={{
@@ -342,8 +340,6 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
                         minHeight: `${ORDINAL_FONT_SIZE}px`,
                       }}
                     >
-                      {/* Ordinal unmounts in detail mode → Overlay owns the FLIP target.
-                          Framer Motion matches layoutId across the portal via LayoutGroup. */}
                       {!isDetailMode && (
                         <AnlageprozessStepOrdinal
                           num={step.num}
@@ -356,11 +352,11 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
                   )}
 
                   {/* Title + description */}
-                  <div style={{ paddingTop: isVertical ? "0" : "12px", minWidth: 0, width: isVertical ? "100%" : undefined }}>
+                  <div style={{ paddingTop: isVertical ? "4px" : "12px", minWidth: 0, flex: isVertical ? 1 : undefined, width: isVertical ? undefined : undefined }}>
                     <span
                       style={{
                         fontFamily: serif,
-                        fontSize:   isVertical ? "20px" : "28px",
+                        fontSize:   isVertical ? "clamp(18px, 4.5vw, 22px)" : "28px",
                         color:      numColor,
                         display:    "block",
                         lineHeight: 1.2,
@@ -371,11 +367,11 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
                     <span
                       style={{
                         fontFamily: sans,
-                        fontSize:   "14px",
+                        fontSize:   isVertical ? "13px" : "14px",
                         fontWeight: 400,
                         color:      descColor,
                         display:    "block",
-                        marginTop:  "10px",
+                        marginTop:  isVertical ? "8px" : "10px",
                         lineHeight: 1.5,
                         opacity: descriptionsHidden ? 0 : descriptionsFading ? 0 : 0.65,
                         transform: descriptionsFading ? "translateY(4px)" : "translateY(0)",
