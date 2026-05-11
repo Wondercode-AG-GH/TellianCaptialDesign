@@ -1306,7 +1306,7 @@ export default function App() {
               bottom: "56px",
               right: "calc(10vw + 56px)",
               zIndex: 5,
-              color: C.charcoal,
+              color: "#3f212a",
               opacity: heroAnimate && !heroArrowHidden ? 1 : 0,
               transform: heroArrowHidden
                 ? "translateX(16px) scale(0.6)"
@@ -1325,18 +1325,13 @@ export default function App() {
               }}
             >
               <svg
-                width="140"
-                height="75"
-                viewBox="0 0 195 105"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeMiterlimit="10"
+                width="96"
+                height="24"
+                viewBox="0 0 32 8"
+                fill="currentColor"
                 style={{ display: "block" }}
               >
-                <path d="M0 52.6367L190.169 52.6367" />
-                <path d="M195.001 52.4033C166.054 52.4033 142.561 28.9266 142.561 0" />
-                <path d="M195.001 52.3516C166.054 52.3516 142.561 75.8282 142.561 104.755" />
+                <polygon points="2 2 28 2 30 4 28 6 2 6" />
               </svg>
             </div>
           </div>
