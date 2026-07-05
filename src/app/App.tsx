@@ -1,5 +1,3 @@
-import { Section4CoreSatellite } from "./components/Section4CoreSatellite";
-import { Section4TopDownBottomUp } from "./components/Section4TopDownBottomUp";
 import { useEffect, useState, useCallback, useRef, FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
@@ -7,14 +5,15 @@ import { useSubpageMode } from "./components/useSubpageMode";
 import { SubpageOverlay } from "./components/SubpageOverlay";
 import { AnlageprozessDetail } from "./components/AnlageprozessDetail";
 import { AnlagestrategienDetail } from "./components/AnlagestrategienDetail";
+import { PortfolioManagementDetail } from "./components/PortfolioManagementDetail";
 import { ANLAGEPROZESS_STEPS } from "./data/anlageprozessSteps";
-import { AnlageprozessStepOrdinal, ORDINAL_FONT_SIZE } from "./components/AnlageprozessStepOrdinal";
+import { ORDINAL_FONT_SIZE } from "./components/AnlageprozessStepOrdinal";
 import { usePrefersReducedMotion } from "./components/usePrefersReducedMotion";
 import { Navigation } from "./components/Navigation";
 import { LoginOverlay } from "./components/LoginOverlay";
 import { LegalPage, useLegalRoute } from "./components/LegalPage";
 import { C, serif, sans } from "./tokens";
-import { EASE } from "../styles/motion";
+import { EASE, SCROLL } from "../styles/motion";
 import { useHorizontalScroll } from "./components/useHorizontalScroll";
 import { useBreakpoint } from "./components/useBreakpoint";
 import {
@@ -30,11 +29,11 @@ import { Section6Kontakt } from "./components/Section6Kontakt";
 import { HeroVertical } from "./components/HeroVertical";
 import { ExpandableBody } from "./components/ExpandableBody";
 import { Section2Anlagephilosophie } from "./components/Section2Anlagephilosophie";
-import { Section3Timeline } from "./components/Section3Timeline";
+import { ParteiDreieck } from "./components/ParteiDreieck";
 import { LAYOUT, TEXT_COLUMN_STYLE, getLayout, getTextColumnStyle, SPACING } from "./layout";
 import heroImg from "figma:asset/f68e696a94d5501be4f500478f5085490ea6351a.png";
 import heroDesktopImg from "../assets/zh-3.jpg";
-import preloadLogo from "../assets/TellianCapital-Logo.png";
+import preloadLogo from "../assets/logo/Tellian__archive white logo horizontal.svg";
 import strategyImg from "figma:asset/868d6afdf0335422ce32d497da0c82ae30b6012c.png";
 import notebookImg from "figma:asset/29fb6897d14923649548800503cc773b55cb5083.png";
 import teamPhotoImg from "figma:asset/b4ed6cb147950f15472091157e857a2d7f1ce0e8.png";
@@ -79,7 +78,7 @@ function PreloadScreen({ onComplete }: { onComplete: () => void }) {
   return (
     <motion.div
       className="fixed inset-0 z-[200] flex items-center justify-center"
-      style={{ backgroundColor: "#3f212a" }}
+      style={{ backgroundColor: C.purple }}
       animate={{ y: sliding ? "-100%" : "0%" }}
       transition={
         sliding
@@ -254,12 +253,12 @@ function VermoegensverwaltungMobileOverlay({
     <SubpageOverlay
       isOpen={isOpen}
       onClose={onClose}
-      eyebrow="Anlageprozess"
+      eyebrow=""
       headline={
         <>
-          Die Methode hinter
+          Mit Methode gemeinsam
           <br />
-          <em style={{ fontStyle: "italic", fontWeight: 400 }}>jedem Entscheid.</em>
+          <em style={{ fontStyle: "italic", fontWeight: 400 }}>zum Ziel.</em>
         </>
       }
     >
@@ -308,7 +307,7 @@ function AnlagestrategienMobileOverlay({
    The same DOM is used — only CSS classes change.
    ══════════════════════════════════════════════════════════ */
 interface Section3Props {
-  scrollX: number;
+  scrollX?: number;  // no longer used (scroll-zoom removed), kept for call-site compat
   isVertical?: boolean;
   breakpoint?: "mobile" | "tablet" | "desktop";
   viewMode?: "overview" | "detail";
@@ -329,8 +328,12 @@ function Section3Vermoegensverwaltung({
   const layout = getLayout(breakpoint);
   const textColStyle = getTextColumnStyle(breakpoint);
   const reducedMotion = usePrefersReducedMotion();
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   const isDetail = viewMode === "detail";
+
+  // Scroll-zoom removed: section uses standard width, no animProgress.
+  const sectionWidth = layout.sectionWidth;
 
   const handleAnlageprozess = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -423,14 +426,12 @@ function Section3Vermoegensverwaltung({
           </ScrollFade>
         </div>
 
-        {/* Timeline visual — comes AFTER text on mobile/tablet */}
+        {/* Partei-Dreieck — comes AFTER text on mobile/tablet */}
         <div style={{
           width: "100%",
-          height: breakpoint === "mobile" ? "auto" : "60vh",
-          padding: breakpoint === "mobile" ? "32px 16px" : undefined,
-          position: "relative",
+          padding: breakpoint === "mobile" ? "32px 20px" : "40px 32px",
         }}>
-          <Section3Timeline scrollX={0} isVertical />
+          <ParteiDreieck compact onNavigate={() => onOpenDetail?.()} />
         </div>
         {/* Detail overlay for mobile/tablet — plain fade (no FLIP) */}
         <VermoegensverwaltungMobileOverlay
@@ -453,22 +454,31 @@ function Section3Vermoegensverwaltung({
   /* ── OVERVIEW section (always rendered inside the scroll strip) ── */
   const overviewMarkup = (
     <div
+      ref={sectionRef}
       className="flex-shrink-0 h-screen relative"
-      style={{ width: layout.sectionWidth, backgroundColor: C.bg }}
+      style={{ width: sectionWidth, backgroundColor: C.bg }}
     >
-      <Section3Timeline scrollX={scrollX} isDetailMode={isDetail} />
+      {/* Content wrapper — no sticky/scroll-lock, standard flow */}
+      <div style={{
+        position: "relative",
+        width: layout.sectionWidth,
+        height: "100%",
+      }}>
+        <ParteiDreieck onNavigate={() => onOpenDetail?.()} />
 
-      <div
-        className="relative z-10 h-full flex flex-col justify-center"
-        style={{
-          ...textColStyle,
-          maxWidth: "calc(460px + clamp(36px, 5vw, 120px) + 4vw)",
-          opacity: isDetail ? 0 : 1,
-          transform: isDetail ? "translateX(-50px)" : "translateX(0)",
-          transition: `opacity 500ms ${EASE.standard}, transform 500ms ${EASE.standard}`,
-          pointerEvents: isDetail ? "none" : "auto",
-        }}
-      >
+        <div
+          className="relative z-10 h-full flex flex-col justify-center"
+          style={{
+            ...textColStyle,
+            width: "44vw",  /* Narrowed from 56vw — aligns with dark panel edge at 44vw */
+            backgroundColor: C.bg,  /* Opaque — prevents dark panel bleeding through */
+            maxWidth: "calc(460px + clamp(36px, 5vw, 120px) + 4vw)",
+            opacity: isDetail ? 0 : 1,
+            transform: isDetail ? "translateX(-50px)" : "translateX(0)",
+            transition: `opacity 500ms ${EASE.standard}, transform 500ms ${EASE.standard}`,
+            pointerEvents: isDetail ? "none" : "auto",
+          }}
+        >
         <span
           style={{
             fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em",
@@ -547,6 +557,7 @@ function Section3Vermoegensverwaltung({
           </a>
         </div>
       </div>
+      </div>
     </div>
   );
 
@@ -621,25 +632,17 @@ function Section3Vermoegensverwaltung({
           transition: `opacity 600ms ease-out ${isDetail ? "500ms" : "0ms"}, transform 600ms ${EASE.standard} ${isDetail ? "500ms" : "0ms"}`,
         }}
       >
-        <span
-          style={{
-            fontFamily: sans, fontSize: "10px", letterSpacing: "0.28em",
-            color: C.stone, textTransform: "uppercase", display: "block",
-          }}
-        >
-          Anlageprozess
-        </span>
         <h1
           style={{
             fontFamily: serif,
             fontSize: "clamp(40px, 4.5vw, 56px)",
             lineHeight: 1.05, color: C.dark, letterSpacing: "-0.02em",
-            margin: "20px 0 0 0", fontWeight: 400,
+            margin: 0, fontWeight: 400,
           }}
         >
-          Die Methode hinter
+          Mit Methode gemeinsam
           <br />
-          <em style={{ fontStyle: "italic", fontWeight: 400 }}>jedem Entscheid.</em>
+          <em style={{ fontStyle: "italic", fontWeight: 400 }}>zum Ziel.</em>
         </h1>
       </div>
 
@@ -678,17 +681,21 @@ function Section3Vermoegensverwaltung({
                   textAlign: "center", minWidth: "80px",
                 }}
               >
-                {/* Step ordinal — FLIP target. Framer Motion animates from
-                    the previous position (in Section3Timeline) to this one
-                    via shared layoutId within LayoutGroup. */}
+                {/* Step ordinal — staggered fade-in on detail open */}
                 {isDetail && (
-                  <AnlageprozessStepOrdinal
-                    num={step.num}
-                    color={C.dark}
-                    opacity={0.2}
-                    enableFlip={!reducedMotion}
-                    layoutDelay={i * 0.08}
-                  />
+                  <span style={{
+                    fontFamily: serif,
+                    fontSize: `${ORDINAL_FONT_SIZE}px`,
+                    lineHeight: 0.9,
+                    fontWeight: 400,
+                    color: C.dark,
+                    display: "block",
+                    userSelect: "none",
+                    animation: reducedMotion ? "none"
+                      : `ordinalFadeIn 600ms ${EASE.standard} ${300 + i * 120}ms both`,
+                  }}>
+                    {step.num}
+                  </span>
                 )}
                 <span
                   style={{
@@ -737,6 +744,12 @@ function Section3Vermoegensverwaltung({
       >
         <AnlageprozessDetail isMobile={false} onContactClick={handleContactClick} />
       </div>
+      <style>{`
+        @keyframes ordinalFadeIn {
+          from { opacity: 0; transform: translateY(14px); }
+          to   { opacity: 0.2; transform: translateY(0); }
+        }
+      `}</style>
     </div>,
     document.body
   );
@@ -769,6 +782,8 @@ interface Section4Props {
   onOpenDetail?: () => void;
   onCloseDetail?: () => void;
   onContactClick?: () => void;
+  /** Opens the Vermögensverwaltung detail (CTA "Mehr zum Anlageprozess") */
+  onNavigateToProcess?: () => void;
 }
 
 function Section4Anlagestrategien({
@@ -779,6 +794,7 @@ function Section4Anlagestrategien({
   onOpenDetail,
   onCloseDetail,
   onContactClick,
+  onNavigateToProcess,
 }: Section4Props) {
   const layout = getLayout(breakpoint);
   const textColStyle = getTextColumnStyle(breakpoint);
@@ -786,14 +802,9 @@ function Section4Anlagestrategien({
 
   const isDetail = viewMode === "detail";
 
-  const handleOpenDetail = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    onOpenDetail?.();
-  };
-
   const bodyParagraphs = [
-    "Der Investmentansatz von Tellian Capital verbindet zwei Perspektiven: eine Top-Down-Betrachtung der globalen Finanzmärkte und eine Bottom-Up-Selektion einzelner Anlagen. Beide stützen sich auf quantitative Modelle und eigene Datenanalyse.",
-    "Die strategische Allokation bildet den Kern und trägt das Portfolio über drei bis fünf Jahre. Die taktische Allokation ergänzt diesen Kern und nutzt kurzfristige Marktchancen. Die Gewichtung zwischen beiden steuert das Anlagekomitee.",
+    "Jede Anlageentscheidung bei Tellian Capital folgt einem klaren, nachvollziehbaren Prozess. Von den Leitprinzipien über Ihr persönliches Anlegerprofil bis zur strategischen und taktischen Allokation — nichts entsteht aus Marktstimmung, alles aus Methode.",
+    "Das Ergebnis ist eine individuelle Portfolio-Konstruktion, die laufend überwacht und transparent berichtet wird. So bleibt Ihr Portfolio jederzeit auf Ihre Ziele ausgerichtet.",
   ];
 
   if (isVertical) {
@@ -815,7 +826,7 @@ function Section4Anlagestrategien({
               }}
               className="uppercase"
             >
-              Anlagestrategien
+              Portfolio Management
             </span>
 
             <div
@@ -839,9 +850,9 @@ function Section4Anlagestrategien({
                 marginTop: SPACING.accentToHeadline,
               }}
             >
-              Strategie statt
+              Methode statt
               <br />
-              <em>Spekulation.</em>
+              <em>Zufall.</em>
             </h2>
           </ScrollFade>
 
@@ -860,21 +871,66 @@ function Section4Anlagestrategien({
 
           <ScrollFade scrollX={0} isVertical yOffset={16}>
             <div style={{ marginTop: SPACING.bodyToCta, paddingBottom: "32px" }}>
-              <CtaButton href="/anlagestrategien" onClick={handleOpenDetail}>
-                Strategien im Detail
+              <CtaButton href="/portfolio-management" onClick={(e: React.MouseEvent<HTMLAnchorElement>) => { e.preventDefault(); onNavigateToProcess?.(); }}>
+                Mehr zum Anlageprozess
               </CtaButton>
             </div>
           </ScrollFade>
         </div>
 
-        {/* Top-Down / Bottom-Up visual — comes AFTER text on mobile/tablet */}
-        <div style={{
-          width: "100%",
-          height: breakpoint === "mobile" ? "auto" : "60vh",
-          padding: breakpoint === "mobile" ? "32px 16px" : undefined,
-          position: "relative",
-        }}>
-          <Section4TopDownBottomUp scrollX={0} isVertical />
+        {/* Methodik-Schaubild — comes AFTER text on mobile/tablet */}
+        <div style={{ width: "100%", padding: "32px 16px" }}>
+          <figure role="img" aria-label="Flussdiagramm: Anlageprozess von Leitprinzipien bis Reporting." style={{ maxWidth: 480, margin: "0 auto", padding: 0 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {["Leitprinzipien", "Investment-Philosophie"].map(t => (
+                <div key={t} style={{ border: `1px solid ${C.line}`, padding: "12px 14px", textAlign: "center" }}>
+                  <span style={{ fontFamily: serif, fontSize: 13, color: C.dark, lineHeight: 1.4 }}>{t}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 0" }} aria-hidden>
+              <div style={{ width: 0.5, height: 10, borderLeft: `1px dashed ${C.line}` }} />
+              <span style={{ fontFamily: sans, fontSize: 7, letterSpacing: "0.12em", textTransform: "uppercase", color: C.stone, padding: "2px 8px" }}>Anlegerprofil des Kunden</span>
+              <div style={{ width: 0.5, height: 10, borderLeft: `1px dashed ${C.line}` }} />
+            </div>
+            {/* CONTENT: pending client verification (alte Kurzprofil-Claims) */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 10 }}>
+              {["Innovatives Portfolio-Management", "Zugang zu einzigartigen Investmentmöglichkeiten", "Inhouse-Expertise & internationales Netzwerk"].map(t => (
+                <div key={t} style={{ backgroundColor: C.purple, padding: "12px 14px", textAlign: "center" }}>
+                  <span style={{ fontFamily: serif, fontSize: 13, color: C.bg, lineHeight: 1.4 }}>{t}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 0" }} aria-hidden>
+              <div style={{ width: 0.5, height: 14, borderLeft: `1px dashed ${C.line}` }} />
+              <svg width="10" height="7" viewBox="0 0 10 7" fill="none"><path d="M1 1l4 4 4-4" stroke={C.stone} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {["Strategische Allokation", "Taktische Allokation"].map(t => (
+                <div key={t} style={{ border: `1px solid ${C.line}`, padding: "12px 14px", textAlign: "center" }}>
+                  <span style={{ fontFamily: serif, fontSize: 13, color: C.dark, lineHeight: 1.4 }}>{t}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 0" }} aria-hidden>
+              <div style={{ width: 0.5, height: 14, borderLeft: `1px dashed ${C.line}` }} />
+              <svg width="10" height="7" viewBox="0 0 10 7" fill="none"><path d="M1 1l4 4 4-4" stroke={C.stone} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </div>
+            <div style={{ backgroundColor: C.purple, padding: "14px 18px", textAlign: "center" }}>
+              <span style={{ fontFamily: serif, fontSize: 13, color: C.bg, lineHeight: 1.4 }}>Individuelle Portfolio-Konstruktion</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 0" }} aria-hidden>
+              <div style={{ width: 0.5, height: 14, borderLeft: `1px dashed ${C.line}` }} />
+              <svg width="10" height="7" viewBox="0 0 10 7" fill="none"><path d="M1 1l4 4 4-4" stroke={C.stone} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {["Überwachung", "Reporting"].map(t => (
+                <div key={t} style={{ border: `1px solid ${C.line}`, padding: "12px 14px", textAlign: "center" }}>
+                  <span style={{ fontFamily: serif, fontSize: 13, color: C.dark, lineHeight: 1.4 }}>{t}</span>
+                </div>
+              ))}
+            </div>
+          </figure>
         </div>
         {/* Detail overlay for mobile/tablet — plain fade (no FLIP) */}
         <AnlagestrategienMobileOverlay
@@ -889,17 +945,105 @@ function Section4Anlagestrategien({
   /* Desktop */
 
   /* ─── Overview markup — normal section inside horizontal scroll strip ─── */
+  const handleNavigateToProcess = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    onNavigateToProcess?.();
+  };
+
   const overviewMarkup = (
     <div
       className="flex-shrink-0 h-screen relative"
       style={{ width: layout.sectionWidth, backgroundColor: C.bg }}
     >
-      <Section4TopDownBottomUp scrollX={scrollX} isDetailMode={isDetail} />
+      {/* ── Right column: Methodik-Schaubild ──
+           Section4: 40/60 statt 50/50 — bewusst, Schaubild braucht Breite.
+           Nicht an andere Sektionen angleichen. */}
+      <div style={{
+        position: "absolute", top: 0, bottom: 0, left: "38vw", right: 0,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        overflow: "visible",
+      }}>
+        <figure
+          role="img"
+          aria-label="Flussdiagramm: Von Leitprinzipien und Investment-Philosophie über das Anlegerprofil des Kunden zu innovativem Portfolio-Management, strategischer und taktischer Allokation, individueller Portfolio-Konstruktion, Überwachung und Reporting."
+          style={{ maxWidth: 560, width: "100%", margin: 0, padding: 0 }}
+        >
+          {/* Tier 1 */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            {["Leitprinzipien", "Investment-Philosophie"].map(t => (
+              <div key={t} style={{ border: `1px solid ${C.line}`, padding: "14px 16px", textAlign: "center" }}>
+                <span style={{ fontFamily: serif, fontSize: 13, color: C.dark, lineHeight: 1.4 }}>{t}</span>
+              </div>
+            ))}
+          </div>
+          {/* Connector: Anlegerprofil */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 0" }} aria-hidden>
+            <div style={{ width: 0.5, height: 12, borderLeft: `1px dashed ${C.line}` }} />
+            <span style={{ fontFamily: sans, fontSize: 8, letterSpacing: "0.14em", textTransform: "uppercase", color: C.stone, padding: "3px 10px" }}>
+              Anlegerprofil des Kunden
+            </span>
+            <div style={{ width: 0.5, height: 12, borderLeft: `1px dashed ${C.line}` }} />
+          </div>
+          {/* CONTENT: pending client verification (alte Kurzprofil-Claims) */}
+          {/* Tier 2: three highlighted nodes */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+            {[
+              "Innovatives Portfolio-Management",
+              "Zugang zu einzigartigen Investmentmöglichkeiten",
+              "Inhouse-Expertise & internationales Netzwerk",
+            ].map(t => (
+              <div key={t} style={{
+                backgroundColor: C.purple, padding: "14px 12px", textAlign: "center",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <span style={{ fontFamily: serif, fontSize: 13, color: C.bg, lineHeight: 1.4 }}>{t}</span>
+              </div>
+            ))}
+          </div>
+          {/* Chevron */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 0" }} aria-hidden>
+            <div style={{ width: 0.5, height: 16, borderLeft: `1px dashed ${C.line}` }} />
+            <svg width="10" height="7" viewBox="0 0 10 7" fill="none"><path d="M1 1l4 4 4-4" stroke={C.stone} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </div>
+          {/* Tier 3 */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            {["Strategische Allokation", "Taktische Allokation"].map(t => (
+              <div key={t} style={{ border: `1px solid ${C.line}`, padding: "14px 16px", textAlign: "center" }}>
+                <span style={{ fontFamily: serif, fontSize: 13, color: C.dark, lineHeight: 1.4 }}>{t}</span>
+              </div>
+            ))}
+          </div>
+          {/* Chevron */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 0" }} aria-hidden>
+            <div style={{ width: 0.5, height: 16, borderLeft: `1px dashed ${C.line}` }} />
+            <svg width="10" height="7" viewBox="0 0 10 7" fill="none"><path d="M1 1l4 4 4-4" stroke={C.stone} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </div>
+          {/* Tier 4 */}
+          <div style={{ backgroundColor: C.purple, padding: "16px 20px", textAlign: "center" }}>
+            <span style={{ fontFamily: serif, fontSize: 13, color: C.bg, lineHeight: 1.4 }}>Individuelle Portfolio-Konstruktion</span>
+          </div>
+          {/* Chevron */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 0" }} aria-hidden>
+            <div style={{ width: 0.5, height: 16, borderLeft: `1px dashed ${C.line}` }} />
+            <svg width="10" height="7" viewBox="0 0 10 7" fill="none"><path d="M1 1l4 4 4-4" stroke={C.stone} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </div>
+          {/* Tier 5 */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            {["Überwachung", "Reporting"].map(t => (
+              <div key={t} style={{ border: `1px solid ${C.line}`, padding: "14px 16px", textAlign: "center" }}>
+                <span style={{ fontFamily: serif, fontSize: 13, color: C.dark, lineHeight: 1.4 }}>{t}</span>
+              </div>
+            ))}
+          </div>
+        </figure>
+      </div>
 
+      {/* ── Left column: text (38vw — narrower, 40/60 split for schaubild) ── */}
       <div
         className="relative z-10 h-full flex flex-col justify-center"
         style={{
           ...textColStyle,
+          width: "38vw",
           maxWidth: "calc(460px + clamp(36px, 5vw, 120px) + 4vw)",
           opacity: isDetail ? 0 : 1,
           transform: isDetail ? "translateX(-50px)" : "translateX(0)",
@@ -917,7 +1061,7 @@ function Section4Anlagestrategien({
           }}
           className="uppercase"
         >
-          Anlagestrategien
+          Portfolio Management
         </span>
 
         <div
@@ -939,9 +1083,9 @@ function Section4Anlagestrategien({
             marginTop: SPACING.accentToHeadline,
           }}
         >
-          Strategie statt
+          Methode statt
           <br />
-          <em>Spekulation.</em>
+          <em>Zufall.</em>
         </h2>
 
         <div
@@ -968,10 +1112,9 @@ function Section4Anlagestrategien({
             </p>
           ))}
 
-          {/* CTA — inline with body text, left-aligned */}
           <a
-            href="/anlagestrategien"
-            onClick={handleOpenDetail}
+            href="/portfolio-management"
+            onClick={handleNavigateToProcess}
             className="inline-flex items-center gap-3 uppercase"
             style={{
               marginTop: "56px",
@@ -990,7 +1133,7 @@ function Section4Anlagestrategien({
               transition: "background-color 250ms ease-out",
             }}
           >
-            <span>Strategien im Detail</span>
+            <span>Mehr zum Anlageprozess</span>
             <span aria-hidden>→</span>
           </a>
         </div>
@@ -1053,8 +1196,9 @@ export default function App() {
   /* ═══ Subpage detail views (no route, no unmount) ═══ */
   const vvw = useSubpageMode("/vermoegensverwaltung");
   const ast = useSubpageMode("/anlagestrategien");
+  const pm  = useSubpageMode("/portfolio-management");
   /* Detail mode is active when any subpage is open */
-  const isDetailMode = vvw.isDetail || ast.isDetail;
+  const isDetailMode = vvw.isDetail || ast.isDetail || pm.isDetail;
 
   const handleIntroComplete = useCallback(() => {
     setIntroComplete(true);
@@ -1070,6 +1214,7 @@ export default function App() {
     if (isDetailMode) {
       vvw.closeDetail();
       ast.closeDetail();
+      pm.closeDetail();
     }
     if (isVertical) {
       const el = document.getElementById("section-kontakt");
@@ -1138,6 +1283,7 @@ export default function App() {
           onOpenDetail={ast.openDetail}
           onCloseDetail={ast.closeDetail}
           onContactClick={navigateToContact}
+          onNavigateToProcess={pm.openDetail}
         />
 
         {/* ── ÜBER TELLIAN ── */}
@@ -1306,7 +1452,7 @@ export default function App() {
               bottom: "56px",
               right: "calc(10vw + 56px)",
               zIndex: 5,
-              color: "#3f212a",
+              color: C.purple,
               opacity: heroAnimate && !heroArrowHidden ? 1 : 0,
               transform: heroArrowHidden
                 ? "translateX(16px) scale(0.6)"
@@ -1380,6 +1526,7 @@ export default function App() {
           onOpenDetail={ast.openDetail}
           onCloseDetail={ast.closeDetail}
           onContactClick={navigateToContact}
+          onNavigateToProcess={pm.openDetail}
         />
 
         <div
@@ -1406,6 +1553,25 @@ export default function App() {
       />
 
       <LegalPage activePath={legal.activePath} onClose={legal.close} />
+
+      {/* ═══ Portfolio Management Subpage ═══ */}
+      <SubpageOverlay
+        isOpen={pm.isDetail}
+        onClose={() => pm.closeDetail()}
+        eyebrow="Portfolio Management"
+        headline={
+          <>
+            Wie wir Ihr Portfolio
+            <br />
+            <em style={{ fontStyle: "italic", fontWeight: 400 }}>führen.</em>
+          </>
+        }
+      >
+        <PortfolioManagementDetail
+          isMobile={isVertical}
+          onContactClick={navigateToContact}
+        />
+      </SubpageOverlay>
     </div>
   );
 }

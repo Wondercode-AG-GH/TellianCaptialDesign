@@ -1,12 +1,12 @@
 import { sans } from "../tokens";
 
 const SECTIONS = [
-  { label: "Start",     target: 0.000, threshold: 0.00 },
-  { label: "Haltung",   target: 0.154, threshold: 0.08 },
-  { label: "Methode",   target: 0.309, threshold: 0.23 },
-  { label: "Strategie", target: 0.463, threshold: 0.39 },
-  { label: "Team",      target: 0.618, threshold: 0.54 },
-  { label: "Kontakt",   target: 1.000, threshold: 0.94 },
+  { label: "Start",       target: 0.000, threshold: 0.00 },
+  { label: "Philosophie", target: 0.154, threshold: 0.08 },
+  { label: "Mandat",      target: 0.309, threshold: 0.23 },
+  { label: "Portfolio",   target: 0.463, threshold: 0.39 },
+  { label: "Team",        target: 0.618, threshold: 0.54 },
+  { label: "Kontakt",     target: 1.000, threshold: 0.94 },
 ];
 
 const V = {

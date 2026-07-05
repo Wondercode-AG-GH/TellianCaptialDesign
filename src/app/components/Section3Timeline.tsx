@@ -175,7 +175,7 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
         alignItems:     "center",
         justifyContent: "center",
         overflow:       "hidden",
-        backgroundColor: "#3f212a",
+        backgroundColor: C.purple,
         paddingTop:     "clamp(32px, 6vh, 56px)",
         paddingBottom:  "clamp(32px, 6vh, 56px)",
       } : {
@@ -187,7 +187,7 @@ export function Section3Timeline({ scrollX, isVertical = false, isDetailMode = f
         alignItems:     "center",
         justifyContent: "center",
         overflow:       "hidden",
-        backgroundColor: "#3f212a",
+        backgroundColor: C.purple,
       }}
     >
       {/* ── Inner wrapper: strip + content ── */}

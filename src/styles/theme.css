@@ -2,7 +2,7 @@
 
 :root {
   --font-size: 16px;
-  --background: #F8F6F2;
+  --background: #F4F4F0;
   --foreground: oklch(0.145 0 0);
   --card: #ffffff;
   --card-foreground: oklch(0.145 0 0);
@@ -32,21 +32,28 @@
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.625rem;
 
-  /* ── Tellian Capital — brand palette ── */
-  --tellian-bg: #F8F6F2;
-  --tellian-bg-secondary: #F2F1EC;
-  --tellian-dark: #191718;
-  --tellian-charcoal: #191718;
+  /* ── Tellian Capital — Brand Guidelines 2026 ── */
+  --tellian-bg: #F4F4F0;            /* Archive White */
+  --tellian-bg-secondary: #ECEAE5;  /* Archive White darkened */
+  --tellian-dark: #191718;           /* Iron Veil */
+  --tellian-charcoal: #191718;       /* Iron Veil */
   --tellian-stone: #8A857C;
-  --tellian-muted: #B0ACA5;
+  --tellian-muted: #B8AEA3;          /* Mushroom */
   --tellian-line: #D8D5CF;
   --tellian-warm: #989071;
   --tellian-subtle: #E8E6E1;
   --tellian-accent: #6B665E;
-  --tellian-button: #c6d2d6;
-  --tellian-button-hover: #b3c1c6;
+  --tellian-button: #B8AEA3;         /* Mushroom */
+  --tellian-button-hover: #A69D93;   /* Mushroom darkened */
   --tellian-dot-inactive: #C8C5BB;
   --tellian-dot-active: #8A8575;
+  --tellian-purple: #281F33;          /* Imperial Purple */
+  --tellian-silver-mist: #BFBFBF;    /* Silver Mist */
+  --tellian-ink: #191718;             /* Semantic: active typography (= Iron Veil) */
+  --tellian-greige-soft: #C8C3BA;     /* Warm greige for inactive/subdued type */
+  --tellian-party-kunde: #B8AEA3;     /* Mushroom — Kunde block */
+  --tellian-party-tellian: #281F33;   /* Imperial Purple — Tellian block */
+  --tellian-party-banken: #BFBFBF;   /* Silver Mist — Banken block */
 
   /* ── Form states ── */
   --tellian-error: #B5453A;
@@ -61,12 +68,12 @@
   --tellian-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
   --tellian-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
 
-  /* ── Strategy cards (Section 4) — swap these for rebrand ── */
-  --tellian-card-bg: #3f212a;
-  --tellian-card-text: #F9F9F7;
-  --tellian-card-bullet: rgba(249, 249, 247, 0.7);
-  --tellian-card-eyebrow: rgba(249, 249, 247, 0.6);
-  --tellian-accent-gold: #c6d2d6;
+  /* ── Strategy cards (Section 4) ── */
+  --tellian-card-bg: #281F33;
+  --tellian-card-text: #F4F4F0;
+  --tellian-card-bullet: rgba(244, 244, 240, 0.7);
+  --tellian-card-eyebrow: rgba(244, 244, 240, 0.6);
+  --tellian-accent-gold: #B8AEA3;
   --tellian-accent-gold-text: #191718;
 
   /* ── Section navigation pill ── */
@@ -84,8 +91,7 @@
   --tellian-z-overlay: 1000;
   --tellian-z-toast: 1100;
 
-  /* REBRAND: pending — replace when final typeface is licensed */
-  --tellian-font-serif: 'Cormorant Garamond', serif;
+  --tellian-font-serif: 'Lustria', serif;
   --tellian-font-sans: 'Inter', sans-serif;
 
   --sidebar: oklch(0.985 0 0);
@@ -181,6 +187,13 @@
   --color-tellian-button-hover: var(--tellian-button-hover);
   --color-tellian-dot-inactive: var(--tellian-dot-inactive);
   --color-tellian-dot-active: var(--tellian-dot-active);
+  --color-tellian-purple: var(--tellian-purple);
+  --color-tellian-silver-mist: var(--tellian-silver-mist);
+  --color-tellian-ink: var(--tellian-ink);
+  --color-tellian-greige-soft: var(--tellian-greige-soft);
+  --color-tellian-party-kunde: var(--tellian-party-kunde);
+  --color-tellian-party-tellian: var(--tellian-party-tellian);
+  --color-tellian-party-banken: var(--tellian-party-banken);
 
   /* ── Form states → Tailwind (text-tellian-error, bg-tellian-success-bg, etc.) ── */
   --color-tellian-error: var(--tellian-error);
@@ -195,7 +208,6 @@
   --shadow-tellian-md: var(--tellian-shadow-md);
   --shadow-tellian-lg: var(--tellian-shadow-lg);
 
-  /* REBRAND: pending */
   --font-tellian-serif: var(--tellian-font-serif);
   --font-tellian-sans: var(--tellian-font-sans);
 
