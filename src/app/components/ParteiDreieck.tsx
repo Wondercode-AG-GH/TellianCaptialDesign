@@ -138,28 +138,187 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
     + "Tellian Capital: Unsere Leistungen für Sie. "
     + "Banken: Ausgewählte Kooperationsbanken in der Schweiz und Liechtenstein, beste Konditionen.";
 
-  /* ════════════════ MOBILE ════════════════ */
+  /* ════════════════ MOBILE — visual diagram (compact) ════════════════ */
   if (compact) {
+    const mR = 52;  // mobile circle radius
+    const mVenn = [
+      { dx: 0,   dy: -70 },   // Sie — top
+      { dx: -60, dy:  35 },   // Tellian — bottom-left
+      { dx:  60, dy:  35 },   // Banken — bottom-right
+    ];
+    const mCW = 280;
+    const mCH = 340;
+    const mEdges: [number, number][] = [[0, 1], [0, 2], [1, 2]];
+    const mW55 = "rgba(244,244,240,0.55)";
+    const mW75 = "rgba(244,244,240,0.75)";
+    const mW35 = "rgba(244,244,240,0.35)";
+
+    function mEdgeEndpoints(a: number, b: number) {
+      const ax = mVenn[a].dx, ay = mVenn[a].dy;
+      const bx = mVenn[b].dx, by = mVenn[b].dy;
+      const len = Math.hypot(bx - ax, by - ay);
+      const nx = (bx - ax) / len, ny = (by - ay) / len;
+      return {
+        x1: ax + mR * nx, y1: ay + mR * ny,
+        x2: bx - mR * nx, y2: by - mR * ny,
+        mx: (ax + bx) / 2, my: (ay + by) / 2,
+        angle: Math.atan2(by - ay, bx - ax) * 180 / Math.PI,
+      };
+    }
+
     return (
-      <div style={{ backgroundColor: C.purple, padding: "32px 20px" }}>
+      <div style={{ backgroundColor: C.purple, padding: "32px 16px 24px", position: "relative" }}>
         <p className="sr-only" style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}>{sr}</p>
-        {PARTIES.map((party, i) => {
-          const act = hovered === i;
-          return (
-            <div key={party.id} style={{ marginTop: i === 0 ? 0 : 24 }}>
-              <div role="button" tabIndex={0} aria-label={party.label.de}
-                onClick={() => { if (i === 1 && onNavigate) onNavigate(); else setHovered(hovered === i ? null : i); }}
-                onKeyDown={e => onKey(e, i)}
-                style={{ display: "flex", alignItems: "center", gap: 14, cursor: "pointer", outline: "none" }}>
-                <div style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: party.color, flexShrink: 0 }} />
-                <span style={{ fontFamily: sans, fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: act ? C.bg : "rgba(244,244,240,0.7)", fontWeight: act ? 600 : 400 }}>{party.label.de}</span>
+
+        {/* Caption */}
+        <span style={{
+          display: "block", textAlign: "center", fontFamily: sans,
+          fontSize: 8, letterSpacing: "0.16em", textTransform: "uppercase",
+          color: mW55, marginBottom: 16,
+        }}>
+          Die Struktur bewährter Geschäftsbeziehungen
+        </span>
+
+        {/* Diagram container */}
+        <div style={{ position: "relative", width: mCW, height: mCH, margin: "0 auto" }}>
+
+          {/* SVG: connection lines + arrows */}
+          <svg
+            style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", overflow: "visible" }}
+            viewBox={`0 0 ${mCW} ${mCH}`} fill="none" aria-hidden
+          >
+            {mEdges.map(([a, b], i) => {
+              const ep = mEdgeEndpoints(a, b);
+              const cx = mCW / 2, cy = mCH / 2;
+              return (
+                <g key={`me-${i}`}>
+                  <line x1={cx + ep.x1} y1={cy + ep.y1} x2={cx + ep.x2} y2={cy + ep.y2}
+                    stroke={mW35} strokeWidth={0.5} strokeDasharray="3 4" />
+                  <g transform={`translate(${cx + ep.mx},${cy + ep.my}) rotate(${ep.angle})`}>
+                    <path d="M-3,-2.5 L0,0 L-3,2.5" stroke={mW35} strokeWidth={0.7} fill="none" />
+                    <path d="M3,-2.5 L0,0 L3,2.5" stroke={mW35} strokeWidth={0.7} fill="none" />
+                  </g>
+                </g>
+              );
+            })}
+          </svg>
+
+          {/* Three circles */}
+          {PARTIES.map((party, i) => {
+            const v = mVenn[i];
+            const act = hovered === i;
+            const anyH = hovered !== null;
+            const faded = anyH && !act;
+            const isCta = i === 1;
+            const iconSz = i === 1 ? { w: 60, h: 37 } : { w: 30, h: 30 };
+
+            return (
+              <div key={party.id}>
+                {/* Circle */}
+                <div
+                  role={isCta ? "link" : "button"}
+                  tabIndex={0}
+                  aria-label={isCta ? "Unsere Leistungen für Sie" : `${party.label.de} — Details`}
+                  onClick={() => { if (isCta && onNavigate) onNavigate(); else setHovered(hovered === i ? null : i); }}
+                  onKeyDown={e => onKey(e, i)}
+                  style={{
+                    position: "absolute",
+                    left: `calc(50% + ${v.dx}px)`, top: `calc(50% + ${v.dy}px)`,
+                    transform: `translate(-50%, -50%) scale(${act ? 1.04 : 1})`,
+                    width: mR * 2, height: mR * 2, borderRadius: "50%",
+                    backgroundColor: party.color,
+                    border: act ? "2px solid rgba(255,255,255,0.45)" : "none",
+                    cursor: "pointer", outline: "none",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    opacity: faded ? 0.25 : 1,
+                    transition: rm ? "none" : `all 260ms ${EASE.standard}`,
+                    zIndex: act ? 2 : 1,
+                  }}
+                >
+                  {i === 1
+                    ? <TellianLogo w={iconSz.w} h={iconSz.h} color={C.purple} />
+                    : <PlaceholderIcon w={iconSz.w} h={iconSz.h} color={C.purple} />
+                  }
+                </div>
+
+                {/* Label */}
+                <span style={{
+                  position: "absolute",
+                  left: `calc(50% + ${v.dx}px)`,
+                  ...(i === 0
+                    ? { top: `calc(50% + ${v.dy}px - ${mR + 8}px)`, transform: "translateX(-50%) translateY(-100%)" }
+                    : { top: `calc(50% + ${v.dy}px + ${mR + 8}px)`, transform: "translateX(-50%)" }
+                  ),
+                  fontFamily: sans, fontSize: 8, letterSpacing: "0.16em",
+                  textTransform: "uppercase", color: act ? C.bg : mW75,
+                  fontWeight: act ? 600 : 400, whiteSpace: "nowrap",
+                  pointerEvents: "none", opacity: faded ? 0.25 : 1,
+                  transition: rm ? "none" : `all 260ms ${EASE.standard}`,
+                }}>
+                  {party.label.de}
+                </span>
               </div>
-              {act && (
-                <p style={{ fontFamily: serif, fontSize: 14, color: "rgba(244,244,240,0.9)", lineHeight: 1.5, margin: "12px 0 0 24px" }} lang="de">{party.prosa.de}</p>
+            );
+          })}
+        </div>
+
+        {/* Edge labels (horizontal, below diagram for mobile) */}
+        <div style={{
+          display: "flex", flexDirection: "column", alignItems: "center",
+          gap: 6, marginTop: 12, opacity: hovered !== null ? 0 : 1,
+          transition: rm ? "none" : `opacity 300ms ${EASE.standard}`,
+        }}>
+          {EDGE_LABELS.map((label, i) => (
+            <span key={i} style={{
+              fontFamily: sans, fontSize: 7, letterSpacing: "0.06em",
+              textTransform: "uppercase", color: mW55, whiteSpace: "nowrap",
+            }}>
+              {label.de}
+            </span>
+          ))}
+        </div>
+
+        {/* Reading zone — tap-activated text */}
+        {hovered !== null && (() => {
+          const party = PARTIES[hovered];
+          const isCta = hovered === 1;
+          return (
+            <div style={{ textAlign: "center", marginTop: 20, padding: "0 8px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 8 }}>
+                <div style={{ width: 7, height: 7, borderRadius: "50%", backgroundColor: party.color, flexShrink: 0 }} />
+                <span style={{ fontFamily: sans, fontSize: 7, letterSpacing: "0.14em", textTransform: "uppercase", color: mW75 }}>
+                  {party.label.de}
+                </span>
+              </div>
+              {isCta ? (
+                <a href="#vermoegensverwaltung" onClick={(e) => { e.preventDefault(); onNavigate?.(); }}
+                  style={{ fontFamily: serif, fontSize: 13, color: C.bg, lineHeight: 1.5, textDecoration: "none", display: "block", cursor: "pointer" }}>
+                  {party.prosa.de}
+                </a>
+              ) : (
+                <p style={{ fontFamily: serif, fontSize: 13, color: "rgba(244,244,240,0.9)", lineHeight: 1.5, margin: 0 }} lang="de">
+                  {party.prosa.de}
+                </p>
               )}
             </div>
           );
-        })}
+        })()}
+
+        {/* reduced-motion: all texts visible */}
+        {rm && hovered === null && (
+          <div style={{ marginTop: 20, padding: "0 8px" }}>
+            {PARTIES.map((party, pi) => (
+              <div key={`rm-${party.id}`} style={{ marginTop: pi === 0 ? 0 : 14, textAlign: "center" }}>
+                <span style={{ fontFamily: sans, fontSize: 7, letterSpacing: "0.14em", textTransform: "uppercase", color: party.color, fontWeight: 600, display: "block", marginBottom: 4 }}>
+                  {party.label.de}
+                </span>
+                <p style={{ fontFamily: serif, fontSize: 12, color: "rgba(244,244,240,0.9)", lineHeight: 1.5, margin: 0 }} lang="de">
+                  {party.prosa.de}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   }

@@ -10,7 +10,8 @@ import {
 
 /* ═══════════════════════════════════════════════════════════
    PORTFOLIO MANAGEMENT — Subpage detail body.
-   Mirrors AnlageprozessDetail structure (chrome is in SubpageOverlay).
+   4 Sektionen: Prozess → Komitee → Strategien → Universum.
+   Keine Verwahrung (MANDAT deckt das ab). Kein FAQ (pending).
    EN: pending — Übersetzung folgt.
    ═══════════════════════════════════════════════════════════ */
 
@@ -33,7 +34,7 @@ export function PortfolioManagementDetail({ isMobile, onContactClick }: Props) {
         color: C.dark,
       }}
     >
-      {/* ═══ Intro paragraphs (below SubpageOverlay hero) ═══ */}
+      {/* ═══ Intro (below SubpageOverlay hero) ═══ */}
       <section style={{ paddingBottom: isMobile ? "48px" : "72px" }}>
         <div style={{ maxWidth: "600px", display: "flex", flexDirection: "column", gap: "16px" }}>
           {PM_HERO.intro.map((text, i) => (
@@ -44,7 +45,7 @@ export function PortfolioManagementDetail({ isMobile, onContactClick }: Props) {
         </div>
       </section>
 
-      {/* ═══ Sektion 1 — Der Anlageprozess (PROZESS) ═══ */}
+      {/* ═══ Sektion 1 — Anlageprozess (PROZESS) ═══ */}
       <section style={{ ...sectionPad, borderTop: `1px solid ${C.line}` }}>
         <div style={{ maxWidth: "600px" }}>
           <span style={{ fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em", textTransform: "uppercase", color: C.stone, display: "block" }}>
@@ -54,7 +55,7 @@ export function PortfolioManagementDetail({ isMobile, onContactClick }: Props) {
             Der Weg zum <em style={{ fontStyle: "italic", fontWeight: 400 }}>Portfolio.</em>
           </h2>
 
-          {/* Process stages */}
+          {/* 8 process stages */}
           <div style={{ marginTop: "32px", display: "flex", flexDirection: "column", gap: 0 }}>
             {PM_PROCESS_STAGES.map((stage, si) => (
               <div key={si} style={{
@@ -65,29 +66,47 @@ export function PortfolioManagementDetail({ isMobile, onContactClick }: Props) {
                 <span style={{ fontFamily: serif, fontSize: "15px", color: C.dark, lineHeight: 1.3, display: "block" }}>
                   {stage.name}
                 </span>
-                <ul style={{ listStyle: "none", padding: 0, margin: "10px 0 0 0", display: "flex", flexDirection: "column", gap: "6px" }}>
-                  {stage.bullets.map((b, bi) => (
-                    <li key={bi} style={{ fontFamily: sans, fontSize: "13px", color: C.charcoal, lineHeight: 1.6, display: "flex", gap: "10px" }}>
-                      <span aria-hidden style={{ color: C.stone, flexShrink: 0 }}>—</span>
-                      <span>{b}</span>
-                    </li>
-                  ))}
-                </ul>
+                {stage.bullets.length > 0 && (
+                  <ul style={{ listStyle: "none", padding: 0, margin: "10px 0 0 0", display: "flex", flexDirection: "column", gap: "6px" }}>
+                    {stage.bullets.map((b, bi) => (
+                      <li key={bi} style={{ fontFamily: sans, fontSize: "13px", color: C.charcoal, lineHeight: 1.6, display: "flex", gap: "10px" }}>
+                        <span aria-hidden style={{ color: C.stone, flexShrink: 0 }}>—</span>
+                        <span>{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ))}
           </div>
 
-          {/* Begleittext */}
-          <p style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, margin: "24px 0 0 0" }}>
+          {/* Begleitsatz */}
+          <p style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, margin: "8px 0 0 0", fontStyle: "italic" }}>
             {PM_PROCESS_BODY}
           </p>
         </div>
       </section>
 
       {/* ═══ Sektion 2 — Anlagekomitee (KOMITEE) ═══ */}
-      {renderTextSection(PM_TEXT_SECTIONS[0], isMobile, hSize)}
+      <section style={{ ...sectionPad, borderTop: `1px solid ${C.line}` }}>
+        <div style={{ maxWidth: "600px" }}>
+          <span style={{ fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em", textTransform: "uppercase", color: C.stone, display: "block" }}>
+            {PM_TEXT_SECTIONS[0].eyebrow}
+          </span>
+          <h2 style={{ fontFamily: serif, fontSize: hSize, lineHeight: 1.12, color: C.dark, letterSpacing: "-0.02em", fontWeight: 400, margin: "16px 0 0 0" }}>
+            {PM_TEXT_SECTIONS[0].headlineBefore} <em style={{ fontStyle: "italic", fontWeight: 400 }}>{PM_TEXT_SECTIONS[0].headlineItalic}</em>
+          </h2>
+          <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
+            {PM_TEXT_SECTIONS[0].paragraphs.map((text, i) => (
+              <p key={i} style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, margin: 0 }}>
+                {text}
+              </p>
+            ))}
+          </div>
+        </div>
+      </section>
 
-      {/* ═══ Sektion 3 — Anlagestrategien (STRATEGIEN) ═══ */}
+      {/* ═══ Sektion 3 — Anlagestrategien (STRATEGIEN, Option A: Zeilen) ═══ */}
       <section style={{ ...sectionPad, borderTop: `1px solid ${C.line}` }}>
         <div style={{ maxWidth: "600px" }}>
           <span style={{ fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em", textTransform: "uppercase", color: C.stone, display: "block" }}>
@@ -97,10 +116,9 @@ export function PortfolioManagementDetail({ isMobile, onContactClick }: Props) {
             Sieben Strategien, <em style={{ fontStyle: "italic", fontWeight: 400 }}>frei kombinierbar.</em>
           </h2>
           <p style={{ fontFamily: sans, fontSize: isMobile ? "13px" : "14px", color: C.stone, lineHeight: 1.5, margin: "8px 0 32px 0" }}>
-            Sie legen eine oder mehrere Strategien für Ihr Portfolio fest und bestimmen die Gewichtung selbst. Die angegebene Zielallokation ist eine Richtgrösse. Im Rahmen der vertraglich vereinbarten Bandbreiten darf davon abgewichen werden.
+            Sie legen eine oder mehrere Strategien für Ihr Portfolio fest und bestimmen die Gewichtung selbst. Die angegebene Zielallokation ist eine Richtgrösse; im Rahmen der vertraglich vereinbarten Bandbreiten darf davon abgewichen werden.
           </p>
 
-          {/* Strategies — stacked rows (Option A) */}
           {/* PENDING VERIFICATION — Allokationsprozente */}
           <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
             {PM_STRATEGIES.map((s, si) => (
@@ -142,13 +160,25 @@ export function PortfolioManagementDetail({ isMobile, onContactClick }: Props) {
       </section>
 
       {/* ═══ Sektion 4 — Anlageuniversum (UNIVERSUM) ═══ */}
-      {renderTextSection(PM_TEXT_SECTIONS[1], isMobile, hSize)}
+      <section style={{ ...sectionPad, borderTop: `1px solid ${C.line}` }}>
+        <div style={{ maxWidth: "600px" }}>
+          <span style={{ fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em", textTransform: "uppercase", color: C.stone, display: "block" }}>
+            {PM_TEXT_SECTIONS[1].eyebrow}
+          </span>
+          <h2 style={{ fontFamily: serif, fontSize: hSize, lineHeight: 1.12, color: C.dark, letterSpacing: "-0.02em", fontWeight: 400, margin: "16px 0 0 0" }}>
+            {PM_TEXT_SECTIONS[1].headlineBefore} <em style={{ fontStyle: "italic", fontWeight: 400 }}>{PM_TEXT_SECTIONS[1].headlineItalic}</em>
+          </h2>
+          <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
+            {PM_TEXT_SECTIONS[1].paragraphs.map((text, i) => (
+              <p key={i} style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, margin: 0 }}>
+                {text}
+              </p>
+            ))}
+          </div>
+        </div>
+      </section>
 
-      {/* ═══ Sektion 5 — Verwahrung (VERWAHRUNG) ═══ */}
-      {renderTextSection(PM_TEXT_SECTIONS[2], isMobile, hSize)}
-
-      {/* ═══ FAQ: pending — Inhalte folgen ═══ */}
-      {/* No FAQ block yet — verified Q&A not available. Do not fill with placeholder text. */}
+      {/* FAQ: pending — Inhalte folgen */}
 
       {/* ═══ Final CTA ═══ */}
       <div
@@ -193,32 +223,5 @@ export function PortfolioManagementDetail({ isMobile, onContactClick }: Props) {
         </span>
       </div>
     </div>
-  );
-}
-
-/* ─── Helper: standard text section ─── */
-function renderTextSection(sec: typeof PM_TEXT_SECTIONS[number], isMobile: boolean, hSize: string) {
-  return (
-    <section key={sec.id} style={{
-      paddingTop: isMobile ? "48px" : "72px",
-      paddingBottom: isMobile ? "48px" : "72px",
-      borderTop: `1px solid ${C.line}`,
-    }}>
-      <div style={{ maxWidth: "600px" }}>
-        <span style={{ fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em", textTransform: "uppercase", color: C.stone, display: "block" }}>
-          {sec.eyebrow}
-        </span>
-        <h2 style={{ fontFamily: serif, fontSize: hSize, lineHeight: 1.12, color: C.dark, letterSpacing: "-0.02em", fontWeight: 400, margin: "16px 0 0 0" }}>
-          {sec.headlineBefore} <em style={{ fontStyle: "italic", fontWeight: 400 }}>{sec.headlineItalic}</em>
-        </h2>
-        <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
-          {sec.paragraphs.map((text, i) => (
-            <p key={i} style={{ fontFamily: sans, fontSize: "14px", color: C.charcoal, lineHeight: 1.7, margin: 0 }}>
-              {text}
-            </p>
-          ))}
-        </div>
-      </div>
-    </section>
   );
 }

@@ -417,13 +417,6 @@ function Section3Vermoegensverwaltung({
             </div>
           </ScrollFade>
 
-          <ScrollFade scrollX={0} isVertical yOffset={16}>
-            <div style={{ marginTop: SPACING.bodyToCta, paddingBottom: "32px" }}>
-              <CtaButton href="/vermoegensverwaltung" onClick={handleAnlageprozess}>
-                Mehr zur Vermögensverwaltung
-              </CtaButton>
-            </div>
-          </ScrollFade>
         </div>
 
         {/* Partei-Dreieck — comes AFTER text on mobile/tablet */}
@@ -433,6 +426,15 @@ function Section3Vermoegensverwaltung({
         }}>
           <ParteiDreieck compact onNavigate={() => onOpenDetail?.()} />
         </div>
+
+        {/* CTA — AFTER the visual element on mobile */}
+        <ScrollFade scrollX={0} isVertical yOffset={16}>
+          <div style={{ padding: breakpoint === "mobile" ? "0 20px 32px" : "0 32px 32px" }}>
+            <CtaButton href="/vermoegensverwaltung" onClick={handleAnlageprozess}>
+              Mehr zur Vermögensverwaltung
+            </CtaButton>
+          </div>
+        </ScrollFade>
         {/* Detail overlay for mobile/tablet — plain fade (no FLIP) */}
         <VermoegensverwaltungMobileOverlay
           isOpen={isDetail}
@@ -869,13 +871,6 @@ function Section4Anlagestrategien({
             </div>
           </ScrollFade>
 
-          <ScrollFade scrollX={0} isVertical yOffset={16}>
-            <div style={{ marginTop: SPACING.bodyToCta, paddingBottom: "32px" }}>
-              <CtaButton href="/portfolio-management" onClick={(e: React.MouseEvent<HTMLAnchorElement>) => { e.preventDefault(); onNavigateToProcess?.(); }}>
-                Mehr zum Anlageprozess
-              </CtaButton>
-            </div>
-          </ScrollFade>
         </div>
 
         {/* Methodik-Schaubild — comes AFTER text on mobile/tablet */}
@@ -932,6 +927,16 @@ function Section4Anlagestrategien({
             </div>
           </figure>
         </div>
+
+        {/* CTA — AFTER the visual element on mobile */}
+        <ScrollFade scrollX={0} isVertical yOffset={16}>
+          <div style={{ padding: breakpoint === "mobile" ? "0 20px 32px" : "0 32px 32px" }}>
+            <CtaButton href="/portfolio-management" onClick={(e: React.MouseEvent<HTMLAnchorElement>) => { e.preventDefault(); onNavigateToProcess?.(); }}>
+              Mehr zum Anlageprozess
+            </CtaButton>
+          </div>
+        </ScrollFade>
+
         {/* Detail overlay for mobile/tablet — plain fade (no FLIP) */}
         <AnlagestrategienMobileOverlay
           isOpen={isDetail}
@@ -1303,6 +1308,25 @@ export default function App() {
         />
 
         <LegalPage activePath={legal.activePath} onClose={legal.close} />
+
+        {/* ═══ Portfolio Management Subpage (mobile) ═══ */}
+        <SubpageOverlay
+          isOpen={pm.isDetail}
+          onClose={() => pm.closeDetail()}
+          eyebrow="Portfolio Management"
+          headline={
+            <>
+              Wie wir Ihr Portfolio
+              <br />
+              <em style={{ fontStyle: "italic", fontWeight: 400 }}>führen.</em>
+            </>
+          }
+        >
+          <PortfolioManagementDetail
+            isMobile={true}
+            onContactClick={navigateToContact}
+          />
+        </SubpageOverlay>
       </div>
     );
   }
