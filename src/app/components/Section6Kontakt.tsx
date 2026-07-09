@@ -1104,6 +1104,27 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
         <div style={{ paddingTop: "32px" }}>
           <div style={{ width: "100%", height: "1px", backgroundColor: C.dark, opacity: 0.25, marginBottom: "24px" }} />
           <LegalLinksRow onOpenLegal={onOpenLegal} />
+          <a
+            href="https://solutions.telliancapital.ch"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-block",
+              marginTop: "12px",
+              fontFamily: sans,
+              fontSize: "11px",
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: C.stone,
+              textDecoration: "none",
+              opacity: 0.7,
+              transition: "opacity 200ms ease",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.7"; }}
+          >
+            Tellian Capital Solutions
+          </a>
         </div>
       </div>
 

@@ -336,7 +336,7 @@ export function Navigation({
                           style={{
                             fontFamily: sans,
                             fontSize: "11px",
-                            color: isActive ? C.button : "#bbb",
+                            color: isActive ? C.purple : "#bbb",
                             display: "block",
                             marginBottom: 3,
                           }}
@@ -371,54 +371,70 @@ export function Navigation({
                 </div>
               </nav>
 
-              {/* Bottom section */}
+              {/* Bottom section — Primary (Portal) → Secondary (Solutions link) → Tertiary (Lang) */}
               <div
                 style={{
                   padding: breakpoint === "mobile" ? "20px" : "24px 32px",
                   borderTop: "1px solid #ddd",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  {/* Language */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    {(["DE", "EN"] as const).map((l, idx) => (
-                      <React.Fragment key={l}>
-                        {idx > 0 && (
-                          <span style={{ color: "#ddd", fontSize: "11px", fontFamily: sans }}>/</span>
-                        )}
-                        <button
-                          onClick={() => setLang(l)}
-                          style={{
-                            outline: "none", border: "none", background: "transparent", cursor: "pointer",
-                            fontFamily: sans, fontSize: "11px", fontWeight: 700, letterSpacing: "0.08em",
-                            textTransform: "uppercase", color: lang === l ? C.dark : "#bbb", padding: 0,
-                          }}
-                        >
-                          {l}
-                        </button>
-                      </React.Fragment>
-                    ))}
-                  </div>
+                {/* PRIMÄR: Login */}
+                <button
+                  onClick={(e) => {
+                    (e.currentTarget as HTMLElement).focus();
+                    setExpanded(false);
+                    onLoginClick();
+                  }}
+                  aria-haspopup="dialog"
+                  style={{
+                    display: "flex", alignItems: "center", gap: 8,
+                    backgroundColor: C.button, color: C.dark,
+                    fontFamily: sans, fontSize: "11px", fontWeight: 700,
+                    letterSpacing: "1.5px", textTransform: "uppercase",
+                    padding: "10px 16px", border: "none", cursor: "pointer",
+                  }}
+                >
+                  <LockIcon size={14} color={C.bgSecondary} strokeWidth={1.5} />
+                  Kundenportal
+                </button>
+                <span style={{ fontFamily: sans, fontSize: "10px", color: "#999", marginTop: "6px", display: "block", userSelect: "none" }}>
+                  Zugang für bestehende Kunden
+                </span>
 
-                  {/* Login */}
-                  <button
-                    onClick={(e) => {
-                      (e.currentTarget as HTMLElement).focus();
-                      setExpanded(false);
-                      onLoginClick();
-                    }}
-                    aria-haspopup="dialog"
-                    style={{
-                      display: "flex", alignItems: "center", gap: 8,
-                      backgroundColor: C.button, color: C.dark,
-                      fontFamily: sans, fontSize: "11px", fontWeight: 700,
-                      letterSpacing: "1.5px", textTransform: "uppercase",
-                      padding: "10px 16px", border: "none", cursor: "pointer",
-                    }}
-                  >
-                    <LockIcon size={14} color={C.bgSecondary} strokeWidth={1.5} />
-                    Login
-                  </button>
+                {/* SEKUNDÄR: Solutions text link */}
+                <a
+                  href="https://solutions.telliancapital.ch"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 6, marginTop: 18,
+                    fontFamily: sans, fontSize: "12px", fontWeight: 500, letterSpacing: "0.06em",
+                    color: C.stone, textDecoration: "none",
+                  }}
+                >
+                  <span>Tellian Capital Solutions</span>
+                  <span aria-hidden style={{ fontSize: "11px" }}>→</span>
+                </a>
+
+                {/* TERTIÄR: Language */}
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 18 }}>
+                  {(["DE", "EN"] as const).map((l, idx) => (
+                    <React.Fragment key={l}>
+                      {idx > 0 && (
+                        <span style={{ color: "#ddd", fontSize: "11px", fontFamily: sans }}>/</span>
+                      )}
+                      <button
+                        onClick={() => setLang(l)}
+                        style={{
+                          outline: "none", border: "none", background: "transparent", cursor: "pointer",
+                          fontFamily: sans, fontSize: "11px", fontWeight: 700, letterSpacing: "0.08em",
+                          textTransform: "uppercase", color: lang === l ? C.dark : "#bbb", padding: 0,
+                        }}
+                      >
+                        {l}
+                      </button>
+                    </React.Fragment>
+                  ))}
                 </div>
               </div>
             </motion.div>
@@ -725,7 +741,7 @@ export function Navigation({
                           style={{
                             fontFamily:   sans,
                             fontSize:     "11px",
-                            color:        isActive ? C.button : "#bbb",
+                            color:        isActive ? C.purple : "#bbb",
                             display:      "block",
                             marginBottom: "3px",
                             transition:   `color 0.35s ${EASE.nav}`,
@@ -761,7 +777,7 @@ export function Navigation({
                 </div>
               </nav>
 
-              {/* Bottom section */}
+              {/* Bottom section — three hierarchy levels: Primary (Portal) → Secondary (Solutions link) → Tertiary (Lang + LinkedIn) */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -772,16 +788,57 @@ export function Navigation({
                 <div style={{ height: "0.5px", backgroundColor: "#ddd" }} />
                 <div style={{ height: 24 }} />
 
-                <div
+                {/* PRIMÄR: Kundenportal — the one prominent CTA */}
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <button
+                    onMouseEnter={() => setPortalHover(true)}
+                    onMouseLeave={() => setPortalHover(false)}
+                    onClick={() => { setExpanded(false); onLoginClick(); }}
+                    style={{
+                      display: "flex", alignItems: "center", gap: "8px",
+                      backgroundColor: portalHover ? C.buttonHover : C.button, color: C.dark,
+                      fontFamily: sans, fontSize: "11px", fontWeight: 700, letterSpacing: "1.5px",
+                      textTransform: "uppercase", padding: "12px 20px", border: "none",
+                      borderRadius: 0, cursor: "pointer",
+                      transition: `background-color 0.25s ${EASE.nav}`, outline: "none", whiteSpace: "nowrap",
+                    }}
+                  >
+                    <LockIcon size={14} color={C.bgSecondary} strokeWidth={1.5} />
+                    Kundenportal
+                  </button>
+                  <span style={{
+                    fontFamily: sans, fontSize: "10px", color: "#999",
+                    marginTop: "6px", userSelect: "none",
+                  }}>
+                    Zugang für bestehende Kunden
+                  </span>
+                </div>
+
+                {/* SEKUNDÄR: Solutions — quiet text link with arrow */}
+                <a
+                  href="https://solutions.telliancapital.ch"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
-                    display:        "flex",
-                    alignItems:     "flex-start",
-                    justifyContent: "space-between",
-                    gap:            "12px",
+                    display: "inline-flex", alignItems: "center", gap: "6px",
+                    marginTop: "20px",
+                    fontFamily: sans, fontSize: "12px", fontWeight: 500, letterSpacing: "0.06em",
+                    color: C.stone, textDecoration: "none",
+                    transition: `color 0.25s ${EASE.nav}`,
                   }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = C.dark; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = C.stone; }}
                 >
-                  {/* Language */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px", paddingTop: "14px" }}>
+                  <span>Tellian Capital Solutions</span>
+                  <span aria-hidden style={{ fontSize: "11px" }}>→</span>
+                </a>
+
+                {/* TERTIÄR: Language + LinkedIn — utility row */}
+                <div style={{
+                  marginTop: "20px", display: "flex", alignItems: "center",
+                  justifyContent: "space-between",
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                     {(["DE", "EN"] as const).map((l, idx) => (
                       <React.Fragment key={l}>
                         {idx > 0 && (
@@ -801,44 +858,12 @@ export function Navigation({
                       </React.Fragment>
                     ))}
                   </div>
-
-                  {/* Kundenportal */}
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-                    <button
-                      onMouseEnter={() => setPortalHover(true)}
-                      onMouseLeave={() => setPortalHover(false)}
-                      style={{
-                        display: "flex", alignItems: "center", gap: "8px",
-                        backgroundColor: portalHover ? C.buttonHover : C.button, color: C.dark,
-                        fontFamily: sans, fontSize: "11px", fontWeight: 700, letterSpacing: "1.5px",
-                        textTransform: "uppercase", padding: "12px 20px", border: "none",
-                        borderRadius: 0, cursor: "pointer",
-                        transition: `background-color 0.25s ${EASE.nav}`, outline: "none", whiteSpace: "nowrap",
-                      }}
-                    >
-                      <LockIcon size={14} color={C.bgSecondary} strokeWidth={1.5} />
-                      Kundenportal
-                    </button>
-                    <span
-                      style={{
-                        fontFamily: sans, fontSize: "10px", color: "#999",
-                        marginTop: "6px", textAlign: "right", userSelect: "none",
-                      }}
-                    >
-                      Zugang für bestehende Kunden
-                    </span>
-                  </div>
-                </div>
-
-                {/* LinkedIn */}
-                <div style={{ marginTop: "16px" }}>
                   <button
                     onMouseEnter={() => setLiHover(true)}
                     onMouseLeave={() => setLiHover(false)}
                     style={{
                       outline: "none", border: "none", background: "transparent",
                       cursor: "pointer", padding: 0, lineHeight: 0,
-                      transition: `opacity 0.2s`,
                     }}
                     aria-label="LinkedIn"
                   >
