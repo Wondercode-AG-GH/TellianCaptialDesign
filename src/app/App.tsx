@@ -333,7 +333,8 @@ function Section3Vermoegensverwaltung({
   const isDetail = viewMode === "detail";
 
   // Scroll-zoom removed: section uses standard width, no animProgress.
-  const sectionWidth = layout.sectionWidth;
+  // Two-column sections use 100vw so both columns are visible simultaneously
+  const sectionWidth = "100vw";
 
   const handleAnlageprozess = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -460,10 +461,10 @@ function Section3Vermoegensverwaltung({
       className="flex-shrink-0 h-screen relative"
       style={{ width: sectionWidth, backgroundColor: C.bg }}
     >
-      {/* Content wrapper — no sticky/scroll-lock, standard flow */}
+      {/* Content wrapper — 100vw, both columns visible */}
       <div style={{
         position: "relative",
-        width: layout.sectionWidth,
+        width: "100vw",
         height: "100%",
       }}>
         <ParteiDreieck onNavigate={() => onOpenDetail?.()} />
@@ -958,7 +959,7 @@ function Section4Anlagestrategien({
   const overviewMarkup = (
     <div
       className="flex-shrink-0 h-screen relative"
-      style={{ width: layout.sectionWidth, backgroundColor: C.bg }}
+      style={{ width: "100vw", backgroundColor: C.bg }}
     >
       {/* ── Right column: Methodik-Schaubild ──
            Section4: 40/60 statt 50/50 — bewusst, Schaubild braucht Breite.

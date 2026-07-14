@@ -208,19 +208,19 @@ function AppInner() {
 
         {/* ═══════════════════════════════════════════════════════
             SECTION 2 — DIENSTLEISTUNGEN
-            Left: white bg, text. Right: Imperial Purple panel
-            with the three service columns in light text.
+            100vw (not 110vw) — both columns must be visible simultaneously.
+            Left: white bg, text. Right: Imperial Purple panel.
             ═══════════════════════════════════════════════════════ */}
         <div
           className="flex-shrink-0 h-screen relative"
-          style={{ width: layout.sectionWidth, backgroundColor: C.bg }}
+          style={{ width: "100vw", backgroundColor: C.bg }}
         >
-          {/* Purple panel — right side, numbered editorial sequence */}
+          {/* Purple panel — right side, numbered editorial sequence (compact) */}
           <div style={{
             position: "absolute", top: 0, bottom: 0, left: "44vw", right: 0,
             backgroundColor: C.purple,
             display: "flex", alignItems: "center",
-            padding: "clamp(40px, 6vh, 80px) clamp(32px, 4vw, 56px)",
+            padding: "clamp(24px, 3vh, 48px) clamp(32px, 4vw, 56px)",
           }}>
             <div style={{
               display: "flex", flexDirection: "column",
@@ -229,41 +229,38 @@ function AppInner() {
               {s.columns.map((col, i) => (
                 <FadeIn yOffset={14} delay={i * 100}>
                   <div>
-                    {/* Hairline separator (not before first item) */}
                     {i > 0 && (
                       <div style={{
                         width: "100%", height: 1,
                         backgroundColor: "rgba(244,244,240,0.20)",
-                        margin: "clamp(24px, 3.5vh, 40px) 0",
+                        margin: "clamp(16px, 2vh, 24px) 0",
                       }} />
                     )}
-                    <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
-                      {/* Large ordinal number */}
+                    <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
                       <span style={{
                         fontFamily: serif,
-                        fontSize: "clamp(32px, 4vh, 48px)",
+                        fontSize: "clamp(20px, 2.5vh, 28px)",
                         lineHeight: 1,
                         color: "rgba(244,244,240,0.50)",
                         flexShrink: 0,
-                        minWidth: 56,
+                        minWidth: 40,
                         userSelect: "none",
                       }}>
                         {String(i + 1).padStart(2, "0")}
                       </span>
-                      {/* Title + body */}
                       <div style={{ flex: 1 }}>
                         <span style={{
-                          fontFamily: serif, fontSize: 16, color: C.bg,
+                          fontFamily: serif, fontSize: 15, color: C.bg,
                           lineHeight: 1.3, display: "block",
                         }}>
                           {col.title[lang]}
                         </span>
                         <p style={{
                           fontFamily: sans,
-                          fontSize: "clamp(11px, 1.2vh, 13px)",
+                          fontSize: "clamp(11px, 1.2vh, 12px)",
                           color: C.bg,
-                          lineHeight: 1.65,
-                          margin: "10px 0 0 0",
+                          lineHeight: 1.6,
+                          margin: "8px 0 0 0",
                           overflowWrap: "break-word",
                         }}>
                           {col.body[lang]}
@@ -327,15 +324,21 @@ function AppInner() {
         <div className="flex-shrink-0 h-screen" style={{ width: layout.breathingSpace, backgroundColor: C.bg }} />
 
         {/* ═══════════════════════════════════════════════════════
-            SECTION 3 — TEAM
+            SECTION 3 — TEAM (100vw — both columns visible simultaneously)
             ═══════════════════════════════════════════════════════ */}
         <div
           className="flex-shrink-0 h-screen relative"
-          style={{ width: layout.sectionWidth, backgroundColor: C.bg }}
+          style={{ width: "100vw", backgroundColor: C.bg }}
         >
+          {/* Text column — left, overlays portraits (44vw to not clip portrait names) */}
           <div
-            className="relative z-10 h-full flex flex-col justify-center"
-            style={{ ...textColStyle, maxWidth: "calc(460px + clamp(36px, 5vw, 120px) + 4vw)" }}
+            className="absolute z-10 top-0 left-0 h-full flex flex-col justify-center"
+            style={{
+              width: "44vw",
+              paddingLeft: layout.paddingLeft,
+              paddingRight: layout.paddingRight,
+              backgroundColor: C.bg,
+            }}
           >
             <FadeIn yOffset={16}>
               <span style={{
@@ -361,37 +364,102 @@ function AppInner() {
                 </em>
               </h2>
             </FadeIn>
+
+            {/* CTA */}
+            <FadeIn yOffset={14} delay={200}>
+              <a
+                href="#contact"
+                onClick={(e) => { e.preventDefault(); scrollTo(1.0); }}
+                className="inline-flex items-center gap-3 uppercase"
+                style={{
+                  marginTop: 56, padding: "16px 24px",
+                  border: `1px solid ${C.button}`, borderRadius: 0,
+                  backgroundColor: C.button, fontFamily: sans,
+                  fontSize: 11, fontWeight: 500, letterSpacing: "0.18em",
+                  color: C.dark, textDecoration: "none", lineHeight: 1,
+                  alignSelf: "flex-start",
+                  transition: "background-color 250ms ease-out",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = C.buttonHover; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = C.button; }}
+              >
+                <span>{t.ctaLabel[lang]}</span>
+                <span aria-hidden>→</span>
+              </a>
+            </FadeIn>
           </div>
 
-          {/* Portraits — right side, both fade in together */}
+          {/* Portrait cards — right side, large (28vw each like main site) */}
           <div style={{
-            position: "absolute", top: 0, bottom: 0, left: "44vw", right: 0,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            padding: "0 clamp(24px, 3vw, 48px)",
+            position: "absolute", top: 0, bottom: 0, left: 0, right: 0,
+            display: "flex", alignItems: "center",
+            justifyContent: "flex-end",
+            gap: "clamp(16px, 2vw, 32px)",
+            paddingRight: "clamp(24px, 3vw, 48px)",
           }}>
-            <FadeIn yOffset={16}>
-              <div style={{ display: "flex", gap: "clamp(24px, 3vw, 48px)" }}>
-                {t.members.map((m, i) => (
-                  <div key={i} style={{ maxWidth: 240 }}>
-                    <img src={m.photo} alt={m.name} style={{
-                      width: "100%", aspectRatio: "3 / 4", objectFit: "cover", display: "block",
-                    }} />
+            {t.members.map((m, i) => (
+              <FadeIn key={i} yOffset={16} delay={i * 120}>
+                <div style={{ width: "21vw", maxWidth: 285 }}>
+                  <img src={m.photo} alt={m.name} style={{
+                    width: "100%", aspectRatio: "3 / 4", objectFit: "cover", display: "block",
+                  }} />
+                  <div style={{ marginTop: 16 }}>
+                    {/* Name row + LinkedIn icon aligned to right edge of photo */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span style={{
+                        fontFamily: sans, fontSize: 18, fontWeight: 600, color: C.dark,
+                        lineHeight: 1.3,
+                      }}>
+                        {m.name}
+                      </span>
+                      {m.linkedin && (
+                        <a
+                          href={m.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`${m.name} LinkedIn`}
+                          style={{ lineHeight: 0, flexShrink: 0, transition: "opacity 200ms ease" }}
+                          onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.6"; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7H10v-7a6 6 0 0 1 6-6z" stroke={C.stone} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <rect x="2" y="9" width="4" height="12" stroke={C.stone} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <circle cx="4" cy="4" r="2" stroke={C.stone} strokeWidth="1.5"/>
+                          </svg>
+                        </a>
+                      )}
+                    </div>
                     <span style={{
-                      fontFamily: serif, fontSize: 15, color: C.dark,
-                      lineHeight: 1.3, display: "block", marginTop: 14,
-                    }}>
-                      {m.name}
-                    </span>
-                    <span style={{
-                      fontFamily: sans, fontSize: 11, color: C.stone,
-                      letterSpacing: "0.1em", display: "block", marginTop: 4,
+                      fontFamily: sans, fontSize: 14, color: C.stone,
+                      display: "block", marginTop: 4,
                     }}>
                       {m.role[lang]}
-                  </span>
+                    </span>
+
+                    {/* Send message link */}
+                    <a
+                      href={`mailto:${m.email}`}
+                      style={{
+                        display: "inline-flex", alignItems: "center", gap: 8,
+                        marginTop: 12,
+                        fontFamily: sans, fontSize: 13, letterSpacing: "0.1em",
+                        textTransform: "uppercase", color: C.stone, textDecoration: "none",
+                        transition: "color 200ms ease",
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.color = C.dark; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.color = C.stone; }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden style={{ flexShrink: 0 }}>
+                        <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                        <path d="M2 7l10 7 10-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span>{t.sendMessage[lang]}</span>
+                    </a>
                   </div>
-                ))}
-              </div>
-            </FadeIn>
+                </div>
+              </FadeIn>
+            ))}
           </div>
         </div>
 

@@ -28,8 +28,10 @@ export interface SolutionsContent {
   team: {
     eyebrow: LocaleString;
     headline: LocaleString;
+    sendMessage: LocaleString;
+    ctaLabel: LocaleString;
     /* TEAM: Platzhalter — finale Auswahl pending */
-    members: { name: string; role: LocaleString; photo: string }[];
+    members: { name: string; role: LocaleString; photo: string; email: string; linkedin: string }[];
   };
   contact: {
     eyebrow: LocaleString;
@@ -133,6 +135,8 @@ export const CONTENT: SolutionsContent = {
   team: {
     eyebrow: { de: "Team", en: "Team", fr: "Équipe" },
     headline: { de: "Wer dahinter steht.", en: "Who's behind it.", fr: "Qui est derrière." },
+    sendMessage: { de: "Nachricht senden", en: "Send message", fr: "Envoyer un message" },
+    ctaLabel: { de: "Gespräch vereinbaren", en: "Schedule a meeting", fr: "Prendre rendez-vous" },
     /* TEAM: Platzhalter — finale Auswahl pending */
     members: [
       {
@@ -143,6 +147,8 @@ export const CONTENT: SolutionsContent = {
           fr: "Direction générale & fondateur",
         },
         photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80",
+        email: "thomas.keller@telliancapital.ch",
+        linkedin: "https://www.linkedin.com/in/placeholder-thomas-keller", /* PENDING: echte LinkedIn URL */
       },
       {
         name: "Claudia Meier",
@@ -152,6 +158,8 @@ export const CONTENT: SolutionsContent = {
           fr: "Responsable stratégie d'investissement",
         },
         photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80",
+        email: "claudia.meier@telliancapital.ch",
+        linkedin: "https://www.linkedin.com/in/placeholder-claudia-meier", /* PENDING: echte LinkedIn URL */
       },
     ],
   },

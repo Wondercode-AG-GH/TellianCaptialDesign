@@ -9,7 +9,7 @@ import type { Breakpoint } from "./useBreakpoint";
    SECTION 5 — ÜBER TELLIAN CAPITAL
    Desktop: Teil 1 (110vw, text + first portrait as static image)
             followed by Teil 2 (filmstrip of 7 remaining portraits,
-            each 28vw wide, 24px gaps, static — revealed by natural
+            each 21vw wide, 24px gaps, static — revealed by natural
             horizontal page scroll).
    Tablet/Mobile: stacked text + 1- or 2-column team grid.
    ═══════════════════════════════════════════════════════════ */
@@ -22,6 +22,7 @@ interface TeamMember {
   role: string;
   bio: string;
   img: string;
+  linkedin?: string;
 }
 
 const TEAM: TeamMember[] = [
@@ -30,48 +31,56 @@ const TEAM: TeamMember[] = [
     role: "Geschäftsleitung & Gründer",
     bio: "Über 30 Jahre Erfahrung in quantitativer Vermögensverwaltung.",
     img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80",
+    linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
   {
     name: "Claudia Meier",
     role: "Chef Anlagestrategie",
     bio: "Leiterin des Anlagekomitees und verantwortlich für die Makroanalyse.",
     img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80",
+    linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
   {
     name: "Martin Huber",
     role: "Relationship Manager",
     bio: "Persönliche Mandatsführung für private Anleger seit 2008.",
     img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&q=80",
+    linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
   {
     name: "Elena Brunner",
     role: "Compliance & Operations",
     bio: "Verantwortlich für regulatorische Anforderungen und Kundenprozesse.",
     img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=800&q=80",
+    linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
   {
     name: "Lukas Widmer",
     role: "Quantitative Analyse",
     bio: "Entwicklung und Pflege der proprietären Anlagemodelle.",
     img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80",
+    linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
   {
     name: "Sarah Roth",
     role: "Relationship Managerin",
     bio: "Betreuung institutioneller Mandate und Stiftungsportfolios.",
     img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80",
+    linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
   {
     name: "Peter Frei",
     role: "Partner Asset Management",
     bio: "Internationale Anlagestrategien und alternative Anlageklassen.",
     img: "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=800&q=80",
+    linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
   {
     name: "Anna Zürcher",
     role: "Kundenberatung & Reporting",
     bio: "Konsolidierte Berichterstattung und direkter Kundenkontakt.",
     img: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=800&q=80",
+    linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
 ];
 
@@ -103,43 +112,30 @@ function teamEmail(name: string): string {
    SEND MESSAGE LINK — accent-line + label, mailto: action
    ═══════════════════════════════════════════════════════════ */
 function SendMessageLink({ email }: { email: string }) {
-  const [hover, setHover] = useState(false);
-  const color = hover ? C.dark : C.stone;
   return (
     <a
       href={`mailto:${email}`}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
       style={{
         display: "inline-flex",
         alignItems: "center",
         gap: "8px",
         textDecoration: "none",
         cursor: "pointer",
+        fontFamily: sans,
+        fontSize: "13px",
+        letterSpacing: "0.1em",
+        textTransform: "uppercase",
+        color: C.stone,
+        transition: "color 200ms ease",
       }}
+      onMouseEnter={(e) => { e.currentTarget.style.color = C.dark; }}
+      onMouseLeave={(e) => { e.currentTarget.style.color = C.stone; }}
     >
-      <span
-        style={{
-          fontFamily: sans,
-          fontSize: "13px",
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          color,
-          transition: "color 200ms ease",
-        }}
-      >
-        Nachricht senden
-      </span>
-      <span
-        aria-hidden
-        style={{
-          color,
-          fontSize: "13px",
-          transition: "color 200ms ease",
-        }}
-      >
-        →
-      </span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden style={{ flexShrink: 0 }}>
+        <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M2 7l10 7 10-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      <span>Nachricht senden</span>
     </a>
   );
 }
@@ -179,18 +175,37 @@ function PortraitCard({
 
       {/* Caption */}
       <div style={{ marginTop: "24px" }}>
-        <span
-          style={{
-            fontFamily: sans,
-            fontSize: nameSize,
-            fontWeight: nameWeight,
-            color: C.dark,
-            display: "block",
-            lineHeight: 1.2,
-          }}
-        >
-          {member.name}
-        </span>
+        {/* Name row + LinkedIn icon aligned to right edge of photo */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span
+            style={{
+              fontFamily: sans,
+              fontSize: nameSize,
+              fontWeight: nameWeight,
+              color: C.dark,
+              lineHeight: 1.2,
+            }}
+          >
+            {member.name}
+          </span>
+          {member.linkedin && (
+            <a
+              href={member.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${member.name} LinkedIn`}
+              style={{ lineHeight: 0, flexShrink: 0, transition: "opacity 200ms ease" }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.6"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7H10v-7a6 6 0 0 1 6-6z" stroke={C.stone} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <rect x="2" y="9" width="4" height="12" stroke={C.stone} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="4" cy="4" r="2" stroke={C.stone} strokeWidth="1.5"/>
+              </svg>
+            </a>
+          )}
+        </div>
         <span
           style={{
             fontFamily: sans,
@@ -398,9 +413,9 @@ export function Section5UeberTellian({
 
   /* ═══ DESKTOP MODE ═══
      Single container: text column (absolute, 56vw) + filmstrip of all 8
-     portraits (flex row, 28vw each, 24px gaps). Text sits on top of the
+     portraits (flex row, 21vw each, 24px gaps). Text sits on top of the
      first ~56vw of the filmstrip via matching bg color.
-     Layout width: paddingLeft(60vw) + 8×28vw + 7×24px ≈ 284vw + 168px.
+     Layout width: paddingLeft(60vw) + 8×21vw + 7×24px ≈ 228vw + 168px.
   ══════════════════════════════════════════════════════════ */
   return (
     <div
@@ -515,7 +530,7 @@ export function Section5UeberTellian({
         <PortraitCard
           key={member.name}
           member={member}
-          width="28vw"
+          width="21vw"
         />
       ))}
     </div>
