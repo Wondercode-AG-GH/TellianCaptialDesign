@@ -36,12 +36,18 @@ export function FadeIn({
     const el = ref.current;
     if (!el) return;
 
-    /* Find the horizontal scroll container (parent with overflow-x-scroll) */
+    /* Find the scroll container (horizontal or vertical) */
     let scrollRoot: Element | null = null;
+    let isHorizontalScroll = false;
     let parent = el.parentElement;
     while (parent) {
-      const overflow = getComputedStyle(parent).overflowX;
-      if (overflow === "scroll" || overflow === "auto") {
+      const style = getComputedStyle(parent);
+      if (style.overflowX === "scroll" || style.overflowX === "auto") {
+        scrollRoot = parent;
+        isHorizontalScroll = true;
+        break;
+      }
+      if (style.overflowY === "scroll" || style.overflowY === "auto") {
         scrollRoot = parent;
         break;
       }
@@ -56,9 +62,9 @@ export function FadeIn({
         }
       },
       {
-        root: scrollRoot,         // observe within the scroll container, not viewport
+        root: scrollRoot,
         threshold: 0.05,
-        rootMargin: "0px 200px 0px 200px",
+        rootMargin: isHorizontalScroll ? "0px 200px 0px 200px" : "200px 0px 200px 0px",
       },
     );
 

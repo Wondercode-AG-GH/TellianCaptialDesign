@@ -20,5 +20,12 @@ html {
 body {
   margin: 0;
   background-color: #F4F4F0;
-  overflow: hidden;
+}
+
+/* Desktop: lock body so horizontal scroll container takes over.
+   Tablet/Mobile (< 1024px): allow natural vertical scrolling. */
+@media (min-width: 1024px) {
+  body {
+    overflow: hidden;
+  }
 }

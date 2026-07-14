@@ -37,7 +37,7 @@ export function PreloadScreen({ onComplete }: Props) {
         src={logoWhite}
         alt="Tellian Capital Solutions"
         style={{
-          width: "clamp(360px, 60vw, 680px)",
+          width: "clamp(240px, 70vw, 680px)",
           opacity: phase === "logo-in" ? 0 : 1,
           transition: "opacity 0.6s ease-out",
         }}
