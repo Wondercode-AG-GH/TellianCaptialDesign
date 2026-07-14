@@ -6,7 +6,7 @@ import { LAYOUT, getLayout, getTextColumnStyle, SPACING } from "../layout";
 import type { Breakpoint } from "./useBreakpoint";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
-import { C, serif, sans, cormorant } from "../tokens";
+import { C, serif, sans, cormorant, EYEBROW } from "../tokens";
 import { EASE, DURATION } from "../../styles/motion";
 
 /* ─── Section geometry ──────────────────────────────────────── */
@@ -163,8 +163,8 @@ function LeistungsethikStage({ compact = false }: StageProps) {
       <span
         style={{
           fontFamily: sans,
-          fontSize: compact ? "10px" : "11px",
-          letterSpacing: "0.2em",
+          fontSize: compact ? EYEBROW.mobile : EYEBROW.desktop,
+          letterSpacing: "0.22em",
           color: C.stone,
           textTransform: "uppercase",
           display: "block",
@@ -292,7 +292,7 @@ export function Section2Anlagephilosophie({
             <span
               style={{
                 fontFamily: sans,
-                fontSize: "11px",
+                fontSize: EYEBROW.mobile,
                 letterSpacing: "0.22em",
                 color: C.stone,
                 display: "block",

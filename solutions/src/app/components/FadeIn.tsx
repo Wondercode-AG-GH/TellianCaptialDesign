@@ -2,20 +2,21 @@ import { useRef, useState, useEffect, type ReactNode, type CSSProperties } from 
 import { EASE } from "../../styles/motion";
 
 /* ═══════════════════════════════════════════════════════════
-   FADE IN — one-shot IntersectionObserver reveal.
-   Replaces ScrollFade for Solutions: NO scroll-coupled opacity.
-   Once entered → opacity:1 forever. Never fades back.
+   FADE IN — one-shot reveal for horizontal scroll layouts.
 
-   rootMargin "0px 200px" triggers 200px BEFORE the element
-   enters the viewport horizontally — prevents empty panels
-   during horizontal scroll.
+   Uses the scroll container as IntersectionObserver root
+   (not the viewport) so elements only reveal when they
+   actually scroll into the visible area of the container.
+
+   Falls back to a simple delay-based reveal if no scroll
+   container is found (e.g., on mount before ref is set).
    ═══════════════════════════════════════════════════════════ */
 
 interface FadeInProps {
   children: ReactNode;
-  yOffset?: number;       // default 16 — translateY slide distance
-  delay?: number;         // default 0 — ms delay after entering
-  duration?: number;      // default 600 — ms transition duration
+  yOffset?: number;
+  delay?: number;
+  duration?: number;
   className?: string;
   style?: CSSProperties;
 }
@@ -35,6 +36,18 @@ export function FadeIn({
     const el = ref.current;
     if (!el) return;
 
+    /* Find the horizontal scroll container (parent with overflow-x-scroll) */
+    let scrollRoot: Element | null = null;
+    let parent = el.parentElement;
+    while (parent) {
+      const overflow = getComputedStyle(parent).overflowX;
+      if (overflow === "scroll" || overflow === "auto") {
+        scrollRoot = parent;
+        break;
+      }
+      parent = parent.parentElement;
+    }
+
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -43,9 +56,8 @@ export function FadeIn({
         }
       },
       {
+        root: scrollRoot,         // observe within the scroll container, not viewport
         threshold: 0.05,
-        /* 200px horizontal margin — triggers BEFORE element
-           fully enters viewport during horizontal scroll */
         rootMargin: "0px 200px 0px 200px",
       },
     );

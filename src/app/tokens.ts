@@ -34,3 +34,9 @@ export const C = {
 export const serif     = "'Lustria', serif";
 export const sans      = "'Inter', sans-serif";
 export const cormorant = "'Cormorant Garamond', serif";
+
+// SYNC: These values MUST match --tellian-eyebrow-size-* in theme.css.
+export const EYEBROW = {
+  desktop: "10px",
+  mobile:  "11px",
+} as const;

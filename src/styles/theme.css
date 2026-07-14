@@ -94,6 +94,10 @@
   --tellian-font-serif: 'Lustria', serif;
   --tellian-font-sans: 'Inter', sans-serif;
 
+  /* Eyebrow — section label above headlines (single source of truth) */
+  --tellian-eyebrow-size-desktop: 10px;
+  --tellian-eyebrow-size-mobile: 11px;
+
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: #030213;

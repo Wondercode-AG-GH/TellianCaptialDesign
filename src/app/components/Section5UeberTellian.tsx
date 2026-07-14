@@ -14,7 +14,7 @@ import type { Breakpoint } from "./useBreakpoint";
    Tablet/Mobile: stacked text + 1- or 2-column team grid.
    ═══════════════════════════════════════════════════════════ */
 
-import { C, serif, sans } from "../tokens";
+import { C, serif, sans, EYEBROW } from "../tokens";
 
 /* ── Team data ── */
 interface TeamMember {
@@ -304,7 +304,7 @@ export function Section5UeberTellian({
             <span
               style={{
                 fontFamily: sans,
-                fontSize: "11px",
+                fontSize: EYEBROW.mobile,
                 letterSpacing: "0.22em",
                 color: C.stone,
                 display: "block",
@@ -424,7 +424,7 @@ export function Section5UeberTellian({
         <span
           style={{
             fontFamily: sans,
-            fontSize: "10px",
+            fontSize: EYEBROW.desktop,
             letterSpacing: "0.22em",
             color: C.stone,
             display: "block",

@@ -12,7 +12,7 @@ import { usePrefersReducedMotion } from "./components/usePrefersReducedMotion";
 import { Navigation } from "./components/Navigation";
 import { LoginOverlay } from "./components/LoginOverlay";
 import { LegalPage, useLegalRoute } from "./components/LegalPage";
-import { C, serif, sans } from "./tokens";
+import { C, serif, sans, EYEBROW } from "./tokens";
 import { EASE, SCROLL } from "../styles/motion";
 import { useHorizontalScroll } from "./components/useHorizontalScroll";
 import { useBreakpoint } from "./components/useBreakpoint";
@@ -365,7 +365,7 @@ function Section3Vermoegensverwaltung({
             <span
               style={{
                 fontFamily: sans,
-                fontSize: "11px",
+                fontSize: EYEBROW.mobile,
                 letterSpacing: "0.22em",
                 color: C.stone,
                 display: "block",
@@ -483,7 +483,7 @@ function Section3Vermoegensverwaltung({
         >
         <span
           style={{
-            fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em",
+            fontFamily: sans, fontSize: EYEBROW.desktop, letterSpacing: "0.22em",
             color: C.stone, display: "block",
           }}
           className="uppercase"
@@ -821,7 +821,7 @@ function Section4Anlagestrategien({
             <span
               style={{
                 fontFamily: sans,
-                fontSize: "11px",
+                fontSize: EYEBROW.mobile,
                 letterSpacing: "0.22em",
                 color: C.stone,
                 display: "block",
@@ -1059,7 +1059,7 @@ function Section4Anlagestrategien({
         <span
           style={{
             fontFamily: sans,
-            fontSize: "10px",
+            fontSize: EYEBROW.desktop,
             letterSpacing: "0.22em",
             color: C.stone,
             display: "block",
@@ -1412,7 +1412,7 @@ export default function App() {
             <span
               style={{
                 fontFamily: sans,
-                fontSize: "11px",
+                fontSize: EYEBROW.desktop,
                 fontWeight: 400,
                 letterSpacing: "0.22em",
                 textTransform: "uppercase",

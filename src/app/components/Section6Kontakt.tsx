@@ -10,7 +10,7 @@ import {
   type LegalPath,
 } from "../data/legalPages";
 
-import { C, serif, sans } from "../tokens";
+import { C, serif, sans, EYEBROW } from "../tokens";
 
 /* Mapbox-specific colors (not design tokens — map theming only) */
 const MAP_COLORS = { road: "#E8E6E1", water: "#D5DDD8", green: "#E4E8E0" };
@@ -964,7 +964,7 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
           <span
             style={{
               fontFamily: sans,
-              fontSize: "10px",
+              fontSize: EYEBROW.desktop,
               letterSpacing: "0.22em",
               color: C.stone,
               display: "block",

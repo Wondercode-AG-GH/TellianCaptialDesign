@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { C, serif, sans } from "./tokens";
 import { EASE } from "../styles/motion";
 import { getLayout, getTextColumnStyle, SPACING } from "./layout";
@@ -28,6 +28,13 @@ function AppInner() {
 
   const layout = getLayout("desktop");
   const textColStyle = getTextColumnStyle("desktop");
+
+  /* Force scroll to start position on mount */
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollLeft = 0;
+    }
+  }, [containerRef]);
 
   const handleIntroComplete = useCallback(() => {
     setIntroComplete(true);
