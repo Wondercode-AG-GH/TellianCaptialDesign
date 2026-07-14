@@ -31,50 +31,50 @@ const VALUES = [
     de: "Ehrlichkeit",          en: "Integrity",
     readoutDe: "Wir benennen Chancen und Risiken so, wie sie sind.",
     readoutEn: "We name opportunities and risks as they are.",
-    inactiveSize: "32px",       mobileSize: "28px",
+    inactiveSize: "24px",       mobileSize: "24px",
     offset: "0%",               mobileOffset: "0px",
   },
   {
     de: "Disziplin",            en: "Discipline",
     readoutDe: "Wir halten uns an den Prozess, auch wenn es unbequem wird.",
     readoutEn: "We stick to the process, even when it gets uncomfortable.",
-    inactiveSize: "26px",       mobileSize: "24px",
-    offset: "8%",               mobileOffset: "12px",
+    inactiveSize: "20px",       mobileSize: "20px",
+    offset: "4%",               mobileOffset: "12px",
   },
   {
     de: "Respekt",              en: "Respect",
     readoutDe: "Jedes Mandat zählt gleich viel, unabhängig von seiner Grösse.",
     readoutEn: "Every mandate counts the same, whatever its size.",
-    inactiveSize: "28px",       mobileSize: "26px",
-    offset: "18%",              mobileOffset: "24px",
+    inactiveSize: "22px",       mobileSize: "22px",
+    offset: "9%",               mobileOffset: "24px",
   },
   {
     de: "Leistungsbereitschaft", en: "Commitment",
     readoutDe: "Wir arbeiten am Portfolio weiter, nicht nur zum Quartalsende.",
     readoutEn: "We keep working on the portfolio, not just at quarter-end.",
-    inactiveSize: "24px",       mobileSize: "22px",
-    offset: "5%",               mobileOffset: "6px",
+    inactiveSize: "18px",       mobileSize: "18px",
+    offset: "2%",               mobileOffset: "6px",
   },
   {
     de: "Unabhängigkeit",       en: "Independence",
     readoutDe: "Unsere Analyse ist unsere eigene, ohne fremde Interessen.",
     readoutEn: "Our analysis is our own, free of outside interests.",
-    inactiveSize: "30px",       mobileSize: "26px",
-    offset: "28%",              mobileOffset: "20px",
+    inactiveSize: "22px",       mobileSize: "22px",
+    offset: "14%",              mobileOffset: "20px",
   },
   {
     de: "Entschlossenheit",     en: "Resolve",
     readoutDe: "Tragen die Daten eine Position, dann halten wir sie.",
     readoutEn: "When the data backs a position, we hold it.",
-    inactiveSize: "26px",       mobileSize: "24px",
-    offset: "14%",              mobileOffset: "10px",
+    inactiveSize: "20px",       mobileSize: "20px",
+    offset: "7%",               mobileOffset: "10px",
   },
 ];
 
 /* ═══════════════════════════════════════════════════════════════
    LEISTUNGSETHIK STAGE — Typographic composition
    ═══════════════════════════════════════════════════════════════ */
-const ROW_H = 48;
+const ROW_H = 38;
 
 interface StageProps {
   compact?: boolean;
@@ -153,8 +153,8 @@ function LeistungsethikStage({ compact = false }: StageProps) {
     : `font-size ${DURATION.medium}ms ${EASE.standard}, color ${DURATION.medium}ms ${EASE.standard}`;
 
   const activeSize = compact
-    ? "clamp(32px, 8vw, 48px)"
-    : "clamp(40px, 5vw, 72px)";
+    ? "clamp(28px, 7vw, 40px)"
+    : "clamp(32px, 3.5vw, 48px)";
 
   return (
     <div ref={containerRef}>
@@ -376,12 +376,12 @@ export function Section2Anlagephilosophie({
   return (
     <div
       className="flex-shrink-0 h-screen relative"
-      style={{ width: "110vw", backgroundColor: C.bg }}
+      style={{ width: "100vw", backgroundColor: C.bg }}
     >
-      {/* Image — right side */}
+      {/* Image — right side (starts at 52vw to give text more room) */}
       <div
         className="absolute z-0"
-        style={{ top: 0, bottom: 0, left: LAYOUT.imageLeft, right: 0 }}
+        style={{ top: 0, bottom: 0, left: "52vw", right: 0 }}
       >
         <HeroExpandingImage
           src={sardonaImg}
@@ -391,22 +391,24 @@ export function Section2Anlagephilosophie({
         />
       </div>
 
-      {/* Left column */}
+      {/* Left column — with vertical padding for breathing room */}
       <div
         className="relative z-10 h-full flex flex-col justify-center"
         style={{
-          width: LAYOUT.columnWidth,
-          paddingLeft: "clamp(36px, 8vw, 120px)",
-          paddingRight: "clamp(36px, 5vw, 80px)",
-          maxWidth: "calc(460px + clamp(36px, 5vw, 120px) + 4vw)",
+          width: "52vw",
+          paddingLeft: LAYOUT.paddingLeft,
+          paddingRight: LAYOUT.paddingRight,
+          paddingTop: LAYOUT.paddingTop,
+          paddingBottom: LAYOUT.paddingBottom,
+          backgroundColor: C.bg,
         }}
       >
         {/* Eyebrow */}
         <span
           style={{
             fontFamily: sans,
-            fontSize: "14px",
-            letterSpacing: "0.15em",
+            fontSize: EYEBROW.desktop,
+            letterSpacing: "0.22em",
             color: C.stone,
             display: "block",
             textTransform: "uppercase",
@@ -420,7 +422,7 @@ export function Section2Anlagephilosophie({
             width: "28px",
             height: "1.5px",
             backgroundColor: C.dark,
-            marginTop: "16px",
+            marginTop: SPACING.eyebrowToAccent,
           }}
         />
 
@@ -432,7 +434,7 @@ export function Section2Anlagephilosophie({
             lineHeight: 0.94,
             color: C.dark,
             letterSpacing: "-0.03em",
-            marginTop: "32px",
+            marginTop: SPACING.accentToHeadline,
           }}
         >
           Analyse entscheidet.
@@ -443,7 +445,7 @@ export function Section2Anlagephilosophie({
         {/* Body */}
         <div
           style={{
-            marginTop: "32px",
+            marginTop: SPACING.headlineToBody,
             maxWidth: "480px",
             display: "flex",
             flexDirection: "column",
@@ -455,7 +457,7 @@ export function Section2Anlagephilosophie({
               key={i}
               style={{
                 fontFamily: sans,
-                fontSize: "clamp(10.5px, 1.3vh, 12px)",
+                fontSize: "16px",
                 color: C.charcoal,
                 lineHeight: 1.75,
                 margin: 0,
@@ -467,7 +469,7 @@ export function Section2Anlagephilosophie({
         </div>
 
         {/* Leistungsethik Stage */}
-        <div style={{ marginTop: "40px" }}>
+        <div style={{ marginTop: SPACING.bodyToCta }}>
           <LeistungsethikStage />
         </div>
       </div>

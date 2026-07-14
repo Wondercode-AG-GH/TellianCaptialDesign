@@ -221,7 +221,7 @@ function AppInner() {
             {/* Lead sentence */}
             <p style={{
               fontFamily: sans,
-              fontSize: isMobile ? 14 : 13,
+              fontSize: 16,
               color: C.charcoal,
               lineHeight: 1.6,
               maxWidth: 420,
@@ -236,7 +236,7 @@ function AppInner() {
             {/* Closing line */}
             <p style={{
               fontFamily: serif,
-              fontSize: isMobile ? 15 : 18,
+              fontSize: isMobile ? 16 : 18,
               fontStyle: "italic",
               color: C.dark,
               lineHeight: 1.4,
@@ -310,7 +310,7 @@ function AppInner() {
 
             <FadeIn yOffset={18}>
               <p style={{
-                fontFamily: sans, fontSize: isMobile ? 14 : "clamp(10.5px, 1.3vh, 12.5px)",
+                fontFamily: sans, fontSize: isMobile ? 16 : "16px",
                 color: C.charcoal, lineHeight: 1.75,
                 marginTop: SPACING.headlineToBody,
                 maxWidth: isMobile ? "100%" : layout.bodyMaxWidth,
@@ -359,7 +359,7 @@ function AppInner() {
                         </span>
                         <p style={{
                           fontFamily: sans,
-                          fontSize: isMobile ? 13 : "clamp(11px, 1.2vh, 12px)",
+                          fontSize: isMobile ? 14 : "14px",
                           color: C.bg,
                           lineHeight: 1.65,
                           margin: "10px 0 0 0",
@@ -602,7 +602,7 @@ function AppInner() {
             {/* Lead sentence */}
             <p style={{
               fontFamily: sans,
-              fontSize: "clamp(12px, 1.4vh, 14px)",
+              fontSize: "16px",
               color: C.charcoal,
               lineHeight: 1.7,
               margin: 0,
@@ -706,14 +706,14 @@ function AppInner() {
                       </span>
                       <div style={{ flex: 1 }}>
                         <span style={{
-                          fontFamily: serif, fontSize: 15, color: C.bg,
+                          fontFamily: serif, fontSize: 16, color: C.bg,
                           lineHeight: 1.3, display: "block",
                         }}>
                           {col.title[lang]}
                         </span>
                         <p style={{
                           fontFamily: sans,
-                          fontSize: "clamp(11px, 1.2vh, 12px)",
+                          fontSize: "14px",
                           color: C.bg,
                           lineHeight: 1.6,
                           margin: "8px 0 0 0",
@@ -766,7 +766,7 @@ function AppInner() {
 
             <FadeIn yOffset={18}>
               <p style={{
-                fontFamily: sans, fontSize: "clamp(10.5px, 1.3vh, 12.5px)",
+                fontFamily: sans, fontSize: "16px",
                 color: C.charcoal, lineHeight: 1.75,
                 marginTop: SPACING.headlineToBody,
                 maxWidth: layout.bodyMaxWidth,

@@ -487,7 +487,7 @@ export function Section5UeberTellian({
               key={i}
               style={{
                 fontFamily: sans,
-                fontSize: "clamp(10.5px, 1.3vh, 12px)",
+                fontSize: "16px",
                 color: C.charcoal,
                 lineHeight: 1.75,
                 margin: 0,
