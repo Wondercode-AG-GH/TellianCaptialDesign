@@ -137,29 +137,28 @@ export const CONTENT: SolutionsContent = {
     headline: { de: "Wer dahinter steht.", en: "Who's behind it.", fr: "Qui est derrière." },
     sendMessage: { de: "Nachricht senden", en: "Send message", fr: "Envoyer un message" },
     ctaLabel: { de: "Gespräch vereinbaren", en: "Schedule a meeting", fr: "Prendre rendez-vous" },
-    /* TEAM: Platzhalter — finale Auswahl pending */
     members: [
       {
-        name: "Dr. Thomas Keller",
+        name: "Olivier M. Bill",
         role: {
-          de: "Geschäftsleitung & Gründer",
-          en: "Managing Director & Founder",
-          fr: "Direction générale & fondateur",
+          de: "CEO",
+          en: "CEO",
+          fr: "CEO",
         },
-        photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80",
-        email: "thomas.keller@telliancapital.ch",
-        linkedin: "https://www.linkedin.com/in/placeholder-thomas-keller", /* PENDING: echte LinkedIn URL */
+        photo: "/assets/team/Olivier-Bill.JPG",
+        email: "olivier.bill@telliancapital.ch",
+        linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
       },
       {
-        name: "Claudia Meier",
+        name: "Marco Ludescher",
         role: {
-          de: "Chef Anlagestrategie",
-          en: "Chief Investment Strategist",
-          fr: "Responsable stratégie d'investissement",
+          de: "Head of Portfolio Management",
+          en: "Head of Portfolio Management",
+          fr: "Responsable de la gestion de portefeuille",
         },
-        photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80",
-        email: "claudia.meier@telliancapital.ch",
-        linkedin: "https://www.linkedin.com/in/placeholder-claudia-meier", /* PENDING: echte LinkedIn URL */
+        photo: "/assets/team/Marco-Ludescher.JPG",
+        email: "marco.ludescher@telliancapital.ch",
+        linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
       },
     ],
   },

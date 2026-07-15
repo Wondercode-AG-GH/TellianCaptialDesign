@@ -7,14 +7,21 @@ import type { Breakpoint } from "./useBreakpoint";
 
 /* ═══════════════════════════════════════════════════════════
    SECTION 5 — ÜBER TELLIAN CAPITAL
-   Desktop: Teil 1 (110vw, text + first portrait as static image)
-            followed by Teil 2 (filmstrip of 7 remaining portraits,
+   Desktop: text column + filmstrip of 6 portraits,
             each 21vw wide, 24px gaps, static — revealed by natural
-            horizontal page scroll).
+            horizontal page scroll.
    Tablet/Mobile: stacked text + 1- or 2-column team grid.
    ═══════════════════════════════════════════════════════════ */
 
 import { C, serif, sans, EYEBROW } from "../tokens";
+
+/* ── Team photos ── */
+import imgOlivierBill from "../../assets/team/Olivier-Bill.JPG";
+import imgMarcoLudescher from "../../assets/team/Marco-Ludescher.JPG";
+import imgRolfSchneider from "../../assets/team/Rolf-Schneider.JPG";
+import imgBryanHonegger from "../../assets/team/Bryan-Honegger.png";
+import imgAndreasTruempler from "../../assets/team/Andreas-Trümpler.JPG";
+import imgJasminaRukavina from "../../assets/team/Jasmina-Rukavina.JPG";
 
 /* ── Team data ── */
 interface TeamMember {
@@ -22,64 +29,57 @@ interface TeamMember {
   role: string;
   bio: string;
   img: string;
+  imgPosition?: string;
   linkedin?: string;
 }
 
 const TEAM: TeamMember[] = [
   {
-    name: "Dr. Thomas Keller",
-    role: "Geschäftsleitung & Gründer",
-    bio: "Über 30 Jahre Erfahrung in quantitativer Vermögensverwaltung.",
-    img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80",
+    name: "Olivier M. Bill",
+    role: "CEO",
+    bio: "",
+    img: imgOlivierBill,
+    imgPosition: "center 85%",
     linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
   {
-    name: "Claudia Meier",
-    role: "Chef Anlagestrategie",
-    bio: "Leiterin des Anlagekomitees und verantwortlich für die Makroanalyse.",
-    img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80",
+    name: "Marco Ludescher",
+    role: "Head of Portfolio Management",
+    bio: "",
+    img: imgMarcoLudescher,
+    imgPosition: "center 85%",
     linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
   {
-    name: "Martin Huber",
+    name: "Rolf Schneider",
     role: "Relationship Manager",
-    bio: "Persönliche Mandatsführung für private Anleger seit 2008.",
-    img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&q=80",
+    bio: "",
+    img: imgRolfSchneider,
+    imgPosition: "center 15%",
     linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
   {
-    name: "Elena Brunner",
-    role: "Compliance & Operations",
-    bio: "Verantwortlich für regulatorische Anforderungen und Kundenprozesse.",
-    img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=800&q=80",
+    name: "Bryan Anthony Honegger",
+    role: "Relationship Manager",
+    bio: "",
+    img: imgBryanHonegger,
+    imgPosition: "center 15%",  /* Hochformat — Kopf oben */
     linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
   {
-    name: "Lukas Widmer",
-    role: "Quantitative Analyse",
-    bio: "Entwicklung und Pflege der proprietären Anlagemodelle.",
-    img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80",
+    name: "Andreas Trümpler",
+    role: "Risk Management",
+    bio: "",
+    img: imgAndreasTruempler,
+    imgPosition: "center 15%",
     linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
   {
-    name: "Sarah Roth",
-    role: "Relationship Managerin",
-    bio: "Betreuung institutioneller Mandate und Stiftungsportfolios.",
-    img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80",
-    linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
-  },
-  {
-    name: "Peter Frei",
-    role: "Partner Asset Management",
-    bio: "Internationale Anlagestrategien und alternative Anlageklassen.",
-    img: "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=800&q=80",
-    linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
-  },
-  {
-    name: "Anna Zürcher",
-    role: "Kundenberatung & Reporting",
-    bio: "Konsolidierte Berichterstattung und direkter Kundenkontakt.",
-    img: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=800&q=80",
+    name: "Jasmina Rukavina",
+    role: "Wertschriften Back-Office / Office Management",
+    bio: "",
+    img: imgJasminaRukavina,
+    imgPosition: "center 10%",  /* Hochformat — Kopf oben */
     linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
 ];
@@ -158,17 +158,18 @@ function PortraitCard({
 }) {
   return (
     <div style={{ width, flexShrink: 0 }}>
-      {/* Photo — 4:5 aspect, head in upper third */}
+      {/* Photo — 4:5 aspect, respects EXIF rotation */}
       <div
         className="w-full relative overflow-hidden"
         style={{ paddingBottom: "125%" }}
       >
-        <div
-          className="absolute inset-0 bg-cover bg-no-repeat"
+        <img
+          src={member.img}
+          alt={member.name}
+          className="absolute inset-0 w-full h-full"
           style={{
-            backgroundImage: `url(${member.img})`,
-            backgroundPosition: "center top",
-            filter: "saturate(0.2) contrast(1.06) brightness(1.02)",
+            objectFit: "cover",
+            objectPosition: member.imgPosition || "center top",
           }}
         />
       </div>
