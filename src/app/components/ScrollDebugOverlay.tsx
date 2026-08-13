@@ -143,6 +143,7 @@ export function ScrollDebugOverlay({ debugRef }: Props) {
         </span>
         <span style={{ color: "#71717a", marginLeft: 8 }}>
           / {SCROLL_TUNING.WHEEL_DEVICE_RUN} · ab {SCROLL_TUNING.WHEEL_DEVICE_MIN_ABS}px
+          {" · "}Abstand ≥ {SCROLL_TUNING.WHEEL_DEVICE_MIN_GAP_MS}ms
         </span>
       </Row>
 

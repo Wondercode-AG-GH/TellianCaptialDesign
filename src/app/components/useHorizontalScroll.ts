@@ -16,8 +16,16 @@ import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
    Overlay benutzen (?scrolldebug).
    ═══════════════════════════════════════════════════════════ */
 
-/** Dauer eines Sprungs. */
-const SNAP_MS = 400;
+/**
+ * Dauer eines Sprungs.
+ *
+ * 400ms wirkten rastig — die Bewegung war zu kurz, um als Fahrt gelesen
+ * zu werden. Die Kurve bleibt EASE.standard: cubic-bezier(0.16, 1,
+ * 0.3, 1) ist bereits die gewünschte ausgeprägte Ease-out-Form mit
+ * schnellem Antritt und weicher Landung, eine eigene Kurve für die
+ * Rastung wäre eine Dublette.
+ */
+const SNAP_MS = 520;
 
 /** Aufsummiertes Delta, ab dem eine Geste auslöst. */
 const WHEEL_THRESHOLD = 40;
@@ -59,33 +67,63 @@ const RISE_FACTOR = 1.6;
 const RISE_MIN_ABS = 12;
 
 /* ── Mausrad-Erkennung ──
-   Schnelles Drehen am klassischen Mausrad liefert Rastpunkte im Abstand
-   von ~50ms mit gleich grossen Deltas. Die Ruhephase greift dabei nicht,
-   und gleich grosse Deltas erzeugen auch keine Wiederbeschleunigung —
-   kräftiges Drehen bewegte deshalb nur eine Sektion.
+   Schnelles Drehen am klassischen Mausrad liefert Rastpunkte mit gleich
+   grossen Deltas. Die Ruhephase greift dabei nicht, und gleich grosse
+   Deltas erzeugen auch keine Wiederbeschleunigung — ohne eigenes Signal
+   bewegt kräftiges Drehen deshalb nur eine Sektion.
 
-   Unterschieden wird über die Zerfallsform: ein Trackpad-Nachlauf fällt
-   ab, ein Mausrad nicht. Beide Bedingungen müssen zutreffen. Der Betrag
-   allein genügt nicht, weil auch der Beginn eines kräftigen Swipes gross
-   ist; die Konstanz allein genügt nicht, weil zwei gleichmässig ziehende
-   Finger auf dem Trackpad ebenfalls konstante Verhältnisse liefern —
-   dann aber mit kleinen Deltas. */
+   Der erste Ansatz stützte sich auf Betrag und Zerfallsform. Gemessen
+   trägt das nicht: die Momentum-Phase eines kräftigen Trackpad-Wischs
+   beginnt mit grossen Deltas und zerfällt so langsam, dass sie als
+   Mausrad durchging — der Wisch sprang vier bis fünf Sektionen weit.
+   Betrag und Verhältnis können das prinzipiell nicht trennen, denn ein
+   gleichmässig schneller Zwei-Finger-Zug erzeugt dasselbe Muster.
+
+   Tragend ist stattdessen die EREIGNISRATE. Ein Trackpad liefert seine
+   Events im Takt der Bildwiederholung, also alle 8–16ms; ein Mausrad
+   hängt an der Hand und schafft selbst bei kräftigem Drehen keine
+   40 Rastpunkte pro Sekunde. Diese Grenze ist physikalisch, nicht
+   heuristisch.
+
+   Alle vier Bedingungen müssen zutreffen. Jede einzelne fällt in die
+   sichere Richtung aus: greift sie zu Unrecht nicht, bewegt ein Mausrad
+   nur eine Sektion — ärgerlich, aber kein Fehler. Ein übersprungener
+   Abschnitt wäre einer. */
+
+/** Mindestabstand zwischen zwei Rastpunkten. Schliesst alles aus, was
+ *  im Takt der Bildwiederholung kommt — das tragende Signal. */
+const WHEEL_DEVICE_MIN_GAP_MS = 25;
 
 /** Betragsschwelle: darunter ist es kein Mausrad, sondern ein Zug. */
-const WHEEL_DEVICE_MIN_ABS = 80;
+const WHEEL_DEVICE_MIN_ABS = 120;
 
 /** Anzahl aufeinanderfolgender Events ohne Abfall. */
 const WHEEL_DEVICE_RUN = 5;
 
 /** Zulässiger Abfall gegenüber dem Beginn des Laufs. Verglichen wird
  *  gegen den Laufanfang, nicht gegen das Vorgänger-Event: ein langsam
- *  zerfallender Nachlauf (0.977 je Event) bleibt von Paar zu Paar unter
- *  der Schwelle, summiert sich über fünf Events aber sichtbar auf. */
-const WHEEL_DEVICE_MIN_RATIO = 0.95;
+ *  zerfallender Nachlauf bleibt von Paar zu Paar unter der Schwelle,
+ *  summiert sich über fünf Events aber auf. */
+const WHEEL_DEVICE_MIN_RATIO = 0.99;
 
-/** Harte Untergrenze zwischen zwei Auslösungen. Kleiner als SNAP_MS,
- *  damit die Zweitgeste eine laufende Transition abbrechen kann. */
-const MIN_FIRE_INTERVAL_MS = 150;
+/**
+ * Mausrad-Deltas sind quantisiert — Chrome liefert je Rastpunkt ein
+ * Vielfaches einer festen Tick-Grösse. Trackpad-Deltas folgen der
+ * Fingerbewegung und sind beliebig.
+ *
+ * Die Toleranz fängt Fliesskomma-Rauschen aus Chromes interner
+ * Skalierung ab (100.00000149…), verwirft aber echte Bruchteile.
+ * Sollte Chrome auf einer Plattform auch für Trackpads ganzzahlige
+ * Werte liefern, ist diese Bedingung wirkungslos — sie schwächt die
+ * übrigen drei aber nicht.
+ */
+const WHEEL_DEVICE_QUANT_EPS = 0.01;
+
+/** Harte Untergrenze zwischen zwei Auslösungen. Wächst mit SNAP_MS mit
+ *  (rund ein Drittel davon), bleibt aber deutlich darunter — sonst
+ *  könnte die Zweitgeste eine laufende Transition nicht mehr
+ *  abbrechen. */
+const MIN_FIRE_INTERVAL_MS = 195;
 
 /** Wischdistanz, ab der Touch auslöst. */
 const TOUCH_THRESHOLD = 60;
@@ -652,10 +690,16 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 
       let reason: ArmReason = armedRef.current ? "—" : "tail";
 
-      /* Lauf gleich grosser Deltas fortschreiben. Verglichen wird gegen
-         den Laufanfang: fällt der Betrag darunter, beginnt der Lauf neu
-         — ein zerfallender Nachlauf kommt so nie auf volle Länge. */
-      if (absDelta < WHEEL_DEVICE_MIN_ABS) {
+      /* Lauf gleich grosser Mausrad-Ticks fortschreiben.
+         Rate und Quantisierung entscheiden pro Event, ob es überhaupt
+         als Tick in Frage kommt; das Verhältnis vergleicht gegen den
+         Laufanfang, nicht gegen das Vorgänger-Event. */
+      const tickLike =
+        absDelta >= WHEEL_DEVICE_MIN_ABS &&
+        gap >= WHEEL_DEVICE_MIN_GAP_MS &&
+        Math.abs(absDelta - Math.round(absDelta)) < WHEEL_DEVICE_QUANT_EPS;
+
+      if (!tickLike) {
         steadyRunRef.current = 0;
         steadyStartAbsRef.current = 0;
       } else if (
@@ -897,4 +941,5 @@ export const SCROLL_TUNING = {
   WHEEL_DEVICE_MIN_ABS,
   WHEEL_DEVICE_RUN,
   WHEEL_DEVICE_MIN_RATIO,
+  WHEEL_DEVICE_MIN_GAP_MS,
 } as const;
