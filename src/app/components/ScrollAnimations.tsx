@@ -1,66 +1,97 @@
 import { useRef, useEffect, useState } from "react";
 
 import { EASE } from "../../styles/motion";
+import { useSectionEntered } from "./SectionEntry";
+import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
-const T_FAST = `0.35s ${EASE.nav}`;
+/* ═══════════════════════════════════════════════════════════
+   ANIMATIONSPOLITIK
+
+   Eintrittsanimationen laufen genau einmal pro Sektion und Sitzung
+   und nie rückwärts. Vorher waren alle Werte reine Funktionen der
+   Scrollposition: sie liefen bei jedem Betreten neu und beim
+   Zurückscrollen rückwärts, und sie wurden nur deshalb neu
+   berechnet, weil scrollX als State jeden Frame ein Re-Render des
+   halben Baums auslöste.
+
+   Mit der Sektions-Rastung trägt eine positionsgebundene Animation
+   keine Information mehr — zwischen zwei Rastpunkten liegen 400ms
+   Flug, keine Nutzerbewegung. Deshalb:
+
+   • Kein scrollX mehr. Ausgelöst wird über den Eintritts-Latch
+     (SectionEntry), gesetzt beim Absprung.
+   • Keine Parallaxe auf Desktop.
+   • Kein scrollgebundener Hero-Zoom.
+   • Eintritte dauern zusammen höchstens ~650ms, damit sie innerhalb
+     der 400ms Flugzeit weitgehend durch sind.
+   • prefers-reduced-motion: kein Eintritt, Endzustand sofort.
+
+   Die scrollX-Props bleiben in den Signaturen, damit die rund
+   dreissig Aufrufstellen unverändert bleiben. Sie werden nicht mehr
+   gelesen und verschwinden mit dem inhaltlichen Neubau der Sektionen.
+   ═══════════════════════════════════════════════════════════ */
+
+/* T_FAST (0.35s) ist entfallen — er gehörte zur positionsgebundenen
+   Parallaxe, die es nicht mehr gibt. */
 const T_MEDIUM = `0.55s ${EASE.nav}`;
-const T_SLOW = `0.8s ${EASE.nav}`;
+const T_SLOW = `0.6s ${EASE.nav}`;
 const T_CINEMATIC = `1.8s ${EASE.standard}`;
 
 /* ═══════════════════════════════════════════════════════════
-   VERTICAL SCROLL PROGRESS (IntersectionObserver-based)
-   Used by all animation components when isVertical=true.
-   Returns 0→1 as element scrolls through viewport.
+   EINTRITTS-ERKENNUNG
    ═══════════════════════════════════════════════════════════ */
-function useVerticalProgress(ref: React.RefObject<HTMLElement | null>) {
-  const [progress, setProgress] = useState(0);
-  const [hasEntered, setHasEntered] = useState(false);
+
+/**
+ * Vertikaler Zweig: rastet, sobald das Element weit genug im
+ * Viewport steht. Der Latch fällt nie zurück.
+ */
+function useVerticalEntered(
+  ref: React.RefObject<HTMLElement | null>,
+  enabled: boolean
+) {
+  const [entered, setEntered] = useState(false);
 
   useEffect(() => {
+    if (!enabled) return;
     const el = ref.current;
     if (!el) return;
 
-    const onScroll = () => {
+    const check = () => {
       const rect = el.getBoundingClientRect();
-      const vh = window.innerHeight;
-      // 0 = element bottom at viewport bottom, 1 = element top at viewport top
-      const p = 1 - (rect.top / vh);
-      setProgress(Math.max(0, Math.min(1.5, p)));
-      if (p > 0.1) setHasEntered(true);
+      if (1 - rect.top / window.innerHeight > 0.1) setEntered(true);
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll(); // initial
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [ref]);
+    window.addEventListener("scroll", check, { passive: true });
+    check();
+    return () => window.removeEventListener("scroll", check);
+  }, [ref, enabled]);
 
-  return { progress, hasEntered };
+  return entered;
 }
 
 /**
- * Returns a progress value for how far an element has scrolled
- * through the viewport horizontally.
- * ~0 = entering from right, ~0.5 = centered, ~1 = exiting left.
+ * Einheitlicher Eintrittszustand für beide Pfade.
+ *
+ * Beide Hooks werden immer aufgerufen. Vorher lag `useVerticalProgress`
+ * innerhalb eines `if (isVertical)`-Zweigs — ein Verstoss gegen die
+ * Hook-Regeln, der beim Überqueren der 1024px-Grenze durch
+ * Fenstergrössenänderung mit "rendered more hooks than during the
+ * previous render" abstürzt.
  */
-function useElementProgress(
+function useEntered(
   ref: React.RefObject<HTMLElement | null>,
-  scrollX: number
-) {
-  if (!ref.current) return 0.5;
-  const rect = ref.current.getBoundingClientRect();
-  const vw = window.innerWidth;
-  if (!vw) return 0.5;
-  const center = rect.left + rect.width / 2;
-  const progress = 1 - center / vw;
-  if (!isFinite(progress)) return 0.5;
-  return Math.max(-0.5, Math.min(1.5, progress));
+  isVertical: boolean
+): { entered: boolean; still: boolean } {
+  const sectionEntered = useSectionEntered();
+  const verticalEntered = useVerticalEntered(ref, isVertical);
+  const reducedMotion = usePrefersReducedMotion();
+
+  if (reducedMotion) return { entered: true, still: true };
+  return { entered: isVertical ? verticalEntered : sectionEntered, still: false };
 }
 
-function useScrollMotion(scrollX: number) {
-  const ref = useRef<HTMLDivElement>(null);
-  const progress = useElementProgress(ref, scrollX);
-  return { ref, progress };
-}
+/** Transition-String oder "none" bei reduzierter Bewegung. */
+const t = (still: boolean, value: string) => (still ? "none" : value);
 
 /* ═══════════════════════════════════════════════════════════
    SCROLL IMAGE
@@ -69,7 +100,8 @@ interface ScrollImageProps {
   src: string;
   alt?: string;
   className?: string;
-  scrollX: number;
+  /** @deprecated Wird nicht mehr gelesen. */
+  scrollX?: number;
   overlayOpacity?: number;
   lightOverlay?: boolean;
   isVertical?: boolean;
@@ -77,50 +109,24 @@ interface ScrollImageProps {
 
 export function ScrollImage({
   src,
-  alt = "",
   className = "",
-  scrollX,
-  overlayOpacity = 0.18,
-  lightOverlay = false,
   isVertical = false,
 }: ScrollImageProps) {
   const ref = useRef<HTMLDivElement>(null);
-
-  // Vertical mode: simple scale settle on enter
-  const { progress: vProgress, hasEntered } = useVerticalProgress(ref);
-
-  let scale: number;
-  let clipRight: string;
-  let overlayAlpha: number;
-
-  if (isVertical) {
-    scale = hasEntered ? 1.0 : 1.06;
-    clipRight = "0%";
-    overlayAlpha = overlayOpacity;
-  } else {
-    const progress = useElementProgress(ref, scrollX);
-    scale =
-      progress < 0.5
-        ? 1.06 - progress * 0.12
-        : 1.0 + (progress - 0.5) * 0.03;
-    const clipProgress = Math.max(0, Math.min(1, (progress + 0.3) * 1.2));
-    clipRight = `${(1 - clipProgress) * 100}%`;
-    overlayAlpha =
-      progress < 0.5
-        ? overlayOpacity + (0.5 - progress) * 0.15
-        : overlayOpacity + (progress - 0.5) * 0.15;
-  }
+  const { entered, still } = useEntered(ref, isVertical);
 
   return (
     <div ref={ref} className={`relative overflow-hidden ${className}`}>
       <div
         className="absolute inset-0 will-change-transform"
         style={{
-          transform: `scale(${scale})`,
-          clipPath: isVertical ? undefined : `inset(0 ${clipRight} 0 0)`,
-          transition: isVertical
-            ? `transform 1.2s ${EASE.standard}`
-            : `transform ${T_MEDIUM}, clip-path ${T_MEDIUM}`,
+          transform: `scale(${entered ? 1 : 1.06})`,
+          /* Wisch von links beim Eintritt — nur horizontal; der
+             vertikale Zweig hatte nie einen Clip. */
+          clipPath: isVertical
+            ? undefined
+            : `inset(0 ${entered ? 0 : 100}% 0 0)`,
+          transition: t(still, `transform ${T_MEDIUM}, clip-path ${T_MEDIUM}`),
         }}
       >
         <div
@@ -133,58 +139,56 @@ export function ScrollImage({
 }
 
 /* ═══════════════════════════════════════════════════════════
-   HERO EXPANDING IMAGE
+   HERO IMAGE
+
+   HIESS "HeroExpandingImage" UND EXPANDIERT NICHTS MEHR.
+   Der scrollgebundene Zoom (scale 0.65 + 0.35 × progress) ist
+   ersatzlos gelöscht: mit der Rastung gäbe es dafür keine
+   Nutzerbewegung mehr, an die er sich binden könnte.
+
+   Übrig ist ein Bildhalter ohne eigenes Verhalten. Er bleibt nur
+   erhalten, damit die beiden Aufrufstellen unverändert bleiben, und
+   entfällt ersatzlos beim inhaltlichen Neubau von Hero und
+   Sektion 2 — dort genügt ein gewöhnliches Bild.
    ═══════════════════════════════════════════════════════════ */
 interface HeroExpandingImageProps {
   src: string;
-  scrollX: number;
+  /** @deprecated Wird nicht mehr gelesen. */
+  scrollX?: number;
   className?: string;
+  alt?: string;
   isVertical?: boolean;
 }
 
-export function HeroExpandingImage({
-  src,
-  scrollX,
-  className = "",
-  isVertical = false,
-}: HeroExpandingImageProps) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  let scale: number;
-
-  if (isVertical) {
-    // On vertical: image is always full size, no scroll-linked expansion
-    scale = 1.0;
-  } else {
-    const vw = (typeof window !== "undefined" && window.innerWidth) ? window.innerWidth : 1920;
-    const progress = Math.max(0, Math.min(1, scrollX / (vw * 0.28)));
-    scale = 0.65 + 0.35 * progress;
-  }
-
+export function HeroExpandingImage({ src, className = "" }: HeroExpandingImageProps) {
   return (
-    <div ref={ref} className={`relative overflow-hidden ${className}`}>
+    <div className={`relative overflow-hidden ${className}`}>
       <div
-        className="absolute inset-0 will-change-transform"
-        style={{
-          transform: `scale(${scale})`,
-          transformOrigin: isVertical ? "center center" : "top right",
-        }}
-      >
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${src})` }}
-        />
-      </div>
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${src})` }}
+      />
     </div>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════
    PARALLAX TEXT
+
+   MACHT AUF DESKTOP KEINE PARALLAXE MEHR.
+   Während einer 400ms-Tween trägt ein Versatz keine Information —
+   er ist Bewegung ohne Aussage. Übrig bleibt dieselbe Einblendung
+   wie bei ScrollFade.
+
+   Die Komponente bleibt nur erhalten, damit die rund zwölf
+   Aufrufstellen unverändert bleiben; sie entfällt ersatzlos beim
+   inhaltlichen Neubau der jeweiligen Sektion. Neue Aufrufe bitte
+   direkt mit ScrollFade.
    ═══════════════════════════════════════════════════════════ */
 interface ParallaxTextProps {
   children: React.ReactNode;
-  scrollX: number;
+  /** @deprecated Wird nicht mehr gelesen. */
+  scrollX?: number;
+  /** @deprecated Ohne Wirkung — keine Parallaxe mehr. */
   speed?: number;
   className?: string;
   style?: React.CSSProperties;
@@ -194,43 +198,23 @@ interface ParallaxTextProps {
 
 export function ParallaxText({
   children,
-  scrollX,
-  speed = 0.04,
   className = "",
   style,
   noFade = false,
   isVertical = false,
 }: ParallaxTextProps) {
   const ref = useRef<HTMLDivElement>(null);
-
-  let offset: number;
-  let opacity: number;
-
-  if (isVertical) {
-    // Vertical: simple fade-in-up on enter
-    const { hasEntered } = useVerticalProgress(ref);
-    offset = hasEntered ? 0 : 24;
-    opacity = hasEntered ? 1 : 0;
-  } else {
-    const progress = useElementProgress(ref, scrollX);
-    const vw = (typeof window !== "undefined" && window.innerWidth) ? window.innerWidth : 1920;
-    offset = (progress - 0.5) * speed * vw;
-    const distFromCenter = Math.abs(progress - 0.5);
-    opacity = noFade ? 1 : Math.max(0, Math.min(1, 1 - distFromCenter * 2.2));
-  }
+  const { entered, still } = useEntered(ref, isVertical);
+  const shown = entered || noFade;
 
   return (
     <div
       ref={ref}
       className={`will-change-transform ${className}`}
       style={{
-        transform: isVertical
-          ? `translate3d(0, ${offset}px, 0)`
-          : `translate3d(${offset}px, 0, 0)`,
-        opacity,
-        transition: isVertical
-          ? `transform 0.8s ${EASE.standard}, opacity 0.8s ${EASE.nav}`
-          : `transform ${T_FAST}, opacity ${T_SLOW}`,
+        transform: `translate3d(0, ${shown ? 0 : 24}px, 0)`,
+        opacity: shown ? 1 : 0,
+        transition: t(still, `transform ${T_SLOW}, opacity ${T_SLOW}`),
         ...style,
       }}
     >
@@ -244,9 +228,11 @@ export function ParallaxText({
    ═══════════════════════════════════════════════════════════ */
 interface ScrollFadeProps {
   children: React.ReactNode;
-  scrollX: number;
+  /** @deprecated Wird nicht mehr gelesen. */
+  scrollX?: number;
   className?: string;
   style?: React.CSSProperties;
+  /** @deprecated Ohne Wirkung — Eintritt statt Positionsbindung. */
   fadeDistance?: number;
   yOffset?: number;
   noFade?: boolean;
@@ -255,40 +241,24 @@ interface ScrollFadeProps {
 
 export function ScrollFade({
   children,
-  scrollX,
   className = "",
   style,
-  fadeDistance = 2.5,
   yOffset = 18,
   noFade = false,
   isVertical = false,
 }: ScrollFadeProps) {
   const ref = useRef<HTMLDivElement>(null);
-
-  let opacity: number;
-  let y: number;
-
-  if (isVertical) {
-    const { hasEntered } = useVerticalProgress(ref);
-    opacity = hasEntered ? 1 : 0;
-    y = hasEntered ? 0 : yOffset;
-  } else {
-    const progress = useElementProgress(ref, scrollX);
-    const distFromCenter = Math.abs(progress - 0.5);
-    opacity = noFade ? 1 : Math.max(0, Math.min(1, 1 - distFromCenter * fadeDistance));
-    y = noFade ? 0 : (1 - opacity) * yOffset * (progress < 0.5 ? 1 : -1);
-  }
+  const { entered, still } = useEntered(ref, isVertical);
+  const shown = entered || noFade;
 
   return (
     <div
       ref={ref}
       className={`will-change-transform ${className}`}
       style={{
-        transform: `translate3d(0, ${y}px, 0)`,
-        opacity,
-        transition: isVertical
-          ? `transform 0.7s ${EASE.standard}, opacity 0.7s ${EASE.nav}`
-          : `transform ${T_FAST}, opacity ${T_SLOW}`,
+        transform: `translate3d(0, ${shown ? 0 : yOffset}px, 0)`,
+        opacity: shown ? 1 : 0,
+        transition: t(still, `transform ${T_MEDIUM}, opacity ${T_SLOW}`),
         ...style,
       }}
     >
@@ -301,7 +271,8 @@ export function ScrollFade({
    REVEAL LINE
    ═══════════════════════════════════════════════════════════ */
 interface RevealLineProps {
-  scrollX: number;
+  /** @deprecated Wird nicht mehr gelesen. */
+  scrollX?: number;
   className?: string;
   direction?: "horizontal" | "vertical";
   dark?: boolean;
@@ -309,42 +280,27 @@ interface RevealLineProps {
 }
 
 export function RevealLine({
-  scrollX,
   className = "",
   direction = "horizontal",
   dark = false,
   isVertical: isVerticalMode = false,
 }: RevealLineProps) {
   const ref = useRef<HTMLDivElement>(null);
-
-  let scale: number;
-
-  if (isVerticalMode) {
-    const { hasEntered } = useVerticalProgress(ref);
-    scale = hasEntered ? 1 : 0;
-  } else {
-    const progress = useElementProgress(ref, scrollX);
-    scale = Math.max(0, Math.min(1, (progress + 0.2) * 1.5));
-  }
+  const { entered, still } = useEntered(ref, isVerticalMode);
+  const scale = entered ? 1 : 0;
 
   return (
     <div
       ref={ref}
-      className={`${
-        direction === "horizontal" ? "h-[1px]" : "w-[1px]"
-      } ${className}`}
+      className={`${direction === "horizontal" ? "h-[1px]" : "w-[1px]"} ${className}`}
       style={{
         backgroundColor: dark
           ? "rgba(30, 28, 25, 0.12)"
           : "rgba(181, 175, 166, 0.25)",
         transform:
-          direction === "horizontal"
-            ? `scaleX(${scale})`
-            : `scaleY(${scale})`,
+          direction === "horizontal" ? `scaleX(${scale})` : `scaleY(${scale})`,
         transformOrigin: "left center",
-        transition: isVerticalMode
-          ? `transform 0.8s ${EASE.standard}`
-          : `transform ${T_MEDIUM}`,
+        transition: t(still, `transform ${T_MEDIUM}`),
       }}
     />
   );
@@ -357,7 +313,8 @@ interface CinematicPanelImageProps {
   src: string;
   alt?: string;
   className?: string;
-  scrollX: number;
+  /** @deprecated Wird nicht mehr gelesen. */
+  scrollX?: number;
   overlayOpacity?: number;
   objectPosition?: string;
   isVertical?: boolean;
@@ -367,41 +324,20 @@ export function CinematicPanelImage({
   src,
   alt = "",
   className = "",
-  scrollX,
   overlayOpacity = 0.06,
   objectPosition = "center center",
   isVertical: isVerticalMode = false,
 }: CinematicPanelImageProps) {
   const ref = useRef<HTMLDivElement>(null);
-
-  let scale: number;
-  let shiftY: number;
-  let overlayAlpha: number;
-
-  if (isVerticalMode) {
-    const { hasEntered } = useVerticalProgress(ref);
-    scale = hasEntered ? 1.0 : 1.015;
-    shiftY = hasEntered ? 0 : 3;
-    overlayAlpha = overlayOpacity;
-  } else {
-    const { progress } = useScrollMotion(scrollX);
-    const t = Math.max(0, Math.min(1, (progress + 0.3) * 0.7));
-    const eased = t * t * (3 - 2 * t);
-    scale = 1.015 - eased * 0.015;
-    shiftY = (1 - eased) * 3;
-    const distFromCenter = Math.abs(progress - 0.5);
-    overlayAlpha = overlayOpacity + distFromCenter * 0.02;
-  }
+  const { entered, still } = useEntered(ref, isVerticalMode);
 
   return (
     <div ref={ref} className={`relative overflow-hidden ${className}`}>
       <div
         className="absolute inset-0 will-change-transform"
         style={{
-          transform: `scale(${scale}) translate3d(0, ${shiftY}px, 0)`,
-          transition: isVerticalMode
-            ? `transform 1.2s ${EASE.standard}`
-            : `transform 2.4s ${EASE.standard}`,
+          transform: `scale(${entered ? 1 : 1.015}) translate3d(0, ${entered ? 0 : 3}px, 0)`,
+          transition: t(still, `transform ${T_SLOW}`),
         }}
       >
         <img
@@ -414,8 +350,8 @@ export function CinematicPanelImage({
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: `linear-gradient(180deg, rgba(249,249,247,${overlayAlpha * 0.3}) 0%, rgba(26,25,22,${overlayAlpha}) 70%, rgba(26,25,22,${overlayAlpha * 1.2}) 100%)`,
-          transition: `background ${T_CINEMATIC}`,
+          background: `linear-gradient(180deg, rgba(249,249,247,${overlayOpacity * 0.3}) 0%, rgba(26,25,22,${overlayOpacity}) 70%, rgba(26,25,22,${overlayOpacity * 1.2}) 100%)`,
+          transition: t(still, `background ${T_CINEMATIC}`),
         }}
       />
     </div>

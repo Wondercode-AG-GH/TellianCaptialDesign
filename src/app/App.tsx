@@ -1254,13 +1254,13 @@ export default function App() {
   /* Debug-Overlay der Rastung — hinter ?scrolldebug, bleibt bis Go-live. */
   const [scrollDebug] = useState(isScrollDebugEnabled);
 
-  /* ── Hero entry-animation trigger (desktop) ── */
-  const [heroAnimate, setHeroAnimate] = useState(false);
-  useEffect(() => {
-    if (!introComplete) return;
-    const t = setTimeout(() => setHeroAnimate(true), 80);
-    return () => clearTimeout(t);
-  }, [introComplete]);
+  /* ── Hero-Eintritt (Desktop) ──
+        Läuft jetzt über denselben Latch wie alle anderen Sektionen,
+        statt über einen eigenen Timer. Damit gilt auch hier: einmal
+        pro Sitzung, kein Rückwärtslaufen beim Zurückkommen.
+        Die Staffelung ist von ~1.4s auf ~650ms gekürzt, damit sie
+        auch dann trägt, wenn der Hero per Sprung erreicht wird. */
+  const heroAnimate = entered[0];
 
   /* ── Hero scroll-arrow: shown whenever the hero is in view.
         Reactive to scrollX — reappears when user scrolls back. ── */
@@ -1484,7 +1484,7 @@ export default function App() {
                 textTransform: "uppercase",
                 color: C.stone,
                 opacity: heroAnimate ? 1 : 0,
-                transition: "opacity 600ms ease-out 200ms",
+                transition: "opacity 420ms ease-out 40ms",
               }}
             >
               FINMA-lizenziert · Unabhängig · Zürich · Seit 1996
@@ -1504,7 +1504,7 @@ export default function App() {
                 marginTop: "28px",
                 opacity: heroAnimate ? 1 : 0,
                 transform: heroAnimate ? "translateY(0)" : "translateY(24px)",
-                transition: "opacity 800ms ease-out 400ms, transform 800ms cubic-bezier(0.16,1,0.3,1) 400ms",
+                transition: "opacity 500ms ease-out 150ms, transform 500ms cubic-bezier(0.16,1,0.3,1) 150ms",
               }}
             >
               Vermögen
@@ -1518,7 +1518,7 @@ export default function App() {
                 marginTop: "64px",
                 opacity: heroAnimate ? 1 : 0,
                 transform: heroAnimate ? "translateX(0)" : "translateX(-16px)",
-                transition: "opacity 500ms ease-out 900ms, transform 500ms cubic-bezier(0.16,1,0.3,1) 900ms",
+                transition: "opacity 380ms ease-out 270ms, transform 380ms cubic-bezier(0.16,1,0.3,1) 270ms",
               }}
             >
               <CtaButton
