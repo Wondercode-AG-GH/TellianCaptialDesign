@@ -241,6 +241,12 @@ interface UseHorizontalScrollOptions {
    * Fenster und würde den Track hinter dem Overlay bewegen.
    */
   locked?: boolean;
+  /**
+   * Sektion, die beim ersten Aufbau eingenommen wird — ohne Animation.
+   * Kommt aus der URL: Hash der zuletzt besuchten Sektion, oder die
+   * Sektion, zu der eine per Deep-Link geöffnete Unterseite gehört.
+   */
+  initialIndex?: number;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -250,6 +256,7 @@ interface UseHorizontalScrollOptions {
 export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   const disabled = opts?.disabled ?? false;
   const locked = opts?.locked ?? false;
+  const initialIndex = Math.max(0, Math.min(SECTION_COUNT - 1, opts?.initialIndex ?? 0));
   const reducedMotion = usePrefersReducedMotion();
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -264,7 +271,9 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   /** Ziel-Sektion, nicht die sichtbare. Eine Zweitgeste während einer
    *  Transition rechnet von hier aus weiter, nicht von der Stelle, an
    *  der das Bild gerade steht. */
-  const indexRef = useRef(0);
+  const indexRef = useRef(initialIndex);
+  /** Ob die Startsektion schon eingenommen wurde. */
+  const initialisedRef = useRef(false);
   const tweenRef = useRef<Tween | null>(null);
   const rafRef = useRef(0);
   /** TEMPORARY — Position innerhalb der freien Sektion. Entfällt mit
@@ -290,7 +299,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   const touchAccumRef = useRef(0);
   const touchArmedRef = useRef(true);
 
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(initialIndex);
   const [scrollDirection, setScrollDirection] = useState<ScrollDirection>("idle");
 
   /* Spiegel für Werte, die die einmalig registrierten Listener lesen.
@@ -559,6 +568,19 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 
     measure();
 
+    /* Startsektion einnehmen — ohne Animation, das ist keine Bewegung
+       des Nutzers, sondern der Ausgangszustand. */
+    if (!initialisedRef.current) {
+      initialisedRef.current = true;
+      const start = measuredRef.current[initialIndex];
+      if (start) {
+        indexRef.current = start.index;
+        posRef.current = start.snap;
+        freeTargetRef.current = start.snap;
+        publish(start.snap);
+      }
+    }
+
     let timer = 0;
     const remeasure = () => {
       measure();
@@ -594,7 +616,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       observer.disconnect();
       window.removeEventListener("resize", scheduleRemeasure);
     };
-  }, [disabled, measure, publish]);
+  }, [disabled, measure, publish, freeBounds, initialIndex]);
 
   /* ═══════════════════════════════════════════════════════
      EINGABE

@@ -32,7 +32,7 @@ import { ExpandableBody } from "./components/ExpandableBody";
 import { Section2Anlagephilosophie } from "./components/Section2Anlagephilosophie";
 import { ParteiDreieck } from "./components/ParteiDreieck";
 import { LAYOUT, TEXT_COLUMN_STYLE, getLayout, getTextColumnStyle, SPACING } from "./layout";
-import { SECTION_WIDTH, SECTIONS } from "./sections";
+import { SECTION_WIDTH, SECTIONS, SUBPAGE_SECTION_KEY, indexOfSection } from "./sections";
 import { SectionEnteredProvider } from "./components/SectionEntry";
 import { useVerticalSectionIndex } from "./components/useVerticalSectionIndex";
 import heroImg from "figma:asset/f68e696a94d5501be4f500478f5085490ea6351a.png";
@@ -1193,6 +1193,27 @@ function Section4Anlagestrategien({
  */
 const FIRST_ENTRY_DELAY_MS = 120;
 
+/**
+ * Startsektion aus der URL.
+ *
+ * Zwei Quellen, in dieser Reihenfolge:
+ *   1. Der Pfad einer Unterseite — wer /vermoegensverwaltung direkt
+ *      öffnet und wieder schliesst, soll bei der zugehörigen Sektion
+ *      stehen und nicht im Hero.
+ *   2. Der Hash der zuletzt besuchten Sektion, damit ein Reload dort
+ *      weitermacht, wo man war.
+ */
+function readInitialSectionIndex(): number {
+  if (typeof window === "undefined") return 0;
+
+  const owner = SUBPAGE_SECTION_KEY[window.location.pathname];
+  const fromPath = indexOfSection(owner);
+  if (fromPath >= 0) return fromPath;
+
+  const fromHash = indexOfSection(window.location.hash.replace(/^#/, ""));
+  return fromHash >= 0 ? fromHash : 0;
+}
+
 /* ═══════════════════════════════════════════════════════════
    MAIN APPLICATION
    ═══════════════════════════════════════════════════════════ */
@@ -1216,10 +1237,15 @@ export default function App() {
         `locked` sperrt Eingaben, solange ein Overlay offen ist oder das
         Intro läuft. Der Wheel-Handler ist dabei schon durch
         pointer-events: none blockiert; keydown hängt aber am Fenster. */
+  /* Einmal beim Aufbau gelesen — spätere Hash-Änderungen schreiben wir
+     selbst und dürfen nicht auf uns selbst zurückwirken. */
+  const [initialSectionIndex] = useState(readInitialSectionIndex);
+
   const { containerRef, panelRef, jumpToIndex, scrollDirection, activeIndex: horizontalIndex, debugRef } =
     useHorizontalScroll({
       disabled: isVertical,
       locked: isDetailMode || !introComplete,
+      initialIndex: initialSectionIndex,
     });
 
   /* Im vertikalen Zweig ist der Scroll-Hook abgeschaltet; die aktive
@@ -1294,6 +1320,34 @@ export default function App() {
 
   /* ── Legal pages routing (Impressum / Datenschutz / Kundeninformation) ── */
   const legal = useLegalRoute();
+
+  /* ═══ Aktuelle Sektion in der URL halten ═══
+       replaceState statt pushState: der Zurück-Button soll Unterseiten
+       schliessen, nicht Sektion für Sektion zurückscrollen.
+       Nicht schreiben, solange eine Unterseite oder eine Rechtsseite
+       offen ist — deren Pfad ist die Wahrheit, nicht die Sektion. */
+  useEffect(() => {
+    if (!introComplete || isDetailMode || legal.activePath) return;
+    const key = SECTIONS[activeIndex]?.key;
+    if (!key) return;
+
+    const hash = activeIndex === 0 ? "" : `#${key}`;
+    const { pathname, search } = window.location;
+    const next = `${pathname}${search}${hash}`;
+    if (next !== `${pathname}${search}${window.location.hash}`) {
+      window.history.replaceState(window.history.state, "", next);
+    }
+  }, [activeIndex, introComplete, isDetailMode, legal.activePath]);
+
+  /* Vertikaler Zweig: Startsektion einnehmen. Der Scroll-Hook ist dort
+     abgeschaltet, initialIndex greift also nicht. Ohne Animation —
+     HeroVertical setzt beim Mount ohnehin auf 0 zurück, wir kommen
+     danach. */
+  useEffect(() => {
+    if (!isVertical || !introComplete || initialSectionIndex === 0) return;
+    const el = document.getElementById(SECTIONS[initialSectionIndex].domId);
+    el?.scrollIntoView({ behavior: "auto" });
+  }, [isVertical, introComplete, initialSectionIndex]);
 
   const navigateToContact = useCallback(() => {
     if (isDetailMode) {
