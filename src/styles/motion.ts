@@ -17,6 +17,21 @@ export const EASE = {
   /** Navigation panel slide. */
   nav: "cubic-bezier(0.25, 0.1, 0.25, 1)",
   navArr: [0.25, 0.1, 0.25, 1] as [number, number, number, number],
+
+  /**
+   * Sektionsrastung — eigene Kurve, bewusst getrennt von `standard`.
+   *
+   * `standard` (0.16, 1, 0.3, 1) ist als Einblend-Kurve gedacht und
+   * dafür richtig. Für eine Ortsveränderung ist sie zu abrupt: gemessen
+   * legt sie 53% der Strecke in den ersten 10% der Zeit zurück und
+   * kriecht den Rest. Das liest sich als Sprung mit Nachwehen, nicht als
+   * Fahrt — und längere Dauer verschlimmert es, weil sie das Kriechen
+   * streckt, nicht die Bewegung.
+   *
+   * Diese Kurve nimmt Anlauf statt sofortiger Höchstgeschwindigkeit.
+   */
+  snap: "cubic-bezier(0.32, 0.08, 0.24, 1)",
+  snapArr: [0.32, 0.08, 0.24, 1] as [number, number, number, number],
 } as const;
 
 export const DURATION = {

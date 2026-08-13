@@ -16,16 +16,61 @@ import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
    Overlay benutzen (?scrolldebug).
    ═══════════════════════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════════════════════
+   ABSTIMMUNG AM GERÄT
+   Dauer und Kurve der Rastung. Beide hier oben, damit sie ohne
+   Suche im Code verändert werden können.
+   ═══════════════════════════════════════════════════════════ */
+
+/** Dauer eines Sprungs. */
+const SNAP_MS = 600;
+
+/** Kurve des Sprungs — s. EASE.snap in motion.ts. */
+const SNAP_EASE = EASE.snapArr;
+
 /**
- * Dauer eines Sprungs.
+ * Geschwindigkeit der zurückgesetzten Ebenen, als Anteil der
+ * Sektionsbewegung. 0.88 = Bildflächen laufen 12% langsamer als die
+ * Textebene.
  *
- * 400ms wirkten rastig — die Bewegung war zu kurz, um als Fahrt gelesen
- * zu werden. Die Kurve bleibt EASE.standard: cubic-bezier(0.16, 1,
- * 0.3, 1) ist bereits die gewünschte ausgeprägte Ease-out-Form mit
- * schnellem Antritt und weicher Landung, eine eigene Kurve für die
- * Rastung wäre eine Dublette.
+ * Der Versatz ist eine Parabel über dem Fortschritt: null am Anfang,
+ * null am Ende, maximal in der Mitte der Bewegung. Anders als eine
+ * durchgehend langsamere Ebene lässt das keine Restverschiebung
+ * zurück — im Ruhezustand steht alles auf seiner Sollposition.
+ *
+ * Der Scheitel bemisst sich an der VIEWPORTBREITE, nicht an der
+ * Sprungdistanz. Tiefe ist eine Eigenschaft des Bildschirms, nicht
+ * davon, wie weit gesprungen wird — und an die Distanz gebunden
+ * würde ein Direktsprung von Start nach Kontakt (rund 570vw) einen
+ * Versatz von über 240px erzeugen, den keine Ebene mehr abdecken
+ * kann. So ist er beschränkt und vorhersagbar:
+ *
+ *   Scheitel = Viewportbreite × (1 − LAYER_SPEED) × 0.25
+ *
+ * bei 1440px also rund 43px, unabhängig von der Sprungweite.
  */
-const SNAP_MS = 520;
+const LAYER_SPEED = 0.88;
+
+/** Sicherheitszuschlag auf den Überstand der Ebenen. */
+const LAYER_OVERSCAN_MARGIN = 1.15;
+
+/**
+ * CSS-Variable, über die der Versatz an die Ebenen geht.
+ *
+ * Bewusst eine Stil-Eigenschaft am Container statt React-State: ein
+ * State-Update pro Frame würde den Baum neu rendern und genau die
+ * Frame-Zeiten kosten, die diese Bewegung braucht. So bleibt der Tween
+ * frei von React-Arbeit, und die Ebenen werden vom Kompositor bewegt.
+ */
+const LAG_VAR = "--tellian-tween-lag";
+
+/**
+ * Überstand, den eine zurückgesetzte Ebene über ihren Ausschnitt
+ * hinaus braucht, damit der Versatz an der nachlaufenden Kante nichts
+ * freilegt. Wird beim Messen aus dem Scheitel abgeleitet, damit
+ * Ebene und Bewegung nicht auseinanderlaufen können.
+ */
+const OVERSCAN_VAR = "--tellian-tween-overscan";
 
 /** Aufsummiertes Delta, ab dem eine Geste auslöst. */
 const WHEEL_THRESHOLD = 40;
@@ -123,7 +168,7 @@ const WHEEL_DEVICE_QUANT_EPS = 0.01;
  *  (rund ein Drittel davon), bleibt aber deutlich darunter — sonst
  *  könnte die Zweitgeste eine laufende Transition nicht mehr
  *  abbrechen. */
-const MIN_FIRE_INTERVAL_MS = 195;
+const MIN_FIRE_INTERVAL_MS = 225;
 
 /** Wischdistanz, ab der Touch auslöst. */
 const TOUCH_THRESHOLD = 60;
@@ -181,7 +226,7 @@ function cubicBezier(x1: number, y1: number, x2: number, y2: number) {
   };
 }
 
-const easeSnap = cubicBezier(...EASE.standardArr);
+const easeSnap = cubicBezier(...SNAP_EASE);
 
 /* ═══════════════════════════════════════════════════════════
    TYPEN
@@ -303,6 +348,8 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   const panelsRef = useRef<(HTMLDivElement | null)[]>([]);
   const measuredRef = useRef<MeasuredSection[]>([]);
   const maxScrollRef = useRef(0);
+  /** Scheitel des Ebenen-Versatzes in px, aus der Viewportbreite. */
+  const peakLagRef = useRef(0);
 
   /* ── Position und laufende Transition ── */
   const posRef = useRef(0);
@@ -386,6 +433,15 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     const max = Math.max(0, container.scrollWidth - container.clientWidth);
     maxScrollRef.current = max;
 
+    /* Scheitel des Versatzes und der daraus abgeleitete Überstand.
+       Beide hier, damit sie bei jedem Resize zusammen nachgeführt
+       werden und nicht auseinanderlaufen können. */
+    peakLagRef.current = container.clientWidth * (1 - LAYER_SPEED) * 0.25;
+    container.style.setProperty(
+      OVERSCAN_VAR,
+      `${(peakLagRef.current * LAYER_OVERSCAN_MARGIN).toFixed(2)}px`
+    );
+
     measuredRef.current = SECTIONS.map((def, i) => {
       const el = panelsRef.current[i];
       const offset = el?.offsetLeft ?? 0;
@@ -430,9 +486,11 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
    * lesen, braucht das niemand mehr — der Tween läuft jetzt ganz ohne
    * React-Arbeit.
    */
-  const publish = useCallback((pos: number) => {
+  const publish = useCallback((pos: number, lag = 0) => {
     const container = containerRef.current;
-    if (container) container.scrollLeft = pos;
+    if (!container) return;
+    container.scrollLeft = pos;
+    container.style.setProperty(LAG_VAR, `${lag.toFixed(2)}px`);
   }, []);
 
   /* Der RAF-Loop läuft nur während einer Transition, nicht dauerhaft
@@ -446,7 +504,19 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 
     const elapsed = performance.now() - tween.start;
     const t = tween.duration <= 0 ? 1 : Math.min(1, elapsed / tween.duration);
-    posRef.current = tween.from + (tween.to - tween.from) * easeSnap(t);
+    const eased = easeSnap(t);
+    const distance = tween.to - tween.from;
+    posRef.current = tween.from + distance * eased;
+
+    /* Versatz der zurückgesetzten Ebenen. Parabel über dem Fortschritt,
+       auf 1 normiert: null an beiden Enden, Scheitel in der Mitte der
+       Bewegung. Das Vorzeichen folgt der Fahrtrichtung, die Ebene
+       bleibt also zurück. Existiert ausschliesslich während der
+       Bewegung — der Betrag hängt an der Viewportbreite, nicht an der
+       Sprungweite. */
+    const lag = reducedMotionRef.current
+      ? 0
+      : Math.sign(distance) * peakLagRef.current * 4 * eased * (1 - eased);
 
     if (t >= 1) {
       posRef.current = tween.to;
@@ -454,7 +524,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       setScrollDirection("idle");
     }
 
-    publish(posRef.current);
+    publish(posRef.current, tweenRef.current ? lag : 0);
     rafRef.current = tweenRef.current ? requestAnimationFrame(tick) : 0;
   }, [publish]);
 
@@ -942,4 +1012,21 @@ export const SCROLL_TUNING = {
   WHEEL_DEVICE_RUN,
   WHEEL_DEVICE_MIN_RATIO,
   WHEEL_DEVICE_MIN_GAP_MS,
+  LAYER_SPEED,
 } as const;
+
+/**
+ * CSS-Variable mit dem Ebenen-Versatz, gesetzt am Track.
+ *
+ * Verwendung an einer zurückgesetzten Ebene — nur `transform`, nie
+ * `left`/`top`, damit die Bewegung beim Kompositor bleibt:
+ *
+ *   transform: translate3d(var(--tellian-tween-lag, 0px), 0, 0)
+ *
+ * Die Ebene muss ihren Ausschnitt überragen, sonst legt der Versatz an
+ * der nachlaufenden Kante etwas frei.
+ */
+export const TWEEN_LAG_VAR = LAG_VAR;
+
+/** Überstand, den eine versetzte Ebene je Seite braucht. */
+export const TWEEN_OVERSCAN_VAR = OVERSCAN_VAR;

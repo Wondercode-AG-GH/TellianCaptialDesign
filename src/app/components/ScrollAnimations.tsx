@@ -3,6 +3,7 @@ import { useRef, useEffect, useState } from "react";
 import { EASE } from "../../styles/motion";
 import { useSectionEntered } from "./SectionEntry";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
+import { TWEEN_LAG_VAR, TWEEN_OVERSCAN_VAR } from "./useHorizontalScroll";
 
 /* ═══════════════════════════════════════════════════════════
    ANIMATIONSPOLITIK
@@ -139,18 +140,31 @@ export function ScrollImage({
 }
 
 /* ═══════════════════════════════════════════════════════════
-   HERO IMAGE
+   BILDFLÄCHE MIT TIEFE WÄHREND DES ÜBERGANGS
 
    HIESS "HeroExpandingImage" UND EXPANDIERT NICHTS MEHR.
    Der scrollgebundene Zoom (scale 0.65 + 0.35 × progress) ist
-   ersatzlos gelöscht: mit der Rastung gäbe es dafür keine
-   Nutzerbewegung mehr, an die er sich binden könnte.
+   ersatzlos gelöscht.
 
-   Übrig ist ein Bildhalter ohne eigenes Verhalten. Er bleibt nur
-   erhalten, damit die beiden Aufrufstellen unverändert bleiben, und
-   entfällt ersatzlos beim inhaltlichen Neubau von Hero und
-   Sektion 2 — dort genügt ein gewöhnliches Bild.
+   Neu ist stattdessen der Ebenen-Versatz: während einer
+   Sektionstransition läuft die Bildfläche langsamer als die
+   Textebene (LAYER_SPEED, Richtwert 88%).
+
+   Der Unterschied zur früheren Parallaxe ist wesentlich:
+   • Sie hing an der Scrollposition und war deshalb IMMER da — auch
+     im Stillstand stand alles um einen Restbetrag verschoben.
+   • Dieser Versatz hängt am Tween-Fortschritt und ist eine Parabel:
+     null am Anfang, null am Ende, maximal in der Mitte der Bewegung.
+     Im Ruhezustand steht alles exakt auf seiner Sollposition, es
+     bleibt nichts stehen.
+   • Bei prefers-reduced-motion entfällt er ganz (der Hook setzt die
+     Variable dann gar nicht erst).
+
+   Die Fläche ist um OVERSCAN grösser als ihr Ausschnitt, damit der
+   Versatz an der nachlaufenden Kante nichts freilegt — insbesondere
+   nicht im 6vw-Streifen der Folgesektion.
    ═══════════════════════════════════════════════════════════ */
+
 interface HeroExpandingImageProps {
   src: string;
   /** @deprecated Wird nicht mehr gelesen. */
@@ -160,12 +174,33 @@ interface HeroExpandingImageProps {
   isVertical?: boolean;
 }
 
-export function HeroExpandingImage({ src, className = "" }: HeroExpandingImageProps) {
+export function HeroExpandingImage({
+  src,
+  className = "",
+  isVertical = false,
+}: HeroExpandingImageProps) {
+  const reducedMotion = usePrefersReducedMotion();
+
+  /* Im vertikalen Zweig gibt es keine Sektionstransition, und bei
+     reduzierter Bewegung soll gar nichts versetzt werden — dann auch
+     kein Überstand, damit der Ausschnitt unverändert bleibt. */
+  const shifts = !isVertical && !reducedMotion;
+
   return (
     <div className={`relative overflow-hidden ${className}`}>
       <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${src})` }}
+        className="absolute bg-cover bg-center will-change-transform"
+        style={
+          shifts
+            ? {
+                /* Überstand kommt aus derselben Rechnung wie der
+                   Versatz — s. OVERSCAN_VAR in useHorizontalScroll. */
+                inset: `calc(-1 * var(${TWEEN_OVERSCAN_VAR}, 0px))`,
+                backgroundImage: `url(${src})`,
+                transform: `translate3d(var(${TWEEN_LAG_VAR}, 0px), 0, 0)`,
+              }
+            : { inset: 0, backgroundImage: `url(${src})` }
+        }
       />
     </div>
   );

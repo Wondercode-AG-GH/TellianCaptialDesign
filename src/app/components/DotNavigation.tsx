@@ -1,5 +1,15 @@
+import { useState, useRef, useLayoutEffect } from "react";
+
 import { sans } from "../tokens";
 import { SECTIONS } from "../sections";
+import { EASE } from "../../styles/motion";
+import { SCROLL_TUNING } from "./useHorizontalScroll";
+
+/** Masse der gleitenden Markierung. */
+const MARKER_W = 12;
+const MARKER_H = 1.5;
+/** Höhe der Punktzeile — konstant, damit nichts springt. */
+const DOT_ROW_H = 4;
 
 /* Ziele und Beschriftungen kommen aus der Registry. Vorher lag hier
    eine zweite, von Hand gepflegte Tabelle mit Progress-Werten, die von
@@ -21,8 +31,42 @@ interface DotNavigationProps {
 }
 
 export function DotNavigation({ activeIndex, onNavigate }: DotNavigationProps) {
+  const navRef = useRef<HTMLElement>(null);
+  const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
+  /** Waagrechte Mitten der Punktzeilen, relativ zur Leiste. */
+  const [centers, setCenters] = useState<number[]>([]);
+  const [dotTop, setDotTop] = useState(0);
+
+  /* Positionen messen statt rechnen: die Abstände sind clamp()-basiert
+     und hängen an der Viewportbreite. */
+  useLayoutEffect(() => {
+    const measure = () => {
+      const buttons = buttonsRef.current;
+      if (!buttons[0]) return;
+      setCenters(buttons.map((b) => (b ? b.offsetLeft + b.offsetWidth / 2 : 0)));
+      setDotTop(buttons[0].offsetTop + (DOT_ROW_H - MARKER_H) / 2);
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    if (navRef.current) observer.observe(navRef.current);
+    window.addEventListener("resize", measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+
+  const center = centers[activeIndex];
+  const marker = {
+    ready: center !== undefined,
+    x: (center ?? 0) - MARKER_W / 2,
+    top: dotTop,
+  };
+
   return (
     <nav
+      ref={navRef}
       aria-label="Sektion-Navigation"
       style={{
         position: "fixed",
@@ -43,11 +87,35 @@ export function DotNavigation({ activeIndex, onNavigate }: DotNavigationProps) {
         pointerEvents: "auto",
       }}
     >
+      {/* Gleitende Markierung — ein einziges Element, das über dieselbe
+          Dauer und Kurve wandert wie die Sektionsbewegung. Ein Element,
+          das sich durchgehend bewegt, trägt die Kontinuität; sechs, die
+          nacheinander umschalten, zerlegen sie in Sprünge. */}
+      <span
+        aria-hidden
+        style={{
+          position: "absolute",
+          left: 0,
+          top: marker.top,
+          width: MARKER_W,
+          height: MARKER_H,
+          borderRadius: "1px",
+          backgroundColor: V.indicator,
+          transform: `translateX(${marker.x}px)`,
+          opacity: marker.ready ? 1 : 0,
+          transition: marker.ready
+            ? `transform ${SCROLL_TUNING.SNAP_MS}ms ${EASE.snap}, opacity 200ms ease`
+            : "none",
+          pointerEvents: "none",
+        }}
+      />
+
       {SECTIONS.map((section, i) => {
         const isActive = activeIndex === i;
         return (
           <button
             key={section.key}
+            ref={(el) => { buttonsRef.current[i] = el; }}
             onClick={() => onNavigate(i)}
             aria-label={section.label}
             aria-current={isActive ? "page" : undefined}
@@ -63,18 +131,31 @@ export function DotNavigation({ activeIndex, onNavigate }: DotNavigationProps) {
               outline: "none",
             }}
           >
-            {/* Indicator */}
+            {/* Ruhender Punkt. Feste Höhe für alle Zustände, damit das
+                Umschalten die Beschriftungen nicht verschiebt — die
+                aktive Markierung liegt darüber und gleitet. */}
             <span
               aria-hidden
               style={{
-                display: "block",
-                width: isActive ? "12px" : "4px",
-                height: isActive ? "1.5px" : "4px",
-                borderRadius: isActive ? "1px" : "50%",
-                backgroundColor: isActive ? V.indicator : V.indicatorInactive,
-                transition: "all 200ms ease",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: DOT_ROW_H,
+                width: MARKER_W,
               }}
-            />
+            >
+              <span
+                style={{
+                  display: "block",
+                  width: "4px",
+                  height: "4px",
+                  borderRadius: "50%",
+                  backgroundColor: V.indicatorInactive,
+                  opacity: isActive ? 0 : 1,
+                  transition: `opacity ${SCROLL_TUNING.SNAP_MS}ms ${EASE.snap}`,
+                }}
+              />
+            </span>
 
             {/* Label */}
             <span
@@ -88,7 +169,7 @@ export function DotNavigation({ activeIndex, onNavigate }: DotNavigationProps) {
                 userSelect: "none",
                 color: isActive ? V.text : V.textInactive,
                 fontWeight: isActive ? 500 : 400,
-                transition: "color 200ms ease",
+                transition: `color ${SCROLL_TUNING.SNAP_MS}ms ${EASE.snap}`,
               }}
             >
               {section.label}
