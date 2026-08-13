@@ -151,6 +151,56 @@ interface Tween {
   duration: number;
 }
 
+/** Warum die Gestenerkennung wieder scharf gestellt hat. */
+export type ArmReason = "quiet" | "rise" | "reverse" | "tail" | "—";
+
+/**
+ * Momentaufnahme der Gestenerkennung für das Debug-Overlay.
+ *
+ * Wird als Ref durchgereicht und in place beschrieben, nicht als State:
+ * ein setState pro Wheel-Event würde bei 60–120 Events/s den ganzen
+ * Baum neu rendern und damit genau die Zeitverhältnisse verschieben,
+ * die hier gemessen werden sollen.
+ */
+export interface ScrollDebugInfo {
+  events: number;
+  delta: number;
+  gap: number;
+  /** Hüllkurve, auf den Zeitpunkt des Events fortgeschrieben. */
+  envelope: number;
+  /** Schwelle, ab der ein Delta als bewusster zweiter Schub gilt. */
+  riseThreshold: number;
+  armed: boolean;
+  reason: ArmReason;
+  accum: number;
+  index: number;
+  mode: SectionScroll;
+  fired: number;
+  lastFiredIndex: number;
+  /** Letzte Beträge, ältestes zuerst — zeigt die Zerfallsform. */
+  recent: number[];
+}
+
+const RECENT_LEN = 32;
+
+function createDebugInfo(): ScrollDebugInfo {
+  return {
+    events: 0,
+    delta: 0,
+    gap: 0,
+    envelope: 0,
+    riseThreshold: 0,
+    armed: true,
+    reason: "—",
+    accum: 0,
+    index: 0,
+    mode: "snap",
+    fired: 0,
+    lastFiredIndex: 0,
+    recent: [],
+  };
+}
+
 type ScrollDirection = "forward" | "backward" | "idle";
 
 interface UseHorizontalScrollOptions {
@@ -200,6 +250,9 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   const armedRef = useRef(true);
   const lastFireTsRef = useRef(0);
   const firedDirRef = useRef(0);
+
+  /** Instrumentierung fürs Debug-Overlay (?scrolldebug). */
+  const debugRef = useRef<ScrollDebugInfo>(createDebugInfo());
 
   /* ── Touch ── */
   const touchLastXRef = useRef(0);
@@ -540,11 +593,14 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       const decayed =
         envelopeRef.current * Math.pow(0.5, gap / ENVELOPE_HALFLIFE_MS);
 
+      let reason: ArmReason = armedRef.current ? "—" : "tail";
+
       if (gap > QUIET_MS) {
         /* 1) Echte Pause — die vorige Geste ist beendet. */
         armedRef.current = true;
         accumRef.current = 0;
         envelopeRef.current = 0;
+        reason = "quiet";
       } else if (
         !armedRef.current &&
         absDelta > decayed * RISE_FACTOR &&
@@ -562,6 +618,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
               verändert die Zerfallsform nicht. */
         armedRef.current = true;
         accumRef.current = 0;
+        reason = "rise";
       } else if (
         !armedRef.current &&
         Math.sign(delta) !== firedDirRef.current &&
@@ -570,10 +627,26 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
         /* 3) Richtungsumkehr — niemand wischt versehentlich zurück. */
         armedRef.current = true;
         accumRef.current = 0;
+        reason = "reverse";
       }
 
       lastEventTsRef.current = now;
       envelopeRef.current = Math.max(absDelta, decayed);
+
+      const dbg = debugRef.current;
+      dbg.events++;
+      dbg.delta = delta;
+      dbg.gap = gap;
+      dbg.envelope = decayed;
+      dbg.riseThreshold = decayed * RISE_FACTOR;
+      dbg.reason = reason;
+      dbg.recent.push(absDelta);
+      if (dbg.recent.length > RECENT_LEN) dbg.recent.shift();
+
+      dbg.armed = armedRef.current;
+      dbg.accum = accumRef.current;
+      dbg.index = indexRef.current;
+      dbg.mode = measuredRef.current[indexRef.current]?.scroll ?? "snap";
 
       if (!armedRef.current) return;
 
@@ -596,6 +669,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       }
 
       accumRef.current += delta;
+      dbg.accum = accumRef.current;
       if (Math.abs(accumRef.current) < WHEEL_THRESHOLD) return;
       if (now - lastFireTsRef.current < MIN_FIRE_INTERVAL_MS) return;
 
@@ -605,6 +679,12 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       firedDirRef.current = dir;
       lastFireTsRef.current = now;
       jumpRelative(dir);
+
+      dbg.armed = false;
+      dbg.accum = 0;
+      dbg.fired++;
+      dbg.lastFiredIndex = indexRef.current;
+      dbg.index = indexRef.current;
     };
 
     /* Touch braucht die Heuristik nicht: `touchend` beendet die Geste
@@ -709,6 +789,19 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     jumpToIndex,
     activeIndex,
     scrollDirection,
+    debugRef,
     disabled,
   };
 }
+
+/** Abstimmungswerte für die Anzeige im Debug-Overlay. */
+export const SCROLL_TUNING = {
+  SNAP_MS,
+  WHEEL_THRESHOLD,
+  QUIET_MS,
+  ENVELOPE_HALFLIFE_MS,
+  RISE_FACTOR,
+  RISE_MIN_ABS,
+  MIN_FIRE_INTERVAL_MS,
+  TOUCH_THRESHOLD,
+} as const;

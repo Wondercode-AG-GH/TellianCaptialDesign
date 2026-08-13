@@ -15,6 +15,7 @@ import { LegalPage, useLegalRoute } from "./components/LegalPage";
 import { C, serif, sans, EYEBROW } from "./tokens";
 import { EASE } from "../styles/motion";
 import { useHorizontalScroll } from "./components/useHorizontalScroll";
+import { ScrollDebugOverlay, isScrollDebugEnabled } from "./components/ScrollDebugOverlay";
 import { useBreakpoint } from "./components/useBreakpoint";
 import {
   ScrollImage,
@@ -1206,11 +1207,14 @@ export default function App() {
         `locked` sperrt Eingaben, solange ein Overlay offen ist oder das
         Intro läuft. Der Wheel-Handler ist dabei schon durch
         pointer-events: none blockiert; keydown hängt aber am Fenster. */
-  const { containerRef, panelRef, scrollProgress, scrollX, scrollTo, scrollDirection } =
+  const { containerRef, panelRef, scrollProgress, scrollX, scrollTo, scrollDirection, debugRef } =
     useHorizontalScroll({
       disabled: isVertical,
       locked: isDetailMode || !introComplete,
     });
+
+  /* Debug-Overlay der Rastung — hinter ?scrolldebug, bleibt bis Go-live. */
+  const [scrollDebug] = useState(isScrollDebugEnabled);
 
   /* ── Hero entry-animation trigger (desktop) ── */
   const [heroAnimate, setHeroAnimate] = useState(false);
@@ -1596,6 +1600,8 @@ export default function App() {
           onContactClick={navigateToContact}
         />
       </SubpageOverlay>
+
+      {scrollDebug && <ScrollDebugOverlay debugRef={debugRef} />}
     </div>
   );
 }
