@@ -34,8 +34,8 @@ import { ParteiDreieck } from "./components/ParteiDreieck";
 import { LAYOUT, TEXT_COLUMN_STYLE, getLayout, getTextColumnStyle, SPACING } from "./layout";
 import { SECTION_WIDTH, SECTIONS, SUBPAGE_SECTION_KEY, indexOfSection } from "./sections";
 import { SectionEnteredProvider } from "./components/SectionEntry";
+import { prefetchImages } from "./components/ResponsiveImage";
 import { useVerticalSectionIndex } from "./components/useVerticalSectionIndex";
-import heroDesktopImg from "../assets/zh-3.jpg";
 import preloadLogo from "../assets/logo/Tellian__archive white logo horizontal.svg";
 
 /* Tokens: C, serif, sans from ./tokens.ts; EASE from ../styles/motion.ts */
@@ -1314,6 +1314,29 @@ export default function App() {
     }
   }, [activeIndex, introComplete, isDetailMode, legal.activePath]);
 
+  /* ═══ Bilder der Nachbarsektionen vorladen ═══
+       Erst wenn die Bewegung steht. Während des Sprungs zu laden würde
+       das Problem nur verlagern: die Dekodierung kostet dann genau die
+       Frames, die der Sprung braucht. requestIdleCallback wartet
+       zusätzlich auf eine ruhige Stelle im Hauptthread. */
+  useEffect(() => {
+    if (isVertical || !introComplete) return;
+    if (scrollDirection !== "idle") return;
+
+    const ids = [activeIndex - 1, activeIndex + 1]
+      .filter((i) => i >= 0 && i < SECTIONS.length)
+      .flatMap((i) => SECTIONS[i].imageIds);
+    if (!ids.length) return;
+
+    const run = () => prefetchImages(ids);
+    const idleId = window.requestIdleCallback?.(run, { timeout: 1500 });
+    const timerId = idleId === undefined ? window.setTimeout(run, 500) : 0;
+    return () => {
+      if (idleId !== undefined) window.cancelIdleCallback?.(idleId);
+      else clearTimeout(timerId);
+    };
+  }, [isVertical, introComplete, scrollDirection, activeIndex]);
+
   /* Vertikaler Zweig: Startsektion einnehmen. Der Scroll-Hook ist dort
      abgeschaltet, initialIndex greift also nicht. Ohne Animation —
      HeroVertical setzt beim Mount ohnehin auf 0 zurück, wir kommen
@@ -1363,7 +1386,7 @@ export default function App() {
 
         {/* ── HERO (mobile/tablet — page-load stagger animation) ── */}
         <HeroVertical
-          imageSrc={heroDesktopImg}
+          imageId="hero-zuerich"
           introComplete={introComplete}
           breakpoint={breakpoint}
           onCtaClick={navigateToContact}
@@ -1506,8 +1529,12 @@ export default function App() {
             style={{ top: 0, bottom: 0, left: layout.imageLeft, right: 0 }}
           >
             <HeroExpandingImage
-              src={heroDesktopImg}
-              scrollX={0}
+              id="hero-zuerich"
+              alt="Zürich"
+              /* Kasten ist 50vw der Sektion plus Überstand — gemessen
+                 819px bei 1440 Viewport. */
+              sizes="58vw"
+              priority
               className="w-full h-full"
             />
           </div>

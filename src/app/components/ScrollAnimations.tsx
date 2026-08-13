@@ -4,6 +4,8 @@ import { EASE } from "../../styles/motion";
 import { useSectionEntered } from "./SectionEntry";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 import { TWEEN_LAG_VAR, TWEEN_OVERSCAN_VAR } from "./useHorizontalScroll";
+import { ResponsiveImage } from "./ResponsiveImage";
+import type { ImageId } from "../../assets/generated";
 
 /* ═══════════════════════════════════════════════════════════
    ANIMATIONSPOLITIK
@@ -166,18 +168,26 @@ export function ScrollImage({
    ═══════════════════════════════════════════════════════════ */
 
 interface HeroExpandingImageProps {
-  src: string;
+  /** Schlüssel im erzeugten Bildverzeichnis. */
+  id: ImageId;
+  alt: string;
+  /** Anzeigeraum für die Stufenwahl — s. ResponsiveImage. */
+  sizes: string;
   /** @deprecated Wird nicht mehr gelesen. */
   scrollX?: number;
   className?: string;
-  alt?: string;
   isVertical?: boolean;
+  /** Setzt Ladepriorität — genau einmal je Seite. */
+  priority?: boolean;
 }
 
 export function HeroExpandingImage({
-  src,
+  id,
+  alt,
+  sizes,
   className = "",
   isVertical = false,
+  priority = false,
 }: HeroExpandingImageProps) {
   const reducedMotion = usePrefersReducedMotion();
 
@@ -189,19 +199,26 @@ export function HeroExpandingImage({
   return (
     <div className={`relative overflow-hidden ${className}`}>
       <div
-        className="absolute bg-cover bg-center will-change-transform"
+        className="absolute will-change-transform"
         style={
           shifts
             ? {
                 /* Überstand kommt aus derselben Rechnung wie der
                    Versatz — s. OVERSCAN_VAR in useHorizontalScroll. */
                 inset: `calc(-1 * var(${TWEEN_OVERSCAN_VAR}, 0px))`,
-                backgroundImage: `url(${src})`,
                 transform: `translate3d(var(${TWEEN_LAG_VAR}, 0px), 0, 0)`,
               }
-            : { inset: 0, backgroundImage: `url(${src})` }
+            : { inset: 0 }
         }
-      />
+      >
+        <ResponsiveImage
+          id={id}
+          alt={alt}
+          sizes={sizes}
+          priority={priority}
+          className="w-full h-full"
+        />
+      </div>
     </div>
   );
 }

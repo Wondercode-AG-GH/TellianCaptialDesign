@@ -6,6 +6,8 @@
    einer Gesamtbreite, die es nicht gab.
    ═══════════════════════════════════════════════════════════ */
 
+import type { ImageId } from "../assets/generated";
+
 /**
  * Breite der Snap-Sektionen.
  *
@@ -42,6 +44,11 @@ export interface SectionDef {
   /** id des Abschnitts im vertikalen Zweig, für scrollIntoView. */
   domId: string;
   scroll: SectionScroll;
+  /**
+   * Bilder, die diese Sektion zeigt. Grundlage fürs Vorladen der
+   * Nachbarsektion — leer, wenn sie ohne Bilder auskommt.
+   */
+  imageIds: readonly ImageId[];
 }
 
 /**
@@ -53,21 +60,25 @@ export const SECTIONS: readonly SectionDef[] = [
     key: "hero", label: "Start",
     navLabel: "Start", navSub: "Einführung",
     domId: "section-hero", scroll: "snap",
+    imageIds: ["hero-zuerich"],
   },
   {
     key: "philosophie", label: "Philosophie",
     navLabel: "Philosophie", navSub: "Anlagephilosophie",
     domId: "section-anlagephilosophie", scroll: "snap",
+    imageIds: ["sardona"],
   },
   {
     key: "vermoegen", label: "Mandat",
     navLabel: "Vermögensverwaltung", navSub: "Mandat & Prozess",
     domId: "section-vermoegensverwaltung", scroll: "snap",
+    imageIds: [],
   },
   {
     key: "strategien", label: "Portfolio",
     navLabel: "Portfolio Management", navSub: "Wie wir investieren",
     domId: "section-anlagestrategien", scroll: "snap",
+    imageIds: [],
   },
   /* TEMPORARY — Team-Filmstrip, inhaltsabgeleitet ~194vw breit
      (60vw Padding + 6 × 21vw + 5 × 24px). Als einzelner Rastpunkt wäre
@@ -85,11 +96,16 @@ export const SECTIONS: readonly SectionDef[] = [
     key: "ueber-uns", label: "Team",
     navLabel: "Über uns", navSub: "Team & Geschichte",
     domId: "section-ueber-uns", scroll: "free",
+    imageIds: [
+      "olivier-bill", "marco-ludescher", "rolf-schneider",
+      "bryan-honegger", "andreas-truempler", "jasmina-rukavina",
+    ],
   },
   {
     key: "kontakt", label: "Kontakt",
     navLabel: "Kontakt", navSub: "Gespräch vereinbaren",
     domId: "section-kontakt", scroll: "snap",
+    imageIds: [],
   },
 ];
 

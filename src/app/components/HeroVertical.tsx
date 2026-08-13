@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { CtaButton } from "./CtaButton";
 import type { Breakpoint } from "./useBreakpoint";
+import { ResponsiveImage } from "./ResponsiveImage";
+import type { ImageId } from "../../assets/generated";
 
 import { C, serif, sans } from "../tokens";
 import { EASE } from "../../styles/motion";
@@ -8,7 +10,8 @@ import { EASE } from "../../styles/motion";
 const EASE_FADE = "ease-out";
 
 interface HeroVerticalProps {
-  imageSrc: string;
+  /** Schlüssel im erzeugten Bildverzeichnis. */
+  imageId: ImageId;
   introComplete: boolean;
   breakpoint: Breakpoint;
   onCtaClick: () => void;
@@ -25,7 +28,7 @@ interface HeroVerticalProps {
  * • Animated scroll arrow that fades on first scroll
  */
 export function HeroVertical({
-  imageSrc,
+  imageId,
   introComplete,
   breakpoint,
   onCtaClick,
@@ -132,13 +135,19 @@ export function HeroVertical({
           style={{
             width: "100%",
             height: "100%",
-            backgroundImage: `url(${imageSrc})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
             clipPath: animate ? "inset(0 0 0 0)" : "inset(100% 0 0 0)",
             transition: `clip-path 1000ms ${EASE.standard} ${T.image}ms`,
           }}
-        />
+        >
+          <ResponsiveImage
+            id={imageId}
+            alt="Zürich"
+            sizes="100vw"
+            priority
+            className="w-full h-full"
+            objectPosition="center"
+          />
+        </div>
       </div>
 
       {/* ═══ TEXT ═══ */}

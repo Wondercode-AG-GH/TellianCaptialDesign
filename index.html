@@ -6,6 +6,24 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="icon" type="image/svg+xml" href="/public/favicon.svg" />
       <title>Tellian Capital</title>
+
+    <!-- Hero-Bild vorladen. Es ist das einzige Bild, das beim Aufbau
+         sichtbar ist; der Browser findet es sonst erst, wenn React
+         gerendert hat. Die Dateien liegen unter stabilen Namen in
+         public/img/, damit dieser Verweis auch wirklich das trifft,
+         was <picture> später auswählt — erzeugt von
+         scripts/optimize-images.mjs, bei Änderungen dort mitziehen. -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/avif"
+      fetchpriority="high"
+      imagesrcset="/img/hero-zuerich/hero-zuerich-480.avif 480w,
+                   /img/hero-zuerich/hero-zuerich-840.avif 840w,
+                   /img/hero-zuerich/hero-zuerich-1280.avif 1280w,
+                   /img/hero-zuerich/hero-zuerich-1680.avif 1680w"
+      imagesizes="58vw"
+    />
       <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
     </head>
 

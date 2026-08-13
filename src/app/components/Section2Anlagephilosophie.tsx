@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { HeroExpandingImage, ScrollFade } from "./ScrollAnimations";
 import { ExpandableBody } from "./ExpandableBody";
-import sardonaImg from "../../assets/sardona-1.jpg";
 import { LAYOUT, getLayout, getTextColumnStyle, SPACING } from "../layout";
 import { SECTION_WIDTH } from "../sections";
 import type { Breakpoint } from "./useBreakpoint";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
+import { ResponsiveImage } from "./ResponsiveImage";
 
 import { C, serif, sans, cormorant, EYEBROW } from "../tokens";
 import { EASE, DURATION } from "../../styles/motion";
@@ -362,11 +362,12 @@ export function Section2Anlagephilosophie({
             overflow: "hidden",
           }}
         >
-          <img
-            src={sardonaImg}
+          <ResponsiveImage
+            id="sardona"
             alt="Tektonikarena Sardona — UNESCO-Welterbe im Kanton Glarus."
+            sizes="100vw"
             className="w-full h-full"
-            style={{ objectFit: "cover", objectPosition: "center" }}
+            objectPosition="center"
           />
         </div>
       </section>
@@ -386,7 +387,8 @@ export function Section2Anlagephilosophie({
         style={{ top: 0, bottom: 0, left: "52vw", right: 0 }}
       >
         <HeroExpandingImage
-          src={sardonaImg}
+          id="sardona"
+          sizes="52vw"
           scrollX={scrollX}
           className="w-full h-full"
           alt="Tektonikarena Sardona — UNESCO-Welterbe im Kanton Glarus. Sichtbare geologische Schichtung der Glarner Hauptüberschiebung."

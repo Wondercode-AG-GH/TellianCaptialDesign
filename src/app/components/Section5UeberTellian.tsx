@@ -14,21 +14,18 @@ import type { Breakpoint } from "./useBreakpoint";
    ═══════════════════════════════════════════════════════════ */
 
 import { C, serif, sans, EYEBROW } from "../tokens";
+import { ResponsiveImage } from "./ResponsiveImage";
+import type { ImageId } from "../../assets/generated";
 
 /* ── Team photos ── */
-import imgOlivierBill from "../../assets/team/Olivier-Bill.JPG";
-import imgMarcoLudescher from "../../assets/team/Marco-Ludescher.JPG";
-import imgRolfSchneider from "../../assets/team/Rolf-Schneider.JPG";
-import imgBryanHonegger from "../../assets/team/Bryan-Honegger.png";
-import imgAndreasTruempler from "../../assets/team/Andreas-Trümpler.JPG";
-import imgJasminaRukavina from "../../assets/team/Jasmina-Rukavina.JPG";
 
 /* ── Team data ── */
 interface TeamMember {
   name: string;
   role: string;
   bio: string;
-  img: string;
+  /** Schlüssel im erzeugten Bildverzeichnis. */
+  imageId: ImageId;
   imgPosition?: string;
   linkedin?: string;
 }
@@ -38,7 +35,7 @@ const TEAM: TeamMember[] = [
     name: "Olivier M. Bill",
     role: "CEO",
     bio: "",
-    img: imgOlivierBill,
+    imageId: "olivier-bill" as const,
     imgPosition: "center 85%",
     linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
@@ -46,7 +43,7 @@ const TEAM: TeamMember[] = [
     name: "Marco Ludescher",
     role: "Head of Portfolio Management",
     bio: "",
-    img: imgMarcoLudescher,
+    imageId: "marco-ludescher" as const,
     imgPosition: "center 85%",
     linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
@@ -54,7 +51,7 @@ const TEAM: TeamMember[] = [
     name: "Rolf Schneider",
     role: "Relationship Manager",
     bio: "",
-    img: imgRolfSchneider,
+    imageId: "rolf-schneider" as const,
     imgPosition: "center 15%",
     linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
@@ -62,7 +59,7 @@ const TEAM: TeamMember[] = [
     name: "Bryan Anthony Honegger",
     role: "Relationship Manager",
     bio: "",
-    img: imgBryanHonegger,
+    imageId: "bryan-honegger" as const,
     imgPosition: "center 15%",  /* Hochformat — Kopf oben */
     linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
@@ -70,7 +67,7 @@ const TEAM: TeamMember[] = [
     name: "Andreas Trümpler",
     role: "Risk Management",
     bio: "",
-    img: imgAndreasTruempler,
+    imageId: "andreas-truempler" as const,
     imgPosition: "center 15%",
     linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
@@ -78,7 +75,7 @@ const TEAM: TeamMember[] = [
     name: "Jasmina Rukavina",
     role: "Wertschriften Back-Office / Office Management",
     bio: "",
-    img: imgJasminaRukavina,
+    imageId: "jasmina-rukavina" as const,
     imgPosition: "center 10%",  /* Hochformat — Kopf oben */
     linkedin: "https://www.linkedin.com/in/placeholder", /* PENDING: echte LinkedIn URL */
   },
@@ -163,14 +160,14 @@ function PortraitCard({
         className="w-full relative overflow-hidden"
         style={{ paddingBottom: "125%" }}
       >
-        <img
-          src={member.img}
+        <ResponsiveImage
+          id={member.imageId}
           alt={member.name}
+          /* Kachel misst 21vw auf Desktop, rund 43vw im vertikalen
+             Raster — gemessen 302px bzw. 167px. */
+          sizes="(max-width: 1023px) 45vw, 21vw"
           className="absolute inset-0 w-full h-full"
-          style={{
-            objectFit: "cover",
-            objectPosition: member.imgPosition || "center top",
-          }}
+          objectPosition={member.imgPosition || "center top"}
         />
       </div>
 
