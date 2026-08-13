@@ -30,10 +30,17 @@ export const SECTION_WIDTH_LAST = "100vw";
 export type SectionScroll = "snap" | "free";
 
 export interface SectionDef {
-  /** Stabiler Schlüssel, unabhängig von Position und Beschriftung. */
+  /** Stabiler Schlüssel, unabhängig von Position und Beschriftung.
+   *  Wird auch als Hash-Fragment in der URL geführt. */
   key: string;
-  /** Kurzform für Navigation und Debug-Ausgabe. */
+  /** Kurzform — untere Leiste und Debug-Ausgabe. */
   label: string;
+  /** Langform — Menü-Overlay. */
+  navLabel: string;
+  /** Unterzeile im Menü-Overlay. */
+  navSub: string;
+  /** id des Abschnitts im vertikalen Zweig, für scrollIntoView. */
+  domId: string;
   scroll: SectionScroll;
 }
 
@@ -42,10 +49,26 @@ export interface SectionDef {
  * auf die sich Rastung und Navigation beziehen.
  */
 export const SECTIONS: readonly SectionDef[] = [
-  { key: "hero",        label: "Start",        scroll: "snap" },
-  { key: "philosophie", label: "Philosophie",  scroll: "snap" },
-  { key: "vermoegen",   label: "Mandat",       scroll: "snap" },
-  { key: "strategien",  label: "Portfolio",    scroll: "snap" },
+  {
+    key: "hero", label: "Start",
+    navLabel: "Start", navSub: "Einführung",
+    domId: "section-hero", scroll: "snap",
+  },
+  {
+    key: "philosophie", label: "Philosophie",
+    navLabel: "Philosophie", navSub: "Anlagephilosophie",
+    domId: "section-anlagephilosophie", scroll: "snap",
+  },
+  {
+    key: "vermoegen", label: "Mandat",
+    navLabel: "Vermögensverwaltung", navSub: "Mandat & Prozess",
+    domId: "section-vermoegensverwaltung", scroll: "snap",
+  },
+  {
+    key: "strategien", label: "Portfolio",
+    navLabel: "Portfolio Management", navSub: "Wie wir investieren",
+    domId: "section-anlagestrategien", scroll: "snap",
+  },
   /* TEMPORARY — Team-Filmstrip, inhaltsabgeleitet ~194vw breit
      (60vw Padding + 6 × 21vw + 5 × 24px). Als einzelner Rastpunkt wäre
      rund die Hälfte der Porträts unerreichbar, deshalb freies Scrollen
@@ -58,8 +81,40 @@ export const SECTIONS: readonly SectionDef[] = [
      die align-Option von jumpToIndex) sowie der Sonderfall im
      Debug-Overlay. Solange der Filmstrip steht, bleibt die Ausnahme
      nötig — die Sektion ist dann breiter als der Viewport. */
-  { key: "ueber-uns",   label: "Team",         scroll: "free" },
-  { key: "kontakt",     label: "Kontakt",      scroll: "snap" },
+  {
+    key: "ueber-uns", label: "Team",
+    navLabel: "Über uns", navSub: "Team & Geschichte",
+    domId: "section-ueber-uns", scroll: "free",
+  },
+  {
+    key: "kontakt", label: "Kontakt",
+    navLabel: "Kontakt", navSub: "Gespräch vereinbaren",
+    domId: "section-kontakt", scroll: "snap",
+  },
 ];
 
 export const SECTION_COUNT = SECTIONS.length;
+
+/** Laufende Nummer für die Anzeige — "01" … "06". */
+export function sectionOrdinal(index: number): string {
+  return String(index + 1).padStart(2, "0");
+}
+
+/** Index zu einem Schlüssel, -1 wenn unbekannt. */
+export function indexOfSection(key: string | null | undefined): number {
+  if (!key) return -1;
+  return SECTIONS.findIndex((s) => s.key === key);
+}
+
+/**
+ * Unterseiten und die Sektion, zu der sie gehören.
+ *
+ * Wird gebraucht, damit das Schliessen einer Unterseite an der richtigen
+ * Stelle landet — auch dann, wenn sie per Deep-Link geöffnet wurde und
+ * der Track vorher nie dort war.
+ */
+export const SUBPAGE_SECTION_KEY: Readonly<Record<string, string>> = {
+  "/vermoegensverwaltung": "vermoegen",
+  "/anlagestrategien": "strategien",
+  "/portfolio-management": "strategien",
+};

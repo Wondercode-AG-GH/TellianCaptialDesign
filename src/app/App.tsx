@@ -32,7 +32,8 @@ import { ExpandableBody } from "./components/ExpandableBody";
 import { Section2Anlagephilosophie } from "./components/Section2Anlagephilosophie";
 import { ParteiDreieck } from "./components/ParteiDreieck";
 import { LAYOUT, TEXT_COLUMN_STYLE, getLayout, getTextColumnStyle, SPACING } from "./layout";
-import { SECTION_WIDTH } from "./sections";
+import { SECTION_WIDTH, SECTIONS } from "./sections";
+import { SectionEnteredProvider } from "./components/SectionEntry";
 import heroImg from "figma:asset/f68e696a94d5501be4f500478f5085490ea6351a.png";
 import heroDesktopImg from "../assets/zh-3.jpg";
 import preloadLogo from "../assets/logo/Tellian__archive white logo horizontal.svg";
@@ -1184,6 +1185,13 @@ function Section4Anlagestrategien({
   );
 }
 
+/**
+ * Verzögerung der ersten Eintritts-Rastung nach dem Intro.
+ * Gibt den Schriften einen Moment, damit die Einblendung nicht auf
+ * einem Fallback-Font startet und mitten im Lauf umbricht.
+ */
+const FIRST_ENTRY_DELAY_MS = 120;
+
 /* ═══════════════════════════════════════════════════════════
    MAIN APPLICATION
    ═══════════════════════════════════════════════════════════ */
@@ -1207,11 +1215,41 @@ export default function App() {
         `locked` sperrt Eingaben, solange ein Overlay offen ist oder das
         Intro läuft. Der Wheel-Handler ist dabei schon durch
         pointer-events: none blockiert; keydown hängt aber am Fenster. */
-  const { containerRef, panelRef, scrollProgress, scrollX, scrollTo, scrollDirection, debugRef } =
+  const { containerRef, panelRef, scrollProgress, scrollX, scrollTo, scrollDirection, activeIndex, debugRef } =
     useHorizontalScroll({
       disabled: isVertical,
       locked: isDetailMode || !introComplete,
     });
+
+  /* ═══ Eintritts-Latch ═══
+       Rastet die aktuelle Sektion und nimmt sie nie zurück. Weil
+       activeIndex schon beim Absprung steht, läuft die Einblendung
+       während der Flugzeit statt erst bei Ankunft. */
+  const [entered, setEntered] = useState<boolean[]>(() => SECTIONS.map(() => false));
+  const markEntered = useCallback((i: number) => {
+    setEntered((prev) => (prev[i] ? prev : prev.map((v, k) => (k === i ? true : v))));
+  }, []);
+
+  /* Die erste Rastung wartet auf das Ende des Intros und einen kurzen
+     Moment für die Schriften. Ohne das liefe die Einblendung der
+     Startsektion hinter dem Preload-Screen ab und wäre beim Aufdecken
+     schon vorbei — genau der erste Eindruck ginge verloren.
+     Gerastet wird die dann aktuelle Sektion, nicht pauschal Index 0:
+     bei einem Deep-Link steht der Track schon woanders, und der Hero
+     soll seine Einblendung behalten, bis er wirklich betreten wird. */
+  const firstLatchDone = useRef(false);
+  useEffect(() => {
+    if (isVertical || !introComplete) return;
+    if (firstLatchDone.current) {
+      markEntered(activeIndex);
+      return;
+    }
+    const t = setTimeout(() => {
+      firstLatchDone.current = true;
+      markEntered(activeIndex);
+    }, FIRST_ENTRY_DELAY_MS);
+    return () => clearTimeout(t);
+  }, [isVertical, introComplete, activeIndex, markEntered]);
 
   /* Debug-Overlay der Rastung — hinter ?scrolldebug, bleibt bis Go-live. */
   const [scrollDebug] = useState(isScrollDebugEnabled);
@@ -1413,6 +1451,7 @@ export default function App() {
         }}
       >
         {/* CHAPTER 1 — HERO (desktop — headline + trust + ghost CTA) */}
+        <SectionEnteredProvider value={entered[0]}>
         <div
           ref={panelRef(0)}
           className="flex-shrink-0 h-screen relative"
@@ -1540,38 +1579,49 @@ export default function App() {
             }
           `}</style>
         </div>
+        </SectionEnteredProvider>
 
         {/* CHAPTER 2 — ANLAGEPHILOSOPHIE */}
-        <Section2Anlagephilosophie scrollX={scrollX} panelRef={panelRef(1)} />
+        <SectionEnteredProvider value={entered[1]}>
+          <Section2Anlagephilosophie scrollX={scrollX} panelRef={panelRef(1)} />
+        </SectionEnteredProvider>
 
         {/* CHAPTER 3 — VERMÖGENSVERWALTUNG */}
-        <Section3Vermoegensverwaltung
-          scrollX={scrollX}
-          breakpoint={breakpoint}
-          viewMode={vvw.mode}
-          onOpenDetail={vvw.openDetail}
-          onCloseDetail={vvw.closeDetail}
-          onContactClick={navigateToContact}
-          panelRef={panelRef(2)}
-        />
+        <SectionEnteredProvider value={entered[2]}>
+          <Section3Vermoegensverwaltung
+            scrollX={scrollX}
+            breakpoint={breakpoint}
+            viewMode={vvw.mode}
+            onOpenDetail={vvw.openDetail}
+            onCloseDetail={vvw.closeDetail}
+            onContactClick={navigateToContact}
+            panelRef={panelRef(2)}
+          />
+        </SectionEnteredProvider>
 
         {/* CHAPTER 4 — ANLAGESTRATEGIEN */}
-        <Section4Anlagestrategien
-          scrollX={scrollX}
-          breakpoint={breakpoint}
-          viewMode={ast.mode}
-          onOpenDetail={ast.openDetail}
-          onCloseDetail={ast.closeDetail}
-          onContactClick={navigateToContact}
-          onNavigateToProcess={pm.openDetail}
-          panelRef={panelRef(3)}
-        />
+        <SectionEnteredProvider value={entered[3]}>
+          <Section4Anlagestrategien
+            scrollX={scrollX}
+            breakpoint={breakpoint}
+            viewMode={ast.mode}
+            onOpenDetail={ast.openDetail}
+            onCloseDetail={ast.closeDetail}
+            onContactClick={navigateToContact}
+            onNavigateToProcess={pm.openDetail}
+            panelRef={panelRef(3)}
+          />
+        </SectionEnteredProvider>
 
         {/* CHAPTER 5 — ÜBER TELLIAN (Teil 1 + Filmstrip als Fragment) */}
-        <Section5UeberTellian onContactClick={navigateToContact} panelRef={panelRef(4)} />
+        <SectionEnteredProvider value={entered[4]}>
+          <Section5UeberTellian onContactClick={navigateToContact} panelRef={panelRef(4)} />
+        </SectionEnteredProvider>
 
         {/* CHAPTER 6 — KONTAKT (map rendered via overlay, no layout impact) */}
-        <Section6Kontakt onOpenLegal={legal.open} panelRef={panelRef(5)} />
+        <SectionEnteredProvider value={entered[5]}>
+          <Section6Kontakt onOpenLegal={legal.open} panelRef={panelRef(5)} />
+        </SectionEnteredProvider>
       </div>
 
       <LoginOverlay
