@@ -32,8 +32,6 @@ export const DURATION = {
 /** Scroll-driven zoom animation tokens for ParteiDreieck (scroll-lock section).
  *  Apple-style: zoom into scene, parallax depth layers, progressive reveal. */
 export const SCROLL = {
-  /** Section width in vw (110 = normal, extra = scroll-lock distance) */
-  sectionWidthVw: 180,
   /** Scene zoom range (scale) */
   zoomFrom: 0.72,
   zoomTo: 1.10,

@@ -3,15 +3,12 @@ import { HeroExpandingImage, ScrollFade } from "./ScrollAnimations";
 import { ExpandableBody } from "./ExpandableBody";
 import sardonaImg from "../../assets/sardona-1.jpg";
 import { LAYOUT, getLayout, getTextColumnStyle, SPACING } from "../layout";
+import { SECTION_WIDTH } from "../sections";
 import type { Breakpoint } from "./useBreakpoint";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
 import { C, serif, sans, cormorant, EYEBROW } from "../tokens";
 import { EASE, DURATION } from "../../styles/motion";
-
-/* ─── Section geometry ──────────────────────────────────────── */
-const SECTION_START_VW = 118;
-const SECTION_WIDTH_VW = 110;
 
 interface Props {
   scrollX: number;
@@ -376,7 +373,7 @@ export function Section2Anlagephilosophie({
   return (
     <div
       className="flex-shrink-0 h-screen relative"
-      style={{ width: "100vw", backgroundColor: C.bg }}
+      style={{ width: SECTION_WIDTH, backgroundColor: C.bg }}
     >
       {/* Image — right side (starts at 52vw to give text more room) */}
       <div

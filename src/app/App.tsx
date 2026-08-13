@@ -13,7 +13,7 @@ import { Navigation } from "./components/Navigation";
 import { LoginOverlay } from "./components/LoginOverlay";
 import { LegalPage, useLegalRoute } from "./components/LegalPage";
 import { C, serif, sans, EYEBROW } from "./tokens";
-import { EASE, SCROLL } from "../styles/motion";
+import { EASE } from "../styles/motion";
 import { useHorizontalScroll } from "./components/useHorizontalScroll";
 import { useBreakpoint } from "./components/useBreakpoint";
 import {
@@ -31,6 +31,7 @@ import { ExpandableBody } from "./components/ExpandableBody";
 import { Section2Anlagephilosophie } from "./components/Section2Anlagephilosophie";
 import { ParteiDreieck } from "./components/ParteiDreieck";
 import { LAYOUT, TEXT_COLUMN_STYLE, getLayout, getTextColumnStyle, SPACING } from "./layout";
+import { SECTION_WIDTH } from "./sections";
 import heroImg from "figma:asset/f68e696a94d5501be4f500478f5085490ea6351a.png";
 import heroDesktopImg from "../assets/zh-3.jpg";
 import preloadLogo from "../assets/logo/Tellian__archive white logo horizontal.svg";
@@ -333,8 +334,7 @@ function Section3Vermoegensverwaltung({
   const isDetail = viewMode === "detail";
 
   // Scroll-zoom removed: section uses standard width, no animProgress.
-  // Two-column sections use 100vw so both columns are visible simultaneously
-  const sectionWidth = "100vw";
+  const sectionWidth = SECTION_WIDTH;
 
   const handleAnlageprozess = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -461,10 +461,12 @@ function Section3Vermoegensverwaltung({
       className="flex-shrink-0 h-screen relative"
       style={{ width: sectionWidth, backgroundColor: C.bg }}
     >
-      {/* Content wrapper — 100vw, both columns visible */}
+      {/* Content wrapper — füllt die Sektion; 100% statt 100vw, sonst
+          ragt er 6vw über die Sektion und verdeckt den Streifen der
+          Folgesektion. */}
       <div style={{
         position: "relative",
-        width: "100vw",
+        width: "100%",
         height: "100%",
       }}>
         <ParteiDreieck onNavigate={() => onOpenDetail?.()} />
@@ -959,7 +961,7 @@ function Section4Anlagestrategien({
   const overviewMarkup = (
     <div
       className="flex-shrink-0 h-screen relative"
-      style={{ width: "100vw", backgroundColor: C.bg }}
+      style={{ width: SECTION_WIDTH, backgroundColor: C.bg }}
     >
       {/* ── Right column: Methodik-Schaubild ──
            Section4: 40/60 statt 50/50 — bewusst, Schaubild braucht Breite.
@@ -1390,7 +1392,7 @@ export default function App() {
         {/* CHAPTER 1 — HERO (desktop — headline + trust + ghost CTA) */}
         <div
           className="flex-shrink-0 h-screen relative"
-          style={{ width: layout.heroWidth, backgroundColor: C.bg }}
+          style={{ width: SECTION_WIDTH, backgroundColor: C.bg }}
         >
           {/* Image — right */}
           <div
@@ -1468,14 +1470,15 @@ export default function App() {
           </div>
 
           {/* Horizontal scroll-arrow — bottom right, pulses, fades on first scroll.
-              Hero is 110vw wide → we use `right: calc(10vw + 56px)` so the arrow's
-              right edge sits 56px from the *viewport* right, not the Hero right. */}
+              Der Hero ist mit SECTION_WIDTH (94vw) schmaler als der Viewport;
+              die alte Formel `calc(10vw + 56px)` war aus der 110vw-Breite
+              hergeleitet und ergäbe jetzt einen negativen Wert. */}
           <div
             aria-hidden
             style={{
               position: "absolute",
               bottom: "56px",
-              right: "calc(10vw + 56px)",
+              right: "56px",
               zIndex: 5,
               color: C.purple,
               opacity: heroAnimate && !heroArrowHidden ? 1 : 0,
@@ -1514,19 +1517,8 @@ export default function App() {
           `}</style>
         </div>
 
-        {/* Breathing after Hero */}
-        <div
-          className="flex-shrink-0 h-screen"
-          style={{ width: layout.breathingSpace, backgroundColor: C.bg }}
-        />
-
         {/* CHAPTER 2 — ANLAGEPHILOSOPHIE */}
         <Section2Anlagephilosophie scrollX={scrollX} />
-
-        <div
-          className="flex-shrink-0 h-screen"
-          style={{ width: layout.breathingSpace, backgroundColor: C.bg }}
-        />
 
         {/* CHAPTER 3 — VERMÖGENSVERWALTUNG */}
         <Section3Vermoegensverwaltung
@@ -1536,11 +1528,6 @@ export default function App() {
           onOpenDetail={vvw.openDetail}
           onCloseDetail={vvw.closeDetail}
           onContactClick={navigateToContact}
-        />
-
-        <div
-          className="flex-shrink-0 h-screen"
-          style={{ width: layout.breathingSpace, backgroundColor: C.bg }}
         />
 
         {/* CHAPTER 4 — ANLAGESTRATEGIEN */}
@@ -1554,18 +1541,8 @@ export default function App() {
           onNavigateToProcess={pm.openDetail}
         />
 
-        <div
-          className="flex-shrink-0 h-screen"
-          style={{ width: layout.breathingSpace, backgroundColor: C.bg }}
-        />
-
         {/* CHAPTER 5 — ÜBER TELLIAN (Teil 1 + Filmstrip als Fragment) */}
         <Section5UeberTellian onContactClick={navigateToContact} />
-
-        <div
-          className="flex-shrink-0 h-screen"
-          style={{ width: layout.breathingSpace, backgroundColor: C.bg }}
-        />
 
         {/* CHAPTER 6 — KONTAKT (map rendered via overlay, no layout impact) */}
         <Section6Kontakt onOpenLegal={legal.open} />

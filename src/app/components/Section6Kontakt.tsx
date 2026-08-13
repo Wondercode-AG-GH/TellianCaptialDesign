@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { Breakpoint } from "./useBreakpoint";
+import { SECTION_WIDTH_LAST } from "../sections";
 import { FloatingField } from "./FloatingField";
 import {
   LEGAL_PATHS,
@@ -941,7 +942,7 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
     <div
       className="flex-shrink-0 h-screen flex"
       style={{
-        width: "100vw",
+        width: SECTION_WIDTH_LAST,
         backgroundColor: C.bg,
       }}
     >

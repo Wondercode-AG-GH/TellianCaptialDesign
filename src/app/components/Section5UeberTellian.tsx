@@ -417,6 +417,22 @@ export function Section5UeberTellian({
      portraits (flex row, 21vw each, 24px gaps). Text sits on top of the
      first ~56vw of the filmstrip via matching bg color.
      Layout width: paddingLeft(60vw) + 8×21vw + 7×24px ≈ 228vw + 168px.
+
+     TEMPORARY — diese Sektion ist die einzige, die nicht SECTION_WIDTH
+     (94vw) breit ist. Ihre Breite ergibt sich aus dem Inhalt; bei 94vw
+     wären sechs der acht Porträts unerreichbar. Sie bekommt deshalb
+     befristet freies Scrollen innerhalb der Sektion statt eines
+     einzelnen Rastpunkts.
+
+     Zielbild ist 94/94/94/94/94/100: Sektion 5 wird auf zwei Reihen
+     umgebaut und dann ebenfalls SECTION_WIDTH. Mit diesem Umbau
+     entfallen die Ausnahme in sections.ts und der Free-Scroll-Zweig in
+     useHorizontalScroll.ts.
+
+     Dass die hartcodierten Zielwerte in Navigation.tsx und
+     DotNavigation.tsx in dieser Zwischengeometrie zufällig fast passen,
+     ist ein Nebeneffekt und kein Grund, sie zu behalten — sie werden in
+     Etappe 2 durch aus der Registry abgeleitete Werte ersetzt.
   ══════════════════════════════════════════════════════════ */
   return (
     <div
