@@ -58,6 +58,31 @@ const RISE_FACTOR = 1.6;
 /** Rauschfilter für Wiederbeschleunigung und Richtungsumkehr. */
 const RISE_MIN_ABS = 12;
 
+/* ── Mausrad-Erkennung ──
+   Schnelles Drehen am klassischen Mausrad liefert Rastpunkte im Abstand
+   von ~50ms mit gleich grossen Deltas. Die Ruhephase greift dabei nicht,
+   und gleich grosse Deltas erzeugen auch keine Wiederbeschleunigung —
+   kräftiges Drehen bewegte deshalb nur eine Sektion.
+
+   Unterschieden wird über die Zerfallsform: ein Trackpad-Nachlauf fällt
+   ab, ein Mausrad nicht. Beide Bedingungen müssen zutreffen. Der Betrag
+   allein genügt nicht, weil auch der Beginn eines kräftigen Swipes gross
+   ist; die Konstanz allein genügt nicht, weil zwei gleichmässig ziehende
+   Finger auf dem Trackpad ebenfalls konstante Verhältnisse liefern —
+   dann aber mit kleinen Deltas. */
+
+/** Betragsschwelle: darunter ist es kein Mausrad, sondern ein Zug. */
+const WHEEL_DEVICE_MIN_ABS = 80;
+
+/** Anzahl aufeinanderfolgender Events ohne Abfall. */
+const WHEEL_DEVICE_RUN = 5;
+
+/** Zulässiger Abfall gegenüber dem Beginn des Laufs. Verglichen wird
+ *  gegen den Laufanfang, nicht gegen das Vorgänger-Event: ein langsam
+ *  zerfallender Nachlauf (0.977 je Event) bleibt von Paar zu Paar unter
+ *  der Schwelle, summiert sich über fünf Events aber sichtbar auf. */
+const WHEEL_DEVICE_MIN_RATIO = 0.95;
+
 /** Harte Untergrenze zwischen zwei Auslösungen. Kleiner als SNAP_MS,
  *  damit die Zweitgeste eine laufende Transition abbrechen kann. */
 const MIN_FIRE_INTERVAL_MS = 150;
@@ -152,7 +177,7 @@ interface Tween {
 }
 
 /** Warum die Gestenerkennung wieder scharf gestellt hat. */
-export type ArmReason = "quiet" | "rise" | "reverse" | "tail" | "—";
+export type ArmReason = "quiet" | "rise" | "reverse" | "wheel" | "tail" | "—";
 
 /**
  * Momentaufnahme der Gestenerkennung für das Debug-Overlay.
@@ -173,6 +198,8 @@ export interface ScrollDebugInfo {
   armed: boolean;
   reason: ArmReason;
   accum: number;
+  /** Länge des laufenden Mausrad-Musters (gleich grosse Deltas). */
+  steadyRun: number;
   index: number;
   mode: SectionScroll;
   fired: number;
@@ -193,6 +220,7 @@ function createDebugInfo(): ScrollDebugInfo {
     armed: true,
     reason: "—",
     accum: 0,
+    steadyRun: 0,
     index: 0,
     mode: "snap",
     fired: 0,
@@ -250,6 +278,9 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   const armedRef = useRef(true);
   const lastFireTsRef = useRef(0);
   const firedDirRef = useRef(0);
+  /** Lauf gleich grosser Deltas — Mausrad-Erkennung. */
+  const steadyRunRef = useRef(0);
+  const steadyStartAbsRef = useRef(0);
 
   /** Instrumentierung fürs Debug-Overlay (?scrolldebug). */
   const debugRef = useRef<ScrollDebugInfo>(createDebugInfo());
@@ -595,12 +626,43 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 
       let reason: ArmReason = armedRef.current ? "—" : "tail";
 
+      /* Lauf gleich grosser Deltas fortschreiben. Verglichen wird gegen
+         den Laufanfang: fällt der Betrag darunter, beginnt der Lauf neu
+         — ein zerfallender Nachlauf kommt so nie auf volle Länge. */
+      if (absDelta < WHEEL_DEVICE_MIN_ABS) {
+        steadyRunRef.current = 0;
+        steadyStartAbsRef.current = 0;
+      } else if (
+        steadyRunRef.current > 0 &&
+        absDelta >= steadyStartAbsRef.current * WHEEL_DEVICE_MIN_RATIO
+      ) {
+        steadyRunRef.current++;
+      } else {
+        steadyRunRef.current = 1;
+        steadyStartAbsRef.current = absDelta;
+      }
+
       if (gap > QUIET_MS) {
         /* 1) Echte Pause — die vorige Geste ist beendet. */
         armedRef.current = true;
         accumRef.current = 0;
         envelopeRef.current = 0;
+        steadyRunRef.current = 0;
+        steadyStartAbsRef.current = 0;
         reason = "quiet";
+      } else if (
+        !armedRef.current &&
+        steadyRunRef.current >= WHEEL_DEVICE_RUN
+      ) {
+        /* 4) Klassisches Mausrad: gleich grosse, grosse Deltas ohne
+              Abfall. Bei schnellem Drehen greifen weder Ruhephase noch
+              Wiederbeschleunigung; ohne dieses Signal bewegt kräftiges
+              Drehen nur eine einzige Sektion. Der Mindestabstand von
+              MIN_FIRE_INTERVAL_MS begrenzt weiterhin die Strecke. */
+        armedRef.current = true;
+        accumRef.current = 0;
+        steadyRunRef.current = 0;
+        reason = "wheel";
       } else if (
         !armedRef.current &&
         absDelta > decayed * RISE_FACTOR &&
@@ -640,6 +702,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       dbg.envelope = decayed;
       dbg.riseThreshold = decayed * RISE_FACTOR;
       dbg.reason = reason;
+      dbg.steadyRun = steadyRunRef.current;
       dbg.recent.push(absDelta);
       if (dbg.recent.length > RECENT_LEN) dbg.recent.shift();
 
@@ -676,6 +739,9 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       const dir = Math.sign(accumRef.current);
       armedRef.current = false;
       accumRef.current = 0;
+      /* Lauf zurücksetzen, sonst stellt das Mausrad-Signal sofort im
+         nächsten Event wieder scharf. */
+      steadyRunRef.current = 0;
       firedDirRef.current = dir;
       lastFireTsRef.current = now;
       jumpRelative(dir);
@@ -804,4 +870,7 @@ export const SCROLL_TUNING = {
   RISE_MIN_ABS,
   MIN_FIRE_INTERVAL_MS,
   TOUCH_THRESHOLD,
+  WHEEL_DEVICE_MIN_ABS,
+  WHEEL_DEVICE_RUN,
+  WHEEL_DEVICE_MIN_RATIO,
 } as const;

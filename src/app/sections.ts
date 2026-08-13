@@ -51,9 +51,13 @@ export const SECTIONS: readonly SectionDef[] = [
      rund die Hälfte der Porträts unerreichbar, deshalb freies Scrollen
      innerhalb der Sektion.
 
-     Entfällt mit dem Umbau von Sektion 5 auf zwei Reihen: dann greift
-     hier SECTION_WIDTH und scroll wird "snap". Damit verschwindet auch
-     der Free-Scroll-Zweig in useHorizontalScroll.ts. */
+     ENTFÄLLT, sobald Sektion 5 im Redesign den Filmstrip verliert und
+     auf SECTION_WIDTH (94vw) schrumpft. Dann wird scroll hier "snap",
+     und damit verschwinden auch der Free-Scroll-Zweig in
+     useHorizontalScroll.ts (freeScrollStep, freeBounds, freeTargetRef,
+     die align-Option von jumpToIndex) sowie der Sonderfall im
+     Debug-Overlay. Solange der Filmstrip steht, bleibt die Ausnahme
+     nötig — die Sektion ist dann breiter als der Viewport. */
   { key: "ueber-uns",   label: "Team",         scroll: "free" },
   { key: "kontakt",     label: "Kontakt",      scroll: "snap" },
 ];

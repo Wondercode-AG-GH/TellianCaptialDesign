@@ -32,6 +32,7 @@ const REASON_LABEL: Record<ArmReason, string> = {
   quiet: "Ruhephase",
   rise: "Wiederbeschleunigung",
   reverse: "Richtungsumkehr",
+  wheel: "Mausrad (konstant)",
   tail: "Nachlauf (verworfen)",
   "—": "—",
 };
@@ -40,6 +41,7 @@ const REASON_COLOR: Record<ArmReason, string> = {
   quiet: "#7dd3fc",
   rise: "#86efac",
   reverse: "#fcd34d",
+  wheel: "#c4b5fd",
   tail: "#71717a",
   "—": "#71717a",
 };
@@ -132,6 +134,15 @@ export function ScrollDebugOverlay({ debugRef }: Props) {
         </span>
         <span style={{ color: "#71717a", marginLeft: 8 }}>
           / {SCROLL_TUNING.WHEEL_THRESHOLD}
+        </span>
+      </Row>
+
+      <Row label="Rad-Lauf">
+        <span style={{ color: d.steadyRun >= SCROLL_TUNING.WHEEL_DEVICE_RUN ? "#c4b5fd" : "#fff" }}>
+          {String(d.steadyRun).padStart(5)}
+        </span>
+        <span style={{ color: "#71717a", marginLeft: 8 }}>
+          / {SCROLL_TUNING.WHEEL_DEVICE_RUN} · ab {SCROLL_TUNING.WHEEL_DEVICE_MIN_ABS}px
         </span>
       </Row>
 
