@@ -34,6 +34,7 @@ import { ParteiDreieck } from "./components/ParteiDreieck";
 import { LAYOUT, TEXT_COLUMN_STYLE, getLayout, getTextColumnStyle, SPACING } from "./layout";
 import { SECTION_WIDTH, SECTIONS } from "./sections";
 import { SectionEnteredProvider } from "./components/SectionEntry";
+import { useVerticalSectionIndex } from "./components/useVerticalSectionIndex";
 import heroImg from "figma:asset/f68e696a94d5501be4f500478f5085490ea6351a.png";
 import heroDesktopImg from "../assets/zh-3.jpg";
 import preloadLogo from "../assets/logo/Tellian__archive white logo horizontal.svg";
@@ -1215,11 +1216,29 @@ export default function App() {
         `locked` sperrt Eingaben, solange ein Overlay offen ist oder das
         Intro läuft. Der Wheel-Handler ist dabei schon durch
         pointer-events: none blockiert; keydown hängt aber am Fenster. */
-  const { containerRef, panelRef, scrollProgress, scrollX, scrollTo, scrollDirection, activeIndex, debugRef } =
+  const { containerRef, panelRef, jumpToIndex, scrollDirection, activeIndex: horizontalIndex, debugRef } =
     useHorizontalScroll({
       disabled: isVertical,
       locked: isDetailMode || !introComplete,
     });
+
+  /* Im vertikalen Zweig ist der Scroll-Hook abgeschaltet; die aktive
+     Sektion kommt dort aus einem eigenen Observer. */
+  const verticalIndex = useVerticalSectionIndex(isVertical);
+  const activeIndex = isVertical ? verticalIndex : horizontalIndex;
+
+  /* Einziger Einstiegspunkt für Direktsprünge aus der Navigation. */
+  const navigateToSection = useCallback(
+    (index: number) => {
+      const section = SECTIONS[Math.max(0, Math.min(SECTIONS.length - 1, index))];
+      if (isVertical) {
+        document.getElementById(section.domId)?.scrollIntoView({ behavior: "smooth" });
+      } else {
+        jumpToIndex(index);
+      }
+    },
+    [isVertical, jumpToIndex]
+  );
 
   /* ═══ Eintritts-Latch ═══
        Rastet die aktuelle Sektion und nimmt sie nie zurück. Weil
@@ -1262,9 +1281,9 @@ export default function App() {
         auch dann trägt, wenn der Hero per Sprung erreicht wird. */
   const heroAnimate = entered[0];
 
-  /* ── Hero scroll-arrow: shown whenever the hero is in view.
-        Reactive to scrollX — reappears when user scrolls back. ── */
-  const heroArrowHidden = scrollX > 20;
+  /* ── Hero scroll-arrow: nur auf der Startsektion sichtbar.
+        Hing vorher an scrollX; mit der Rastung genügt der Index. ── */
+  const heroArrowHidden = activeIndex > 0;
 
   const handleIntroComplete = useCallback(() => {
     setIntroComplete(true);
@@ -1282,13 +1301,8 @@ export default function App() {
       ast.closeDetail();
       pm.closeDetail();
     }
-    if (isVertical) {
-      const el = document.getElementById("section-kontakt");
-      if (el) el.scrollIntoView({ behavior: "smooth" });
-    } else {
-      scrollTo(1.0);
-    }
-  }, [isVertical, scrollTo, isDetailMode, vvw, ast]);
+    navigateToSection(SECTIONS.length - 1);
+  }, [isDetailMode, vvw, ast, pm, navigateToSection]);
 
   /* ═══════════════════════════════════════════════════════
      VERTICAL LAYOUT (Tablet + Mobile)
@@ -1309,9 +1323,9 @@ export default function App() {
         )}
 
         <Navigation
-          scrollProgress={scrollProgress}
+          activeIndex={activeIndex}
           scrollDirection={scrollDirection}
-          onNavigate={scrollTo}
+          onNavigate={navigateToSection}
           introComplete={introComplete}
           breakpoint={breakpoint}
           isVertical
@@ -1413,9 +1427,9 @@ export default function App() {
         }}
       >
         <Navigation
-          scrollProgress={scrollProgress}
+          activeIndex={activeIndex}
           scrollDirection={scrollDirection}
-          onNavigate={scrollTo}
+          onNavigate={navigateToSection}
           introComplete={introComplete}
           breakpoint={breakpoint}
           isVertical={false}
@@ -1424,8 +1438,8 @@ export default function App() {
 
         {introComplete && (
           <DotNavigation
-            scrollProgress={scrollProgress}
-            onNavigate={scrollTo}
+            activeIndex={activeIndex}
+            onNavigate={navigateToSection}
           />
         )}
       </div>
@@ -1464,7 +1478,7 @@ export default function App() {
           >
             <HeroExpandingImage
               src={heroDesktopImg}
-              scrollX={scrollX}
+              scrollX={0}
               className="w-full h-full"
             />
           </div>
@@ -1583,13 +1597,13 @@ export default function App() {
 
         {/* CHAPTER 2 — ANLAGEPHILOSOPHIE */}
         <SectionEnteredProvider value={entered[1]}>
-          <Section2Anlagephilosophie scrollX={scrollX} panelRef={panelRef(1)} />
+          <Section2Anlagephilosophie scrollX={0} panelRef={panelRef(1)} />
         </SectionEnteredProvider>
 
         {/* CHAPTER 3 — VERMÖGENSVERWALTUNG */}
         <SectionEnteredProvider value={entered[2]}>
           <Section3Vermoegensverwaltung
-            scrollX={scrollX}
+            scrollX={0}
             breakpoint={breakpoint}
             viewMode={vvw.mode}
             onOpenDetail={vvw.openDetail}
@@ -1602,7 +1616,7 @@ export default function App() {
         {/* CHAPTER 4 — ANLAGESTRATEGIEN */}
         <SectionEnteredProvider value={entered[3]}>
           <Section4Anlagestrategien
-            scrollX={scrollX}
+            scrollX={0}
             breakpoint={breakpoint}
             viewMode={ast.mode}
             onOpenDetail={ast.openDetail}

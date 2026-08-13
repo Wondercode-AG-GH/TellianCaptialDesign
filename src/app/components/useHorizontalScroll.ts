@@ -290,8 +290,6 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   const touchAccumRef = useRef(0);
   const touchArmedRef = useRef(true);
 
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [scrollX, setScrollX] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const [scrollDirection, setScrollDirection] = useState<ScrollDirection>("idle");
 
@@ -375,13 +373,19 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
      BEWEGUNG
      ═══════════════════════════════════════════════════════ */
 
+  /**
+   * Schreibt die Position in den Container.
+   *
+   * Bewusst ohne State: früher wurden hier `scrollX` und
+   * `scrollProgress` pro Frame gesetzt, was während jeder Bewegung
+   * einen Re-Render des halben Baums auslöste. Seit die Animationen am
+   * Eintritts-Latch hängen und beide Navigationen den Sektionsindex
+   * lesen, braucht das niemand mehr — der Tween läuft jetzt ganz ohne
+   * React-Arbeit.
+   */
   const publish = useCallback((pos: number) => {
     const container = containerRef.current;
     if (container) container.scrollLeft = pos;
-
-    const max = maxScrollRef.current;
-    setScrollX(pos);
-    setScrollProgress(max > 0 ? pos / max : 0);
   }, []);
 
   /* Der RAF-Loop läuft nur während einer Transition, nicht dauerhaft
@@ -849,8 +853,6 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     containerRef,
     panelRef,
     getSections,
-    scrollProgress,
-    scrollX,
     scrollTo,
     jumpToIndex,
     activeIndex,

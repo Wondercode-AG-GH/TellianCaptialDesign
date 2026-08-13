@@ -1,13 +1,9 @@
 import { sans } from "../tokens";
+import { SECTIONS } from "../sections";
 
-const SECTIONS = [
-  { label: "Start",       target: 0.000, threshold: 0.00 },
-  { label: "Philosophie", target: 0.154, threshold: 0.08 },
-  { label: "Mandat",      target: 0.309, threshold: 0.23 },
-  { label: "Portfolio",   target: 0.463, threshold: 0.39 },
-  { label: "Team",        target: 0.618, threshold: 0.54 },
-  { label: "Kontakt",     target: 1.000, threshold: 0.94 },
-];
+/* Ziele und Beschriftungen kommen aus der Registry. Vorher lag hier
+   eine zweite, von Hand gepflegte Tabelle mit Progress-Werten, die von
+   einer Gesamtbreite von 764vw ausging — die es nie gab. */
 
 const V = {
   bg: "var(--tellian-nav-bg)",
@@ -18,22 +14,13 @@ const V = {
   border: "var(--tellian-nav-border)",
 };
 
-function getActiveIndex(progress: number): number {
-  let active = 0;
-  for (let i = 1; i < SECTIONS.length; i++) {
-    if (progress >= SECTIONS[i].threshold) active = i;
-  }
-  return active;
-}
-
 interface DotNavigationProps {
-  scrollProgress: number;
-  onNavigate: (target: number) => void;
+  /** Aktive Sektion, direkt aus der Registry — keine Schwellenwerte. */
+  activeIndex: number;
+  onNavigate: (index: number) => void;
 }
 
-export function DotNavigation({ scrollProgress, onNavigate }: DotNavigationProps) {
-  const activeIndex = getActiveIndex(scrollProgress);
-
+export function DotNavigation({ activeIndex, onNavigate }: DotNavigationProps) {
   return (
     <nav
       aria-label="Sektion-Navigation"
@@ -60,8 +47,8 @@ export function DotNavigation({ scrollProgress, onNavigate }: DotNavigationProps
         const isActive = activeIndex === i;
         return (
           <button
-            key={i}
-            onClick={() => onNavigate(section.target)}
+            key={section.key}
+            onClick={() => onNavigate(i)}
             aria-label={section.label}
             aria-current={isActive ? "page" : undefined}
             style={{

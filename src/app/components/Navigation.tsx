@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import React from "react";
 import type { Breakpoint } from "./useBreakpoint";
 import { C, serif, sans } from "../tokens";
+import { SECTIONS, sectionOrdinal } from "../sections";
 import { EASE } from "../../styles/motion";
 import logoText from "../../assets/logo/tellian-wordmark-cropped.svg";
 import logoHorizontal from "../../assets/logo/Tellian__Imperial purple logo.svg";
@@ -10,35 +11,10 @@ import logoHorizontal from "../../assets/logo/Tellian__Imperial purple logo.svg"
 const BAR_W   = 48;
 const PANEL_W = 300;
 
-/* ─── Six sections — targets & thresholds match DotNavigation.tsx.
-      Scrollable width = 764vw. targets = sectionStart / 764. ─── */
-const NAV_ITEMS = [
-  { num: "01", label: "Start",                  sub: "Einführung",           progress: 0.000 },
-  { num: "02", label: "Philosophie",             sub: "Anlagephilosophie",    progress: 0.154 },
-  { num: "03", label: "Vermögensverwaltung",     sub: "Mandat & Prozess",     progress: 0.309 },
-  { num: "04", label: "Portfolio Management",    sub: "Wie wir investieren",  progress: 0.463 },
-  { num: "05", label: "Über uns",                sub: "Team & Geschichte",    progress: 0.618 },
-  { num: "06", label: "Kontakt",                 sub: "Gespräch vereinbaren", progress: 1.000 },
-];
-
-/* Vertical-mode section IDs for scrollIntoView */
-const SECTION_IDS = [
-  "section-hero",
-  "section-anlagephilosophie",
-  "section-vermoegensverwaltung",
-  "section-anlagestrategien",
-  "section-ueber-uns",
-  "section-kontakt",
-];
-
-function getActiveIndex(progress: number): number {
-  const thresholds = [0, 0.08, 0.23, 0.39, 0.54, 0.94];
-  let active = 0;
-  for (let i = 1; i < thresholds.length; i++) {
-    if (progress >= thresholds[i]) active = i;
-  }
-  return active;
-}
+/* Beschriftungen, Reihenfolge und Sprungziele kommen aus der Registry.
+   Vorher lagen hier zwei von Hand gepflegte Tabellen: Progress-Werte,
+   die von einer Gesamtbreite von 764vw ausgingen — die es nie gab —,
+   und eine zweite Liste der DOM-ids für den vertikalen Zweig. */
 
 /* ═══════ ICONS ═══════ */
 
@@ -68,9 +44,13 @@ function LinkedInIcon({ color = "#999" }: { color?: string }) {
 /* ═══════ PROPS ═══════ */
 
 interface NavigationProps {
-  scrollProgress: number;
+  /** Aktive Sektion, direkt aus der Registry — keine Schwellenwerte.
+   *  Auf Desktop aus dem Scroll-Hook, im vertikalen Zweig aus
+   *  useVerticalSectionIndex. */
+  activeIndex: number;
   scrollDirection: "forward" | "backward" | "idle";
-  onNavigate: (progress: number) => void;
+  /** Sprung zur Sektion mit diesem Index. */
+  onNavigate: (index: number) => void;
   introComplete: boolean;
   breakpoint: Breakpoint;
   isVertical: boolean;
@@ -83,7 +63,7 @@ interface NavigationProps {
    Tablet/Mobile: top bar with hamburger, fullscreen overlay menu
    ══════════════════════════════════════════════════════════════ */
 export function Navigation({
-  scrollProgress,
+  activeIndex,
   scrollDirection,
   onNavigate,
   introComplete,
@@ -97,7 +77,6 @@ export function Navigation({
   const [loginHover,  setLoginHover]  = useState(false);
   const [portalHover, setPortalHover] = useState(false);
   const [liHover,     setLiHover]     = useState(false);
-  const activeIndex = getActiveIndex(scrollProgress);
   const hideTimer   = useRef<number>(0);
 
   /* Show / hide bar based on scroll direction */
@@ -129,9 +108,10 @@ export function Navigation({
     return () => clearTimeout(hideTimer.current);
   }, [scrollDirection, introComplete, expanded, isVertical]);
 
+  /* Auf der Startsektion bleibt die Leiste immer sichtbar. */
   useEffect(() => {
-    if (scrollProgress < 0.01) setVisible(true);
-  }, [scrollProgress]);
+    if (activeIndex === 0) setVisible(true);
+  }, [activeIndex]);
 
   useEffect(() => {
     if (!isVertical && scrollDirection === "forward" && expanded) setExpanded(false);
@@ -145,13 +125,11 @@ export function Navigation({
     }
   }, [isVertical, expanded]);
 
+  /* Beide Pfade gehen über denselben Aufruf; wie gesprungen wird,
+     entscheidet App — horizontal über die Rastung, vertikal über
+     scrollIntoView. */
   const handleNavigate = (index: number) => {
-    if (isVertical) {
-      const el = document.getElementById(SECTION_IDS[index]);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
-    } else {
-      onNavigate(NAV_ITEMS[index].progress);
-    }
+    onNavigate(index);
     setExpanded(false);
   };
 
@@ -300,11 +278,11 @@ export function Navigation({
               {/* Nav items */}
               <nav style={{ flex: 1, overflowY: "auto", padding: breakpoint === "mobile" ? "32px 20px" : "32px 32px" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: breakpoint === "mobile" ? 24 : 28 }}>
-                  {NAV_ITEMS.map((item, i) => {
+                  {SECTIONS.map((item, i) => {
                     const isActive = activeIndex === i;
                     return (
                       <motion.button
-                        key={item.num}
+                        key={item.key}
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.35, delay: 0.05 + i * 0.04, ease: EASE.navArr }}
@@ -341,7 +319,7 @@ export function Navigation({
                             marginBottom: 3,
                           }}
                         >
-                          {item.num}
+                          {sectionOrdinal(i)}
                         </span>
                         <span
                           style={{
@@ -352,7 +330,7 @@ export function Navigation({
                             lineHeight: 1.2,
                           }}
                         >
-                          {item.label}
+                          {item.navLabel}
                         </span>
                         <span
                           style={{
@@ -363,7 +341,7 @@ export function Navigation({
                             marginTop: 3,
                           }}
                         >
-                          {item.sub}
+                          {item.navSub}
                         </span>
                       </motion.button>
                     );
@@ -467,7 +445,7 @@ export function Navigation({
              Inline SVG with cropped viewBox. Wrapper 48×180px.
              SVG 180×41 centered + rotated → 41×180 visual. */}
         <button
-          onClick={() => onNavigate(0)}
+          onClick={() => handleNavigate(0)}
           style={{
             outline: "none", cursor: "pointer", border: "none", background: "transparent", padding: 0,
             position: "relative",
@@ -665,7 +643,7 @@ export function Navigation({
                 }}
               >
                 <button
-                  onClick={() => { onNavigate(0); setExpanded(false); }}
+                  onClick={() => handleNavigate(0)}
                   style={{ outline: "none", border: "none", background: "transparent", cursor: "pointer", padding: 0 }}
                 >
                   <span
@@ -692,16 +670,16 @@ export function Navigation({
               {/* Nav items */}
               <nav style={{ flex: 1, overflowY: "auto", padding: "0 28px" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
-                  {NAV_ITEMS.map((item, i) => {
+                  {SECTIONS.map((item, i) => {
                     const isActive = activeIndex === i;
                     return (
                       <motion.button
-                        key={item.num}
+                        key={item.key}
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -8 }}
                         transition={{ duration: 0.4, delay: 0.06 + i * 0.04, ease: EASE.navArr }}
-                        onClick={() => { onNavigate(item.progress); setExpanded(false); }}
+                        onClick={() => handleNavigate(i)}
                         style={{
                           outline:       "none",
                           border:        "none",
@@ -747,7 +725,7 @@ export function Navigation({
                             transition:   `color 0.35s ${EASE.nav}`,
                           }}
                         >
-                          {item.num}
+                          {sectionOrdinal(i)}
                         </span>
                         <span
                           style={{
@@ -758,7 +736,7 @@ export function Navigation({
                             lineHeight: 1.2,
                           }}
                         >
-                          {item.label}
+                          {item.navLabel}
                         </span>
                         <span
                           style={{
@@ -769,7 +747,7 @@ export function Navigation({
                             marginTop:  "3px",
                           }}
                         >
-                          {item.sub}
+                          {item.navSub}
                         </span>
                       </motion.button>
                     );
