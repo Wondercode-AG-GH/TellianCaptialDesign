@@ -1,8 +1,32 @@
-import { useRef, useEffect, useCallback, useState } from "react";
+import { useRef, useEffect, useLayoutEffect, useCallback, useState } from "react";
+
+import { SECTIONS } from "../sections";
 
 // Organic cubic-bezier feel via lerp factor
 const LERP_FACTOR = 0.065;
 const WHEEL_MULTIPLIER = 1.0;
+
+/** Entprellung für Neumessungen nach Resize / Layoutwechsel. */
+const REMEASURE_DEBOUNCE_MS = 100;
+
+/**
+ * Eine zur Laufzeit vermessene Sektion.
+ *
+ * Die Offsets werden per `offsetLeft` am echten DOM-Knoten abgegriffen,
+ * nicht aus den vw-Werten zurückgerechnet. Genau dieser Rückrechen-Fehler
+ * steckt heute in Navigation.tsx und DotNavigation.tsx, deren Zielwerte
+ * von einer Gesamtbreite ausgehen, die es nie gab.
+ */
+export interface MeasuredSection {
+  index: number;
+  /** Linker Rand, containerrelativ, px. */
+  offset: number;
+  width: number;
+  /** offset + width */
+  end: number;
+  /** Rastziel — offset, auf den Scrollbereich geklemmt. */
+  snap: number;
+}
 
 interface UseHorizontalScrollOptions {
   /** When true the hook becomes a no-op (vertical mode) */
@@ -28,11 +52,94 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   // Scroll-lock: when true, wheel/touch/key events skip updating targetScroll.
   const scrollLockRef = useRef(false);
 
+  /* ═══════════════════════════════════════════════════════════
+     SEKTIONS-REGISTRY
+     Sechs Panel-Refs, Offsets zur Laufzeit am DOM gemessen.
+     ═══════════════════════════════════════════════════════════ */
+  const panelsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const measuredRef = useRef<MeasuredSection[]>([]);
+
+  /* Ref-Callbacks einmalig anlegen — als Inline-Lambda würde React sie
+     bei jedem Render mit null und dann erneut mit dem Knoten aufrufen. */
+  const panelSettersRef = useRef<Array<(el: HTMLDivElement | null) => void> | null>(null);
+  if (!panelSettersRef.current) {
+    panelSettersRef.current = SECTIONS.map(
+      (_, i) => (el: HTMLDivElement | null) => {
+        panelsRef.current[i] = el;
+      }
+    );
+  }
+
+  /** Ref-Callback für das Panel an Position `index`. */
+  const panelRef = useCallback(
+    (index: number) => panelSettersRef.current![index],
+    []
+  );
+
   const updateMaxScroll = useCallback(() => {
     if (!containerRef.current) return;
     maxScroll.current =
       containerRef.current.scrollWidth - containerRef.current.clientWidth;
   }, []);
+
+  /**
+   * Misst Scrollbereich und alle Sektions-Offsets neu.
+   *
+   * `offsetLeft` ist relativ zum `offsetParent`; der Track trägt dafür
+   * `position: relative`, damit die Werte per Definition containerrelativ
+   * sind und nicht davon abhängen, welcher Vorfahre gerade positioniert ist.
+   */
+  const measure = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    updateMaxScroll();
+    const max = maxScroll.current;
+
+    measuredRef.current = SECTIONS.map((_, i) => {
+      const el = panelsRef.current[i];
+      const offset = el?.offsetLeft ?? 0;
+      const width = el?.offsetWidth ?? 0;
+      return {
+        index: i,
+        offset,
+        width,
+        end: offset + width,
+        snap: Math.max(0, Math.min(offset, max)),
+      };
+    });
+  }, [updateMaxScroll]);
+
+  /** Aktuelle Messung — Lesezugriff für Navigation und Debug. */
+  const getSections = useCallback(() => measuredRef.current, []);
+
+  /* Messen nach Mount und bei jeder Layoutänderung.
+     `resize` allein reicht nicht: nachgeladene Schriften und Bilder
+     verschieben die Breite des Filmstrips in Sektion 5, ohne dass das
+     Fenster seine Grösse ändert. Dafür der ResizeObserver auf dem Track. */
+  useLayoutEffect(() => {
+    if (disabled) return;
+    const container = containerRef.current;
+    if (!container) return;
+
+    measure();
+
+    let timer = 0;
+    const scheduleRemeasure = () => {
+      clearTimeout(timer);
+      timer = window.setTimeout(measure, REMEASURE_DEBOUNCE_MS);
+    };
+
+    const observer = new ResizeObserver(scheduleRemeasure);
+    observer.observe(container);
+    window.addEventListener("resize", scheduleRemeasure);
+
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+      window.removeEventListener("resize", scheduleRemeasure);
+    };
+  }, [disabled, measure]);
 
   const clampTarget = useCallback(() => {
     targetScroll.current = Math.max(
@@ -157,5 +264,5 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     };
   }, [disabled, animate, updateMaxScroll, clampTarget]);
 
-  return { containerRef, scrollProgress, scrollX, scrollTo, scrollDirection, scrollLockRef, targetScroll, currentScroll, disabled };
+  return { containerRef, panelRef, getSections, scrollProgress, scrollX, scrollTo, scrollDirection, scrollLockRef, targetScroll, currentScroll, disabled };
 }

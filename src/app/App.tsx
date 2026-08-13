@@ -315,6 +315,8 @@ interface Section3Props {
   onOpenDetail?: () => void;
   onCloseDetail?: () => void;
   onContactClick?: () => void;
+  /** Ref-Callback der Sektions-Registry (nur Desktop). */
+  panelRef?: (el: HTMLDivElement | null) => void;
 }
 
 function Section3Vermoegensverwaltung({
@@ -325,11 +327,11 @@ function Section3Vermoegensverwaltung({
   onOpenDetail,
   onCloseDetail,
   onContactClick,
+  panelRef,
 }: Section3Props) {
   const layout = getLayout(breakpoint);
   const textColStyle = getTextColumnStyle(breakpoint);
   const reducedMotion = usePrefersReducedMotion();
-  const sectionRef = useRef<HTMLDivElement>(null);
 
   const isDetail = viewMode === "detail";
 
@@ -457,7 +459,7 @@ function Section3Vermoegensverwaltung({
   /* ── OVERVIEW section (always rendered inside the scroll strip) ── */
   const overviewMarkup = (
     <div
-      ref={sectionRef}
+      ref={panelRef}
       className="flex-shrink-0 h-screen relative"
       style={{ width: sectionWidth, backgroundColor: C.bg }}
     >
@@ -789,6 +791,8 @@ interface Section4Props {
   onContactClick?: () => void;
   /** Opens the Vermögensverwaltung detail (CTA "Mehr zum Anlageprozess") */
   onNavigateToProcess?: () => void;
+  /** Ref-Callback der Sektions-Registry (nur Desktop). */
+  panelRef?: (el: HTMLDivElement | null) => void;
 }
 
 function Section4Anlagestrategien({
@@ -800,6 +804,7 @@ function Section4Anlagestrategien({
   onCloseDetail,
   onContactClick,
   onNavigateToProcess,
+  panelRef,
 }: Section4Props) {
   const layout = getLayout(breakpoint);
   const textColStyle = getTextColumnStyle(breakpoint);
@@ -960,6 +965,7 @@ function Section4Anlagestrategien({
 
   const overviewMarkup = (
     <div
+      ref={panelRef}
       className="flex-shrink-0 h-screen relative"
       style={{ width: SECTION_WIDTH, backgroundColor: C.bg }}
     >
@@ -1185,7 +1191,7 @@ export default function App() {
   const layout = getLayout(breakpoint);
   const textColStyle = getTextColumnStyle(breakpoint);
 
-  const { containerRef, scrollProgress, scrollX, scrollTo, scrollDirection, scrollLockRef, targetScroll, currentScroll } =
+  const { containerRef, panelRef, scrollProgress, scrollX, scrollTo, scrollDirection, scrollLockRef, targetScroll, currentScroll } =
     useHorizontalScroll({ disabled: isVertical });
   const [introComplete, setIntroComplete] = useState(false);
 
@@ -1380,6 +1386,9 @@ export default function App() {
         ref={containerRef}
         className="flex h-screen overflow-x-scroll overflow-y-hidden"
         style={{
+          /* Macht den Track zum offsetParent der Panels, damit die
+             Registry containerrelative offsetLeft-Werte misst. */
+          position: "relative",
           scrollbarWidth: "none",
           msOverflowStyle: "none",
           pointerEvents: introComplete && !isDetailMode ? "auto" : "none",
@@ -1391,6 +1400,7 @@ export default function App() {
       >
         {/* CHAPTER 1 — HERO (desktop — headline + trust + ghost CTA) */}
         <div
+          ref={panelRef(0)}
           className="flex-shrink-0 h-screen relative"
           style={{ width: SECTION_WIDTH, backgroundColor: C.bg }}
         >
@@ -1518,7 +1528,7 @@ export default function App() {
         </div>
 
         {/* CHAPTER 2 — ANLAGEPHILOSOPHIE */}
-        <Section2Anlagephilosophie scrollX={scrollX} />
+        <Section2Anlagephilosophie scrollX={scrollX} panelRef={panelRef(1)} />
 
         {/* CHAPTER 3 — VERMÖGENSVERWALTUNG */}
         <Section3Vermoegensverwaltung
@@ -1528,6 +1538,7 @@ export default function App() {
           onOpenDetail={vvw.openDetail}
           onCloseDetail={vvw.closeDetail}
           onContactClick={navigateToContact}
+          panelRef={panelRef(2)}
         />
 
         {/* CHAPTER 4 — ANLAGESTRATEGIEN */}
@@ -1539,13 +1550,14 @@ export default function App() {
           onCloseDetail={ast.closeDetail}
           onContactClick={navigateToContact}
           onNavigateToProcess={pm.openDetail}
+          panelRef={panelRef(3)}
         />
 
         {/* CHAPTER 5 — ÜBER TELLIAN (Teil 1 + Filmstrip als Fragment) */}
-        <Section5UeberTellian onContactClick={navigateToContact} />
+        <Section5UeberTellian onContactClick={navigateToContact} panelRef={panelRef(4)} />
 
         {/* CHAPTER 6 — KONTAKT (map rendered via overlay, no layout impact) */}
-        <Section6Kontakt onOpenLegal={legal.open} />
+        <Section6Kontakt onOpenLegal={legal.open} panelRef={panelRef(5)} />
       </div>
 
       <LoginOverlay

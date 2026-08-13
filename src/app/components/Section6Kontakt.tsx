@@ -461,6 +461,8 @@ interface Section6Props {
   isVertical?: boolean;
   breakpoint?: Breakpoint;
   onOpenLegal?: (path: LegalPath) => void;
+  /** Ref-Callback der Sektions-Registry (nur Desktop). */
+  panelRef?: (el: HTMLDivElement | null) => void;
 }
 
 /* ─── Legal links row — used in both vertical and desktop layouts ─── */
@@ -680,7 +682,7 @@ function LegalLinkMobileRow({
   );
 }
 
-export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", onOpenLegal }: Section6Props = {}) {
+export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", onOpenLegal, panelRef }: Section6Props = {}) {
   const [mapOpen, setMapOpen] = useState(false);
   const openBtnRef = useRef<HTMLButtonElement>(null);
 
@@ -940,6 +942,7 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
   /* ═══ DESKTOP MODE ═══ */
   return (
     <div
+      ref={panelRef}
       className="flex-shrink-0 h-screen flex"
       style={{
         width: SECTION_WIDTH_LAST,

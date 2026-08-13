@@ -14,6 +14,9 @@ interface Props {
   scrollX: number;
   isVertical?: boolean;
   breakpoint?: Breakpoint;
+  /** Ref-Callback der Sektions-Registry (nur Desktop). React 18 kennt
+   *  `ref` noch nicht als normale Prop, deshalb als eigene Prop. */
+  panelRef?: (el: HTMLDivElement | null) => void;
 }
 
 /* ─── Content ─── */
@@ -273,6 +276,7 @@ export function Section2Anlagephilosophie({
   scrollX,
   isVertical = false,
   breakpoint = "desktop",
+  panelRef,
 }: Props) {
   const layout = getLayout(breakpoint);
   const textColStyle = getTextColumnStyle(breakpoint);
@@ -372,6 +376,7 @@ export function Section2Anlagephilosophie({
   /* ── DESKTOP (horizontal) ── */
   return (
     <div
+      ref={panelRef}
       className="flex-shrink-0 h-screen relative"
       style={{ width: SECTION_WIDTH, backgroundColor: C.bg }}
     >

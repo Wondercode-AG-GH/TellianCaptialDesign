@@ -296,11 +296,14 @@ export function Section5UeberTellian({
   isVertical = false,
   breakpoint = "desktop",
   onContactClick,
+  panelRef,
 }: {
   scrollX?: number;
   isVertical?: boolean;
   onContactClick?: () => void;
   breakpoint?: Breakpoint;
+  /** Ref-Callback der Sektions-Registry (nur Desktop). */
+  panelRef?: (el: HTMLDivElement | null) => void;
 }) {
   // scrollX is kept as optional prop for API compatibility but unused
   void scrollX;
@@ -436,6 +439,7 @@ export function Section5UeberTellian({
   ══════════════════════════════════════════════════════════ */
   return (
     <div
+      ref={panelRef}
       className="flex-shrink-0 h-screen relative flex items-center"
       style={{
         paddingLeft: "calc(56vw + 4vw)",
