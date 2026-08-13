@@ -1,13 +1,128 @@
 import { useRef, useEffect, useLayoutEffect, useCallback, useState } from "react";
 
-import { SECTIONS } from "../sections";
+import { SECTIONS, SECTION_COUNT } from "../sections";
+import { EASE } from "../../styles/motion";
+import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
-// Organic cubic-bezier feel via lerp factor
-const LERP_FACTOR = 0.065;
-const WHEEL_MULTIPLIER = 1.0;
+/* ═══════════════════════════════════════════════════════════
+   RASTUNG — Abstimmungswerte
+
+   Eine Wheel-Geste oder ein Swipe entspricht genau einem Sprung
+   zur Nachbarsektion. Kein freies Scrollen dazwischen.
+
+   Die Gesten-Werte sind empirisch und geräteabhängig: Magic
+   Trackpad, Logitech-Rad und Windows-Precision-Touchpad liefern
+   sehr unterschiedliche Event-Ströme. Zum Justieren das Debug-
+   Overlay benutzen (?scrolldebug).
+   ═══════════════════════════════════════════════════════════ */
+
+/** Dauer eines Sprungs. */
+const SNAP_MS = 400;
+
+/** Aufsummiertes Delta, ab dem eine Geste auslöst. */
+const WHEEL_THRESHOLD = 40;
+
+/**
+ * Lücke im Event-Strom, die eine Geste beendet.
+ *
+ * Bewusst gross. Naheliegend wären ~120ms — Trackpad-Nachlauf hat
+ * Abstände von 8–16ms, wer die Finger hebt, braucht ≥100ms. Gemessen
+ * reisst der Event-Strom aber mitten im Nachlauf regelmässig für
+ * ~180ms ab, und zwar systematisch direkt nach einem ausgelösten
+ * Sprung: React rendert dann den kompletten Baum neu und der Tween
+ * startet. Ein zu kleiner Wert deutet genau diesen Aussetzer als neue
+ * Geste und springt zwei Sektionen weit.
+ *
+ * Die Wanduhr ist an dieser Stelle also kein verlässliches Signal.
+ * Sie taugt nur noch für echte Pausen; die bewusste Zweitgeste
+ * innerhalb einer laufenden Geste erkennt die Hüllkurve unten.
+ */
+const QUIET_MS = 400;
+
+/**
+ * Halbwertszeit der Hüllkurve.
+ *
+ * Zeitbasiert statt pro Event: bei den üblichen ~16ms Abstand fällt sie
+ * um 4% je Event und bleibt damit über dem Nachlauf, der um 10–15%
+ * fällt. Ein 180ms-Aussetzer drückt sie auf 61% — immer noch weit über
+ * dem nächsten Nachlauf-Delta, also kein Fehlalarm. Nach einer echten
+ * Pause ist sie so weit gefallen, dass auch ein sanfter neuer Schub
+ * darüber liegt.
+ */
+const ENVELOPE_HALFLIFE_MS = 250;
+
+/** Faktor, um den ein Delta die Hüllkurve überschreiten muss, damit
+ *  es als bewusster zweiter Schub statt als Nachlauf gilt. */
+const RISE_FACTOR = 1.6;
+
+/** Rauschfilter für Wiederbeschleunigung und Richtungsumkehr. */
+const RISE_MIN_ABS = 12;
+
+/** Harte Untergrenze zwischen zwei Auslösungen. Kleiner als SNAP_MS,
+ *  damit die Zweitgeste eine laufende Transition abbrechen kann. */
+const MIN_FIRE_INTERVAL_MS = 150;
+
+/** Wischdistanz, ab der Touch auslöst. */
+const TOUCH_THRESHOLD = 60;
 
 /** Entprellung für Neumessungen nach Resize / Layoutwechsel. */
 const REMEASURE_DEBOUNCE_MS = 100;
+
+/* ═══════════════════════════════════════════════════════════
+   EASING
+   ═══════════════════════════════════════════════════════════ */
+
+/**
+ * Cubic-Bezier-Solver, damit die Rastung dieselbe Kurve fährt wie
+ * der Rest des Projekts. CSS-Transitions können hier nicht helfen:
+ * bewegt wird `scrollLeft`, keine animierbare CSS-Eigenschaft.
+ */
+function cubicBezier(x1: number, y1: number, x2: number, y2: number) {
+  const cx = 3 * x1;
+  const bx = 3 * (x2 - x1) - cx;
+  const ax = 1 - cx - bx;
+  const cy = 3 * y1;
+  const by = 3 * (y2 - y1) - cy;
+  const ay = 1 - cy - by;
+
+  const sampleX = (t: number) => ((ax * t + bx) * t + cx) * t;
+  const sampleY = (t: number) => ((ay * t + by) * t + cy) * t;
+  const slopeX = (t: number) => (3 * ax * t + 2 * bx) * t + cx;
+
+  return (x: number): number => {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+
+    /* Newton-Raphson — konvergiert für diese Kurven in 2–4 Schritten. */
+    let t = x;
+    for (let i = 0; i < 8; i++) {
+      const diff = sampleX(t) - x;
+      if (Math.abs(diff) < 1e-5) return sampleY(t);
+      const slope = slopeX(t);
+      if (Math.abs(slope) < 1e-6) break;
+      t -= diff / slope;
+    }
+
+    /* Bisektion als Rückfall, falls die Ableitung zu flach war. */
+    let lo = 0;
+    let hi = 1;
+    t = x;
+    for (let i = 0; i < 20; i++) {
+      const value = sampleX(t);
+      if (Math.abs(value - x) < 1e-5) break;
+      if (value < x) lo = t;
+      else hi = t;
+      t = (lo + hi) / 2;
+    }
+    return sampleY(t);
+  };
+}
+
+const easeSnap = cubicBezier(...EASE.standardArr);
+
+/* ═══════════════════════════════════════════════════════════
+   TYPEN
+   ═══════════════════════════════════════════════════════════ */
 
 /**
  * Eine zur Laufzeit vermessene Sektion.
@@ -28,36 +143,84 @@ export interface MeasuredSection {
   snap: number;
 }
 
+interface Tween {
+  from: number;
+  to: number;
+  start: number;
+  duration: number;
+}
+
+type ScrollDirection = "forward" | "backward" | "idle";
+
 interface UseHorizontalScrollOptions {
   /** When true the hook becomes a no-op (vertical mode) */
   disabled?: boolean;
+  /**
+   * Sperrt jede Eingabe, ohne den Hook abzubauen. Gedacht für offene
+   * Overlays und die Intro-Phase: der Wheel-Handler ist dort schon
+   * durch `pointer-events: none` blockiert, `keydown` hängt aber am
+   * Fenster und würde den Track hinter dem Overlay bewegen.
+   */
+  locked?: boolean;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   HOOK
+   ═══════════════════════════════════════════════════════════ */
 
 export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   const disabled = opts?.disabled ?? false;
+  const locked = opts?.locked ?? false;
+  const reducedMotion = usePrefersReducedMotion();
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const targetScroll = useRef(0);
-  const currentScroll = useRef(0);
-  const rafId = useRef<number>(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [scrollX, setScrollX] = useState(0);
-  const maxScroll = useRef(0);
-  const touchStartX = useRef(0);
-  const touchStartScroll = useRef(0);
-  const [scrollDirection, setScrollDirection] = useState<"forward" | "backward" | "idle">("idle");
-  const prevScroll = useRef(0);
-  const directionTimer = useRef<number>(0);
 
-  // Scroll-lock: when true, wheel/touch/key events skip updating targetScroll.
-  const scrollLockRef = useRef(false);
-
-  /* ═══════════════════════════════════════════════════════════
-     SEKTIONS-REGISTRY
-     Sechs Panel-Refs, Offsets zur Laufzeit am DOM gemessen.
-     ═══════════════════════════════════════════════════════════ */
+  /* ── Registry ── */
   const panelsRef = useRef<(HTMLDivElement | null)[]>([]);
   const measuredRef = useRef<MeasuredSection[]>([]);
+  const maxScrollRef = useRef(0);
+
+  /* ── Position und laufende Transition ── */
+  const posRef = useRef(0);
+  /** Ziel-Sektion, nicht die sichtbare. Eine Zweitgeste während einer
+   *  Transition rechnet von hier aus weiter, nicht von der Stelle, an
+   *  der das Bild gerade steht. */
+  const indexRef = useRef(0);
+  const tweenRef = useRef<Tween | null>(null);
+  const rafRef = useRef(0);
+
+  /* ── Gestenerkennung ── */
+  const accumRef = useRef(0);
+  const lastEventTsRef = useRef(0);
+  const envelopeRef = useRef(0);
+  const armedRef = useRef(true);
+  const lastFireTsRef = useRef(0);
+  const firedDirRef = useRef(0);
+
+  /* ── Touch ── */
+  const touchLastXRef = useRef(0);
+  const touchAccumRef = useRef(0);
+  const touchArmedRef = useRef(true);
+
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [scrollX, setScrollX] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [scrollDirection, setScrollDirection] = useState<ScrollDirection>("idle");
+
+  /* Spiegel für Werte, die die einmalig registrierten Listener lesen.
+     useLayoutEffect ohne Dependencies läuft nach jedem Render vor dem
+     Paint — damit kann kein Event zwischen Zustandswechsel und Spiegel
+     durchschlüpfen. */
+  const lockedRef = useRef(locked);
+  const reducedMotionRef = useRef(reducedMotion);
+  useLayoutEffect(() => {
+    lockedRef.current = locked;
+    reducedMotionRef.current = reducedMotion;
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     REGISTRY
+     ═══════════════════════════════════════════════════════ */
 
   /* Ref-Callbacks einmalig anlegen — als Inline-Lambda würde React sie
      bei jedem Render mit null und dann erneut mit dem Knoten aufrufen. */
@@ -76,12 +239,6 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     []
   );
 
-  const updateMaxScroll = useCallback(() => {
-    if (!containerRef.current) return;
-    maxScroll.current =
-      containerRef.current.scrollWidth - containerRef.current.clientWidth;
-  }, []);
-
   /**
    * Misst Scrollbereich und alle Sektions-Offsets neu.
    *
@@ -93,8 +250,8 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     const container = containerRef.current;
     if (!container) return;
 
-    updateMaxScroll();
-    const max = maxScroll.current;
+    const max = Math.max(0, container.scrollWidth - container.clientWidth);
+    maxScrollRef.current = max;
 
     measuredRef.current = SECTIONS.map((_, i) => {
       const el = panelsRef.current[i];
@@ -108,15 +265,137 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
         snap: Math.max(0, Math.min(offset, max)),
       };
     });
-  }, [updateMaxScroll]);
+  }, []);
 
   /** Aktuelle Messung — Lesezugriff für Navigation und Debug. */
   const getSections = useCallback(() => measuredRef.current, []);
 
-  /* Messen nach Mount und bei jeder Layoutänderung.
-     `resize` allein reicht nicht: nachgeladene Schriften und Bilder
-     verschieben die Breite des Filmstrips in Sektion 5, ohne dass das
-     Fenster seine Grösse ändert. Dafür der ResizeObserver auf dem Track. */
+  /* ═══════════════════════════════════════════════════════
+     BEWEGUNG
+     ═══════════════════════════════════════════════════════ */
+
+  const publish = useCallback((pos: number) => {
+    const container = containerRef.current;
+    if (container) container.scrollLeft = pos;
+
+    const max = maxScrollRef.current;
+    setScrollX(pos);
+    setScrollProgress(max > 0 ? pos / max : 0);
+  }, []);
+
+  /* Der RAF-Loop läuft nur während einer Transition, nicht dauerhaft
+     wie der frühere Lerp. Im Ruhezustand rendert die Anwendung gar nicht. */
+  const tick = useCallback(() => {
+    const tween = tweenRef.current;
+    if (!tween) {
+      rafRef.current = 0;
+      return;
+    }
+
+    const elapsed = performance.now() - tween.start;
+    const t = tween.duration <= 0 ? 1 : Math.min(1, elapsed / tween.duration);
+    posRef.current = tween.from + (tween.to - tween.from) * easeSnap(t);
+
+    if (t >= 1) {
+      posRef.current = tween.to;
+      tweenRef.current = null;
+      setScrollDirection("idle");
+    }
+
+    publish(posRef.current);
+    rafRef.current = tweenRef.current ? requestAnimationFrame(tick) : 0;
+  }, [publish]);
+
+  const startRaf = useCallback(() => {
+    if (!rafRef.current) rafRef.current = requestAnimationFrame(tick);
+  }, [tick]);
+
+  /**
+   * Der einzige Weg, den Track zu bewegen. Geste, Tastatur und
+   * Direktsprung von aussen münden alle hier.
+   */
+  const jumpToIndex = useCallback(
+    (next: number) => {
+      const sections = measuredRef.current;
+      if (!sections.length) return;
+
+      const index = Math.max(0, Math.min(SECTION_COUNT - 1, next));
+      const to = sections[index].snap;
+
+      indexRef.current = index;
+      setActiveIndex(index);
+
+      /* Läuft bereits eine Transition auf dasselbe Ziel — nicht neu
+         starten, das würde sie um die volle Dauer verlängern. */
+      if (tweenRef.current && Math.abs(tweenRef.current.to - to) < 0.5) return;
+
+      if (Math.abs(to - posRef.current) < 0.5) {
+        tweenRef.current = null;
+        setScrollDirection("idle");
+        return;
+      }
+
+      setScrollDirection(to > posRef.current ? "forward" : "backward");
+
+      if (reducedMotionRef.current) {
+        tweenRef.current = null;
+        posRef.current = to;
+        publish(to);
+        setScrollDirection("idle");
+        return;
+      }
+
+      /* `from` ist die aktuelle Position, nicht das alte Ziel — dadurch
+         bricht eine Zweitgeste die laufende Transition ohne Ruck ab. */
+      tweenRef.current = {
+        from: posRef.current,
+        to,
+        start: performance.now(),
+        duration: SNAP_MS,
+      };
+      startRaf();
+    },
+    [publish, startRaf]
+  );
+
+  const jumpRelative = useCallback(
+    (dir: number) => jumpToIndex(indexRef.current + dir),
+    [jumpToIndex]
+  );
+
+  /**
+   * Direktsprung über einen Fortschrittswert 0–1.
+   *
+   * Signatur bleibt für Navigation.tsx und DotNavigation.tsx erhalten,
+   * die ihre Zielwerte noch hartcodiert mitbringen. Statt auf den
+   * Pixelwert wird auf den nächstgelegenen Rastpunkt abgebildet — die
+   * Ungenauigkeit dieser Werte fällt dadurch nicht mehr ins Gewicht.
+   */
+  const scrollTo = useCallback(
+    (progress: number) => {
+      const sections = measuredRef.current;
+      const max = maxScrollRef.current;
+      if (!sections.length || max <= 0) return;
+
+      const targetPx = progress * max;
+      let best = 0;
+      let bestDist = Infinity;
+      for (const section of sections) {
+        const dist = Math.abs(section.snap - targetPx);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = section.index;
+        }
+      }
+      jumpToIndex(best);
+    },
+    [jumpToIndex]
+  );
+
+  /* ═══════════════════════════════════════════════════════
+     MESSUNG: Mount, Resize, Layoutwechsel
+     ═══════════════════════════════════════════════════════ */
+
   useLayoutEffect(() => {
     if (disabled) return;
     const container = containerRef.current;
@@ -125,11 +404,24 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     measure();
 
     let timer = 0;
+    const remeasure = () => {
+      measure();
+      /* Aktuelle Sektion auf ihrem neuen Offset festhalten, ohne
+         Animation — sonst wandert die Rastung beim Resize weg. */
+      const section = measuredRef.current[indexRef.current];
+      if (!section) return;
+      tweenRef.current = null;
+      posRef.current = section.snap;
+      publish(section.snap);
+    };
     const scheduleRemeasure = () => {
       clearTimeout(timer);
-      timer = window.setTimeout(measure, REMEASURE_DEBOUNCE_MS);
+      timer = window.setTimeout(remeasure, REMEASURE_DEBOUNCE_MS);
     };
 
+    /* `resize` allein reicht nicht: nachgeladene Schriften und Bilder
+       verschieben die Breite des Filmstrips in Sektion 5, ohne dass das
+       Fenster seine Grösse ändert. */
     const observer = new ResizeObserver(scheduleRemeasure);
     observer.observe(container);
     window.addEventListener("resize", scheduleRemeasure);
@@ -139,58 +431,11 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       observer.disconnect();
       window.removeEventListener("resize", scheduleRemeasure);
     };
-  }, [disabled, measure]);
+  }, [disabled, measure, publish]);
 
-  const clampTarget = useCallback(() => {
-    targetScroll.current = Math.max(
-      0,
-      Math.min(targetScroll.current, maxScroll.current)
-    );
-  }, []);
-
-  // Smooth animation loop using lerp
-  const animate = useCallback(() => {
-    const diff = targetScroll.current - currentScroll.current;
-
-    // Only update if the difference is meaningful
-    if (Math.abs(diff) > 0.5) {
-      currentScroll.current += diff * LERP_FACTOR;
-    } else {
-      currentScroll.current = targetScroll.current;
-    }
-
-    if (containerRef.current) {
-      containerRef.current.scrollLeft = currentScroll.current;
-    }
-
-    // Update progress
-    if (maxScroll.current > 0) {
-      setScrollProgress(currentScroll.current / maxScroll.current);
-      setScrollX(currentScroll.current);
-
-      // Track scroll direction with a small threshold to avoid jitter
-      const delta = currentScroll.current - prevScroll.current;
-      if (Math.abs(delta) > 0.3) {
-        const dir = delta > 0 ? "forward" : "backward";
-        setScrollDirection(dir);
-        clearTimeout(directionTimer.current);
-        directionTimer.current = window.setTimeout(() => setScrollDirection("idle"), 400);
-      }
-      prevScroll.current = currentScroll.current;
-    }
-
-    rafId.current = requestAnimationFrame(animate);
-  }, []);
-
-  // Navigate to a specific progress (0-1)
-  const scrollTo = useCallback(
-    (progress: number) => {
-      updateMaxScroll();
-      targetScroll.current = progress * maxScroll.current;
-      clampTarget();
-    },
-    [updateMaxScroll, clampTarget]
-  );
+  /* ═══════════════════════════════════════════════════════
+     EINGABE
+     ═══════════════════════════════════════════════════════ */
 
   useEffect(() => {
     /* ── Vertical mode: no horizontal hijack ── */
@@ -199,70 +444,172 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     const container = containerRef.current;
     if (!container) return;
 
-    updateMaxScroll();
-
+    /**
+     * Nach einem ausgelösten Sprung wird entschärft. Drei unabhängige
+     * Signale stellen wieder scharf — der Nachlauf eines Trackpad-
+     * Swipes (30–50 Events über bis zu 800ms) darf keines davon
+     * auslösen, ein bewusster zweiter Schub jedes einzelne.
+     */
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      if (scrollLockRef.current) return;
-      updateMaxScroll();
+      if (lockedRef.current) return;
+
+      const now = performance.now();
       const delta =
         Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-      targetScroll.current += delta * WHEEL_MULTIPLIER;
-      clampTarget();
+      const absDelta = Math.abs(delta);
+      const gap = now - lastEventTsRef.current;
+
+      /* Hüllkurve auf den Zeitpunkt dieses Events fortschreiben, bevor
+         sie als Vergleichsmass dient. */
+      const decayed =
+        envelopeRef.current * Math.pow(0.5, gap / ENVELOPE_HALFLIFE_MS);
+
+      if (gap > QUIET_MS) {
+        /* 1) Echte Pause — die vorige Geste ist beendet. */
+        armedRef.current = true;
+        accumRef.current = 0;
+        envelopeRef.current = 0;
+      } else if (
+        !armedRef.current &&
+        absDelta > decayed * RISE_FACTOR &&
+        absDelta > RISE_MIN_ABS
+      ) {
+        /* 2) Wiederbeschleunigung — das tragende Signal. Der Nachlauf
+              zerfällt monoton, ein bewusster zweiter Schub springt über
+              die Hüllkurve. Verglichen wird gegen die Hüllkurve statt
+              gegen das Vorgänger-Delta, weil letzteres am Ende des
+              Nachlaufs viel zu empfindlich ist — dort reissen schon
+              15 gegen 9 den Faktor.
+
+              Anders als die Wanduhr ist dieses Signal unempfindlich
+              gegen Aussetzer im Event-Strom: ein blockierter Hauptthread
+              verändert die Zerfallsform nicht. */
+        armedRef.current = true;
+        accumRef.current = 0;
+      } else if (
+        !armedRef.current &&
+        Math.sign(delta) !== firedDirRef.current &&
+        absDelta > RISE_MIN_ABS
+      ) {
+        /* 3) Richtungsumkehr — niemand wischt versehentlich zurück. */
+        armedRef.current = true;
+        accumRef.current = 0;
+      }
+
+      lastEventTsRef.current = now;
+      envelopeRef.current = Math.max(absDelta, decayed);
+
+      if (!armedRef.current) return;
+
+      accumRef.current += delta;
+      if (Math.abs(accumRef.current) < WHEEL_THRESHOLD) return;
+      if (now - lastFireTsRef.current < MIN_FIRE_INTERVAL_MS) return;
+
+      const dir = Math.sign(accumRef.current);
+      armedRef.current = false;
+      accumRef.current = 0;
+      firedDirRef.current = dir;
+      lastFireTsRef.current = now;
+      jumpRelative(dir);
     };
 
+    /* Touch braucht die Heuristik nicht: `touchend` beendet die Geste
+       eindeutig. Ausgelöst wird an der Schwelle, der Finger zieht die
+       Sektion nicht live mit. */
     const handleTouchStart = (e: TouchEvent) => {
-      touchStartX.current = e.touches[0].clientX;
-      touchStartScroll.current = targetScroll.current;
+      touchLastXRef.current = e.touches[0].clientX;
+      touchAccumRef.current = 0;
+      touchArmedRef.current = true;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       e.preventDefault();
-      if (scrollLockRef.current) return;
-      const diff = touchStartX.current - e.touches[0].clientX;
-      targetScroll.current = touchStartScroll.current + diff * 1.5;
-      clampTarget();
+      if (lockedRef.current) return;
+
+      const x = e.touches[0].clientX;
+      const step = touchLastXRef.current - x; // > 0 = nach links wischen = vorwärts
+      touchLastXRef.current = x;
+
+      if (!touchArmedRef.current) return;
+
+      touchAccumRef.current += step;
+      if (Math.abs(touchAccumRef.current) < TOUCH_THRESHOLD) return;
+
+      const dir = Math.sign(touchAccumRef.current);
+      touchArmedRef.current = false;
+      touchAccumRef.current = 0;
+      jumpRelative(dir);
+    };
+
+    const handleTouchEnd = () => {
+      touchArmedRef.current = true;
+      touchAccumRef.current = 0;
+    };
+
+    const isTypingTarget = (target: EventTarget | null): boolean => {
+      const el = target as HTMLElement | null;
+      if (!el || typeof el.tagName !== "string") return false;
+      return el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (scrollLockRef.current) return;
-      updateMaxScroll();
-      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-        targetScroll.current += window.innerWidth * 0.6;
-        clampTarget();
-      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-        targetScroll.current -= window.innerWidth * 0.6;
-        clampTarget();
-      }
+      if (lockedRef.current) return;
+      /* Ohne diesen Guard ist das Kontaktformular in Sektion 6 mit den
+         Pfeiltasten nicht bedienbar. */
+      if (isTypingTarget(e.target)) return;
+
+      let dir = 0;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "PageDown") dir = 1;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "PageUp") dir = -1;
+      else return;
+
+      e.preventDefault();
+      jumpRelative(dir);
     };
 
-    const handleResize = () => {
-      updateMaxScroll();
-      clampTarget();
+    /* Der Container ist weiterhin ein echter Overflow-Container.
+       Fokuswechsel per Tab oder .focus() lassen den Browser scrollLeft
+       eigenmächtig verschieben; der frühere Dauer-RAF hat das jeden
+       Frame überschrieben, der Tween läuft aber nur während eines
+       Sprungs. Deshalb im Ruhezustand explizit zurückholen. */
+    const handleScroll = () => {
+      if (tweenRef.current) return;
+      const el = containerRef.current;
+      if (!el) return;
+      if (Math.abs(el.scrollLeft - posRef.current) < 1) return;
+      el.scrollLeft = posRef.current;
     };
 
     container.addEventListener("wheel", handleWheel, { passive: false });
-    container.addEventListener("touchstart", handleTouchStart, {
-      passive: true,
-    });
-    container.addEventListener("touchmove", handleTouchMove, {
-      passive: false,
-    });
+    container.addEventListener("touchstart", handleTouchStart, { passive: true });
+    container.addEventListener("touchmove", handleTouchMove, { passive: false });
+    container.addEventListener("touchend", handleTouchEnd, { passive: true });
+    container.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("resize", handleResize);
-
-    // Start animation loop
-    rafId.current = requestAnimationFrame(animate);
 
     return () => {
       container.removeEventListener("wheel", handleWheel);
       container.removeEventListener("touchstart", handleTouchStart);
       container.removeEventListener("touchmove", handleTouchMove);
+      container.removeEventListener("touchend", handleTouchEnd);
+      container.removeEventListener("scroll", handleScroll);
       window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("resize", handleResize);
-      cancelAnimationFrame(rafId.current);
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
     };
-  }, [disabled, animate, updateMaxScroll, clampTarget]);
+  }, [disabled, jumpRelative]);
 
-  return { containerRef, panelRef, getSections, scrollProgress, scrollX, scrollTo, scrollDirection, scrollLockRef, targetScroll, currentScroll, disabled };
+  return {
+    containerRef,
+    panelRef,
+    getSections,
+    scrollProgress,
+    scrollX,
+    scrollTo,
+    jumpToIndex,
+    activeIndex,
+    scrollDirection,
+    disabled,
+  };
 }

@@ -416,14 +416,16 @@ export function Section5UeberTellian({
   }
 
   /* ═══ DESKTOP MODE ═══
-     Single container: text column (absolute, 56vw) + filmstrip of all 8
+     Single container: text column (absolute, 56vw) + filmstrip of all
      portraits (flex row, 21vw each, 24px gaps). Text sits on top of the
      first ~56vw of the filmstrip via matching bg color.
-     Layout width: paddingLeft(60vw) + 8×21vw + 7×24px ≈ 228vw + 168px.
+     Layout width: paddingLeft(60vw) + 6×21vw + 5×24px ≈ 186vw + 120px,
+     gemessen 194vw bei 1440px Viewport. (Der frühere Kommentar rechnete
+     mit 8 Porträts und 228vw — TEAM hat 6 Einträge.)
 
      TEMPORARY — diese Sektion ist die einzige, die nicht SECTION_WIDTH
      (94vw) breit ist. Ihre Breite ergibt sich aus dem Inhalt; bei 94vw
-     wären sechs der acht Porträts unerreichbar. Sie bekommt deshalb
+     wäre rund die Hälfte der Porträts unerreichbar. Sie bekommt deshalb
      befristet freies Scrollen innerhalb der Sektion statt eines
      einzelnen Rastpunkts.
 

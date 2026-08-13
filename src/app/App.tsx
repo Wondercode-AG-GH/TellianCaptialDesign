@@ -1191,9 +1191,26 @@ export default function App() {
   const layout = getLayout(breakpoint);
   const textColStyle = getTextColumnStyle(breakpoint);
 
-  const { containerRef, panelRef, scrollProgress, scrollX, scrollTo, scrollDirection, scrollLockRef, targetScroll, currentScroll } =
-    useHorizontalScroll({ disabled: isVertical });
   const [introComplete, setIntroComplete] = useState(false);
+
+  /* ═══ Subpage detail views (no route, no unmount) ═══
+       Stehen vor dem Scroll-Hook, weil dieser isDetailMode für seine
+       locked-Option braucht. */
+  const vvw = useSubpageMode("/vermoegensverwaltung");
+  const ast = useSubpageMode("/anlagestrategien");
+  const pm  = useSubpageMode("/portfolio-management");
+  /* Detail mode is active when any subpage is open */
+  const isDetailMode = vvw.isDetail || ast.isDetail || pm.isDetail;
+
+  /* ── Horizontaler Scroll mit Sektions-Rastung (nur Desktop) ──
+        `locked` sperrt Eingaben, solange ein Overlay offen ist oder das
+        Intro läuft. Der Wheel-Handler ist dabei schon durch
+        pointer-events: none blockiert; keydown hängt aber am Fenster. */
+  const { containerRef, panelRef, scrollProgress, scrollX, scrollTo, scrollDirection } =
+    useHorizontalScroll({
+      disabled: isVertical,
+      locked: isDetailMode || !introComplete,
+    });
 
   /* ── Hero entry-animation trigger (desktop) ── */
   const [heroAnimate, setHeroAnimate] = useState(false);
@@ -1206,13 +1223,6 @@ export default function App() {
   /* ── Hero scroll-arrow: shown whenever the hero is in view.
         Reactive to scrollX — reappears when user scrolls back. ── */
   const heroArrowHidden = scrollX > 20;
-
-  /* ═══ Subpage detail views (no route, no unmount) ═══ */
-  const vvw = useSubpageMode("/vermoegensverwaltung");
-  const ast = useSubpageMode("/anlagestrategien");
-  const pm  = useSubpageMode("/portfolio-management");
-  /* Detail mode is active when any subpage is open */
-  const isDetailMode = vvw.isDetail || ast.isDetail || pm.isDetail;
 
   const handleIntroComplete = useCallback(() => {
     setIntroComplete(true);
