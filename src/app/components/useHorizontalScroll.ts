@@ -1,6 +1,6 @@
 import { useRef, useEffect, useLayoutEffect, useCallback, useState } from "react";
 
-import { SECTIONS, SECTION_COUNT } from "../sections";
+import { SECTIONS, SECTION_COUNT, type SectionScroll } from "../sections";
 import { EASE } from "../../styles/motion";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
@@ -141,6 +141,7 @@ export interface MeasuredSection {
   end: number;
   /** Rastziel — offset, auf den Scrollbereich geklemmt. */
   snap: number;
+  scroll: SectionScroll;
 }
 
 interface Tween {
@@ -188,6 +189,9 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   const indexRef = useRef(0);
   const tweenRef = useRef<Tween | null>(null);
   const rafRef = useRef(0);
+  /** TEMPORARY — Position innerhalb der freien Sektion. Entfällt mit
+   *  dem Umbau von Sektion 5. */
+  const freeTargetRef = useRef(0);
 
   /* ── Gestenerkennung ── */
   const accumRef = useRef(0);
@@ -253,7 +257,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     const max = Math.max(0, container.scrollWidth - container.clientWidth);
     maxScrollRef.current = max;
 
-    measuredRef.current = SECTIONS.map((_, i) => {
+    measuredRef.current = SECTIONS.map((def, i) => {
       const el = panelsRef.current[i];
       const offset = el?.offsetLeft ?? 0;
       const width = el?.offsetWidth ?? 0;
@@ -263,8 +267,21 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
         width,
         end: offset + width,
         snap: Math.max(0, Math.min(offset, max)),
+        scroll: def.scroll,
       };
     });
+  }, []);
+
+  /**
+   * TEMPORARY — Grenzen des freien Scrollens innerhalb einer Sektion.
+   * `max` ist die Position, an der ihr rechter Rand am Viewport anliegt.
+   * Entfällt mit dem Umbau von Sektion 5.
+   */
+  const freeBounds = useCallback((section: MeasuredSection) => {
+    const viewport = containerRef.current?.clientWidth ?? 0;
+    const min = section.snap;
+    const max = Math.max(min, Math.min(section.end - viewport, maxScrollRef.current));
+    return { min, max };
   }, []);
 
   /** Aktuelle Messung — Lesezugriff für Navigation und Debug. */
@@ -315,14 +332,24 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
    * Direktsprung von aussen münden alle hier.
    */
   const jumpToIndex = useCallback(
-    (next: number) => {
+    (next: number, align: "start" | "end" = "start") => {
       const sections = measuredRef.current;
       if (!sections.length) return;
 
       const index = Math.max(0, Math.min(SECTION_COUNT - 1, next));
-      const to = sections[index].snap;
+      const section = sections[index];
+
+      /* TEMPORARY — Rückwärtssprung in die freie Sektion landet an ihrem
+         rechten Ende. Die Regel dahinter: Scrollen setzt die Reise fort,
+         ein Navigationsklick ist ein Ortswechsel. Entfällt mit dem Umbau
+         von Sektion 5. */
+      const to =
+        align === "end" && section.scroll === "free"
+          ? freeBounds(section).max
+          : section.snap;
 
       indexRef.current = index;
+      freeTargetRef.current = to;
       setActiveIndex(index);
 
       /* Läuft bereits eine Transition auf dasselbe Ziel — nicht neu
@@ -355,12 +382,53 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       };
       startRaf();
     },
-    [publish, startRaf]
+    [publish, startRaf, freeBounds]
   );
 
   const jumpRelative = useCallback(
-    (dir: number) => jumpToIndex(indexRef.current + dir),
+    (dir: number) => {
+      const next = Math.max(0, Math.min(SECTION_COUNT - 1, indexRef.current + dir));
+      /* TEMPORARY — s. jumpToIndex. */
+      const align =
+        dir < 0 && measuredRef.current[next]?.scroll === "free" ? "end" : "start";
+      jumpToIndex(next, align);
+    },
     [jumpToIndex]
+  );
+
+  /**
+   * TEMPORARY — ein Scrollschritt innerhalb der freien Sektion.
+   *
+   * "moved"   — verschoben, Event verbraucht
+   * "clamped" — an die Kante gestossen, Event verbraucht, Geste endet hier
+   * "blocked" — steht schon an der Kante; der Aufrufer behandelt den Ausstieg
+   *
+   * Positioniert direkt statt über einen Tween: innerhalb der Sektion
+   * soll die Bewegung dem Eingabegerät folgen, nicht rasten.
+   * Entfällt mit dem Umbau von Sektion 5.
+   */
+  const freeScrollStep = useCallback(
+    (delta: number): "moved" | "clamped" | "blocked" => {
+      const section = measuredRef.current[indexRef.current];
+      if (!section || section.scroll !== "free") return "blocked";
+
+      const { min, max } = freeBounds(section);
+      const current = freeTargetRef.current;
+
+      if (delta < 0 && current <= min + 1) return "blocked";
+      if (delta > 0 && current >= max - 1) return "blocked";
+
+      const next = current + delta;
+      const clamped = Math.max(min, Math.min(next, max));
+
+      tweenRef.current = null;
+      freeTargetRef.current = clamped;
+      posRef.current = clamped;
+      publish(clamped);
+
+      return clamped !== next ? "clamped" : "moved";
+    },
+    [freeBounds, publish]
   );
 
   /**
@@ -411,8 +479,15 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       const section = measuredRef.current[indexRef.current];
       if (!section) return;
       tweenRef.current = null;
-      posRef.current = section.snap;
-      publish(section.snap);
+      /* TEMPORARY — in der freien Sektion die Position innerhalb der
+         neuen Grenzen halten, statt an den Anfang zu springen. */
+      const pos =
+        section.scroll === "free"
+          ? Math.max(freeBounds(section).min, Math.min(posRef.current, freeBounds(section).max))
+          : section.snap;
+      posRef.current = pos;
+      freeTargetRef.current = pos;
+      publish(pos);
     };
     const scheduleRemeasure = () => {
       clearTimeout(timer);
@@ -502,6 +577,24 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 
       if (!armedRef.current) return;
 
+      /* TEMPORARY — innerhalb der freien Sektion wird gescrollt statt
+         gerastet. Erst an ihrer Kante fällt das Event in den
+         Akkumulator und löst den Ausstieg aus. */
+      if (!tweenRef.current) {
+        const result = freeScrollStep(delta);
+        if (result !== "blocked") {
+          if (result === "clamped") {
+            /* Kante erreicht: diese Geste endet hier. Der Ausstieg
+               braucht eine bewusste neue Geste, sonst schiebt der
+               Nachlauf desselben Swipes direkt weiter. */
+            armedRef.current = false;
+            firedDirRef.current = Math.sign(delta);
+            accumRef.current = 0;
+          }
+          return;
+        }
+      }
+
       accumRef.current += delta;
       if (Math.abs(accumRef.current) < WHEEL_THRESHOLD) return;
       if (now - lastFireTsRef.current < MIN_FIRE_INTERVAL_MS) return;
@@ -532,6 +625,12 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       touchLastXRef.current = x;
 
       if (!touchArmedRef.current) return;
+
+      /* TEMPORARY — s. handleWheel. */
+      if (!tweenRef.current && freeScrollStep(step) !== "blocked") {
+        touchAccumRef.current = 0;
+        return;
+      }
 
       touchAccumRef.current += step;
       if (Math.abs(touchAccumRef.current) < TOUCH_THRESHOLD) return;
@@ -598,7 +697,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = 0;
     };
-  }, [disabled, jumpRelative]);
+  }, [disabled, jumpRelative, freeScrollStep]);
 
   return {
     containerRef,
