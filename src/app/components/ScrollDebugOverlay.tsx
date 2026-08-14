@@ -4,6 +4,7 @@ import {
   SCROLL_TUNING,
   type ScrollDebugInfo,
   type ArmReason,
+  type ScrollPhase,
 } from "./useHorizontalScroll";
 import { SECTIONS } from "../sections";
 
@@ -44,6 +45,18 @@ const REASON_COLOR: Record<ArmReason, string> = {
   wheel: "#c4b5fd",
   tail: "#71717a",
   "—": "#71717a",
+};
+
+const PHASE_LABEL: Record<ScrollPhase, string> = {
+  idle: "ruht",
+  tracking: "folgt der Hand",
+  settling: "Antrieb vollendet",
+};
+
+const PHASE_COLOR: Record<ScrollPhase, string> = {
+  idle: "#71717a",
+  tracking: "#86efac",
+  settling: "#7dd3fc",
 };
 
 interface Props {
@@ -102,6 +115,47 @@ export function ScrollDebugOverlay({ debugRef }: Props) {
         </span>
         <span style={{ color: d.mode === "free" ? "#fcd34d" : "#71717a", marginLeft: 8 }}>
           {d.mode === "free" ? "FREI (temporär)" : "snap"}
+        </span>
+      </Row>
+
+      <Row label="Phase">
+        <span style={{ color: PHASE_COLOR[d.phase] }}>{PHASE_LABEL[d.phase]}</span>
+        <span style={{ color: "#71717a", marginLeft: 8 }}>
+          {d.device === "servo" ? "Servo" : d.device === "wheel" ? "Rad (diskret)" : d.device === "touch" ? "Touch" : "—"}
+        </span>
+      </Row>
+
+      <Row label="Zug">
+        <span
+          style={{
+            color:
+              Math.abs(d.dragPct) >= SCROLL_TUNING.COMMIT_FRACTION * 100
+                ? "#86efac"
+                : "#fff",
+          }}
+        >
+          {`${d.dragPct}%`.padStart(5)}
+        </span>
+        <span style={{ color: "#71717a", marginLeft: 8 }}>
+          Schwelle {Math.round(SCROLL_TUNING.COMMIT_FRACTION * 100)}% · 1:1 bis{" "}
+          {Math.round(SCROLL_TUNING.FOLLOW_LINEAR * 100)}%
+        </span>
+      </Row>
+
+      <Row label="Nachlauf">
+        <span style={{ color: d.momentum ? "#fb923c" : "#71717a" }}>
+          {d.momentum ? "erkannt" : "nein"}
+        </span>
+        <span style={{ color: "#71717a", marginLeft: 8 }}>
+          Abfall {d.fallRun}/{SCROLL_TUNING.MOMENTUM_FALL_RUN} · unter{" "}
+          {Math.round(SCROLL_TUNING.MOMENTUM_PEAK_FRACTION * 100)}% des Maximums
+        </span>
+      </Row>
+
+      <Row label="Vollendung">
+        <span style={{ color: "#fff" }}>{`${d.settleMs}ms`.padStart(6)}</span>
+        <span style={{ color: "#71717a", marginLeft: 8 }}>
+          {SCROLL_TUNING.SETTLE_MS_MIN}–{SCROLL_TUNING.SETTLE_MS_MAX}ms, nach Reststrecke
         </span>
       </Row>
 
@@ -182,7 +236,7 @@ export function ScrollDebugOverlay({ debugRef }: Props) {
 
       <div style={{ color: "#52525b", marginTop: 6, fontSize: 10 }}>
         Ruhe {SCROLL_TUNING.QUIET_MS}ms · HWZ {SCROLL_TUNING.ENVELOPE_HALFLIFE_MS}ms ·
-        Faktor {SCROLL_TUNING.RISE_FACTOR} · Sprung {SCROLL_TUNING.SNAP_MS}ms
+        Faktor {SCROLL_TUNING.RISE_FACTOR} · Sprung {SCROLL_TUNING.SETTLE_MS_MAX}ms
       </div>
     </div>
   );

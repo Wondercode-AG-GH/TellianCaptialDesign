@@ -18,15 +18,83 @@ import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
 /* ═══════════════════════════════════════════════════════════
    ABSTIMMUNG AM GERÄT
-   Dauer und Kurve der Rastung. Beide hier oben, damit sie ohne
-   Suche im Code verändert werden können.
+
+   Servo-Verhalten: die Fläche folgt zuerst der Hand, ab einer
+   Schwelle übernimmt der Antrieb.
+
+     idle → tracking → settling → idle
+
+   Alle Werte hier oben, damit sie ohne Suche im Code verändert
+   werden können.
    ═══════════════════════════════════════════════════════════ */
 
-/** Dauer eines Sprungs. */
-const SNAP_MS = 600;
+/** Obergrenze der Vollendung — gilt für eine ganze Sektionsbreite. */
+const SETTLE_MS_MAX = 600;
 
-/** Kurve des Sprungs — s. EASE.snap in motion.ts. */
+/**
+ * Untergrenze der Vollendung.
+ *
+ * Die Dauer richtet sich nach der RESTSTRECKE, nicht nach der ganzen
+ * Sektion. Wer schon 70% gezogen hat, darf für die letzten 30% nicht
+ * so lange brauchen wie für alles. Das ist der Kern des
+ * Servo-Gefühls; mit fester Dauer kippt es sofort in "automatische
+ * Schiebetür" zurück.
+ */
+const SETTLE_MS_MIN = 180;
+
+/** Kurve der Vollendung — s. EASE.snap in motion.ts. */
 const SNAP_EASE = EASE.snapArr;
+
+/* ── Folgen (tracking) ── */
+
+/** Bis zu diesem Anteil der Strecke folgt die Fläche 1:1. */
+const FOLLOW_LINEAR = 0.40;
+
+/**
+ * Dämpfung jenseits von FOLLOW_LINEAR.
+ *
+ * Die Kurve nähert sich der vollen Strecke asymptotisch und erreicht
+ * sie nie: nach einer vollen Sektionsbreite Zugstrecke steht man bei
+ * 80%, nach zwei bei 97%. Dadurch kann man weder in die übernächste
+ * Sektion ziehen noch über das Ziel hinausschiessen — ein
+ * Zurückfedern, das wie eine zweite Bewegung aussähe, kann gar nicht
+ * erst entstehen.
+ */
+const FOLLOW_DAMP = 0.55;
+
+/** Nachgiebigkeit am Track-Anfang und -Ende, wo keine Nachbarsektion
+ *  existiert. Anteil der Viewportbreite, asymptotisch. */
+const EDGE_RESISTANCE = 0.12;
+
+/** Ruhe im Event-Strom, nach der eine Zuggeste als beendet gilt. */
+const TRACK_IDLE_MS = 90;
+
+/* ── Entscheiden (settling) ── */
+
+/** Ab diesem Anteil der Strecke wird zur Nachbarsektion vollendet. */
+const COMMIT_FRACTION = 0.28;
+
+/** Alternativ: Geschwindigkeit beim Loslassen, in px/ms. */
+const COMMIT_VELOCITY = 1.6;
+
+/* ── Nachlauf-Erkennung ──
+   Die Rate-Bedingung der Mausrad-Erkennung taugt hier NICHT: Finger-
+   und Momentum-Phase eines Trackpads kommen beide im Takt der
+   Bildwiederholung, 8–16ms. Unterscheidbar sind sie an der Form —
+   Momentum zerfällt monoton unterhalb des Gestenmaximums, eine
+   ziehende Hand beschleunigt, hält und schwankt.
+
+   Ein Fehlalarm ist billig: der Antrieb übernimmt ein paar Frames zu
+   früh, und wer weiterzieht, stellt über die Wiederbeschleunigung
+   ohnehin eine neue Geste scharf. Ein VERPASSTER Nachlauf wäre teuer
+   — die Fläche würde nach dem Loslassen weiterwandern. Deshalb eher
+   empfindlich eingestellt. */
+
+/** Aufeinanderfolgende Events ohne Anstieg. */
+const MOMENTUM_FALL_RUN = 3;
+
+/** Zusätzlich muss der Betrag unter diesen Anteil des Maximums fallen. */
+const MOMENTUM_PEAK_FRACTION = 0.75;
 
 /**
  * Geschwindigkeit der zurückgesetzten Ebenen, als Anteil der
@@ -71,6 +139,17 @@ const LAG_VAR = "--tellian-tween-lag";
  * Ebene und Bewegung nicht auseinanderlaufen können.
  */
 const OVERSCAN_VAR = "--tellian-tween-overscan";
+
+/**
+ * Nachgeben am Track-Anfang und -Ende.
+ *
+ * Muss über eine eigene Variable laufen: `scrollLeft` ist auf
+ * [0, maxScroll] geklemmt und kann am Anschlag gar nicht weiter. Der
+ * Widerstand wird deshalb als Verschiebung des ganzen Tracks
+ * ausgedrückt — nur `transform`, damit die Bewegung beim Kompositor
+ * bleibt.
+ */
+const EDGE_VAR = "--tellian-edge-pull";
 
 /** Aufsummiertes Delta, ab dem eine Geste auslöst. */
 const WHEEL_THRESHOLD = 40;
@@ -139,8 +218,20 @@ const RISE_MIN_ABS = 12;
  *  im Takt der Bildwiederholung kommt — das tragende Signal. */
 const WHEEL_DEVICE_MIN_GAP_MS = 25;
 
-/** Betragsschwelle: darunter ist es kein Mausrad, sondern ein Zug. */
-const WHEEL_DEVICE_MIN_ABS = 120;
+/**
+ * Betragsschwelle für einen Rad-Rastpunkt.
+ *
+ * Lag früher bei 120, als sie den Nachlauf allein abwehren musste. Seit
+ * die RATE das trägt (ein Trackpad kommt nie über 25ms Abstand), kann
+ * sie herunter — und muss es auch: Räder mit 100er-Rastpunkten sind
+ * verbreitet, und bei 120 fielen sie in den Servo-Zweig, wo ein
+ * einzelner Klick unter der Commit-Schwelle bleibt und zurückfedert.
+ * Das Rad wäre damit unbrauchbar gewesen.
+ *
+ * 40 entspricht der Auslöseschwelle des diskreten Zweigs: gross genug,
+ * um etwas zu bedeuten, klein genug für jedes reale Rad.
+ */
+const WHEEL_DEVICE_MIN_ABS = 40;
 
 /** Anzahl aufeinanderfolgender Events ohne Abfall. */
 const WHEEL_DEVICE_RUN = 5;
@@ -164,11 +255,15 @@ const WHEEL_DEVICE_MIN_RATIO = 0.99;
  */
 const WHEEL_DEVICE_QUANT_EPS = 0.01;
 
-/** Harte Untergrenze zwischen zwei Auslösungen. Wächst mit SNAP_MS mit
- *  (rund ein Drittel davon), bleibt aber deutlich darunter — sonst
- *  könnte die Zweitgeste eine laufende Transition nicht mehr
- *  abbrechen. */
-const MIN_FIRE_INTERVAL_MS = 225;
+/**
+ * Harte Untergrenze zwischen zwei Auslösungen im diskreten Zweig.
+ *
+ * Deutlich unter SETTLE_MS_MAX, damit eine Zweitgeste eine laufende
+ * Vollendung abbrechen kann. 160 statt 225, weil ein bedächtig
+ * gedrehtes Rad sonst jeden zweiten Rastpunkt verschluckt: bei rund
+ * 250ms Abstand lag die alte Schwelle zu nah an der Taktung.
+ */
+const MIN_FIRE_INTERVAL_MS = 160;
 
 /** Wischdistanz, ab der Touch auslöst. */
 const TOUCH_THRESHOLD = 60;
@@ -229,6 +324,51 @@ function cubicBezier(x1: number, y1: number, x2: number, y2: number) {
 const easeSnap = cubicBezier(...SNAP_EASE);
 
 /* ═══════════════════════════════════════════════════════════
+   FOLGEKURVE
+   ═══════════════════════════════════════════════════════════ */
+
+/**
+ * Zugstrecke → sichtbarer Versatz.
+ *
+ * Bis FOLLOW_LINEAR eins zu eins, danach asymptotisch gegen die volle
+ * Strecke. Erreicht sie nie, kann also nicht überschiessen.
+ */
+function follow(drag: number, width: number): number {
+  if (width <= 0) return 0;
+  const u = Math.abs(drag) / width;
+  if (u <= FOLLOW_LINEAR) return drag;
+  const extra = 1 - FOLLOW_LINEAR;
+  const damped = FOLLOW_LINEAR + extra * (1 - Math.exp(-(u - FOLLOW_LINEAR) / FOLLOW_DAMP));
+  return Math.sign(drag) * width * damped;
+}
+
+/**
+ * Umkehrung von `follow`.
+ *
+ * Gebraucht, wenn eine laufende Vollendung angefasst wird: die
+ * Zugstrecke wird aus dem aktuellen Versatz zurückgerechnet, damit die
+ * Fläche im Moment des Anfassens stehen bleibt, statt auf den
+ * Rastpunkt zu springen.
+ */
+function unfollow(offset: number, width: number): number {
+  if (width <= 0) return 0;
+  const o = Math.abs(offset) / width;
+  if (o <= FOLLOW_LINEAR) return offset;
+  const extra = 1 - FOLLOW_LINEAR;
+  const inner = 1 - (o - FOLLOW_LINEAR) / extra;
+  /* Praktisch am Anschlag — weiter zurückzurechnen bringt nichts. */
+  if (inner <= 1e-4) return Math.sign(offset) * width * 4;
+  return Math.sign(offset) * width * (FOLLOW_LINEAR - FOLLOW_DAMP * Math.log(inner));
+}
+
+/** Nachgiebigkeit dort, wo es nichts mehr zu erreichen gibt. */
+function followEdge(drag: number, viewport: number): number {
+  const limit = viewport * EDGE_RESISTANCE;
+  if (limit <= 0) return 0;
+  return Math.sign(drag) * limit * (1 - Math.exp(-Math.abs(drag) / limit));
+}
+
+/* ═══════════════════════════════════════════════════════════
    TYPEN
    ═══════════════════════════════════════════════════════════ */
 
@@ -257,10 +397,20 @@ interface Tween {
   to: number;
   start: number;
   duration: number;
+  /**
+   * Bezugsspanne für den Ebenen-Versatz. Beim Vollenden einer Zuggeste
+   * ist das die volle Strecke zwischen den Rastpunkten, nicht die
+   * Reststrecke — sonst spränge der Versatz an der Übergabe.
+   */
+  spanFrom?: number;
+  spanWidth?: number;
 }
 
 /** Warum die Gestenerkennung wieder scharf gestellt hat. */
 export type ArmReason = "quiet" | "rise" | "reverse" | "wheel" | "tail" | "—";
+
+/** Zustand des Servo-Automaten. */
+export type ScrollPhase = "idle" | "tracking" | "settling";
 
 /**
  * Momentaufnahme der Gestenerkennung für das Debug-Overlay.
@@ -283,6 +433,17 @@ export interface ScrollDebugInfo {
   accum: number;
   /** Länge des laufenden Mausrad-Musters (gleich grosse Deltas). */
   steadyRun: number;
+  phase: ScrollPhase;
+  /** Gezogener Anteil der Strecke, in Prozent. */
+  dragPct: number;
+  /** Nachlauf erkannt — ab hier wird nicht mehr gefolgt. */
+  momentum: boolean;
+  /** Länge des monotonen Abfalls. */
+  fallRun: number;
+  /** Zuletzt berechnete Vollendungsdauer in ms. */
+  settleMs: number;
+  /** Eingabeart des laufenden Vorgangs. */
+  device: "servo" | "wheel" | "touch" | "—";
   index: number;
   mode: SectionScroll;
   fired: number;
@@ -304,6 +465,12 @@ function createDebugInfo(): ScrollDebugInfo {
     reason: "—",
     accum: 0,
     steadyRun: 0,
+    phase: "idle",
+    dragPct: 0,
+    momentum: false,
+    fallRun: 0,
+    settleMs: 0,
+    device: "—",
     index: 0,
     mode: "snap",
     fired: 0,
@@ -365,6 +532,35 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
    *  dem Umbau von Sektion 5. */
   const freeTargetRef = useRef(0);
 
+  /* ── Servo-Automat ── */
+  const phaseRef = useRef<ScrollPhase>("idle");
+  /** Sektion, von der aus gezogen wird. */
+  const trackFromIndexRef = useRef(0);
+  /** Rastpunkt dieser Sektion — Bezugspunkt für Versatz und Schwelle. */
+  const trackFromPosRef = useRef(0);
+  /** Zielposition der Nachbarsektion, oder null an der Kante. */
+  const trackToPosRef = useRef<number | null>(null);
+  const trackToIndexRef = useRef(0);
+  /** Strecke zwischen Ausgangs- und Zielrastpunkt. */
+  const trackWidthRef = useRef(0);
+  /** Aufsummierte rohe Zugstrecke. */
+  const dragRef = useRef(0);
+  /** Ungeschriebene Zugstrecke — wird im RAF-Takt angewandt. */
+  const dragDirtyRef = useRef(false);
+  /** Geschwindigkeit in px/ms, geglättet. */
+  const velocityRef = useRef(0);
+  /** Timer, der eine stehengebliebene Zuggeste beendet. */
+  const trackIdleTimerRef = useRef(0);
+  /** Nachgeben am Anschlag, in px. Getrennt von der Position, weil
+   *  scrollLeft dort nicht weiter kann. */
+  const edgePullRef = useRef(0);
+  const edgeReleaseRef = useRef<{ from: number; start: number; duration: number } | null>(null);
+
+  /* Nachlauf-Erkennung */
+  const gesturePeakRef = useRef(0);
+  const fallRunRef = useRef(0);
+  const lastAbsRef = useRef(0);
+
   /* ── Gestenerkennung ── */
   const accumRef = useRef(0);
   const lastEventTsRef = useRef(0);
@@ -375,6 +571,20 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   /** Lauf gleich grosser Deltas — Mausrad-Erkennung. */
   const steadyRunRef = useRef(0);
   const steadyStartAbsRef = useRef(0);
+  /**
+   * Erkanntes Eingabegerät. Bleibt über Gesten hinweg stehen — Geräte
+   * wechseln selten, und ein einziges schnelles Event stellt sofort
+   * zurück auf "servo".
+   *
+   * Entscheidend ist die RATE: eine zusammenhängende Zuggeste liefert
+   * alle 8–16ms, ein Rad kommt nie unter 25ms. Ohne diese Bindung
+   * hätte ein Rad mit kleinen Rastpunkten gar keine Chance — jeder
+   * einzelne Klick bliebe unter der Commit-Schwelle und federte
+   * zurück, das Rad wäre unbrauchbar.
+   */
+  const deviceRef = useRef<"servo" | "wheel">("servo");
+  /** Aufeinanderfolgende langsame, quantisierte Events. */
+  const wheelHintRef = useRef(0);
 
   /** Instrumentierung fürs Debug-Overlay (?scrolldebug). */
   const debugRef = useRef<ScrollDebugInfo>(createDebugInfo());
@@ -383,8 +593,13 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   const touchLastXRef = useRef(0);
   const touchAccumRef = useRef(0);
   const touchArmedRef = useRef(true);
+  const lastTouchTsRef = useRef(0);
 
   const [activeIndex, setActiveIndex] = useState(initialIndex);
+  /** Dauer der laufenden Vollendung. Wird einmal je Vollendung gesetzt,
+   *  nicht je Frame — die Stationsleiste gleitet damit exakt so lange
+   *  wie die Fläche fährt, auch bei Teilstrecken. */
+  const [settleMs, setSettleMs] = useState(SETTLE_MS_MAX);
   const [scrollDirection, setScrollDirection] = useState<ScrollDirection>("idle");
 
   /* Spiegel für Werte, die die einmalig registrierten Listener lesen.
@@ -486,51 +701,169 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
    * lesen, braucht das niemand mehr — der Tween läuft jetzt ganz ohne
    * React-Arbeit.
    */
-  const publish = useCallback((pos: number, lag = 0) => {
+  const publish = useCallback((pos: number, lag = 0, edge = 0) => {
     const container = containerRef.current;
     if (!container) return;
     container.scrollLeft = pos;
     container.style.setProperty(LAG_VAR, `${lag.toFixed(2)}px`);
+    container.style.setProperty(EDGE_VAR, `${edge.toFixed(2)}px`);
   }, []);
 
-  /* Der RAF-Loop läuft nur während einer Transition, nicht dauerhaft
-     wie der frühere Lerp. Im Ruhezustand rendert die Anwendung gar nicht. */
+  /**
+   * Ebenen-Versatz aus dem normierten Fortschritt.
+   *
+   * Dieselbe Formel in beiden Phasen — beim Folgen wie beim Vollenden.
+   * Nur so ist der Versatz an der Übergabe stetig; würde er je Phase
+   * anders gerechnet, sähe man dort einen Sprung.
+   */
+  const lagFor = useCallback((p: number, direction: number) => {
+    if (reducedMotionRef.current) return 0;
+    const clamped = Math.max(0, Math.min(1, p));
+    return Math.sign(direction) * peakLagRef.current * 4 * clamped * (1 - clamped);
+  }, []);
+
+  /* Der RAF-Loop läuft, solange gefolgt oder vollendet wird — nie
+     dauerhaft. Im Ruhezustand rendert die Anwendung gar nicht.
+
+     Beim Folgen werden die Deltas hier gebündelt angewandt, nicht je
+     Event: ein Trackpad liefert bis zu 120 Events pro Sekunde, auf
+     einem 60-Hz-Schirm wäre das die doppelte Zahl an
+     Layout-Schreibvorgängen. */
   const tick = useCallback(() => {
     const tween = tweenRef.current;
-    if (!tween) {
-      rafRef.current = 0;
+
+    if (tween) {
+      const elapsed = performance.now() - tween.start;
+      const t = tween.duration <= 0 ? 1 : Math.min(1, elapsed / tween.duration);
+      const eased = easeSnap(t);
+      const distance = tween.to - tween.from;
+      posRef.current = tween.from + distance * eased;
+
+      const lag = lagFor(
+        tween.spanFrom === undefined || tween.spanWidth === undefined || tween.spanWidth === 0
+          ? eased
+          : (posRef.current - tween.spanFrom) / tween.spanWidth,
+        tween.spanWidth ? Math.sign(tween.spanWidth) : distance
+      );
+
+      if (t >= 1) {
+        posRef.current = tween.to;
+        tweenRef.current = null;
+        phaseRef.current = "idle";
+        setScrollDirection("idle");
+      }
+
+      publish(posRef.current, tweenRef.current ? lag : 0);
+      rafRef.current = tweenRef.current ? requestAnimationFrame(tick) : 0;
       return;
     }
 
-    const elapsed = performance.now() - tween.start;
-    const t = tween.duration <= 0 ? 1 : Math.min(1, elapsed / tween.duration);
-    const eased = easeSnap(t);
-    const distance = tween.to - tween.from;
-    posRef.current = tween.from + distance * eased;
+    if (phaseRef.current === "tracking") {
+      if (dragDirtyRef.current) {
+        dragDirtyRef.current = false;
+        const width = trackWidthRef.current;
+        const hasTarget = trackToPosRef.current !== null;
 
-    /* Versatz der zurückgesetzten Ebenen. Parabel über dem Fortschritt,
-       auf 1 normiert: null an beiden Enden, Scheitel in der Mitte der
-       Bewegung. Das Vorzeichen folgt der Fahrtrichtung, die Ebene
-       bleibt also zurück. Existiert ausschliesslich während der
-       Bewegung — der Betrag hängt an der Viewportbreite, nicht an der
-       Sprungweite. */
-    const lag = reducedMotionRef.current
-      ? 0
-      : Math.sign(distance) * peakLagRef.current * 4 * eased * (1 - eased);
-
-    if (t >= 1) {
-      posRef.current = tween.to;
-      tweenRef.current = null;
-      setScrollDirection("idle");
+        if (hasTarget) {
+          const offset = follow(dragRef.current, width);
+          posRef.current = trackFromPosRef.current + offset;
+          edgePullRef.current = 0;
+          publish(posRef.current, lagFor(offset / width, offset), 0);
+        } else {
+          /* Anschlag: die Position kann nicht weiter, also gibt der
+             ganze Track nach. Kein Ebenen-Versatz — dort wird nichts
+             erreicht, es gibt keine Tiefe zu zeigen. */
+          edgePullRef.current = -followEdge(
+            dragRef.current,
+            containerRef.current?.clientWidth ?? 0
+          );
+          publish(posRef.current, 0, edgePullRef.current);
+        }
+      }
+      rafRef.current = requestAnimationFrame(tick);
+      return;
     }
 
-    publish(posRef.current, tweenRef.current ? lag : 0);
-    rafRef.current = tweenRef.current ? requestAnimationFrame(tick) : 0;
-  }, [publish]);
+    /* Feder am Anschlag zurück. */
+    const release = edgeReleaseRef.current;
+    if (release) {
+      const t = Math.min(1, (performance.now() - release.start) / release.duration);
+      edgePullRef.current = release.from * (1 - easeSnap(t));
+      if (t >= 1) {
+        edgeReleaseRef.current = null;
+        edgePullRef.current = 0;
+        phaseRef.current = "idle";
+        setScrollDirection("idle");
+      }
+      publish(posRef.current, 0, edgePullRef.current);
+      rafRef.current = edgeReleaseRef.current ? requestAnimationFrame(tick) : 0;
+      return;
+    }
+
+    rafRef.current = 0;
+  }, [publish, lagFor]);
 
   const startRaf = useCallback(() => {
     if (!rafRef.current) rafRef.current = requestAnimationFrame(tick);
   }, [tick]);
+
+  /**
+   * Vollendungsdauer aus der RESTSTRECKE.
+   *
+   * `span` ist die Bezugsstrecke — eine Sektionsbreite bei einer
+   * Zuggeste, die volle Sprungweite bei Tastatur und Direktsprung.
+   * Wer schon 70% gezogen hat, bekommt für die letzten 30% rund ein
+   * Drittel der Zeit. Ohne das fühlt sich die Übergabe an, als hätte
+   * das Ziehen nichts gebracht.
+   */
+  const settleDuration = useCallback((remaining: number, span: number) => {
+    if (span <= 0) return SETTLE_MS_MAX;
+    const raw = (Math.abs(remaining) / Math.abs(span)) * SETTLE_MS_MAX;
+    return Math.max(SETTLE_MS_MIN, Math.min(SETTLE_MS_MAX, raw));
+  }, []);
+
+  /** Startet die Vollendung. Einziger Ort, an dem ein Tween entsteht. */
+  const startTween = useCallback(
+    (to: number, span: { from: number; width: number } | null) => {
+      const from = posRef.current;
+      const distance = to - from;
+
+      if (reducedMotionRef.current) {
+        tweenRef.current = null;
+        phaseRef.current = "idle";
+        posRef.current = to;
+        publish(to, 0);
+        setScrollDirection("idle");
+        return;
+      }
+
+      if (Math.abs(distance) < 0.5) {
+        tweenRef.current = null;
+        phaseRef.current = "idle";
+        posRef.current = to;
+        publish(to, 0);
+        setScrollDirection("idle");
+        return;
+      }
+
+      const duration = settleDuration(distance, span ? span.width : distance);
+      debugRef.current.settleMs = Math.round(duration);
+      setSettleMs(Math.round(duration));
+
+      setScrollDirection(distance > 0 ? "forward" : "backward");
+      phaseRef.current = "settling";
+      tweenRef.current = {
+        from,
+        to,
+        start: performance.now(),
+        duration,
+        spanFrom: span?.from,
+        spanWidth: span?.width,
+      };
+      startRaf();
+    },
+    [publish, startRaf, settleDuration]
+  );
 
   /**
    * Der einzige Weg, den Track zu bewegen. Geste, Tastatur und
@@ -561,34 +894,146 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
          starten, das würde sie um die volle Dauer verlängern. */
       if (tweenRef.current && Math.abs(tweenRef.current.to - to) < 0.5) return;
 
-      if (Math.abs(to - posRef.current) < 0.5) {
-        tweenRef.current = null;
-        setScrollDirection("idle");
-        return;
+      /* Tastatur und Direktsprung: volle Dauer, Bezug ist die ganze
+         Sprungweite. Die Klemmung deckelt sie bei SETTLE_MS_MAX, auch
+         wenn mehrere Sektionen übersprungen werden. */
+      startTween(to, { from: posRef.current, width: to - posRef.current });
+    },
+    [startTween, freeBounds]
+  );
+
+  /* ═══════════════════════════════════════════════════════
+     SERVO — Folgen und Vollenden
+     ═══════════════════════════════════════════════════════ */
+
+  /**
+   * Beginnt eine Zuggeste.
+   *
+   * Bezugspunkt ist der Rastpunkt der aktuellen Sektion, nicht die
+   * aktuelle Position: daran wird die Commit-Schwelle gemessen. Läuft
+   * gerade eine Vollendung, wird die Zugstrecke aus dem vorhandenen
+   * Versatz zurückgerechnet — sonst spränge die Fläche im Moment des
+   * Anfassens auf den Rastpunkt.
+   */
+  const beginTracking = useCallback(
+    (dir: number) => {
+      const sections = measuredRef.current;
+      if (!sections.length) return;
+
+      const fromIndex = indexRef.current;
+      const fromSection = sections[fromIndex];
+      if (!fromSection) return;
+
+      /* TEMPORARY — in der freien Sektion ist der Bezugspunkt die
+         Kante, an der man steht, nicht ihr Rastpunkt. Entfällt mit dem
+         Umbau von Sektion 5 auf 94vw. */
+      let fromPos = fromSection.snap;
+      if (fromSection.scroll === "free") {
+        const { min, max } = freeBounds(fromSection);
+        fromPos = dir > 0 ? max : min;
       }
 
-      setScrollDirection(to > posRef.current ? "forward" : "backward");
-
-      if (reducedMotionRef.current) {
-        tweenRef.current = null;
-        posRef.current = to;
-        publish(to);
-        setScrollDirection("idle");
-        return;
+      const toIndex = Math.max(0, Math.min(SECTION_COUNT - 1, fromIndex + dir));
+      let toPos: number | null = null;
+      if (toIndex !== fromIndex) {
+        const target = sections[toIndex];
+        /* Rückwärts in die freie Sektion: an ihr rechtes Ende. */
+        toPos =
+          dir < 0 && target.scroll === "free" ? freeBounds(target).max : target.snap;
       }
 
-      /* `from` ist die aktuelle Position, nicht das alte Ziel — dadurch
-         bricht eine Zweitgeste die laufende Transition ohne Ruck ab. */
-      tweenRef.current = {
-        from: posRef.current,
-        to,
-        start: performance.now(),
-        duration: SNAP_MS,
-      };
+      const width = toPos === null ? 0 : Math.abs(toPos - fromPos);
+
+      trackFromIndexRef.current = fromIndex;
+      trackFromPosRef.current = fromPos;
+      trackToIndexRef.current = toIndex;
+      trackToPosRef.current = toPos;
+      trackWidthRef.current = width;
+
+      /* Nahtlos anknüpfen: vorhandenen Versatz in Zugstrecke umrechnen. */
+      const offset = posRef.current - fromPos;
+      dragRef.current =
+        toPos === null || width === 0 ? offset : unfollow(offset, width);
+
+      tweenRef.current = null;
+      phaseRef.current = "tracking";
+      velocityRef.current = 0;
+      dragDirtyRef.current = true;
       startRaf();
     },
-    [publish, startRaf, freeBounds]
+    [freeBounds, startRaf]
   );
+
+  /**
+   * Beendet eine Zuggeste und übergibt an den Antrieb.
+   *
+   * Entschieden wird nach zurückgelegtem Anteil ODER Geschwindigkeit.
+   * Anschliessend wird entschärft: der Nachlauf, der jetzt noch
+   * kommt, darf die Fläche nicht ein zweites Mal bewegen. Wieder scharf
+   * stellen nur die drei bekannten Signale (Ruhephase,
+   * Wiederbeschleunigung, Richtungsumkehr).
+   */
+  const settleTracking = useCallback(() => {
+    if (phaseRef.current !== "tracking") return;
+
+    clearTimeout(trackIdleTimerRef.current);
+
+    const fromPos = trackFromPosRef.current;
+    const toPos = trackToPosRef.current;
+    const width = trackWidthRef.current;
+    const offset = posRef.current - fromPos;
+
+    armedRef.current = false;
+    firedDirRef.current = Math.sign(dragRef.current) || 1;
+    lastFireTsRef.current = performance.now();
+    accumRef.current = 0;
+
+    /* Anschlag — es gibt nichts zu erreichen, also zurückfedern. Die
+       Position stand ohnehin still; zurück muss nur das Nachgeben. */
+    if (toPos === null || width === 0) {
+      phaseRef.current = "settling";
+      if (Math.abs(edgePullRef.current) < 0.5 || reducedMotionRef.current) {
+        edgePullRef.current = 0;
+        edgeReleaseRef.current = null;
+        phaseRef.current = "idle";
+        publish(posRef.current, 0, 0);
+        setScrollDirection("idle");
+        return;
+      }
+      edgeReleaseRef.current = {
+        from: edgePullRef.current,
+        start: performance.now(),
+        duration: SETTLE_MS_MIN,
+      };
+      debugRef.current.settleMs = SETTLE_MS_MIN;
+      startRaf();
+      return;
+    }
+
+    /* Fortschritt und Geschwindigkeit werden IN RICHTUNG DES ZIELS
+       gemessen, nicht als Betrag. Sonst zählt eine Restfahrt in die
+       Gegenrichtung fälschlich als Fortschritt — und wer eine laufende
+       Vollendung anfasst und weiterschiebt, käme nie über die Schwelle,
+       weil er erst die Reststrecke "zurückzahlen" müsste. */
+    const dirSign = Math.sign(toPos - fromPos) || 1;
+    const progress = (offset * dirSign) / width;
+    const fastEnough = velocityRef.current * dirSign >= COMMIT_VELOCITY;
+    const commit = progress >= COMMIT_FRACTION || fastEnough;
+
+    const target = commit ? toPos : fromPos;
+    if (commit) {
+      indexRef.current = trackToIndexRef.current;
+      freeTargetRef.current = toPos;
+      setActiveIndex(trackToIndexRef.current);
+    } else {
+      indexRef.current = trackFromIndexRef.current;
+      freeTargetRef.current = fromPos;
+    }
+
+    /* Bezugsspanne bleibt die volle Strecke — der Ebenen-Versatz läuft
+       dadurch stetig weiter, statt an der Übergabe zu springen. */
+    startTween(target, { from: fromPos, width: toPos - fromPos });
+  }, [startTween, publish, startRaf]);
 
   const jumpRelative = useCallback(
     (dir: number) => {
@@ -851,85 +1296,221 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       dbg.index = indexRef.current;
       dbg.mode = measuredRef.current[indexRef.current]?.scroll ?? "snap";
 
-      if (!armedRef.current) return;
+      if (!armedRef.current) {
+        /* Nachlauf nach einer Entscheidung — vollständig schlucken.
+           DAS verhindert, dass eine kräftige Wischgeste die Fläche
+           zweimal bewegt: einmal beim Folgen und einmal beim
+           Vollenden. Der Nachlauf-Diskriminator entscheidet nur, WANN
+           das Folgen endet; dass danach nichts mehr passiert, leistet
+           dieses Tor. */
+        dbg.phase = phaseRef.current;
+        return;
+      }
+
+      /* ── Nachlauf-Erkennung ──
+         Monotoner Abfall unterhalb des Gestenmaximums. Wird vor der
+         Verzweigung gepflegt, damit sie über eine ganze Geste hinweg
+         zählt. */
+      if (gap > QUIET_MS) {
+        gesturePeakRef.current = 0;
+        fallRunRef.current = 0;
+        lastAbsRef.current = 0;
+      }
+      gesturePeakRef.current = Math.max(gesturePeakRef.current, absDelta);
+      if (lastAbsRef.current > 0 && absDelta <= lastAbsRef.current * 1.02) {
+        fallRunRef.current++;
+      } else {
+        fallRunRef.current = 0;
+      }
+      lastAbsRef.current = absDelta;
+      const momentum =
+        fallRunRef.current >= MOMENTUM_FALL_RUN &&
+        absDelta < gesturePeakRef.current * MOMENTUM_PEAK_FRACTION;
+      dbg.momentum = momentum;
+      dbg.fallRun = fallRunRef.current;
 
       /* TEMPORARY — innerhalb der freien Sektion wird gescrollt statt
-         gerastet. Erst an ihrer Kante fällt das Event in den
-         Akkumulator und löst den Ausstieg aus. */
-      if (!tweenRef.current) {
+         gezogen, und zwar unabhängig vom Eingabegerät: auch ein Rad
+         soll dort den Filmstrip durchfahren, statt ihn zu überspringen.
+         Erst an ihrer Kante übernimmt die Rastung. Entfällt mit dem
+         Umbau von Sektion 5 auf 94vw. */
+      if (phaseRef.current !== "tracking" && !tweenRef.current) {
         const result = freeScrollStep(delta);
         if (result !== "blocked") {
           if (result === "clamped") {
-            /* Kante erreicht: diese Geste endet hier. Der Ausstieg
-               braucht eine bewusste neue Geste, sonst schiebt der
-               Nachlauf desselben Swipes direkt weiter. */
             armedRef.current = false;
             firedDirRef.current = Math.sign(delta);
             accumRef.current = 0;
           }
+          dbg.phase = phaseRef.current;
           return;
         }
       }
 
-      accumRef.current += delta;
-      dbg.accum = accumRef.current;
-      if (Math.abs(accumRef.current) < WHEEL_THRESHOLD) return;
-      if (now - lastFireTsRef.current < MIN_FIRE_INTERVAL_MS) return;
+      /* ── Geräte-Erkennung ──
+         Ein Event im Bildwiederholungstakt kann nur von einer
+         zusammenhängenden Zuggeste kommen und stellt sofort auf Servo.
+         Zwei aufeinanderfolgende langsame, quantisierte Events sind ein
+         Rad. Zwei statt eines, weil auch das ERSTE Event einer
+         Trackpad-Geste einen grossen Abstand zum Vorgänger hat — das
+         zweite kommt dann aber im Takt und korrigiert. */
+      if (gap < WHEEL_DEVICE_MIN_GAP_MS) {
+        wheelHintRef.current = 0;
+        deviceRef.current = "servo";
+      } else if (
+        absDelta >= WHEEL_DEVICE_MIN_ABS &&
+        Math.abs(absDelta - Math.round(absDelta)) < WHEEL_DEVICE_QUANT_EPS
+      ) {
+        wheelHintRef.current++;
+        if (wheelHintRef.current >= 2) deviceRef.current = "wheel";
+      }
 
-      const dir = Math.sign(accumRef.current);
-      armedRef.current = false;
-      accumRef.current = 0;
-      /* Lauf zurücksetzen, sonst stellt das Mausrad-Signal sofort im
-         nächsten Event wieder scharf. */
-      steadyRunRef.current = 0;
-      firedDirRef.current = dir;
-      lastFireTsRef.current = now;
-      jumpRelative(dir);
+      /* ══ Zweig 1: klassisches Mausrad ══
+         Ein Rad ist gerastet und diskret — keine Fläche, die man zieht.
+         Es behält deshalb den Sprungbetrieb samt Mehrfach-Strecke. */
+      const isWheelDevice = deviceRef.current === "wheel";
 
-      dbg.armed = false;
-      dbg.accum = 0;
-      dbg.fired++;
-      dbg.lastFiredIndex = indexRef.current;
-      dbg.index = indexRef.current;
+      /* Wechsel mitten in einer Zuggeste: die bereits gezogene Strecke
+         geht in den Akkumulator, statt zurückzufedern. Der Sprung
+         beginnt dann an der aktuellen Position — man sieht keinen
+         Rücksetzer. */
+      if (isWheelDevice && phaseRef.current === "tracking") {
+        clearTimeout(trackIdleTimerRef.current);
+        phaseRef.current = "idle";
+        accumRef.current += dragRef.current;
+        dragRef.current = 0;
+        dragDirtyRef.current = false;
+      }
+
+      /* ══ Zweig 2: reduzierte Bewegung ══
+         Kein Folgen, kein Federn — harter Schnitt. */
+      if (isWheelDevice || reducedMotionRef.current) {
+        dbg.device = "wheel";
+        dbg.phase = phaseRef.current;
+
+        accumRef.current += delta;
+        dbg.accum = accumRef.current;
+        if (Math.abs(accumRef.current) < WHEEL_THRESHOLD) return;
+        if (now - lastFireTsRef.current < MIN_FIRE_INTERVAL_MS) return;
+
+        const dir = Math.sign(accumRef.current);
+        armedRef.current = false;
+        accumRef.current = 0;
+        steadyRunRef.current = 0;
+        firedDirRef.current = dir;
+        lastFireTsRef.current = now;
+        jumpRelative(dir);
+
+        dbg.armed = false;
+        dbg.accum = 0;
+        dbg.fired++;
+        dbg.lastFiredIndex = indexRef.current;
+        dbg.index = indexRef.current;
+        return;
+      }
+
+      /* ══ Zweig 3: Servo ══ */
+      dbg.device = "servo";
+
+      if (phaseRef.current !== "tracking") beginTracking(Math.sign(delta) || 1);
+
+      /* Sobald Nachlauf erkannt ist, wird nicht mehr gefolgt:
+         entscheiden und vollenden. Sonst zöge der Nachlauf die Fläche
+         nach dem Loslassen von selbst weiter. */
+      if (momentum) {
+        settleTracking();
+        dbg.phase = phaseRef.current;
+        dbg.fired++;
+        dbg.lastFiredIndex = indexRef.current;
+        return;
+      }
+
+      dragRef.current += delta;
+      dragDirtyRef.current = true;
+
+      const dt = Math.max(4, gap);
+      velocityRef.current = velocityRef.current * 0.7 + (delta / dt) * 0.3;
+
+      /* Bleibt der Strom stehen, ohne dass Nachlauf erkannt wurde —
+         etwa bei einem langsamen Zug —, endet die Geste über die Uhr. */
+      clearTimeout(trackIdleTimerRef.current);
+      trackIdleTimerRef.current = window.setTimeout(settleTracking, TRACK_IDLE_MS);
+
+      startRaf();
+
+      dbg.phase = phaseRef.current;
+      dbg.dragPct = trackWidthRef.current
+        ? Math.round(((posRef.current - trackFromPosRef.current) / trackWidthRef.current) * 100)
+        : 0;
     };
 
     /* Touch braucht die Heuristik nicht: `touchend` beendet die Geste
        eindeutig. Ausgelöst wird an der Schwelle, der Finger zieht die
        Sektion nicht live mit. */
+    /* Touch ist die natürliche Form des Servos: touchmove folgt dem
+       Finger, touchend entscheidet. Kein Nachlaufproblem — das Ende
+       der Geste ist explizit. */
     const handleTouchStart = (e: TouchEvent) => {
+      if (lockedRef.current) return;
       touchLastXRef.current = e.touches[0].clientX;
-      touchAccumRef.current = 0;
       touchArmedRef.current = true;
+      velocityRef.current = 0;
+      lastTouchTsRef.current = performance.now();
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       e.preventDefault();
-      if (lockedRef.current) return;
+      if (lockedRef.current || !touchArmedRef.current) return;
 
       const x = e.touches[0].clientX;
       const step = touchLastXRef.current - x; // > 0 = nach links wischen = vorwärts
       touchLastXRef.current = x;
 
-      if (!touchArmedRef.current) return;
+      const now = performance.now();
+      const dt = Math.max(4, now - lastTouchTsRef.current);
+      lastTouchTsRef.current = now;
 
-      /* TEMPORARY — s. handleWheel. */
-      if (!tweenRef.current && freeScrollStep(step) !== "blocked") {
+      if (reducedMotionRef.current) {
+        /* Harter Schnitt: erst an der Schwelle springen, kein Folgen. */
+        touchAccumRef.current += step;
+        if (Math.abs(touchAccumRef.current) < TOUCH_THRESHOLD) return;
+        const dir = Math.sign(touchAccumRef.current);
+        touchArmedRef.current = false;
         touchAccumRef.current = 0;
+        jumpRelative(dir);
         return;
       }
 
-      touchAccumRef.current += step;
-      if (Math.abs(touchAccumRef.current) < TOUCH_THRESHOLD) return;
+      /* TEMPORARY — freie Sektion, s. handleWheel. Entfällt mit dem
+         Umbau von Sektion 5 auf 94vw. */
+      if (phaseRef.current !== "tracking" && !tweenRef.current) {
+        if (freeScrollStep(step) !== "blocked") return;
+      }
 
-      const dir = Math.sign(touchAccumRef.current);
-      touchArmedRef.current = false;
-      touchAccumRef.current = 0;
-      jumpRelative(dir);
+      if (phaseRef.current !== "tracking") beginTracking(Math.sign(step) || 1);
+
+      dragRef.current += step;
+      dragDirtyRef.current = true;
+      velocityRef.current = velocityRef.current * 0.7 + (step / dt) * 0.3;
+      startRaf();
+
+      const dbg = debugRef.current;
+      dbg.device = "touch";
+      dbg.phase = phaseRef.current;
+      dbg.dragPct = trackWidthRef.current
+        ? Math.round(((posRef.current - trackFromPosRef.current) / trackWidthRef.current) * 100)
+        : 0;
     };
 
     const handleTouchEnd = () => {
-      touchArmedRef.current = true;
       touchAccumRef.current = 0;
+      if (phaseRef.current === "tracking") {
+        settleTracking();
+        /* Anders als beim Wheel gibt es hier keinen Nachlauf, der
+           geschluckt werden müsste — sofort wieder aufnahmebereit. */
+        armedRef.current = true;
+      }
+      touchArmedRef.current = true;
     };
 
     const isTypingTarget = (target: EventTarget | null): boolean => {
@@ -982,8 +1563,10 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       window.removeEventListener("keydown", handleKeyDown);
       cancelAnimationFrame(rafRef.current);
       rafRef.current = 0;
+      clearTimeout(trackIdleTimerRef.current);
+      phaseRef.current = "idle";
     };
-  }, [disabled, jumpRelative, freeScrollStep]);
+  }, [disabled, jumpRelative, freeScrollStep, beginTracking, settleTracking, startRaf]);
 
   return {
     containerRef,
@@ -992,6 +1575,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     scrollTo,
     jumpToIndex,
     activeIndex,
+    settleMs,
     scrollDirection,
     debugRef,
     disabled,
@@ -1000,7 +1584,14 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 
 /** Abstimmungswerte für die Anzeige im Debug-Overlay. */
 export const SCROLL_TUNING = {
-  SNAP_MS,
+  SETTLE_MS_MIN,
+  SETTLE_MS_MAX,
+  FOLLOW_LINEAR,
+  FOLLOW_DAMP,
+  COMMIT_FRACTION,
+  COMMIT_VELOCITY,
+  MOMENTUM_FALL_RUN,
+  MOMENTUM_PEAK_FRACTION,
   WHEEL_THRESHOLD,
   QUIET_MS,
   ENVELOPE_HALFLIFE_MS,
@@ -1030,3 +1621,6 @@ export const TWEEN_LAG_VAR = LAG_VAR;
 
 /** Überstand, den eine versetzte Ebene je Seite braucht. */
 export const TWEEN_OVERSCAN_VAR = OVERSCAN_VAR;
+
+/** Nachgeben am Anschlag — als transform auf den Track anzuwenden. */
+export const TRACK_EDGE_VAR = EDGE_VAR;

@@ -16,6 +16,7 @@ import { C, serif, sans, EYEBROW } from "./tokens";
 import { EASE } from "../styles/motion";
 import { useHorizontalScroll } from "./components/useHorizontalScroll";
 import { ScrollDebugOverlay, isScrollDebugEnabled } from "./components/ScrollDebugOverlay";
+import { TRACK_EDGE_VAR } from "./components/useHorizontalScroll";
 import { useBreakpoint } from "./components/useBreakpoint";
 import {
   ScrollImage,
@@ -1216,7 +1217,7 @@ export default function App() {
      selbst und dürfen nicht auf uns selbst zurückwirken. */
   const [initialSectionIndex] = useState(readInitialSectionIndex);
 
-  const { containerRef, panelRef, jumpToIndex, scrollDirection, activeIndex: horizontalIndex, debugRef } =
+  const { containerRef, panelRef, jumpToIndex, scrollDirection, activeIndex: horizontalIndex, settleMs, debugRef } =
     useHorizontalScroll({
       disabled: isVertical,
       locked: isDetailMode || !introComplete,
@@ -1492,6 +1493,7 @@ export default function App() {
           <DotNavigation
             activeIndex={activeIndex}
             onNavigate={navigateToSection}
+            durationMs={settleMs}
           />
         )}
       </div>
@@ -1507,6 +1509,9 @@ export default function App() {
           /* Macht den Track zum offsetParent der Panels, damit die
              Registry containerrelative offsetLeft-Werte misst. */
           position: "relative",
+          /* Nachgeben am Anschlag — s. TRACK_EDGE_VAR. Nur transform,
+             damit die Bewegung beim Kompositor bleibt. */
+          transform: `translateX(var(${TRACK_EDGE_VAR}, 0px))`,
           scrollbarWidth: "none",
           msOverflowStyle: "none",
           pointerEvents: introComplete && !isDetailMode ? "auto" : "none",

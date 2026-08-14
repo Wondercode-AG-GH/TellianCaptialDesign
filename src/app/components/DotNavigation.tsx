@@ -28,9 +28,20 @@ interface DotNavigationProps {
   /** Aktive Sektion, direkt aus der Registry — keine Schwellenwerte. */
   activeIndex: number;
   onNavigate: (index: number) => void;
+  /**
+   * Dauer der laufenden Sektionsbewegung. Die Markierung gleitet exakt
+   * so lange wie die Fläche fährt — bei einer Zuggeste, die nur die
+   * Reststrecke vollendet, ist das deutlich weniger als eine volle
+   * Sprungdauer.
+   */
+  durationMs?: number;
 }
 
-export function DotNavigation({ activeIndex, onNavigate }: DotNavigationProps) {
+export function DotNavigation({
+  activeIndex,
+  onNavigate,
+  durationMs = SCROLL_TUNING.SETTLE_MS_MAX,
+}: DotNavigationProps) {
   const navRef = useRef<HTMLElement>(null);
   const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
   /** Waagrechte Mitten der Punktzeilen, relativ zur Leiste. */
@@ -104,7 +115,7 @@ export function DotNavigation({ activeIndex, onNavigate }: DotNavigationProps) {
           transform: `translateX(${marker.x}px)`,
           opacity: marker.ready ? 1 : 0,
           transition: marker.ready
-            ? `transform ${SCROLL_TUNING.SNAP_MS}ms ${EASE.snap}, opacity 200ms ease`
+            ? `transform ${durationMs}ms ${EASE.snap}, opacity 200ms ease`
             : "none",
           pointerEvents: "none",
         }}
@@ -152,7 +163,7 @@ export function DotNavigation({ activeIndex, onNavigate }: DotNavigationProps) {
                   borderRadius: "50%",
                   backgroundColor: V.indicatorInactive,
                   opacity: isActive ? 0 : 1,
-                  transition: `opacity ${SCROLL_TUNING.SNAP_MS}ms ${EASE.snap}`,
+                  transition: `opacity ${durationMs}ms ${EASE.snap}`,
                 }}
               />
             </span>
@@ -169,7 +180,7 @@ export function DotNavigation({ activeIndex, onNavigate }: DotNavigationProps) {
                 userSelect: "none",
                 color: isActive ? V.text : V.textInactive,
                 fontWeight: isActive ? 500 : 400,
-                transition: `color ${SCROLL_TUNING.SNAP_MS}ms ${EASE.snap}`,
+                transition: `color ${durationMs}ms ${EASE.snap}`,
               }}
             >
               {section.label}
