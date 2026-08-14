@@ -442,6 +442,10 @@ export interface ScrollDebugInfo {
   fallRun: number;
   /** Zuletzt berechnete Vollendungsdauer in ms. */
   settleMs: number;
+  /** Zuggesten-Zyklen. Eine physische Geste darf genau einen erzeugen —
+   *  mehr bedeutet, dass sie sich mitten in sich selbst neu scharf
+   *  gestellt hat (Defekte A/B). */
+  cycles: number;
   /** Eingabeart des laufenden Vorgangs. */
   device: "servo" | "wheel" | "touch" | "—";
   index: number;
@@ -470,6 +474,7 @@ function createDebugInfo(): ScrollDebugInfo {
     momentum: false,
     fallRun: 0,
     settleMs: 0,
+    cycles: 0,
     device: "—",
     index: 0,
     mode: "snap",
@@ -555,6 +560,12 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
    *  scrollLeft dort nicht weiter kann. */
   const edgePullRef = useRef(0);
   const edgeReleaseRef = useRef<{ from: number; start: number; duration: number } | null>(null);
+
+  /** Richtung der laufenden Zuggeste. Rückfall für firedDirRef, wenn
+   *  die Zugstrecke beim Entscheiden noch null ist — DEFEKT A: der
+   *  frühere Rückfall auf +1 liess jede Rückwärtsgeste über die
+   *  Richtungsumkehr-Regel im eigenen Nachlauf neu scharf werden. */
+  const trackDirRef = useRef(1);
 
   /* Nachlauf-Erkennung */
   const gesturePeakRef = useRef(0);
@@ -722,6 +733,38 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     return Math.sign(direction) * peakLagRef.current * 4 * clamped * (1 - clamped);
   }, []);
 
+  /**
+   * Wendet die offene Zugstrecke auf die Position an.
+   *
+   * Wird im RAF-Takt gerufen — ein Trackpad liefert bis zu 120 Events
+   * pro Sekunde, auf einem 60-Hz-Schirm wäre das die doppelte Zahl an
+   * Layout-Schreibvorgängen. Zusätzlich ruft `settleTracking` sie, damit
+   * das Delta, das die Entscheidung auslöst, nicht verlorengeht.
+   */
+  const applyTracking = useCallback(() => {
+    if (!dragDirtyRef.current) return;
+    dragDirtyRef.current = false;
+
+    const width = trackWidthRef.current;
+    const hasTarget = trackToPosRef.current !== null;
+
+    if (hasTarget) {
+      const offset = follow(dragRef.current, width);
+      posRef.current = trackFromPosRef.current + offset;
+      edgePullRef.current = 0;
+      publish(posRef.current, lagFor(offset / width, offset), 0);
+    } else {
+      /* Anschlag: die Position kann nicht weiter, also gibt der ganze
+         Track nach. Kein Ebenen-Versatz — dort wird nichts erreicht,
+         es gibt keine Tiefe zu zeigen. */
+      edgePullRef.current = -followEdge(
+        dragRef.current,
+        containerRef.current?.clientWidth ?? 0
+      );
+      publish(posRef.current, 0, edgePullRef.current);
+    }
+  }, [publish, lagFor]);
+
   /* Der RAF-Loop läuft, solange gefolgt oder vollendet wird — nie
      dauerhaft. Im Ruhezustand rendert die Anwendung gar nicht.
 
@@ -759,27 +802,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     }
 
     if (phaseRef.current === "tracking") {
-      if (dragDirtyRef.current) {
-        dragDirtyRef.current = false;
-        const width = trackWidthRef.current;
-        const hasTarget = trackToPosRef.current !== null;
-
-        if (hasTarget) {
-          const offset = follow(dragRef.current, width);
-          posRef.current = trackFromPosRef.current + offset;
-          edgePullRef.current = 0;
-          publish(posRef.current, lagFor(offset / width, offset), 0);
-        } else {
-          /* Anschlag: die Position kann nicht weiter, also gibt der
-             ganze Track nach. Kein Ebenen-Versatz — dort wird nichts
-             erreicht, es gibt keine Tiefe zu zeigen. */
-          edgePullRef.current = -followEdge(
-            dragRef.current,
-            containerRef.current?.clientWidth ?? 0
-          );
-          publish(posRef.current, 0, edgePullRef.current);
-        }
-      }
+      applyTracking();
       rafRef.current = requestAnimationFrame(tick);
       return;
     }
@@ -801,7 +824,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     }
 
     rafRef.current = 0;
-  }, [publish, lagFor]);
+  }, [publish, lagFor, applyTracking]);
 
   const startRaf = useCallback(() => {
     if (!rafRef.current) rafRef.current = requestAnimationFrame(tick);
@@ -817,7 +840,13 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
    * das Ziehen nichts gebracht.
    */
   const settleDuration = useCallback((remaining: number, span: number) => {
-    if (span <= 0) return SETTLE_MS_MAX;
+    /* DEFEKT E — die Abbruchbedingung war `span <= 0`. Gemeint war eine
+       entartete Spanne von null; getroffen hat sie JEDE Rückwärts-
+       bewegung, denn dort ist `span = toPos - fromPos` negativ. Jede
+       Geste nach links bekam damit stumpf SETTLE_MS_MAX, unabhängig von
+       der Reststrecke — gemessen 600ms statt 180ms bei identischen 77%
+       Zugstrecke. Das war die Richtungsabhängigkeit der Dauer. */
+    if (Math.abs(span) < 1) return SETTLE_MS_MAX;
     const raw = (Math.abs(remaining) / Math.abs(span)) * SETTLE_MS_MAX;
     return Math.max(SETTLE_MS_MIN, Math.min(SETTLE_MS_MAX, raw));
   }, []);
@@ -915,6 +944,22 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
    * Versatz zurückgerechnet — sonst spränge die Fläche im Moment des
    * Anfassens auf den Rastpunkt.
    */
+  /**
+   * Setzt die Nachlauf-Erkennung auf den Anfang einer Geste zurück.
+   *
+   * DEFEKT B: das geschah früher nur bei einer Pause über QUIET_MS.
+   * Eine Geste, die innerhalb von 400ms auf die vorige folgte — also
+   * der Normalfall beim zügigen Durchscrollen —, erbte deren hohen
+   * fallRun und alten peak. `momentum` war damit schon beim ersten
+   * Event wahr, die Geste endete, bevor sie begann, und die Zugstrecke
+   * blieb null. Genau daraus entstand die Kette mit Defekt A.
+   */
+  const resetGestureShape = useCallback(() => {
+    gesturePeakRef.current = 0;
+    fallRunRef.current = 0;
+    lastAbsRef.current = 0;
+  }, []);
+
   const beginTracking = useCallback(
     (dir: number) => {
       const sections = measuredRef.current;
@@ -955,13 +1000,16 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       dragRef.current =
         toPos === null || width === 0 ? offset : unfollow(offset, width);
 
+      trackDirRef.current = dir || 1;
+      resetGestureShape();
       tweenRef.current = null;
       phaseRef.current = "tracking";
       velocityRef.current = 0;
       dragDirtyRef.current = true;
+      debugRef.current.cycles++;
       startRaf();
     },
-    [freeBounds, startRaf]
+    [freeBounds, startRaf, resetGestureShape]
   );
 
   /**
@@ -977,6 +1025,11 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     if (phaseRef.current !== "tracking") return;
 
     clearTimeout(trackIdleTimerRef.current);
+    /* DEFEKT C — offene Zugstrecke zuerst anwenden. Sonst entscheidet
+       settleTracking auf einer Position, die das auslösende Delta noch
+       nicht enthält; bei einer Entscheidung im ersten Event der Geste
+       war die Zugstrecke dadurch exakt null. */
+    applyTracking();
 
     const fromPos = trackFromPosRef.current;
     const toPos = trackToPosRef.current;
@@ -984,7 +1037,12 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     const offset = posRef.current - fromPos;
 
     armedRef.current = false;
-    firedDirRef.current = Math.sign(dragRef.current) || 1;
+    /* DEFEKT A — die Richtung kommt aus der Geste. Der frühere
+       Rückfall auf +1 machte jede Rückwärtsgeste zum Selbstläufer:
+       ihr eigener Nachlauf hat negative Deltas, die gegen +1 als
+       Richtungsumkehr gelesen wurden und mitten in der Geste neu
+       scharf stellten. */
+    firedDirRef.current = Math.sign(dragRef.current) || trackDirRef.current || 1;
     lastFireTsRef.current = performance.now();
     accumRef.current = 0;
 
@@ -1033,7 +1091,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     /* Bezugsspanne bleibt die volle Strecke — der Ebenen-Versatz läuft
        dadurch stetig weiter, statt an der Übergabe zu springen. */
     startTween(target, { from: fromPos, width: toPos - fromPos });
-  }, [startTween, publish, startRaf]);
+  }, [startTween, publish, startRaf, applyTracking]);
 
   const jumpRelative = useCallback(
     (dir: number) => {
@@ -1234,6 +1292,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
         envelopeRef.current = 0;
         steadyRunRef.current = 0;
         steadyStartAbsRef.current = 0;
+        resetGestureShape();
         reason = "quiet";
       } else if (
         !armedRef.current &&
@@ -1247,6 +1306,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
         armedRef.current = true;
         accumRef.current = 0;
         steadyRunRef.current = 0;
+        resetGestureShape();
         reason = "wheel";
       } else if (
         !armedRef.current &&
@@ -1265,6 +1325,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
               verändert die Zerfallsform nicht. */
         armedRef.current = true;
         accumRef.current = 0;
+        resetGestureShape();
         reason = "rise";
       } else if (
         !armedRef.current &&
@@ -1274,6 +1335,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
         /* 3) Richtungsumkehr — niemand wischt versehentlich zurück. */
         armedRef.current = true;
         accumRef.current = 0;
+        resetGestureShape();
         reason = "reverse";
       }
 
@@ -1308,14 +1370,9 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       }
 
       /* ── Nachlauf-Erkennung ──
-         Monotoner Abfall unterhalb des Gestenmaximums. Wird vor der
-         Verzweigung gepflegt, damit sie über eine ganze Geste hinweg
-         zählt. */
-      if (gap > QUIET_MS) {
-        gesturePeakRef.current = 0;
-        fallRunRef.current = 0;
-        lastAbsRef.current = 0;
-      }
+         Monotoner Abfall unterhalb des Gestenmaximums. Der Zustand
+         wird beim Scharfstellen zurückgesetzt, nicht erst nach einer
+         Pause — s. resetGestureShape, Defekt B. */
       gesturePeakRef.current = Math.max(gesturePeakRef.current, absDelta);
       if (lastAbsRef.current > 0 && absDelta <= lastAbsRef.current * 1.02) {
         fallRunRef.current++;
@@ -1414,6 +1471,15 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 
       if (phaseRef.current !== "tracking") beginTracking(Math.sign(delta) || 1);
 
+      /* DEFEKT C — erst verbuchen, dann entscheiden. Vorher fiel das
+         Delta, das die Entscheidung auslöst, unter den Tisch; es ist
+         der letzte und grösste Beitrag der Handphase. */
+      dragRef.current += delta;
+      dragDirtyRef.current = true;
+
+      const dt = Math.max(4, gap);
+      velocityRef.current = velocityRef.current * 0.7 + (delta / dt) * 0.3;
+
       /* Sobald Nachlauf erkannt ist, wird nicht mehr gefolgt:
          entscheiden und vollenden. Sonst zöge der Nachlauf die Fläche
          nach dem Loslassen von selbst weiter. */
@@ -1424,12 +1490,6 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
         dbg.lastFiredIndex = indexRef.current;
         return;
       }
-
-      dragRef.current += delta;
-      dragDirtyRef.current = true;
-
-      const dt = Math.max(4, gap);
-      velocityRef.current = velocityRef.current * 0.7 + (delta / dt) * 0.3;
 
       /* Bleibt der Strom stehen, ohne dass Nachlauf erkannt wurde —
          etwa bei einem langsamen Zug —, endet die Geste über die Uhr. */
@@ -1566,7 +1626,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       clearTimeout(trackIdleTimerRef.current);
       phaseRef.current = "idle";
     };
-  }, [disabled, jumpRelative, freeScrollStep, beginTracking, settleTracking, startRaf]);
+  }, [disabled, jumpRelative, freeScrollStep, beginTracking, settleTracking, startRaf, resetGestureShape]);
 
   return {
     containerRef,

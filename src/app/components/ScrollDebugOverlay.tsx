@@ -152,6 +152,16 @@ export function ScrollDebugOverlay({ debugRef }: Props) {
         </span>
       </Row>
 
+      {/* Eine physische Geste darf genau einen Zyklus erzeugen. Steigt
+          der Zähler während eines einzigen Wischs um mehr als eins, hat
+          sich die Geste mitten in sich selbst neu scharf gestellt. */}
+      <Row label="Zyklen">
+        <span style={{ color: "#fff" }}>{String(d.cycles).padStart(5)}</span>
+        <span style={{ color: "#71717a", marginLeft: 8 }}>
+          je Wisch genau +1
+        </span>
+      </Row>
+
       <Row label="Vollendung">
         <span style={{ color: "#fff" }}>{`${d.settleMs}ms`.padStart(6)}</span>
         <span style={{ color: "#71717a", marginLeft: 8 }}>
