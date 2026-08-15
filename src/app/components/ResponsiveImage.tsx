@@ -19,6 +19,13 @@ import { IMAGES, type ImageId, type ImageSource } from "../../assets/generated";
    Originals. Der Browser leitet daraus das Seitenverhältnis ab und
    hält den Platz frei, bevor das Bild da ist — kein Layoutsprung.
    Die tatsächliche Grösse bestimmt weiterhin das CSS.
+
+   object-fit: cover ist ein Sicherheitsnetz, nie das Werkzeug für den
+   Bildausschnitt. Es fängt Abweichungen zwischen Bild- und Kastenmass
+   ab, damit an den Kanten nie der Hintergrund durchscheint. Wo ein
+   Ausschnitt gefordert ist, wird er in scripts/optimize-images.mjs
+   abgenommen — einmal, im Original, für alle Grössenstufen gleich.
+   Deckt sich das Asset exakt mit dem Kasten, schneidet cover nichts.
    ═══════════════════════════════════════════════════════════ */
 
 const srcSet = (sources: readonly ImageSource[]) =>

@@ -79,6 +79,32 @@ const SOURCES = [
     widths: { avif: [420, 720, 1080, 1440], webp: [420, 720], jpg: [420, 720] },
     quality: { avif: 30 },
   },
+  {
+    id: "opernhaus",
+    src: "src/assets/opernhaus2.jpg",
+    /* Ausschnitt laut Abnahme: von (3232, 1679) bis (5152, 4079) des
+       8000×5333-Originals, also 1920×2400 und damit exakt 4:5.
+       Als Anteile notiert, damit sie unabhängig von der Auflösung
+       gelten. */
+    crop: {
+      left: 0.404,
+      top: 0.315,
+      width: 0.24,
+      ratio: 0.8,          /* Breite / Höhe = 4:5 */
+      saturation: 0.78,
+      contrast: 1.04,
+    },
+    /* PROVISORISCH — die vorliegende Datei ist 824×550 statt
+       8000×5333, und sie zeigt nachweislich eine andere Aufnahme
+       (Kanalsignatur B−G +14 gegen −10.4 bzw. −2.2 der beiden
+       erwarteten). Der Ausschnitt misst dadurch nur 200×250px, das
+       Panel braucht 402px (1×) bis 1468px (2560 bei doppelter
+       Pixeldichte). Die Leiter endet deshalb dort, wo die Quelle
+       aufhört; alles Grössere würde hochgerechnet.
+       Mit dem echten Original: [420, 620, 820, 1120, 1480] — alle
+       durch 4 teilbar und damit ohne Rundungsrest. */
+    widths: [140, 200],
+  },
   ...[
     ["olivier-bill", "Olivier-Bill.JPG"],
     ["marco-ludescher", "Marco-Ludescher.JPG"],
@@ -97,6 +123,70 @@ const SOURCES = [
 /** Breitenliste je Format — einheitlich, wenn nur ein Array angegeben ist. */
 const widthsFor = (source, ext) =>
   Array.isArray(source.widths) ? source.widths : source.widths[ext] ?? [];
+
+/**
+ * Verhältnis als ganzzahliger Bruch. 0.8 → 4/5.
+ *
+ * Der Nenner ist das, worauf es ankommt: nur wenn die Höhe ein
+ * Vielfaches von 5 ist, geht 4:5 in ganzen Pixeln auf.
+ */
+function ratioTerms(ratio) {
+  for (let den = 1; den <= 64; den++) {
+    const num = ratio * den;
+    if (Math.abs(num - Math.round(num)) < 1e-9) return { num: Math.round(num), den };
+  }
+  throw new Error(`Verhältnis ${ratio} lässt sich nicht ganzzahlig darstellen`);
+}
+
+/**
+ * Nächstliegender Kasten, der `ratio` in ganzen Pixeln exakt trifft.
+ *
+ * Warum das nötig ist: `resize({ width })` lässt die Höhe ableiten und
+ * rundet sie. Bei 4:5 und Breite 198 kommt 248 heraus — 0.7984 statt
+ * 0.8. Das Panel im Layout ist exakt 4:5, also beschneidet object-fit
+ * die Differenz weg, und der abgenommene Ausschnitt stimmt nicht mehr.
+ * Getrennt gerundete Masse lösen das nicht; beide müssen aus demselben
+ * Schritt kommen.
+ *
+ * 198 → 200×250, 140 → 140×175 (traf schon vorher).
+ */
+function exactBox(targetWidth, ratio) {
+  const { num, den } = ratioTerms(ratio);
+  const steps = Math.max(1, Math.round(targetWidth / num));
+  return { width: num * steps, height: den * steps };
+}
+
+/**
+ * Ausschnitt und Anmutung, in Anteilen des Originals.
+ *
+ * Bewusst hier und nicht im Browser: ein Beschnitt über object-fit
+ * würde den abgenommenen Bildausschnitt bei jeder Fenstergrösse
+ * anders setzen. Hier entsteht er einmal, im Original, und alle
+ * Grössenstufen zeigen exakt dasselbe Motiv.
+ *
+ * Regel dahinter, die auch fürs Layout gilt: object-fit: cover ist ein
+ * Sicherheitsnetz gegen Abweichungen, nie das Werkzeug für den
+ * Bildausschnitt. Der Ausschnitt wird hier abgenommen.
+ */
+function applyCrop(pipe, meta, crop, box) {
+  if (!crop) return pipe;
+  const { width: w, height: h } = box;
+  const left = Math.round(meta.width * crop.left);
+  const top = Math.round(meta.height * crop.top);
+  if (left + w > meta.width || top + h > meta.height) {
+    throw new Error(
+      `Ausschnitt liegt ausserhalb des Originals: ${left}+${w} / ${top}+${h} ` +
+      `bei ${meta.width}×${meta.height}`
+    );
+  }
+  let out = pipe.extract({ left, top, width: w, height: h });
+  if (crop.saturation !== undefined) out = out.modulate({ saturation: crop.saturation });
+  if (crop.contrast !== undefined) {
+    /* linear(a, b) mit b so, dass Mittelgrau auf sich selbst abbildet. */
+    out = out.linear(crop.contrast, -(128 * (crop.contrast - 1)));
+  }
+  return out;
+}
 
 const kb = (bytes) => Math.round(bytes / 1024);
 const pad = (s, n) => String(s).padEnd(n);
@@ -128,7 +218,18 @@ async function build() {
     const meta = await sharp(absSrc).rotate().metadata();
     const nativeW = meta.orientation && meta.orientation >= 5 ? meta.height : meta.width;
     const nativeH = meta.orientation && meta.orientation >= 5 ? meta.width : meta.height;
-    const ratio = nativeH / nativeW;
+    let ratio = nativeH / nativeW;
+    let cropW = nativeW;
+    let cropH = nativeH;
+    /* Ausschnittkasten einmal bestimmt und überall derselbe: Extraktion,
+       Grössenstufen und Manifest. */
+    let cropBox = null;
+    if (source.crop) {
+      cropBox = exactBox(Math.round(nativeW * source.crop.width), source.crop.ratio);
+      cropW = cropBox.width;
+      cropH = cropBox.height;
+      ratio = 1 / source.crop.ratio;
+    }
 
     const dir = source.publicAsset
       ? join(PUBLIC_DIR, source.id)
@@ -141,18 +242,27 @@ async function build() {
     for (const ext of ["avif", "webp", "jpg"]) {
       const quality = source.quality?.[ext];
       const row = [];
-      for (const width of widthsFor(source, ext)) {
-        if (width > nativeW) {
-          row.push(`${width}px übersprungen (> Original)`);
+      for (const rawWidth of widthsFor(source, ext)) {
+        /* Bei festem Verhältnis werden beide Masse vorgegeben, statt die
+           Höhe von sharp ableiten und runden zu lassen. */
+        const box = cropBox ? exactBox(rawWidth, source.crop.ratio) : null;
+        const width = box ? box.width : rawWidth;
+        if (width > cropW) {
+          row.push(`${width}px übersprungen (> Ausschnitt)`);
           continue;
         }
         const name = `${source.id}-${width}.${ext}`;
         const info = await ENCODERS[ext](
-          sharp(absSrc).rotate().resize({ width, withoutEnlargement: true }),
+          applyCrop(sharp(absSrc).rotate(), { width: nativeW, height: nativeH }, source.crop, cropBox)
+            .resize(box ?? { width, withoutEnlargement: true }),
           quality
         ).toFile(join(dir, name));
 
-        formats[ext].push({ width, height: Math.round(width * ratio), name, bytes: info.size });
+        formats[ext].push({
+          width,
+          height: box ? box.height : Math.round(width * ratio),
+          name, bytes: info.size,
+        });
         totalOut += info.size;
         row.push(`${width}:${kb(info.size)}kB`);
         if (kb(info.size) > SIZE_BUDGET_KB) {
@@ -162,7 +272,12 @@ async function build() {
       console.log(`  ${pad(ext, 6)}${quality !== undefined ? `q${quality} ` : "    "} ${row.join("  ")}`);
     }
 
-    manifest.push({ id: source.id, nativeW, nativeH, ratio, formats, publicAsset: !!source.publicAsset });
+    manifest.push({
+      id: source.id,
+      nativeW: cropW,
+      nativeH: cropH,
+      ratio, formats, publicAsset: !!source.publicAsset,
+    });
   }
 
   await writeIndex(manifest);
