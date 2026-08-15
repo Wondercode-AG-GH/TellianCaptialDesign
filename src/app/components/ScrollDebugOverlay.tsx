@@ -162,6 +162,13 @@ export function ScrollDebugOverlay({ debugRef }: Props) {
         </span>
       </Row>
 
+      <Row label="Auslöser">
+        <span style={{ color: d.settleReason === "momentum" ? "#86efac" : d.settleReason === "idle" ? "#fcd34d" : "#71717a" }}>
+          {d.settleReason === "momentum" ? "Nachlauf" : d.settleReason === "idle" ? "Strom endet" : d.settleReason === "touchend" ? "Finger ab" : "—"}
+        </span>
+        <span style={{ color: "#71717a", marginLeft: 8 }}>bei {d.settleAtPct}% Zug</span>
+      </Row>
+
       <Row label="Vollendung">
         <span style={{ color: "#fff" }}>{`${d.settleMs}ms`.padStart(6)}</span>
         <span style={{ color: "#71717a", marginLeft: 8 }}>

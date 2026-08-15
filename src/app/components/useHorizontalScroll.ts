@@ -42,8 +42,45 @@ const SETTLE_MS_MAX = 600;
  */
 const SETTLE_MS_MIN = 180;
 
-/** Kurve der Vollendung — s. EASE.snap in motion.ts. */
+/** Kurve für Tastatur und Direktsprung — s. EASE.snap in motion.ts.
+ *  Zuggesten benutzen sie nicht; dort läuft die Feder. */
 const SNAP_EASE = EASE.snapArr;
+
+/* ── Feder für die Vollendung nach einer Zuggeste ──
+   Ein zeitbasierter Tween beginnt zwangsläufig mit Geschwindigkeit
+   null — eine Ease-Kurve kann gar nicht anders. Nach einer Zuggeste
+   ist das die spürbare Schwelle: die Fläche folgt, bleibt stehen,
+   dann fährt der Antrieb an. Gemessen fiel die Geschwindigkeit am Ende
+   der Handphase auf 2 px/Frame und stieg danach wieder auf 18.
+
+   Die Feder übernimmt die Handgeschwindigkeit exakt. Kritisch
+   gedämpft, in geschlossener Form gelöst — kein Integrieren, damit
+   das Ergebnis nicht von der Frame-Taktung abhängt:
+
+     x(t) = (x₀ + (v₀ + ω·x₀)·t)·e^(−ω·t)
+     v(t) = (v₀ − ω·(v₀ + ω·x₀)·t)·e^(−ω·t)
+
+   mit x = Position − Ziel. Bei t=0 ist v = v₀. */
+
+/** Grundsteifigkeit in rad/s. 14 entspricht rund 470ms Einschwingzeit. */
+const SPRING_OMEGA_BASE = 14;
+
+/**
+ * Obergrenze der Steifigkeit.
+ *
+ * ω wird bei hoher Handgeschwindigkeit und kurzer Reststrecke
+ * angehoben (s. unten). Ohne Deckel würde die Feder dort so steif,
+ * dass es als hartes Einrasten wirkt; mit Deckel nehmen wir lieber ein
+ * minimales Überschwingen in Kauf.
+ */
+const SPRING_OMEGA_MAX = 40;
+
+/** Harter Riegel. Danach wird auf das Ziel gesetzt, unabhängig von allem. */
+const SPRING_MAX_MS = 700;
+
+/** Ruhebedingung: beides muss unterschritten sein. */
+const SPRING_REST_PX = 0.4;
+const SPRING_REST_V = 0.03;
 
 /* ── Folgen (tracking) ── */
 
@@ -90,11 +127,27 @@ const COMMIT_VELOCITY = 1.6;
    — die Fläche würde nach dem Loslassen weiterwandern. Deshalb eher
    empfindlich eingestellt. */
 
-/** Aufeinanderfolgende Events ohne Anstieg. */
-const MOMENTUM_FALL_RUN = 3;
+/**
+ * Aufeinanderfolgende Events ohne Anstieg.
+ *
+ * Bewusst empfindlich. Die Übergabe muss am Geschwindigkeitsmaximum
+ * stattfinden — dort heben die Finger ab und dort beginnt Momentum.
+ * Zu spät erkannt, folgt die Fläche dem abklingenden Nachlauf, die
+ * Geschwindigkeit fällt auf fast null, und der Antrieb muss von vorn
+ * anfahren: genau die gemessene Delle.
+ *
+ * Empfindlich ist erst seit der Feder ungefährlich. Mit
+ * geschwindigkeitsstetiger Übergabe kostet eine zu frühe Entscheidung
+ * nichts Sichtbares — die Bewegung läuft mit derselben Geschwindigkeit
+ * weiter. Wer doch weiterschiebt, stellt über die Wiederbeschleunigung
+ * neu scharf. Empfindlichkeit des Detektors und Stetigkeit der
+ * Übergabe hängen zusammen.
+ */
+const MOMENTUM_FALL_RUN = 2;
 
-/** Zusätzlich muss der Betrag unter diesen Anteil des Maximums fallen. */
-const MOMENTUM_PEAK_FRACTION = 0.75;
+/** Zusätzlich muss der Betrag unter diesen Anteil des Maximums fallen.
+ *  Nahe 1 heisst: "sobald es nicht mehr steigt, ist die Hand fertig". */
+const MOMENTUM_PEAK_FRACTION = 0.98;
 
 /**
  * Geschwindigkeit der zurückgesetzten Ebenen, als Anteil der
@@ -392,6 +445,29 @@ export interface MeasuredSection {
   scroll: SectionScroll;
 }
 
+/**
+ * Kritisch gedämpfte Feder, geschlossen gelöst.
+ *
+ * `omega` wird so gewählt, dass kein Nulldurchgang entsteht: ein
+ * Überschwingen träte genau dann auf, wenn |v₀| > ω·|x₀|. Statt v₀ zu
+ * beschneiden — das würde die Stetigkeit zerstören, die der ganze
+ * Zweck ist — wird ω angehoben. Die Feder behält die
+ * Handgeschwindigkeit UND nähert sich monoton; die Geschwindigkeit hat
+ * damit genau ein Maximum und fällt danach.
+ */
+interface Spring {
+  target: number;
+  /** Anfangsauslenkung, Position − Ziel. */
+  x0: number;
+  /** Anfangsgeschwindigkeit in px/ms, vorzeichenbehaftet. */
+  v0: number;
+  omega: number;
+  start: number;
+  /** Bezugsspanne für den Ebenen-Versatz, wie beim Tween. */
+  spanFrom: number;
+  spanWidth: number;
+}
+
 interface Tween {
   from: number;
   to: number;
@@ -448,6 +524,9 @@ export interface ScrollDebugInfo {
   cycles: number;
   /** Eingabeart des laufenden Vorgangs. */
   device: "servo" | "wheel" | "touch" | "—";
+  /** Was die Vollendung ausgelöst hat, und bei welcher Zugstrecke. */
+  settleReason: "momentum" | "idle" | "touchend" | "—";
+  settleAtPct: number;
   index: number;
   mode: SectionScroll;
   fired: number;
@@ -476,6 +555,8 @@ function createDebugInfo(): ScrollDebugInfo {
     settleMs: 0,
     cycles: 0,
     device: "—",
+    settleReason: "—",
+    settleAtPct: 0,
     index: 0,
     mode: "snap",
     fired: 0,
@@ -532,6 +613,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   /** Ob die Startsektion schon eingenommen wurde. */
   const initialisedRef = useRef(false);
   const tweenRef = useRef<Tween | null>(null);
+  const springRef = useRef<Spring | null>(null);
   const rafRef = useRef(0);
   /** TEMPORARY — Position innerhalb der freien Sektion. Entfällt mit
    *  dem Umbau von Sektion 5. */
@@ -552,8 +634,21 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   const dragRef = useRef(0);
   /** Ungeschriebene Zugstrecke — wird im RAF-Takt angewandt. */
   const dragDirtyRef = useRef(false);
-  /** Geschwindigkeit in px/ms, geglättet. */
+  /** Eingabegeschwindigkeit in px/ms, geglättet. Entscheidet über den
+   *  Commit — dort zählt, wie kräftig die Hand geschoben hat. */
   const velocityRef = useRef(0);
+  /**
+   * SICHTBARE Geschwindigkeit der Fläche in px/ms.
+   *
+   * Nicht dasselbe wie die Eingabegeschwindigkeit: jenseits von
+   * FOLLOW_LINEAR staucht die Dämpfungskurve die Bewegung, die Fläche
+   * wird also langsamer, während die Hand gleich schnell bleibt. Die
+   * Feder muss die sichtbare Bewegung fortsetzen — mit der
+   * Eingabegeschwindigkeit initialisiert, beschleunigte sie an der
+   * Übergabe sichtbar (gemessen 75 → 123 px/Frame).
+   */
+  const posVelocityRef = useRef(0);
+  const lastPosSampleRef = useRef({ pos: 0, t: 0 });
   /** Timer, der eine stehengebliebene Zuggeste beendet. */
   const trackIdleTimerRef = useRef(0);
   /** Nachgeben am Anschlag, in px. Getrennt von der Position, weil
@@ -750,7 +845,25 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 
     if (hasTarget) {
       const offset = follow(dragRef.current, width);
-      posRef.current = trackFromPosRef.current + offset;
+      const next = trackFromPosRef.current + offset;
+
+      /* Sichtbare Geschwindigkeit mitschreiben — sie geht an die Feder. */
+      const now = performance.now();
+      const sample = lastPosSampleRef.current;
+      if (sample.t > 0) {
+        const dt = Math.max(4, now - sample.t);
+        /* Kaum geglättet. Gegen Ende der Handphase staucht die
+           Dämpfungskurve die Bewegung Frame für Frame; ein träger
+           Mittelwert übergäbe der Feder die frühere, höhere
+           Geschwindigkeit — gemessen ein Sprung von 134 auf 180
+           px/Frame an der Übergabe. Ein Rest Glättung bleibt, damit ein
+           einzelner Ausreisser nicht durchschlägt. */
+        posVelocityRef.current =
+          posVelocityRef.current * 0.25 + ((next - sample.pos) / dt) * 0.75;
+      }
+      lastPosSampleRef.current = { pos: next, t: now };
+
+      posRef.current = next;
       edgePullRef.current = 0;
       publish(posRef.current, lagFor(offset / width, offset), 0);
     } else {
@@ -773,6 +886,37 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
      einem 60-Hz-Schirm wäre das die doppelte Zahl an
      Layout-Schreibvorgängen. */
   const tick = useCallback(() => {
+    const spring = springRef.current;
+
+    if (spring) {
+      const t = (performance.now() - spring.start) / 1000;
+      const e = Math.exp(-spring.omega * t);
+      const b = spring.v0 * 1000 + spring.omega * spring.x0;
+      const x = (spring.x0 + b * t) * e;
+      const v = (spring.v0 * 1000 - spring.omega * b * t) * e;
+
+      const done =
+        (Math.abs(x) < SPRING_REST_PX && Math.abs(v) / 1000 < SPRING_REST_V) ||
+        t * 1000 >= SPRING_MAX_MS;
+
+      posRef.current = done ? spring.target : spring.target + x;
+
+      const lag = lagFor(
+        spring.spanWidth === 0 ? 0 : (posRef.current - spring.spanFrom) / spring.spanWidth,
+        spring.spanWidth
+      );
+
+      if (done) {
+        springRef.current = null;
+        phaseRef.current = "idle";
+        setScrollDirection("idle");
+      }
+
+      publish(posRef.current, springRef.current ? lag : 0);
+      rafRef.current = springRef.current ? requestAnimationFrame(tick) : 0;
+      return;
+    }
+
     const tween = tweenRef.current;
 
     if (tween) {
@@ -851,6 +995,54 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     return Math.max(SETTLE_MS_MIN, Math.min(SETTLE_MS_MAX, raw));
   }, []);
 
+  /**
+   * Vollendet eine Zuggeste mit der Feder — mit der Geschwindigkeit,
+   * die die Hand hinterlassen hat.
+   */
+  const startSpring = useCallback(
+    (target: number, velocity: number, span: { from: number; width: number }) => {
+      const x0 = posRef.current - target;
+
+      if (reducedMotionRef.current || Math.abs(x0) < SPRING_REST_PX) {
+        springRef.current = null;
+        tweenRef.current = null;
+        phaseRef.current = "idle";
+        posRef.current = target;
+        publish(target, 0);
+        setScrollDirection("idle");
+        return;
+      }
+
+      /* ω so hoch, dass |v₀| ≤ ω·|x₀| — dann gibt es keinen
+         Nulldurchgang und damit kein Überschwingen. Gedeckelt, damit es
+         bei kurzer Reststrecke nicht zum harten Einrasten wird. */
+      const needed = Math.abs(velocity * 1000) / Math.max(1, Math.abs(x0));
+      const omega = Math.min(SPRING_OMEGA_MAX, Math.max(SPRING_OMEGA_BASE, needed));
+
+      tweenRef.current = null;
+      phaseRef.current = "settling";
+      setScrollDirection(target > posRef.current ? "forward" : "backward");
+
+      springRef.current = {
+        target,
+        x0,
+        v0: velocity,
+        omega,
+        start: performance.now(),
+        spanFrom: span.from,
+        spanWidth: span.width,
+      };
+
+      /* Anzeige: Zeit bis zur Ruhe, aus der Steifigkeit. */
+      const estimate = Math.min(SPRING_MAX_MS, Math.round((6.6 / omega) * 1000));
+      debugRef.current.settleMs = estimate;
+      setSettleMs(estimate);
+
+      startRaf();
+    },
+    [publish, startRaf]
+  );
+
   /** Startet die Vollendung. Einziger Ort, an dem ein Tween entsteht. */
   const startTween = useCallback(
     (to: number, span: { from: number; width: number } | null) => {
@@ -859,6 +1051,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 
       if (reducedMotionRef.current) {
         tweenRef.current = null;
+        springRef.current = null;
         phaseRef.current = "idle";
         posRef.current = to;
         publish(to, 0);
@@ -881,6 +1074,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 
       setScrollDirection(distance > 0 ? "forward" : "backward");
       phaseRef.current = "settling";
+      springRef.current = null;
       tweenRef.current = {
         from,
         to,
@@ -1001,8 +1195,11 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
         toPos === null || width === 0 ? offset : unfollow(offset, width);
 
       trackDirRef.current = dir || 1;
+      posVelocityRef.current = 0;
+      lastPosSampleRef.current = { pos: posRef.current, t: 0 };
       resetGestureShape();
       tweenRef.current = null;
+      springRef.current = null;
       phaseRef.current = "tracking";
       velocityRef.current = 0;
       dragDirtyRef.current = true;
@@ -1075,6 +1272,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
        weil er erst die Reststrecke "zurückzahlen" müsste. */
     const dirSign = Math.sign(toPos - fromPos) || 1;
     const progress = (offset * dirSign) / width;
+    debugRef.current.settleAtPct = Math.round(progress * 100);
     const fastEnough = velocityRef.current * dirSign >= COMMIT_VELOCITY;
     const commit = progress >= COMMIT_FRACTION || fastEnough;
 
@@ -1089,9 +1287,15 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     }
 
     /* Bezugsspanne bleibt die volle Strecke — der Ebenen-Versatz läuft
-       dadurch stetig weiter, statt an der Übergabe zu springen. */
-    startTween(target, { from: fromPos, width: toPos - fromPos });
-  }, [startTween, publish, startRaf, applyTracking]);
+       dadurch stetig weiter, statt an der Übergabe zu springen.
+       Vollendet wird mit der Feder, nicht mit dem Tween: nur sie kann
+       die Handgeschwindigkeit übernehmen. */
+    /* Der Feder wird die SICHTBARE Geschwindigkeit übergeben, nicht die
+       der Eingabe — sonst setzt sie nicht die Bewegung fort, die man
+       gerade sieht, sondern eine schnellere, und beschleunigt an der
+       Übergabe. */
+    startSpring(target, posVelocityRef.current, { from: fromPos, width: toPos - fromPos });
+  }, [startSpring, publish, startRaf, applyTracking]);
 
   const jumpRelative = useCallback(
     (dir: number) => {
@@ -1484,6 +1688,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
          entscheiden und vollenden. Sonst zöge der Nachlauf die Fläche
          nach dem Loslassen von selbst weiter. */
       if (momentum) {
+        debugRef.current.settleReason = "momentum";
         settleTracking();
         dbg.phase = phaseRef.current;
         dbg.fired++;
@@ -1494,7 +1699,10 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       /* Bleibt der Strom stehen, ohne dass Nachlauf erkannt wurde —
          etwa bei einem langsamen Zug —, endet die Geste über die Uhr. */
       clearTimeout(trackIdleTimerRef.current);
-      trackIdleTimerRef.current = window.setTimeout(settleTracking, TRACK_IDLE_MS);
+      trackIdleTimerRef.current = window.setTimeout(() => {
+        debugRef.current.settleReason = "idle";
+        settleTracking();
+      }, TRACK_IDLE_MS);
 
       startRaf();
 
@@ -1565,6 +1773,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     const handleTouchEnd = () => {
       touchAccumRef.current = 0;
       if (phaseRef.current === "tracking") {
+        debugRef.current.settleReason = "touchend";
         settleTracking();
         /* Anders als beim Wheel gibt es hier keinen Nachlauf, der
            geschluckt werden müsste — sofort wieder aufnahmebereit. */
@@ -1624,6 +1833,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = 0;
       clearTimeout(trackIdleTimerRef.current);
+      springRef.current = null;
       phaseRef.current = "idle";
     };
   }, [disabled, jumpRelative, freeScrollStep, beginTracking, settleTracking, startRaf, resetGestureShape]);
@@ -1652,6 +1862,9 @@ export const SCROLL_TUNING = {
   COMMIT_VELOCITY,
   MOMENTUM_FALL_RUN,
   MOMENTUM_PEAK_FRACTION,
+  SPRING_OMEGA_BASE,
+  SPRING_OMEGA_MAX,
+  SPRING_MAX_MS,
   WHEEL_THRESHOLD,
   QUIET_MS,
   ENVELOPE_HALFLIFE_MS,
