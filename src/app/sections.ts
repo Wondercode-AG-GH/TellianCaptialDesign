@@ -24,13 +24,6 @@ export const SECTION_WIDTH = "94vw";
  */
 export const SECTION_WIDTH_LAST = "100vw";
 
-/**
- * `snap` — die Sektion ist genau ein Rastpunkt.
- * `free` — innerhalb der Sektion wird frei gescrollt; gerastet wird
- *          nur an ihren beiden Enden.
- */
-export type SectionScroll = "snap" | "free";
-
 export interface SectionDef {
   /** Stabiler Schlüssel, unabhängig von Position und Beschriftung.
    *  Wird auch als Hash-Fragment in der URL geführt. */
@@ -43,7 +36,6 @@ export interface SectionDef {
   navSub: string;
   /** id des Abschnitts im vertikalen Zweig, für scrollIntoView. */
   domId: string;
-  scroll: SectionScroll;
   /**
    * Bilder, die diese Sektion zeigt. Grundlage fürs Vorladen der
    * Nachbarsektion — leer, wenn sie ohne Bilder auskommt.
@@ -59,43 +51,43 @@ export const SECTIONS: readonly SectionDef[] = [
   {
     key: "hero", label: "Start",
     navLabel: "Start", navSub: "Einführung",
-    domId: "section-hero", scroll: "snap",
+    domId: "section-hero",
     imageIds: ["hero-zuerich"],
   },
   {
     key: "philosophie", label: "Philosophie",
     navLabel: "Philosophie", navSub: "Anlagephilosophie",
-    domId: "section-anlagephilosophie", scroll: "snap",
+    domId: "section-anlagephilosophie",
     imageIds: ["sardona"],
   },
   {
     key: "vermoegen", label: "Mandat",
     navLabel: "Vermögensverwaltung", navSub: "Mandat & Prozess",
-    domId: "section-vermoegensverwaltung", scroll: "snap",
+    domId: "section-vermoegensverwaltung",
     imageIds: [],
   },
   {
     key: "strategien", label: "Portfolio",
     navLabel: "Portfolio Management", navSub: "Wie wir investieren",
-    domId: "section-anlagestrategien", scroll: "snap",
+    domId: "section-anlagestrategien",
     imageIds: [],
   },
-  /* TEMPORARY — Team-Filmstrip, inhaltsabgeleitet ~194vw breit
-     (60vw Padding + 6 × 21vw + 5 × 24px). Als einzelner Rastpunkt wäre
-     rund die Hälfte der Porträts unerreichbar, deshalb freies Scrollen
-     innerhalb der Sektion.
+  /* Team-Filmstrip, inhaltsabgeleitet ~194vw breit (60vw Padding +
+     6 × 21vw + 5 × 24px) und damit die einzige Sektion, die breiter
+     als der Viewport ist.
 
-     ENTFÄLLT, sobald Sektion 5 im Redesign den Filmstrip verliert und
-     auf SECTION_WIDTH (94vw) schrumpft. Dann wird scroll hier "snap",
-     und damit verschwinden auch der Free-Scroll-Zweig in
-     useHorizontalScroll.ts (freeScrollStep, freeBounds, freeTargetRef,
-     die align-Option von jumpToIndex) sowie der Sonderfall im
-     Debug-Overlay. Solange der Filmstrip steht, bleibt die Ausnahme
-     nötig — die Sektion ist dann breiter als der Viewport. */
+     Das brauchte früher eine Sonderbehandlung: bei Rastung wäre rund
+     die Hälfte der Porträts unerreichbar gewesen, also gab es hier
+     freies Scrollen als Ausnahme. Seit der Scroll durchgehend frei
+     ist, ist die Ausnahme gegenstandslos — die Sektion verhält sich
+     wie jede andere, sie ist nur länger.
+
+     Im Redesign verliert sie den Filmstrip und schrumpft auf
+     SECTION_WIDTH. Dann ändert sich hier nichts ausser der Breite. */
   {
     key: "ueber-uns", label: "Team",
     navLabel: "Über uns", navSub: "Team & Geschichte",
-    domId: "section-ueber-uns", scroll: "free",
+    domId: "section-ueber-uns",
     imageIds: [
       "olivier-bill", "marco-ludescher", "rolf-schneider",
       "bryan-honegger", "andreas-truempler", "jasmina-rukavina",
@@ -104,7 +96,7 @@ export const SECTIONS: readonly SectionDef[] = [
   {
     key: "kontakt", label: "Kontakt",
     navLabel: "Kontakt", navSub: "Gespräch vereinbaren",
-    domId: "section-kontakt", scroll: "snap",
+    domId: "section-kontakt",
     imageIds: [],
   },
 ];

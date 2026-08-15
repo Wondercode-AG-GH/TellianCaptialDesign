@@ -16,7 +16,6 @@ import { C, serif, sans, EYEBROW } from "./tokens";
 import { EASE } from "../styles/motion";
 import { useHorizontalScroll } from "./components/useHorizontalScroll";
 import { ScrollDebugOverlay, isScrollDebugEnabled } from "./components/ScrollDebugOverlay";
-import { TRACK_EDGE_VAR } from "./components/useHorizontalScroll";
 import { useBreakpoint } from "./components/useBreakpoint";
 import {
   ScrollImage,
@@ -1217,7 +1216,7 @@ export default function App() {
      selbst und dürfen nicht auf uns selbst zurückwirken. */
   const [initialSectionIndex] = useState(readInitialSectionIndex);
 
-  const { containerRef, panelRef, jumpToIndex, scrollDirection, activeIndex: horizontalIndex, settleMs, debugRef } =
+  const { containerRef, panelRef, jumpToIndex, scrollDirection, activeIndex: horizontalIndex, visibleRange, debugRef } =
     useHorizontalScroll({
       disabled: isVertical,
       locked: isDetailMode || !introComplete,
@@ -1261,16 +1260,28 @@ export default function App() {
   const firstLatchDone = useRef(false);
   useEffect(() => {
     if (isVertical || !introComplete) return;
+    /* Gerastet wird auf visibleIndex, nicht auf activeIndex: beim
+       freien Scrollen ist eine Sektion lange sichtbar, bevor sie die
+       Bildmitte erreicht. An die Mitte gebunden würde ihr Inhalt vor
+       den Augen des Betrachters aufblenden.
+
+       Gerastet wird der sichtbare BEREICH, nicht alles bis dahin: bei
+       einem Deep-Link auf Sektion 3 bliebe der Hero sonst abgehakt,
+       obwohl er nie zu sehen war. Er soll seine Einblendung behalten,
+       bis man wirklich dort ist. */
+    const latch = () => {
+      for (let i = visibleRange[0]; i <= visibleRange[1]; i++) markEntered(i);
+    };
     if (firstLatchDone.current) {
-      markEntered(activeIndex);
+      latch();
       return;
     }
     const t = setTimeout(() => {
       firstLatchDone.current = true;
-      markEntered(activeIndex);
+      latch();
     }, FIRST_ENTRY_DELAY_MS);
     return () => clearTimeout(t);
-  }, [isVertical, introComplete, activeIndex, markEntered]);
+  }, [isVertical, introComplete, visibleRange, markEntered]);
 
   /* Debug-Overlay der Rastung — hinter ?scrolldebug, bleibt bis Go-live. */
   const [scrollDebug] = useState(isScrollDebugEnabled);
@@ -1493,7 +1504,6 @@ export default function App() {
           <DotNavigation
             activeIndex={activeIndex}
             onNavigate={navigateToSection}
-            durationMs={settleMs}
           />
         )}
       </div>
@@ -1509,9 +1519,6 @@ export default function App() {
           /* Macht den Track zum offsetParent der Panels, damit die
              Registry containerrelative offsetLeft-Werte misst. */
           position: "relative",
-          /* Nachgeben am Anschlag — s. TRACK_EDGE_VAR. Nur transform,
-             damit die Bewegung beim Kompositor bleibt. */
-          transform: `translateX(var(${TRACK_EDGE_VAR}, 0px))`,
           scrollbarWidth: "none",
           msOverflowStyle: "none",
           pointerEvents: introComplete && !isDetailMode ? "auto" : "none",

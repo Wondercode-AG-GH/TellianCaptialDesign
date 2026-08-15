@@ -28,20 +28,14 @@ interface DotNavigationProps {
   /** Aktive Sektion, direkt aus der Registry — keine Schwellenwerte. */
   activeIndex: number;
   onNavigate: (index: number) => void;
-  /**
-   * Dauer der laufenden Sektionsbewegung. Die Markierung gleitet exakt
-   * so lange wie die Fläche fährt — bei einer Zuggeste, die nur die
-   * Reststrecke vollendet, ist das deutlich weniger als eine volle
-   * Sprungdauer.
-   */
-  durationMs?: number;
 }
 
-export function DotNavigation({
-  activeIndex,
-  onNavigate,
-  durationMs = SCROLL_TUNING.SETTLE_MS_MAX,
-}: DotNavigationProps) {
+export function DotNavigation({ activeIndex, onNavigate }: DotNavigationProps) {
+  /* Die Markierung wandert über dieselbe Dauer wie ein befohlener
+     Sprung. Beim freien Scrollen wechselt sie, sobald eine andere
+     Sektion die Bildmitte überdeckt — dann ist das Gleiten eine
+     Zustandsänderung, keine Begleitung einer Fahrt. */
+  const durationMs = SCROLL_TUNING.JUMP_MS;
   const navRef = useRef<HTMLElement>(null);
   const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
   /** Waagrechte Mitten der Punktzeilen, relativ zur Leiste. */
