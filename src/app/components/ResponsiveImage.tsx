@@ -77,7 +77,11 @@ export function ResponsiveImage({
         height={image.nativeHeight}
         decoding="async"
         loading={priority ? "eager" : "lazy"}
-        fetchPriority={priority ? "high" : undefined}
+        /* Kleingeschrieben, nicht fetchPriority: React 18 kennt die
+           camelCase-Form nicht, verwirft sie mit einer Warnung und
+           setzt gar kein Attribut — die Priorität lief ins Leere.
+           Erst React 19 kennt sie. */
+        {...(priority ? { fetchpriority: "high" } : {})}
         className={className}
         style={{ objectFit: "cover", objectPosition, ...style }}
       />
