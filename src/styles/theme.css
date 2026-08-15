@@ -98,6 +98,66 @@
   --tellian-eyebrow-size-desktop: 10px;
   --tellian-eyebrow-size-mobile: 11px;
 
+  /* ══ Station 1 — Einstieg ══
+     Eigene Werte, weil die Station den Auftritt setzt und nicht den
+     bestehenden Sektionsmustern folgt. */
+
+  /* Titel: Cormorant Garamond Light, bis 80px, Zeilenabstand ~1.0.
+     Die untere clamp-Grenze hält ihn auf kleinen Desktops lesbar,
+     ohne dass er bei 200 % Zoom die Spalte sprengt. */
+  --tellian-s1-title-size: clamp(44px, 5.6vw, 80px);
+  --tellian-s1-title-weight: 300;
+  --tellian-s1-title-leading: 1.02;
+  --tellian-s1-title-tracking: -0.015em;
+
+  /* Standfirst: rund 45 Zeichen Zeilenmass. Schmaler zerreisst der
+     Flattersatz; das französische Original wird rund 40 % länger und
+     muss in dieselben Spalten passen.
+
+     Bewusst in em, NICHT in ch: `ch` ist die Breite der Ziffer Null,
+     und die ist bei Inter rund ein Viertel breiter als ein mittleres
+     Buchstabenzeichen. 45ch ergeben gemessen 425px und damit rund
+     57 Zeichen je Zeile — zwei Spalten passen dann nicht mehr in die
+     Textspalte. 22em sind gemessen 330px und tragen die geforderten
+     rund 45 Zeichen. */
+  --tellian-s1-lead-size: 15px;
+  --tellian-s1-lead-leading: 1.65;
+  --tellian-s1-lead-measure: 22em;
+  --tellian-s1-lead-gap: clamp(24px, 2.6vw, 48px);
+
+  /* Kopfzeile */
+  --tellian-s1-header-height: 68px;
+  --tellian-s1-wordmark-size: 20px;
+  --tellian-s1-wordmark-tracking: 0.42em;
+  --tellian-s1-header-item-size: 12px;
+
+  /* Stationsleiste — 13px in Iron Veil, Ziffern in Mushroom.
+     Vorher 10px in Silver Mist, das trug den Auftritt nicht. */
+  --tellian-station-size: 13px;
+  --tellian-station-numeral: var(--tellian-muted);
+  --tellian-station-label: var(--tellian-ink);
+  --tellian-station-inactive: var(--tellian-greige-soft);
+  --tellian-station-height: 64px;
+
+  /* Bildpanel: Fläche von Anfang an reserviert, damit nichts
+     springt und die Station ohne Foto vollständig bleibt. */
+  --tellian-s1-panel-ratio: 0.8;          /* Breite / Höhe = 4:5 */
+  --tellian-s1-stage-pad: clamp(24px, 4vh, 56px);
+  /* Nutzbare Höhe der Bühne. Die Panelbreite wird daraus abgeleitet,
+     damit das Format 4:5 auch auf flachen Fenstern exakt bleibt,
+     statt beschnitten oder gestaucht zu werden. */
+  --tellian-s1-stage-height: calc(
+    100vh - var(--tellian-s1-header-height) - var(--tellian-station-height)
+    - 2 * var(--tellian-s1-stage-pad)
+  );
+  /* Breite des Panels: rund ein Drittel der Station, aber nie mehr,
+     als die Resthöhe im Verhältnis 4:5 zulässt. */
+  --tellian-s1-panel-width: min(
+    32%,
+    calc(var(--tellian-s1-stage-height) * var(--tellian-s1-panel-ratio))
+  );
+  --tellian-s1-panel-placeholder: var(--tellian-muted);
+
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: #030213;

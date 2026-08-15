@@ -1,7 +1,7 @@
 import { useState, useRef, useLayoutEffect } from "react";
 
 import { sans } from "../tokens";
-import { SECTIONS } from "../sections";
+import { SECTIONS, sectionOrdinal } from "../sections";
 import { EASE } from "../../styles/motion";
 import { SCROLL_TUNING } from "./useHorizontalScroll";
 
@@ -75,46 +75,22 @@ export function DotNavigation({ activeIndex, onNavigate }: DotNavigationProps) {
       aria-label="Sektion-Navigation"
       style={{
         position: "fixed",
-        bottom: "clamp(16px, 2.5vh, 24px)",
-        left: "50%",
-        transform: "translateX(-50%)",
+        bottom: 0,
+        left: 0,
+        right: 0,
         zIndex: 150,
-        height: "36px",
-        padding: "0 20px",
-        borderRadius: "18px",
+        height: "var(--tellian-station-height)",
+        paddingLeft: "clamp(28px, 3.4vw, 56px)",
+        paddingRight: "clamp(28px, 3.4vw, 56px)",
+        borderTop: `1px solid ${V.border}`,
         background: V.bg,
-        backdropFilter: "blur(16px) saturate(120%)",
-        WebkitBackdropFilter: "blur(16px) saturate(120%)",
-        border: `0.5px solid ${V.border}`,
         display: "flex",
         alignItems: "center",
-        gap: "clamp(16px, 2.5vw, 24px)",
+        justifyContent: "space-between",
+        gap: "clamp(12px, 2vw, 32px)",
         pointerEvents: "auto",
       }}
     >
-      {/* Gleitende Markierung — ein einziges Element, das über dieselbe
-          Dauer und Kurve wandert wie die Sektionsbewegung. Ein Element,
-          das sich durchgehend bewegt, trägt die Kontinuität; sechs, die
-          nacheinander umschalten, zerlegen sie in Sprünge. */}
-      <span
-        aria-hidden
-        style={{
-          position: "absolute",
-          left: 0,
-          top: marker.top,
-          width: MARKER_W,
-          height: MARKER_H,
-          borderRadius: "1px",
-          backgroundColor: V.indicator,
-          transform: `translateX(${marker.x}px)`,
-          opacity: marker.ready ? 1 : 0,
-          transition: marker.ready
-            ? `transform ${durationMs}ms ${EASE.snap}, opacity 200ms ease`
-            : "none",
-          pointerEvents: "none",
-        }}
-      />
-
       {SECTIONS.map((section, i) => {
         const isActive = activeIndex === i;
         return (
@@ -122,58 +98,47 @@ export function DotNavigation({ activeIndex, onNavigate }: DotNavigationProps) {
             key={section.key}
             ref={(el) => { buttonsRef.current[i] = el; }}
             onClick={() => onNavigate(i)}
-            aria-label={section.label}
             aria-current={isActive ? "page" : undefined}
             style={{
               display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "4px",
+              alignItems: "baseline",
+              gap: "10px",
               padding: 0,
               border: "none",
               background: "transparent",
               cursor: "pointer",
               outline: "none",
+              whiteSpace: "nowrap",
+              minWidth: 0,
             }}
           >
-            {/* Ruhender Punkt. Feste Höhe für alle Zustände, damit das
-                Umschalten die Beschriftungen nicht verschiebt — die
-                aktive Markierung liegt darüber und gleitet. */}
+            {/* Ziffer — Mushroom, auch im aktiven Zustand. Sie zählt,
+                sie hebt nicht hervor. */}
             <span
               aria-hidden
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                height: DOT_ROW_H,
-                width: MARKER_W,
+                fontFamily: sans,
+                fontSize: "var(--tellian-station-size)",
+                color: "var(--tellian-station-numeral)",
+                fontVariantNumeric: "tabular-nums",
+                flexShrink: 0,
               }}
             >
-              <span
-                style={{
-                  display: "block",
-                  width: "4px",
-                  height: "4px",
-                  borderRadius: "50%",
-                  backgroundColor: V.indicatorInactive,
-                  opacity: isActive ? 0 : 1,
-                  transition: `opacity ${durationMs}ms ${EASE.snap}`,
-                }}
-              />
+              {sectionOrdinal(i)}
             </span>
 
-            {/* Label */}
             <span
-              className="hidden sm:block"
               style={{
                 fontFamily: sans,
-                fontSize: "8px",
-                letterSpacing: "0.16em",
-                textTransform: "uppercase",
-                lineHeight: 1,
+                fontSize: "var(--tellian-station-size)",
+                letterSpacing: "0.01em",
+                lineHeight: 1.2,
                 userSelect: "none",
-                color: isActive ? V.text : V.textInactive,
-                fontWeight: isActive ? 500 : 400,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                color: isActive
+                  ? "var(--tellian-station-label)"
+                  : "var(--tellian-station-inactive)",
                 transition: `color ${durationMs}ms ${EASE.snap}`,
               }}
             >

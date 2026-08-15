@@ -28,7 +28,9 @@ export interface SectionDef {
   /** Stabiler Schlüssel, unabhängig von Position und Beschriftung.
    *  Wird auch als Hash-Fragment in der URL geführt. */
   key: string;
-  /** Kurzform — untere Leiste und Debug-Ausgabe. */
+  /** Beschriftung in der Stationsleiste.
+   *  Weicht bewusst von navLabel ab: die Leiste benennt Stationen,
+   *  das Menü benennt Inhalte. */
   label: string;
   /** Langform — Menü-Overlay. */
   navLabel: string;
@@ -49,25 +51,25 @@ export interface SectionDef {
  */
 export const SECTIONS: readonly SectionDef[] = [
   {
-    key: "hero", label: "Start",
+    key: "hero", label: "Einstieg",
     navLabel: "Start", navSub: "Einführung",
     domId: "section-hero",
     imageIds: ["hero-zuerich"],
   },
   {
-    key: "philosophie", label: "Philosophie",
+    key: "philosophie", label: "Wealth Management",
     navLabel: "Philosophie", navSub: "Anlagephilosophie",
     domId: "section-anlagephilosophie",
     imageIds: ["sardona"],
   },
   {
-    key: "vermoegen", label: "Mandat",
+    key: "vermoegen", label: "Portfolio",
     navLabel: "Vermögensverwaltung", navSub: "Mandat & Prozess",
     domId: "section-vermoegensverwaltung",
     imageIds: [],
   },
   {
-    key: "strategien", label: "Portfolio",
+    key: "strategien", label: "Ihre Vorteile",
     navLabel: "Portfolio Management", navSub: "Wie wir investieren",
     domId: "section-anlagestrategien",
     imageIds: [],

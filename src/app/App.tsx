@@ -34,6 +34,8 @@ import { ParteiDreieck } from "./components/ParteiDreieck";
 import { LAYOUT, TEXT_COLUMN_STYLE, getLayout, getTextColumnStyle, SPACING } from "./layout";
 import { SECTION_WIDTH, SECTIONS, SUBPAGE_SECTION_KEY, indexOfSection } from "./sections";
 import { SectionEnteredProvider } from "./components/SectionEntry";
+import { SiteHeader } from "./components/SiteHeader";
+import { Station1Einstieg } from "./components/Station1Einstieg";
 import { prefetchImages } from "./components/ResponsiveImage";
 import { useVerticalSectionIndex } from "./components/useVerticalSectionIndex";
 import preloadLogo from "../assets/logo/Tellian__archive white logo horizontal.svg";
@@ -1482,32 +1484,6 @@ export default function App() {
         <PreloadScreen onComplete={handleIntroComplete} />
       )}
 
-      {/* Navigation + DotNavigation — hidden during detail mode to avoid overlap */}
-      <div
-        style={{
-          opacity: isDetailMode ? 0 : 1,
-          pointerEvents: isDetailMode ? "none" : "auto",
-          transition: "opacity 400ms ease-out",
-        }}
-      >
-        <Navigation
-          activeIndex={activeIndex}
-          scrollDirection={scrollDirection}
-          onNavigate={navigateToSection}
-          introComplete={introComplete}
-          breakpoint={breakpoint}
-          isVertical={false}
-          onLoginClick={() => setLoginOpen(true)}
-        />
-
-        {introComplete && (
-          <DotNavigation
-            activeIndex={activeIndex}
-            onNavigate={navigateToSection}
-          />
-        )}
-      </div>
-
       {/* ── Horizontal Scroll Strip ──
            Fade-out starts after a 150ms delay so Framer Motion can measure
            the source position of FLIP ordinals before the parent becomes
@@ -1528,139 +1504,14 @@ export default function App() {
             : "opacity 400ms ease-out",
         }}
       >
-        {/* CHAPTER 1 — HERO (desktop — headline + trust + ghost CTA) */}
+        {/* STATION 1 — EINSTIEG */}
         <SectionEnteredProvider value={entered[0]}>
-        <div
-          ref={panelRef(0)}
-          className="flex-shrink-0 h-screen relative"
-          style={{ width: SECTION_WIDTH, backgroundColor: C.bg }}
-        >
-          {/* Image — right */}
-          <div
-            className="absolute z-0"
-            style={{ top: 0, bottom: 0, left: layout.imageLeft, right: 0 }}
-          >
-            <HeroExpandingImage
-              id="hero-zuerich"
-              alt="Zürich"
-              /* Kasten ist 50vw der Sektion plus Überstand — gemessen
-                 819px bei 1440 Viewport. */
-              sizes="58vw"
-              priority
-              className="w-full h-full"
-            />
-          </div>
-
-          {/* Text column — eyebrow + headline + CTA, vertically centered */}
-          <div
-            className="relative z-10 h-full flex flex-col justify-center"
-            style={{ ...textColStyle }}
-          >
-            {/* Eyebrow — above headline */}
-            <span
-              style={{
-                fontFamily: sans,
-                fontSize: EYEBROW.desktop,
-                fontWeight: 400,
-                letterSpacing: "0.22em",
-                textTransform: "uppercase",
-                color: C.stone,
-                opacity: heroAnimate ? 1 : 0,
-                transition: "opacity 420ms ease-out 40ms",
-              }}
-            >
-              FINMA-lizenziert · Unabhängig · Zürich · Seit 1996
-            </span>
-
-            {/* Headline */}
-            <h1
-              style={{
-                fontFamily: serif,
-                fontSize: "clamp(88px, 12vh, 140px)",
-                lineHeight: 1.0,
-                color: C.dark,
-                letterSpacing: "-0.03em",
-                maxWidth: "520px",
-                fontWeight: 400,
-                margin: 0,
-                marginTop: "28px",
-                opacity: heroAnimate ? 1 : 0,
-                transform: heroAnimate ? "translateY(0)" : "translateY(24px)",
-                transition: "opacity 500ms ease-out 150ms, transform 500ms cubic-bezier(0.16,1,0.3,1) 150ms",
-              }}
-            >
-              Vermögen
-              <br />
-              <em style={{ fontStyle: "italic", fontWeight: 400 }}>mit Methode</em>
-            </h1>
-
-            {/* CTA — ghost button */}
-            <div
-              style={{
-                marginTop: "64px",
-                opacity: heroAnimate ? 1 : 0,
-                transform: heroAnimate ? "translateX(0)" : "translateX(-16px)",
-                transition: "opacity 380ms ease-out 270ms, transform 380ms cubic-bezier(0.16,1,0.3,1) 270ms",
-              }}
-            >
-              <CtaButton
-                href="#contact"
-                variant="ghost"
-                fullWidth={false}
-                onClick={(e) => { e.preventDefault(); navigateToContact(); }}
-              >
-                Gespräch vereinbaren
-              </CtaButton>
-            </div>
-          </div>
-
-          {/* Horizontal scroll-arrow — bottom right, pulses, fades on first scroll.
-              Der Hero ist mit SECTION_WIDTH (94vw) schmaler als der Viewport;
-              die alte Formel `calc(10vw + 56px)` war aus der 110vw-Breite
-              hergeleitet und ergäbe jetzt einen negativen Wert. */}
-          <div
-            aria-hidden
-            style={{
-              position: "absolute",
-              bottom: "56px",
-              right: "56px",
-              zIndex: 5,
-              color: C.purple,
-              opacity: heroAnimate && !heroArrowHidden ? 1 : 0,
-              transform: heroArrowHidden
-                ? "translateX(16px) scale(0.6)"
-                : "scale(1)",
-              transition: heroArrowHidden
-                ? "opacity 600ms cubic-bezier(0.4,0,0.2,1), transform 600ms cubic-bezier(0.4,0,0.2,1)"
-                : "opacity 700ms ease-out 600ms",
-              pointerEvents: "none",
-            }}
-          >
-            <div
-              style={{
-                animation: heroAnimate && !heroArrowHidden
-                  ? "tellianHeroArrowPulse 2s ease-in-out infinite"
-                  : "none",
-              }}
-            >
-              <svg
-                width="96"
-                height="24"
-                viewBox="0 0 32 8"
-                fill="currentColor"
-                style={{ display: "block" }}
-              >
-                <polygon points="2 2 28 2 30 4 28 6 2 6" />
-              </svg>
-            </div>
-          </div>
-          <style>{`
-            @keyframes tellianHeroArrowPulse {
-              0%, 100% { transform: translateX(0); }
-              50%      { transform: translateX(10px); }
-            }
-          `}</style>
-        </div>
+          <Station1Einstieg
+            panelRef={panelRef(0)}
+            onContactClick={navigateToContact}
+            imageId="opernhaus"
+            imageAlt="Opernhaus Zürich, Fassadenausschnitt"
+          />
         </SectionEnteredProvider>
 
         {/* CHAPTER 2 — ANLAGEPHILOSOPHIE */}
@@ -1704,6 +1555,31 @@ export default function App() {
         <SectionEnteredProvider value={entered[5]}>
           <Section6Kontakt onOpenLegal={legal.open} panelRef={panelRef(5)} />
         </SectionEnteredProvider>
+      </div>
+
+      {/* Kopfzeile und Stationsleiste stehen bewusst NACH dem Track im
+          Markup. Die Reihenfolge im Fokus folgt dem Markup, nicht der
+          Darstellung: so erreicht die Tabulatortaste zuerst den Knopf
+          der Bühne, dann das Kundenportal, dann die Stationsleiste. */}
+      <div
+        style={{
+          opacity: isDetailMode ? 0 : 1,
+          pointerEvents: isDetailMode ? "none" : "auto",
+          transition: "opacity 400ms ease-out",
+        }}
+      >
+        <SiteHeader
+          onHome={() => navigateToSection(0)}
+          onLoginClick={() => setLoginOpen(true)}
+          visible={introComplete}
+        />
+
+        {introComplete && (
+          <DotNavigation
+            activeIndex={activeIndex}
+            onNavigate={navigateToSection}
+          />
+        )}
       </div>
 
       <LoginOverlay
