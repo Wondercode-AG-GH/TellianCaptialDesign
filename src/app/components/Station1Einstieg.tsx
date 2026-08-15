@@ -8,7 +8,7 @@ import type { ImageId } from "../../assets/generated";
 /* ═══════════════════════════════════════════════════════════
    STATION 1 — EINSTIEG
 
-   Bühne zwischen Kopfzeile und Stationsleiste: links die Textspalte,
+   Bühne zwischen Schiene und Stationsleiste: links die Textspalte,
    rechts ein Bildpanel im Format 4:5.
 
    Das Panel wird NICHT im Browser beschnitten. Der Ausschnitt entsteht
@@ -75,9 +75,12 @@ export function Station1Einstieg({
       <div
         style={{
           height: "100%",
-          paddingTop: "calc(var(--tellian-s1-header-height) + var(--tellian-s1-stage-pad))",
+          paddingTop: "var(--tellian-s1-stage-pad)",
           paddingBottom: "calc(var(--tellian-station-height) + var(--tellian-s1-stage-pad))",
-          paddingLeft: "clamp(28px, 3.4vw, 56px)",
+          /* Die Schiene liegt fixed über dem Track und nimmt keinen
+             Platz im Fluss. Ihre Breite muss die Bühne selbst
+             freihalten, sonst beginnt der Titel unter ihr. */
+          paddingLeft: "calc(var(--tellian-rail-width) + clamp(28px, 3.4vw, 56px))",
           paddingRight: "clamp(28px, 3.4vw, 56px)",
           display: "flex",
           alignItems: "center",

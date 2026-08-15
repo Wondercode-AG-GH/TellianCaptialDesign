@@ -34,7 +34,6 @@ import { ParteiDreieck } from "./components/ParteiDreieck";
 import { LAYOUT, TEXT_COLUMN_STYLE, getLayout, getTextColumnStyle, SPACING } from "./layout";
 import { SECTION_WIDTH, SECTIONS, SUBPAGE_SECTION_KEY, indexOfSection } from "./sections";
 import { SectionEnteredProvider } from "./components/SectionEntry";
-import { SiteHeader } from "./components/SiteHeader";
 import { Station1Einstieg } from "./components/Station1Einstieg";
 import { prefetchImages } from "./components/ResponsiveImage";
 import { useVerticalSectionIndex } from "./components/useVerticalSectionIndex";
@@ -1557,10 +1556,15 @@ export default function App() {
         </SectionEnteredProvider>
       </div>
 
-      {/* Kopfzeile und Stationsleiste stehen bewusst NACH dem Track im
+      {/* Schiene und Stationsleiste stehen bewusst NACH dem Track im
           Markup. Die Reihenfolge im Fokus folgt dem Markup, nicht der
           Darstellung: so erreicht die Tabulatortaste zuerst den Knopf
-          der Bühne, dann das Kundenportal, dann die Stationsleiste. */}
+          der Bühne, dann die Schiene, dann die Stationsleiste.
+
+          Die Schiene trägt Wortmarke, Menüzugang und Portalzugang. Sie
+          war zwischenzeitlich durch ein Kopfband ersetzt; das ist
+          zurückgenommen, weil die Marke sonst zweimal auf dem Schirm
+          steht und das Band daneben keine eigene Aufgabe hätte. */}
       <div
         style={{
           opacity: isDetailMode ? 0 : 1,
@@ -1568,10 +1572,14 @@ export default function App() {
           transition: "opacity 400ms ease-out",
         }}
       >
-        <SiteHeader
-          onHome={() => navigateToSection(0)}
+        <Navigation
+          activeIndex={activeIndex}
+          scrollDirection={scrollDirection}
+          onNavigate={navigateToSection}
+          introComplete={introComplete}
+          breakpoint={breakpoint}
+          isVertical={false}
           onLoginClick={() => setLoginOpen(true)}
-          visible={introComplete}
         />
 
         {introComplete && (

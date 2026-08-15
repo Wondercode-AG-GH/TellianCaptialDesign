@@ -125,11 +125,11 @@
   --tellian-s1-lead-measure: 22em;
   --tellian-s1-lead-gap: clamp(24px, 2.6vw, 48px);
 
-  /* Kopfzeile */
-  --tellian-s1-header-height: 68px;
-  --tellian-s1-wordmark-size: 20px;
-  --tellian-s1-wordmark-tracking: 0.42em;
-  --tellian-s1-header-item-size: 12px;
+  /* Schiene links. Breite gespiegelt aus BAR_W in Navigation.tsx —
+     die Schiene liegt fixed über dem Track, also muss die Bühne den
+     Streifen selbst freihalten, sonst läuft der Titel darunter.
+     Ändert sich BAR_W, muss dieser Wert mitgehen. */
+  --tellian-rail-width: 48px;
 
   /* Stationsleiste — 13px in Iron Veil, Ziffern in Mushroom.
      Vorher 10px in Silver Mist, das trug den Auftritt nicht. */
@@ -147,8 +147,7 @@
      damit das Format 4:5 auch auf flachen Fenstern exakt bleibt,
      statt beschnitten oder gestaucht zu werden. */
   --tellian-s1-stage-height: calc(
-    100vh - var(--tellian-s1-header-height) - var(--tellian-station-height)
-    - 2 * var(--tellian-s1-stage-pad)
+    100vh - var(--tellian-station-height) - 2 * var(--tellian-s1-stage-pad)
   );
   /* Breite des Panels: rund ein Drittel der Station, aber nie mehr,
      als die Resthöhe im Verhältnis 4:5 zulässt. */

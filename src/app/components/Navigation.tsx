@@ -429,9 +429,14 @@ export function Navigation({
           COLLAPSED VERTICAL BAR  (48px)
           ══════════════════════════════════════════════════════════ */}
       <div
-        className="fixed top-0 left-0 h-screen z-50 flex flex-col items-center"
+        className="fixed top-0 left-0 z-50 flex flex-col items-center"
         style={{
           width:         BAR_W,
+          /* Endet über der Stationsleiste statt auf voller Höhe. Die
+             Leiste ist ein durchgehendes Band mit Haarlinie und liegt
+             darüber (z 150 gegen z 50); bei h-screen schnitte sie die
+             Schiene an und der Portalzugang läge in ihrem Band. */
+          height:        "calc(100vh - var(--tellian-station-height))",
           paddingTop:    40,
           paddingBottom: 20,
           opacity:       introComplete ? 1 : 0,
@@ -613,9 +618,13 @@ export function Navigation({
       <AnimatePresence>
         {expanded && (
           <>
-            {/* Dark overlay */}
+            {/* Dark overlay.
+                Über der Stationsleiste (z 150), nicht darunter: das
+                Menü ist eine modale Ebene. Bei z-[55] zeichnete die
+                Leiste über den Fuss des Panels, und „01 Einstieg“ stand
+                zwischen DE/EN und dem LinkedIn-Zeichen. */}
             <motion.div
-              className="fixed inset-0 z-[55]"
+              className="fixed inset-0 z-[155]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -626,7 +635,7 @@ export function Navigation({
 
             {/* Panel */}
             <motion.div
-              className="fixed top-0 left-0 h-screen z-[60] flex flex-col"
+              className="fixed top-0 left-0 h-screen z-[160] flex flex-col"
               style={{ width: PANEL_W, backgroundColor: C.bgSecondary }}
               initial={{ x: -PANEL_W + BAR_W, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}

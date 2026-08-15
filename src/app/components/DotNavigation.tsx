@@ -80,7 +80,11 @@ export function DotNavigation({ activeIndex, onNavigate }: DotNavigationProps) {
         right: 0,
         zIndex: 150,
         height: "var(--tellian-station-height)",
-        paddingLeft: "clamp(28px, 3.4vw, 56px)",
+        /* Die Leiste liegt über der Schiene (z 150 gegen z 50) und
+           würde deren unteres Ende sonst überdecken. Linker Versatz
+           deshalb um die Schienenbreite erhöht — derselbe Streifen,
+           den auch die Bühne freihält. */
+        paddingLeft: "calc(var(--tellian-rail-width) + clamp(28px, 3.4vw, 56px))",
         paddingRight: "clamp(28px, 3.4vw, 56px)",
         borderTop: `1px solid ${V.border}`,
         background: V.bg,
