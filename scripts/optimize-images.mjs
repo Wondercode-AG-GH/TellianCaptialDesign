@@ -81,29 +81,37 @@ const SOURCES = [
   },
   {
     id: "opernhaus",
-    src: "src/assets/opernhaus2.jpg",
-    /* Ausschnitt laut Abnahme: von (3232, 1679) bis (5152, 4079) des
-       8000×5333-Originals, also 1920×2400 und damit exakt 4:5.
-       Als Anteile notiert, damit sie unabhängig von der Auflösung
-       gelten. */
+    src: "src/assets/opernhaus3.jpg",
+    /* Ausschnitt aus der Frontalaufnahme, 4591×3061.
+
+       left stammt NICHT aus der ursprünglichen Abnahme (0.404). Jene
+       Zahlen galten für eine 8000×5333-Aufnahme mit anderem
+       Bildausschnitt; hier treffen sie eine andere Stelle. Gemessen
+       liegt die Symmetrieachse der Fassade bei 47.7 % der Bildbreite,
+       0.404 hätte den Ausschnitt um 215px daneben gesetzt — ein
+       Fünftel seiner eigenen Breite. left ist deshalb aus der Achse
+       abgeleitet: 0.477 − 0.24/2 = 0.357.
+
+       top ist gegenüber der Abnahme (0.315) angehoben, damit die
+       beiden Giebelfiguren ganz im Bild stehen statt angeschnitten.
+       Sie gehörten laut Abnahme ausdrücklich dazu.
+
+       Verhältnis und Tonung sind unverändert übernommen. */
     crop: {
-      left: 0.404,
-      top: 0.315,
+      left: 0.357,
+      top: 0.235,
       width: 0.24,
       ratio: 0.8,          /* Breite / Höhe = 4:5 */
       saturation: 0.78,
       contrast: 1.04,
     },
-    /* PROVISORISCH — die vorliegende Datei ist 824×550 statt
-       8000×5333, und sie zeigt nachweislich eine andere Aufnahme
-       (Kanalsignatur B−G +14 gegen −10.4 bzw. −2.2 der beiden
-       erwarteten). Der Ausschnitt misst dadurch nur 200×250px, das
-       Panel braucht 402px (1×) bis 1468px (2560 bei doppelter
-       Pixeldichte). Die Leiter endet deshalb dort, wo die Quelle
-       aufhört; alles Grössere würde hochgerechnet.
-       Mit dem echten Original: [420, 620, 820, 1120, 1480] — alle
-       durch 4 teilbar und damit ohne Rundungsrest. */
-    widths: [140, 200],
+    /* Der Ausschnitt misst 1104×1380. Das Panel braucht 402px (1×) bis
+       rund 1540px auf einem 2560er Schirm bei doppelter Pixeldichte —
+       die Leiter endet deshalb dort, wo die Quelle aufhört. Auf sehr
+       grossen Schirmen bleibt ein Rest Weichheit; alles Grössere wäre
+       hochgerechnet und damit nur scheinbar schärfer.
+       Alle Stufen durch 4 teilbar, also ohne Rundungsrest. */
+    widths: [420, 620, 820, 1104],
   },
   ...[
     ["olivier-bill", "Olivier-Bill.JPG"],
