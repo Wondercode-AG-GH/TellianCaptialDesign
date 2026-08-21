@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { C, sans, serif } from "../tokens";
 import { EASE } from "../../styles/motion";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
+import { PersonenIcon, BankIcon } from "./DreieckIcons";
 
 /* ═══════════════════════════════════════════════════════════════
    PARTEI-DREIECK — Dark-panel relationship graph
@@ -69,9 +70,12 @@ const VENN = [
 
 /** Icon bounding-box sizes (centred in each circle) */
 const ICON_SIZES = [
-  { w: 50, h: 50 },   /* ICON: pending — custom SVG von Brand, Bounding-Box 50×50px */
-  { w: 180, h: 112 },  // Tellian monogram (1.6:1 landscape) — 2× gross + prominent
-  { w: 50, h: 50 },   /* ICON: pending — custom SVG von Brand, Bounding-Box 50×50px */
+  /* man-woman.svg ist quer (512×335, also 1.53:1). Bei gleicher
+     BREITE wie das quadratische Bank-Icon wirkte es deutlich
+     kleiner — die Kästen sind deshalb auf gleiche HÖHE gebracht. */
+  { w: 92, h: 60 },   // Sie — zwei Personen
+  { w: 180, h: 112 }, // Tellian monogram (1.6:1 landscape) — 2× gross + prominent
+  { w: 60, h: 60 },   // Banken — Bankgebäude
 ];
 
 const CW = 380;
@@ -106,13 +110,6 @@ const READING_ZONE_Y = 240;
 /* ═══════════════════════════════════════════════════════════════
    ICONS
    ═══════════════════════════════════════════════════════════════ */
-function PlaceholderIcon({ w, h, color }: { w: number; h: number; color: string }) {
-  return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} fill="none" aria-hidden>
-      <rect x={0.5} y={0.5} width={w - 1} height={h - 1} stroke={color} strokeWidth={1} strokeDasharray="4 3" opacity={0.4} />
-    </svg>
-  );
-}
 function TellianLogo({ w, h, color }: { w: number; h: number; color: string }) {
   return <svg width={w} height={h} viewBox={MONO_VB} aria-hidden><path d={MONO_D} fill={color} /></svg>;
 }
@@ -120,9 +117,26 @@ function TellianLogo({ w, h, color }: { w: number; h: number; color: string }) {
 /* ═══════════════════════════════════════════════════════════════
    COMPONENT
    ═══════════════════════════════════════════════════════════════ */
-interface Props { compact?: boolean; onNavigate?: () => void; }
+interface Props {
+  compact?: boolean;
+  onNavigate?: () => void;
+  /**
+   * Eingebettet statt selbsttragend.
+   *
+   * Ursprünglich war dieses Bauteil das dunkle Panel: es setzte sich
+   * absolut auf `left: 44vw` und brachte seinen Hintergrund selbst
+   * mit. Seit es in Station 2 steht, bestimmt die Station die Fläche
+   * — Breite, Farbe und Innenabstand kommen von dort. Das Bauteil
+   * füllt nur noch, was es bekommt, und skaliert sich hinein.
+   */
+  embedded?: boolean;
+}
 
-export function ParteiDreieck({ compact = false, onNavigate }: Props) {
+export function ParteiDreieck({
+  compact = false,
+  onNavigate,
+  embedded = false,
+}: Props) {
   const [hovered, setHovered] = useState<number | null>(null);
   const rm = usePrefersReducedMotion();
 
@@ -167,13 +181,19 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
     }
 
     return (
-      <div style={{ backgroundColor: C.purple, padding: "32px 16px 24px", position: "relative" }}>
+      <div
+        style={
+          embedded
+            ? { position: "relative" }
+            : { backgroundColor: C.purple, padding: "32px 16px 24px", position: "relative" }
+        }
+      >
         <p className="sr-only" style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}>{sr}</p>
 
         {/* Caption */}
         <span style={{
           display: "block", textAlign: "center", fontFamily: sans,
-          fontSize: 8, letterSpacing: "0.16em", textTransform: "uppercase",
+          fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase",
           color: mW55, marginBottom: 16,
         }}>
           Die Struktur bewährter Geschäftsbeziehungen
@@ -210,7 +230,8 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
             const anyH = hovered !== null;
             const faded = anyH && !act;
             const isCta = i === 1;
-            const iconSz = i === 1 ? { w: 60, h: 37 } : { w: 30, h: 30 };
+            const iconSz =
+              i === 1 ? { w: 60, h: 37 } : i === 0 ? { w: 55, h: 36 } : { w: 36, h: 36 };
 
             return (
               <div key={party.id}>
@@ -237,7 +258,9 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
                 >
                   {i === 1
                     ? <TellianLogo w={iconSz.w} h={iconSz.h} color={C.purple} />
-                    : <PlaceholderIcon w={iconSz.w} h={iconSz.h} color={C.purple} />
+                    : i === 0
+                      ? <PersonenIcon w={iconSz.w} h={iconSz.h} color={C.purple} />
+                      : <BankIcon w={iconSz.w} h={iconSz.h} color={C.purple} />
                   }
                 </div>
 
@@ -249,7 +272,7 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
                     ? { top: `calc(50% + ${v.dy}px - ${mR + 8}px)`, transform: "translateX(-50%) translateY(-100%)" }
                     : { top: `calc(50% + ${v.dy}px + ${mR + 8}px)`, transform: "translateX(-50%)" }
                   ),
-                  fontFamily: sans, fontSize: 8, letterSpacing: "0.16em",
+                  fontFamily: sans, fontSize: 12, letterSpacing: "0.14em",
                   textTransform: "uppercase", color: act ? C.bg : mW75,
                   fontWeight: act ? 600 : 400, whiteSpace: "nowrap",
                   pointerEvents: "none", opacity: faded ? 0.25 : 1,
@@ -270,7 +293,7 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
         }}>
           {EDGE_LABELS.map((label, i) => (
             <span key={i} style={{
-              fontFamily: sans, fontSize: 7, letterSpacing: "0.06em",
+              fontFamily: sans, fontSize: 12, letterSpacing: "0.04em",
               textTransform: "uppercase", color: mW55, whiteSpace: "nowrap",
             }}>
               {label.de}
@@ -286,7 +309,7 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
             <div style={{ textAlign: "center", marginTop: 20, padding: "0 8px" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 8 }}>
                 <div style={{ width: 7, height: 7, borderRadius: "50%", backgroundColor: party.color, flexShrink: 0 }} />
-                <span style={{ fontFamily: sans, fontSize: 7, letterSpacing: "0.14em", textTransform: "uppercase", color: mW75 }}>
+                <span style={{ fontFamily: sans, fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: mW75 }}>
                   {party.label.de}
                 </span>
               </div>
@@ -309,7 +332,7 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
           <div style={{ marginTop: 20, padding: "0 8px" }}>
             {PARTIES.map((party, pi) => (
               <div key={`rm-${party.id}`} style={{ marginTop: pi === 0 ? 0 : 14, textAlign: "center" }}>
-                <span style={{ fontFamily: sans, fontSize: 7, letterSpacing: "0.14em", textTransform: "uppercase", color: party.color, fontWeight: 600, display: "block", marginBottom: 4 }}>
+                <span style={{ fontFamily: sans, fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: party.color, fontWeight: 600, display: "block", marginBottom: 4 }}>
                   {party.label.de}
                 </span>
                 <p style={{ fontFamily: serif, fontSize: 12, color: "rgba(244,244,240,0.9)", lineHeight: 1.5, margin: 0 }} lang="de">
@@ -339,11 +362,53 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
     return () => obs.disconnect();
   }, [rm, entered]);
 
-  /* Nearest-centre hover */
+  /* ── Grösse der eingebetteten Fassung ──
+     Der Cluster ist in festen Pixeln entworfen (380×560) und wird auf
+     die in theme.css gesetzten Höchstmasse skaliert. Es gilt der
+     kleinere der beiden Faktoren, damit die Grafik auf flachen
+     Bildschirmen nicht anstösst.
+
+     Die Höchstmasse werden nicht nachgerechnet, sondern an einem
+     unsichtbaren Messelement abgelesen. Sonst stünde die Formel für
+     `clamp(260px, 24vw, 420px)` ein zweites Mal in JavaScript und
+     liefe beim nächsten Wert auseinander. Das Element trägt die
+     Eigenschaften und der Browser löst sie auf — auch die 68 %, die
+     sich auf die Fläche beziehen. */
+  const flaecheRef = useRef<HTMLDivElement>(null);
+  const massRef = useRef<HTMLDivElement>(null);
+  const [skala, setSkala] = useState(1);
+
+  useEffect(() => {
+    if (!embedded) return;
+    const el = flaecheRef.current;
+    const mass = massRef.current;
+    if (!el || !mass) return;
+    const messen = () => {
+      const r = el.getBoundingClientRect();
+      const m = mass.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      /* Die Fläche selbst bleibt die harte Grenze: was das
+         Höchstmass zulässt, muss auch hineinpassen. */
+      const maxB = Math.min(r.width, m.width || r.width);
+      const maxH = Math.min(r.height, m.height || r.height);
+      const s = Math.min(maxB / CW, maxH / CH);
+      if (Number.isFinite(s) && s > 0) setSkala(s);
+    };
+    messen();
+    const obs = new ResizeObserver(messen);
+    obs.observe(el);
+    obs.observe(mass);
+    return () => obs.disconnect();
+  }, [embedded]);
+
+  /* Nearest-centre hover.
+     Das Rechteck ist skaliert, die Geometrie darunter nicht — ohne
+     die Division läge die Trefferfläche neben den Kreisen. */
   const handleMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const mx = e.clientX - rect.left - CW / 2;
-    const my = e.clientY - rect.top - CH / 2;
+    const s = rect.width / CW || 1;
+    const mx = (e.clientX - rect.left) / s - CW / 2;
+    const my = (e.clientY - rect.top) / s - CH / 2;
     let nearest = -1, minDist = Infinity;
     VENN.forEach((v, i) => {
       const d = Math.hypot(mx - v.dx, my - v.dy);
@@ -366,27 +431,71 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
   const W35 = "rgba(244,244,240,0.35)";
 
   return (
-    <div style={{
-      position: "absolute", top: 0, bottom: 0, left: "44vw", right: 0,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      backgroundColor: C.purple,
-      overflow: "visible", zIndex: 0,
-    }}>
+    <div
+      ref={flaecheRef}
+      style={
+        embedded
+          ? {
+              /* Fläche, Farbe und Innenabstand kommen von der Station. */
+              position: "relative", width: "100%", height: "100%",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              overflow: "visible", zIndex: 0,
+            }
+          : {
+              position: "absolute", top: 0, bottom: 0, left: "44vw", right: 0,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              backgroundColor: C.purple,
+              overflow: "visible", zIndex: 0,
+            }
+      }
+    >
       <p className="sr-only" style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}>{sr}</p>
 
-      {/* ── Title at eyebrow height (panel-level, not cluster-level) ── */}
-      <span style={{
-        position: "absolute",
-        top: "calc(50% - 280px)",
-        left: "50%", transform: "translateX(-50%)",
-        fontFamily: sans, fontSize: 11, letterSpacing: "0.18em",
-        textTransform: "uppercase", color: W55,
-        whiteSpace: "nowrap", userSelect: "none", pointerEvents: "none",
-        opacity: diagramOp,
-        transition: rm ? "none" : `opacity 300ms ${EASE.standard}`,
-      }}>
-        Die Struktur bewährter Geschäftsbeziehungen
-      </span>
+      {/* Messelement für die Höchstmasse. Trägt nur die beiden
+          Eigenschaften; abgelesen wird, was der Browser daraus macht. */}
+      {embedded && (
+        <div
+          ref={massRef}
+          aria-hidden
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "var(--tellian-s2-graphic-max-width)",
+            height: "var(--tellian-s2-graphic-max-height)",
+            visibility: "hidden",
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      {/* Überschrift und Cluster liegen in einem gemeinsamen Rahmen von
+          CW×CH, damit die Skalierung beide gleich erfasst. Ohne den
+          Rahmen bliebe die Überschrift auf 11px stehen, während die
+          Beschriftungen darunter mitwachsen. */}
+      <div
+        style={{
+          position: "relative",
+          width: CW,
+          height: CH,
+          flex: "0 0 auto",
+          transform: skala === 1 ? undefined : `scale(${skala})`,
+          transformOrigin: "center center",
+        }}
+      >
+        {/* ── Title at eyebrow height ── */}
+        <span style={{
+          position: "absolute",
+          top: 0,
+          left: "50%", transform: "translateX(-50%)",
+          fontFamily: sans, fontSize: 12, letterSpacing: "0.16em",
+          textTransform: "uppercase", color: W55,
+          whiteSpace: "nowrap", userSelect: "none", pointerEvents: "none",
+          opacity: diagramOp,
+          transition: rm ? "none" : `opacity 300ms ${EASE.standard}`,
+        }}>
+          Die Struktur bewährter Geschäftsbeziehungen
+        </span>
 
       <div
         ref={clusterRef}
@@ -430,7 +539,7 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
             left: `calc(50% + ${lp.x}px)`,
             top: `calc(50% + ${lp.y}px)`,
             transform: `translate(-50%, -50%) rotate(${lp.rot}deg)`,
-            fontFamily: sans, fontSize: 9, letterSpacing: "0.06em",
+            fontFamily: sans, fontSize: 12, letterSpacing: "0.04em",
             textTransform: "uppercase", color: W55,
             whiteSpace: "nowrap", pointerEvents: "none", userSelect: "none",
             opacity: diagramOp,
@@ -480,7 +589,9 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
                 {/* Icon/Logo — centred in circle */}
                 {i === 1
                   ? <TellianLogo w={isz.w} h={isz.h} color={C.purple} />
-                  : <PlaceholderIcon w={isz.w} h={isz.h} color={C.purple} />
+                  : i === 0
+                    ? <PersonenIcon w={isz.w} h={isz.h} color={C.purple} />
+                    : <BankIcon w={isz.w} h={isz.h} color={C.purple} />
                 }
               </div>
 
@@ -492,7 +603,7 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
                   ? { top: `calc(50% + ${v.dy}px - ${R + 10}px)`, transform: "translateX(-50%) translateY(-100%)" }
                   : { top: `calc(50% + ${v.dy}px + ${R + 10}px)`, transform: "translateX(-50%)" }
                 ),
-                fontFamily: sans, fontSize: 9, letterSpacing: "0.18em",
+                fontFamily: sans, fontSize: 12, letterSpacing: "0.16em",
                 textTransform: "uppercase",
                 color: act ? W : W75,
                 fontWeight: act ? 600 : 400,
@@ -526,7 +637,7 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 10 }}>
                 <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: party.color, flexShrink: 0 }} />
                 <span style={{
-                  fontFamily: sans, fontSize: 8, letterSpacing: "0.16em",
+                  fontFamily: sans, fontSize: 12, letterSpacing: "0.14em",
                   textTransform: "uppercase", color: W75,
                 }}>
                   {party.label.de}
@@ -571,7 +682,7 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
           {PARTIES.map((party, pi) => (
             <div key={`rm-${party.id}`} style={{ marginTop: pi === 0 ? 0 : 18 }}>
               <span style={{
-                fontFamily: sans, fontSize: 9, letterSpacing: "0.16em",
+                fontFamily: sans, fontSize: 12, letterSpacing: "0.14em",
                 textTransform: "uppercase", color: party.color,
                 fontWeight: 600, display: "block", marginBottom: 4,
               }}>
@@ -587,6 +698,8 @@ export function ParteiDreieck({ compact = false, onNavigate }: Props) {
           ))}
         </div>
       )}
+
+      </div>
 
       <style>{`
         @keyframes vennFade {

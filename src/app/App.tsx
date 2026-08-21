@@ -3,13 +3,16 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import { useSubpageMode } from "./components/useSubpageMode";
 import { SubpageOverlay } from "./components/SubpageOverlay";
-import { AnlageprozessDetail } from "./components/AnlageprozessDetail";
+import { UnterseiteAnlageprozess } from "./components/UnterseiteAnlageprozess";
+import logoHorizontal from "../assets/logo/Tellian__Imperial purple logo.svg";
 import { AnlagestrategienDetail } from "./components/AnlagestrategienDetail";
 import { PortfolioManagementDetail } from "./components/PortfolioManagementDetail";
 import { ANLAGEPROZESS_STEPS } from "./data/anlageprozessSteps";
 import { ORDINAL_FONT_SIZE } from "./components/AnlageprozessStepOrdinal";
 import { usePrefersReducedMotion } from "./components/usePrefersReducedMotion";
-import { Navigation } from "./components/Navigation";
+import { Kopfzeile } from "./components/Kopfzeile";
+import { MobilMenue } from "./components/MobilMenue";
+import { useBandZonen } from "./components/useBandTon";
 import { LoginOverlay } from "./components/LoginOverlay";
 import { LegalPage, useLegalRoute } from "./components/LegalPage";
 import { C, serif, sans, EYEBROW } from "./tokens";
@@ -25,12 +28,12 @@ import {
 } from "./components/ScrollAnimations";
 import { DotNavigation } from "./components/DotNavigation";
 import { CtaButton } from "./components/CtaButton";
-import { Section5UeberTellian } from "./components/Section5UeberTellian";
-import { Section6Kontakt } from "./components/Section6Kontakt";
-import { HeroVertical } from "./components/HeroVertical";
+import { Station5Team } from "./components/Station5Team";
+import { Station6Kontakt } from "./components/Station6Kontakt";
 import { ExpandableBody } from "./components/ExpandableBody";
-import { Section2Anlagephilosophie } from "./components/Section2Anlagephilosophie";
-import { ParteiDreieck } from "./components/ParteiDreieck";
+import { Station2WealthManagement } from "./components/Station2WealthManagement";
+import { StationPortfolioManagement } from "./components/StationPortfolioManagement";
+import { Station4Rad } from "./components/Station4Rad";
 import { LAYOUT, TEXT_COLUMN_STYLE, getLayout, getTextColumnStyle, SPACING } from "./layout";
 import { SECTION_WIDTH, SECTIONS, SUBPAGE_SECTION_KEY, indexOfSection } from "./sections";
 import { SectionEnteredProvider } from "./components/SectionEntry";
@@ -234,15 +237,11 @@ function VermoegensverwaltungMobileOverlay({
       isOpen={isOpen}
       onClose={onClose}
       eyebrow=""
-      headline={
-        <>
-          Mit Methode gemeinsam
-          <br />
-          <em style={{ fontStyle: "italic", fontWeight: 400 }}>zum Ziel.</em>
-        </>
-      }
+      /* Kein Titel aus der Hülle: das Bauteil bringt ihn selbst mit,
+         in beiden Fassungen. Beides zusammen ergab ihn doppelt. */
+      headline={null}
     >
-      <AnlageprozessDetail isMobile={true} onContactClick={onContactClick} />
+      <UnterseiteAnlageprozess isMobile aktiv={isOpen} />
     </SubpageOverlay>
   );
 }
@@ -296,6 +295,15 @@ interface Section3Props {
   onContactClick?: () => void;
   /** Ref-Callback der Sektions-Registry (nur Desktop). */
   panelRef?: (el: HTMLDivElement | null) => void;
+  /**
+   * Nur die Unterseite rendern, nicht die Station.
+   *
+   * Die Station im Track ist inzwischen StationPortfolioManagement.
+   * Die Unterseite /vermoegensverwaltung liegt aber weiterhin in
+   * diesem Bauteil und wird von Station 2 aus verlinkt — ohne diesen
+   * Schalter wäre sie mit der alten Station verschwunden.
+   */
+  nurUnterseite?: boolean;
 }
 
 function Section3Vermoegensverwaltung({
@@ -306,6 +314,7 @@ function Section3Vermoegensverwaltung({
   onOpenDetail,
   onCloseDetail,
   onContactClick,
+  nurUnterseite = false,
   panelRef,
 }: Section3Props) {
   const layout = getLayout(breakpoint);
@@ -336,6 +345,19 @@ function Section3Vermoegensverwaltung({
   ];
 
   if (isVertical) {
+    /* Nur die Unterseite: sie liegt im schmalen Zweig als eigenes
+       Overlay in DIESEM Bauteil. Gab dieser Zweig null zurück, war
+       /vermoegensverwaltung auf dem Telefon nicht mehr erreichbar —
+       genau das war seit dem Umbau von Station 3 der Fall. */
+    if (nurUnterseite) {
+      return (
+        <VermoegensverwaltungMobileOverlay
+          isOpen={viewMode === "detail"}
+          onClose={() => onCloseDetail?.()}
+          onContactClick={() => onContactClick?.()}
+        />
+      );
+    }
     return (
       <section
         id="section-vermoegensverwaltung"
@@ -406,7 +428,6 @@ function Section3Vermoegensverwaltung({
           width: "100%",
           padding: breakpoint === "mobile" ? "32px 20px" : "40px 32px",
         }}>
-          <ParteiDreieck compact onNavigate={() => onOpenDetail?.()} />
         </div>
 
         {/* CTA — AFTER the visual element on mobile */}
@@ -450,7 +471,6 @@ function Section3Vermoegensverwaltung({
         width: "100%",
         height: "100%",
       }}>
-        <ParteiDreieck onNavigate={() => onOpenDetail?.()} />
 
         <div
           className="relative z-10 h-full flex flex-col justify-center"
@@ -555,8 +575,14 @@ function Section3Vermoegensverwaltung({
         inset: 0,
         zIndex: 90,
         backgroundColor: C.bg,
+        /* Die Seite passt auf einen Bildschirm. `auto` bleibt als
+           Notausgang für Fenster, die kleiner sind als jedes hier
+           geprüfte Format — regulär greift es nie. */
         overflowY: "auto",
+        overflowX: "hidden",
         WebkitOverflowScrolling: "touch",
+        display: "flex",
+        flexDirection: "column",
         opacity: isDetail ? 1 : 0,
         pointerEvents: isDetail ? "auto" : "none",
         visibility: isDetail ? "visible" : "hidden",
@@ -582,14 +608,14 @@ function Section3Vermoegensverwaltung({
           transition: `opacity 300ms ease-out ${isDetail ? "900ms" : "0ms"}`,
         }}
       >
-        <span
-          style={{
-            fontFamily: sans, fontSize: "13px", fontWeight: 700, letterSpacing: "2.5px",
-            color: C.dark, textTransform: "uppercase",
-          }}
-        >
-          Tellian
-        </span>
+        {/* Dasselbe Logo wie in der Kopfzeile der Hauptseite. Vorher
+            stand hier der Schriftzug „Tellian" in Inter gesperrt —
+            weder die Wortmarke noch die richtige Schrift. */}
+        <img
+          src={logoHorizontal}
+          alt="Tellian Capital"
+          style={{ width: "120px", height: "auto", display: "block" }}
+        />
         <button
           onClick={handleBackClick}
           style={{
@@ -608,134 +634,10 @@ function Section3Vermoegensverwaltung({
         </button>
       </div>
 
-      {/* ═══ Hero title ═══ */}
-      <div
-        style={{
-          textAlign: "center",
-          padding: "80px 48px 40px",
-          opacity: isDetail ? 1 : 0,
-          transform: isDetail ? "translateY(0)" : "translateY(-12px)",
-          transition: `opacity 600ms ease-out ${isDetail ? "500ms" : "0ms"}, transform 600ms ${EASE.standard} ${isDetail ? "500ms" : "0ms"}`,
-        }}
-      >
-        <h1
-          style={{
-            fontFamily: serif,
-            fontSize: "clamp(40px, 4.5vw, 56px)",
-            lineHeight: 1.05, color: C.dark, letterSpacing: "-0.02em",
-            margin: 0, fontWeight: 400,
-          }}
-        >
-          Mit Methode gemeinsam
-          <br />
-          <em style={{ fontStyle: "italic", fontWeight: 400 }}>zum Ziel.</em>
-        </h1>
-      </div>
-
-      {/* ═══ Horizontal Stepper ═══ Container is always opaque — only labels
-             and connector lines fade in. Step ordinals are FLIP targets and
-             need stable parent opacity for Framer Motion's layoutId to work. */}
-      <div
-        style={{
-          padding: "40px 48px 56px",
-          overflowX: "auto",
-          WebkitOverflowScrolling: "touch",
-          scrollbarWidth: "none",
-        }}
-      >
-        <div
-          style={{
-            display: "flex", flexDirection: "row", alignItems: "flex-start",
-            justifyContent: "center",
-            gap: "clamp(24px, 3vw, 48px)",
-            maxWidth: "1100px", margin: "0 auto",
-          }}
-        >
-          {ANLAGEPROZESS_STEPS.map((step, i) => (
-            <div
-              key={step.num}
-              style={{
-                display: "flex", flexDirection: "row", alignItems: "flex-start",
-                gap: "clamp(24px, 3vw, 48px)", flexShrink: 0,
-              }}
-            >
-              <div
-                style={{
-                  padding: "8px 4px",
-                  display: "flex", flexDirection: "column",
-                  alignItems: "center", gap: "8px",
-                  textAlign: "center", minWidth: "80px",
-                }}
-              >
-                {/* Step ordinal — staggered fade-in on detail open */}
-                {isDetail && (
-                  <span style={{
-                    fontFamily: serif,
-                    fontSize: `${ORDINAL_FONT_SIZE}px`,
-                    lineHeight: 0.9,
-                    fontWeight: 400,
-                    color: C.dark,
-                    display: "block",
-                    userSelect: "none",
-                    animation: reducedMotion ? "none"
-                      : `ordinalFadeIn 600ms ${EASE.standard} ${300 + i * 120}ms both`,
-                  }}>
-                    {step.num}
-                  </span>
-                )}
-                <span
-                  style={{
-                    fontFamily: sans, fontSize: "11px",
-                    letterSpacing: "0.16em", textTransform: "uppercase",
-                    color: C.stone, whiteSpace: "nowrap",
-                    opacity: isDetail ? 1 : 0,
-                    transform: isDetail ? "translateY(0)" : "translateY(6px)",
-                    transition: `opacity 400ms ease-out ${isDetail ? `${500 + i * 80}ms` : "0ms"}, transform 400ms ${EASE.standard} ${isDetail ? `${500 + i * 80}ms` : "0ms"}`,
-                  }}
-                >
-                  {step.shortLabel}
-                </span>
-              </div>
-
-              {/* Connector line — grows AFTER the FLIP completes.
-                  Last FLIP ends at ~1.1s (4 steps × 80ms delay + 800ms duration).
-                  Lines start at 1100ms with 80ms stagger. */}
-              {i < ANLAGEPROZESS_STEPS.length - 1 && (
-                <div
-                  aria-hidden
-                  style={{
-                    width: "clamp(32px, 4vw, 64px)",
-                    height: "0.5px",
-                    backgroundColor: C.line,
-                    marginTop: "48px",
-                    flexShrink: 0,
-                    transformOrigin: "left center",
-                    transform: isDetail ? "scaleX(1)" : "scaleX(0)",
-                    transition: `transform 450ms ${EASE.standard} ${isDetail ? `${1100 + i * 80}ms` : "0ms"}`,
-                  }}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ═══ Detail body ═══ */}
-      <div
-        style={{
-          opacity: isDetail ? 1 : 0,
-          transform: isDetail ? "translateY(0)" : "translateY(16px)",
-          transition: `opacity 500ms ease-out ${isDetail ? "900ms" : "0ms"}, transform 500ms ${EASE.standard} ${isDetail ? "900ms" : "0ms"}`,
-        }}
-      >
-        <AnlageprozessDetail isMobile={false} onContactClick={handleContactClick} />
-      </div>
-      <style>{`
-        @keyframes ordinalFadeIn {
-          from { opacity: 0; transform: translateY(14px); }
-          to   { opacity: 0.2; transform: translateY(0); }
-        }
-      `}</style>
+      {/* Der Inhalt der Unterseite. Die Kopfzeile darüber bleibt
+          unverändert; ersetzt wird alles darunter — vorher Titel,
+          waagrechter Stepper und fünf lange Abschnitte. */}
+      <UnterseiteAnlageprozess aktiv={isDetail} />
     </div>,
     document.body
   );
@@ -745,7 +647,7 @@ function Section3Vermoegensverwaltung({
      overlay cannot be recognized as the same element → no FLIP. */
   return (
     <LayoutGroup>
-      {overviewMarkup}
+      {!nurUnterseite && overviewMarkup}
       {detailOverlay}
     </LayoutGroup>
   );
@@ -772,6 +674,15 @@ interface Section4Props {
   onNavigateToProcess?: () => void;
   /** Ref-Callback der Sektions-Registry (nur Desktop). */
   panelRef?: (el: HTMLDivElement | null) => void;
+  /**
+   * Nur die Unterseite rendern, nicht die Station.
+   *
+   * Die Station im Track ist inzwischen Station4Rad. Die
+   * Unterseite /anlagestrategien liegt aber weiterhin hier und wird
+   * von der Mandat-Karte in Station 3 aus verlinkt — ohne diesen
+   * Schalter wäre sie mit der alten Station verschwunden.
+   */
+  nurUnterseite?: boolean;
 }
 
 function Section4Anlagestrategien({
@@ -784,6 +695,7 @@ function Section4Anlagestrategien({
   onContactClick,
   onNavigateToProcess,
   panelRef,
+  nurUnterseite = false,
 }: Section4Props) {
   const layout = getLayout(breakpoint);
   const textColStyle = getTextColumnStyle(breakpoint);
@@ -797,6 +709,18 @@ function Section4Anlagestrategien({
   ];
 
   if (isVertical) {
+    /* Wie bei Station 3: die Unterseite liegt im schmalen Zweig als
+       eigenes Overlay hier. */
+    if (nurUnterseite) {
+      return (
+        <AnlagestrategienMobileOverlay
+          isOpen={viewMode === "detail"}
+          onClose={() => onCloseDetail?.()}
+          onContactClick={() => onContactClick?.()}
+          onNavigateToProcess={() => onNavigateToProcess?.()}
+        />
+      );
+    }
     return (
       <section
         id="section-anlagestrategien"
@@ -1138,7 +1062,7 @@ function Section4Anlagestrategien({
          can match headline layoutIds across the React Portal. ─── */
   return (
     <LayoutGroup>
-      {overviewMarkup}
+      {!nurUnterseite && overviewMarkup}
       <SubpageOverlay
         isOpen={isDetail}
         onClose={() => onCloseDetail?.()}
@@ -1217,7 +1141,7 @@ export default function App() {
      selbst und dürfen nicht auf uns selbst zurückwirken. */
   const [initialSectionIndex] = useState(readInitialSectionIndex);
 
-  const { containerRef, panelRef, jumpToIndex, scrollDirection, activeIndex: horizontalIndex, visibleRange, debugRef } =
+  const { containerRef, panelRef: panelRefRoh, jumpToIndex, scrollDirection, activeIndex: horizontalIndex, visibleRange, debugRef } =
     useHorizontalScroll({
       disabled: isVertical,
       locked: isDetailMode || !introComplete,
@@ -1306,6 +1230,31 @@ export default function App() {
   /* ── Login overlay state ── */
   const [loginOpen, setLoginOpen] = useState(false);
 
+  /* Jedes Panel bekommt seine Nummer als data-Attribut. useBandTon
+     misst darüber, wie viel Fläche jede Station gerade im Fenster
+     einnimmt — daraus entsteht der stetige Ton der beiden Bänder. */
+  const panelRef = useCallback(
+    (index: number) => (el: HTMLDivElement | null) => {
+      if (el) el.dataset.tellianStation = String(index);
+      panelRefRoh(index)(el);
+    },
+    [panelRefRoh],
+  );
+
+  /* Sprache und mobiles Menü lagen bisher in Navigation. Mit dem
+     Umbau sind Kopfzeile und Menü zwei Komponenten — der Zustand
+     gehört deshalb hierher, wo beide ihn sehen. */
+  const [sprache, setSprache] = useState<"DE" | "EN">("DE");
+  const [menueOffen, setMenueOffen] = useState(false);
+
+  /* Trägt die aktive Station eine dunkle Fläche? Kopfzeile und
+     Stationsleiste wählen danach ihre Fassung — auf Station 4 also
+     das helle Logo und helle Schrift. */
+  /* Sichtbare Stationsbereiche. Beide Bänder zeichnen ihren Inhalt
+     danach zweimal und maskieren jede Fassung auf ihren Grund —
+     siehe useBandZonen. */
+  const bandZonen = useBandZonen(!isVertical, activeIndex);
+
   /* ── Legal pages routing (Impressum / Datenschutz / Kundeninformation) ── */
   const legal = useLegalRoute();
 
@@ -1351,9 +1300,7 @@ export default function App() {
   }, [isVertical, introComplete, scrollDirection, activeIndex]);
 
   /* Vertikaler Zweig: Startsektion einnehmen. Der Scroll-Hook ist dort
-     abgeschaltet, initialIndex greift also nicht. Ohne Animation —
-     HeroVertical setzt beim Mount ohnehin auf 0 zurück, wir kommen
-     danach. */
+     abgeschaltet, initialIndex greift also nicht. Ohne Animation. */
   useEffect(() => {
     if (!isVertical || !introComplete || initialSectionIndex === 0) return;
     const el = document.getElementById(SECTIONS[initialSectionIndex].domId);
@@ -1387,30 +1334,48 @@ export default function App() {
           <PreloadScreen onComplete={handleIntroComplete} />
         )}
 
-        <Navigation
-          activeIndex={activeIndex}
-          scrollDirection={scrollDirection}
-          onNavigate={navigateToSection}
-          introComplete={introComplete}
-          breakpoint={breakpoint}
+        <Kopfzeile
+          zonen={bandZonen}
+          sprache={sprache}
+          onSprache={setSprache}
+          onPortal={() => setLoginOpen(true)}
+          onLogo={() => navigateToSection(0)}
           isVertical
-          onLoginClick={() => setLoginOpen(true)}
+          menueOffen={menueOffen}
+          onMenue={() => setMenueOffen((o) => !o)}
+        />
+        <MobilMenue
+          offen={menueOffen}
+          onSchliessen={() => setMenueOffen(false)}
+          activeIndex={activeIndex}
+          onNavigate={navigateToSection}
+          onOpenLegal={legal.open}
         />
 
-        {/* ── HERO (mobile/tablet — page-load stagger animation) ── */}
-        <HeroVertical
-          imageId="hero-zuerich"
-          introComplete={introComplete}
-          breakpoint={breakpoint}
-          onCtaClick={navigateToContact}
+        {/* ── HERO ──
+            Dieselbe Station wie breit, nur gestapelt. Vorher stand
+            hier HeroVertical: eine eigene Komponente mit anderem
+            Titel, anderem Text, anderem Bild und anderer Schrift. */}
+        <Station1Einstieg
+          isVertical
+          imageId="opernhaus"
+          bandImageId="opernhaus-band"
+          imageAlt="Opernhaus Zürich, Fassadenausschnitt"
+          onContactClick={navigateToContact}
         />
 
-        {/* ── ANLAGEPHILOSOPHIE ── */}
-        <Section2Anlagephilosophie scrollX={0} isVertical breakpoint={breakpoint} />
+        {/* ── WEALTH MANAGEMENT ── */}
+        <Station2WealthManagement isVertical onCtaClick={vvw.openDetail} />
 
-        {/* ── VERMÖGENSVERWALTUNG ── */}
+        {/* ── PORTFOLIO MANAGEMENT ── */}
+        <StationPortfolioManagement
+          isVertical
+          domId="section-vermoegensverwaltung"
+          onMandat={ast.openDetail}
+        />
+        {/* Unterseite /vermoegensverwaltung, schmale Fassung. */}
         <Section3Vermoegensverwaltung
-          scrollX={0}
+          nurUnterseite
           isVertical
           breakpoint={breakpoint}
           viewMode={vvw.mode}
@@ -1419,8 +1384,11 @@ export default function App() {
           onContactClick={navigateToContact}
         />
 
-        {/* ── ANLAGESTRATEGIEN ── */}
+        {/* ── IHRE VORTEILE ── */}
+        <Station4Rad isVertical domId="section-anlagestrategien" />
+        {/* Unterseite /anlagestrategien, schmale Fassung. */}
         <Section4Anlagestrategien
+          nurUnterseite
           scrollX={0}
           isVertical
           breakpoint={breakpoint}
@@ -1431,15 +1399,15 @@ export default function App() {
           onNavigateToProcess={pm.openDetail}
         />
 
-        {/* ── ÜBER TELLIAN ── */}
-        <Section5UeberTellian
+        {/* ── TEAM ── */}
+        <Station5Team
           isVertical
-          breakpoint={breakpoint}
+          domId="section-ueber-uns"
           onContactClick={navigateToContact}
         />
 
         {/* ── KONTAKT (mobile/tablet — 5-field form, MapOverlay trigger) ── */}
-        <Section6Kontakt isVertical breakpoint={breakpoint} onOpenLegal={legal.open} />
+        <Station6Kontakt isVertical domId="section-kontakt" onOpenLegal={legal.open} />
 
         <LoginOverlay
           open={loginOpen}
@@ -1513,27 +1481,41 @@ export default function App() {
           />
         </SectionEnteredProvider>
 
-        {/* CHAPTER 2 — ANLAGEPHILOSOPHIE */}
+        {/* CHAPTER 2 — WEALTH MANAGEMENT */}
         <SectionEnteredProvider value={entered[1]}>
-          <Section2Anlagephilosophie scrollX={0} panelRef={panelRef(1)} />
+          <Station2WealthManagement
+            panelRef={panelRef(1)}
+            onCtaClick={vvw.openDetail}
+          />
         </SectionEnteredProvider>
 
-        {/* CHAPTER 3 — VERMÖGENSVERWALTUNG */}
+        {/* CHAPTER 3 — PORTFOLIO MANAGEMENT */}
         <SectionEnteredProvider value={entered[2]}>
+          <StationPortfolioManagement
+            panelRef={panelRef(2)}
+            onMandat={ast.openDetail}
+          />
+          {/* Die Station ist ersetzt; die Unterseite /vermoegensverwaltung
+              liegt weiterhin in diesem Bauteil und wird von Station 2 aus
+              verlinkt. Sie bleibt deshalb eingehängt — ohne Station. */}
           <Section3Vermoegensverwaltung
-            scrollX={0}
+            nurUnterseite
             breakpoint={breakpoint}
             viewMode={vvw.mode}
             onOpenDetail={vvw.openDetail}
             onCloseDetail={vvw.closeDetail}
             onContactClick={navigateToContact}
-            panelRef={panelRef(2)}
           />
         </SectionEnteredProvider>
 
-        {/* CHAPTER 4 — ANLAGESTRATEGIEN */}
+        {/* CHAPTER 4 — IHRE VORTEILE */}
         <SectionEnteredProvider value={entered[3]}>
+          <Station4Rad panelRef={panelRef(3)} />
+          {/* Die Station ist ersetzt; die Unterseite /anlagestrategien
+              liegt weiterhin in diesem Bauteil und wird von der
+              Mandat-Karte in Station 3 aus verlinkt. */}
           <Section4Anlagestrategien
+            nurUnterseite
             scrollX={0}
             breakpoint={breakpoint}
             viewMode={ast.mode}
@@ -1541,18 +1523,20 @@ export default function App() {
             onCloseDetail={ast.closeDetail}
             onContactClick={navigateToContact}
             onNavigateToProcess={pm.openDetail}
-            panelRef={panelRef(3)}
           />
         </SectionEnteredProvider>
 
-        {/* CHAPTER 5 — ÜBER TELLIAN (Teil 1 + Filmstrip als Fragment) */}
+        {/* CHAPTER 5 — TEAM */}
         <SectionEnteredProvider value={entered[4]}>
-          <Section5UeberTellian onContactClick={navigateToContact} panelRef={panelRef(4)} />
+          <Station5Team onContactClick={navigateToContact} panelRef={panelRef(4)} />
         </SectionEnteredProvider>
 
         {/* CHAPTER 6 — KONTAKT (map rendered via overlay, no layout impact) */}
         <SectionEnteredProvider value={entered[5]}>
-          <Section6Kontakt onOpenLegal={legal.open} panelRef={panelRef(5)} />
+          <Station6Kontakt
+            onOpenLegal={legal.open}
+            panelRef={panelRef(5)}
+          />
         </SectionEnteredProvider>
       </div>
 
@@ -1572,20 +1556,22 @@ export default function App() {
           transition: "opacity 400ms ease-out",
         }}
       >
-        <Navigation
-          activeIndex={activeIndex}
-          scrollDirection={scrollDirection}
-          onNavigate={navigateToSection}
-          introComplete={introComplete}
-          breakpoint={breakpoint}
-          isVertical={false}
-          onLoginClick={() => setLoginOpen(true)}
+        {/* Genau zwei Navigationselemente: Kopfzeile und
+            Stationsleiste. Die senkrechte Schiene am linken Rand und
+            das Menü-Overlay entfallen auf Desktop. */}
+        <Kopfzeile
+          zonen={bandZonen}
+          sprache={sprache}
+          onSprache={setSprache}
+          onPortal={() => setLoginOpen(true)}
+          onLogo={() => navigateToSection(0)}
         />
 
         {introComplete && (
           <DotNavigation
             activeIndex={activeIndex}
             onNavigate={navigateToSection}
+            zonen={bandZonen}
           />
         )}
       </div>

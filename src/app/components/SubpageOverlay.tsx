@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { C, serif, sans } from "../tokens";
 import { EASE } from "../../styles/motion";
+import logoHorizontal from "../../assets/logo/Tellian__Imperial purple logo.svg";
 
 interface SubpageOverlayProps {
   isOpen: boolean;
@@ -84,14 +85,14 @@ export function SubpageOverlay({
           transition: `opacity 300ms ease-out ${isOpen ? "900ms" : "0ms"}`,
         }}
       >
-        <span
-          style={{
-            fontFamily: sans, fontSize: "13px", fontWeight: 700, letterSpacing: "2.5px",
-            color: C.dark, textTransform: "uppercase",
-          }}
-        >
-          Tellian<span style={{ fontWeight: 400 }}> Capital</span>
-        </span>
+        {/* Dasselbe Logo wie in der Kopfzeile der Hauptseite. Vorher
+            stand hier der Schriftzug in Inter gesperrt — weder die
+            Wortmarke noch die richtige Schrift. */}
+        <img
+          src={logoHorizontal}
+          alt="Tellian Capital"
+          style={{ width: "112px", height: "auto", display: "block" }}
+        />
         <button
           onClick={onClose}
           style={{
@@ -110,7 +111,12 @@ export function SubpageOverlay({
         </button>
       </div>
 
-      {/* ═══ Hero — eyebrow + headline ═══ */}
+      {/* ═══ Kopf — Eyebrow und Titel ═══
+          Nur, wenn es etwas zu zeigen gibt. Die Unterseite
+          Vermögensverwaltung bringt ihren Titel selbst mit und
+          übergibt hier null — der Block stand trotzdem und belegte
+          gemessene 120px Innenabstand plus zwei leere Zeilen. */}
+      {(eyebrow || headline) && (
       <div
         style={{
           textAlign: "center",
@@ -139,6 +145,7 @@ export function SubpageOverlay({
           {headline}
         </h1>
       </div>
+      )}
 
       {/* ═══ Custom per-subpage content ═══ */}
       {children}

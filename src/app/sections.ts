@@ -28,14 +28,20 @@ export interface SectionDef {
   /** Stabiler Schlüssel, unabhängig von Position und Beschriftung.
    *  Wird auch als Hash-Fragment in der URL geführt. */
   key: string;
-  /** Beschriftung in der Stationsleiste.
-   *  Weicht bewusst von navLabel ab: die Leiste benennt Stationen,
-   *  das Menü benennt Inhalte. */
+  /** Name der Station. EINZIGE Quelle — Stationsleiste und mobiles
+   *  Menü lesen beide daraus. Vorher standen hier zusätzlich
+   *  navLabel und navSub mit einer veralteten Gliederung
+   *  (Philosophie, Vermögensverwaltung, Über uns); das Menü zeigte
+   *  dadurch Stationen an, die es nicht mehr gibt. */
   label: string;
-  /** Langform — Menü-Overlay. */
-  navLabel: string;
-  /** Unterzeile im Menü-Overlay. */
-  navSub: string;
+  /** Kurzform für schmale Fenster. Die Leiste kürzt den Namen,
+   *  bevor sie die Schrift verkleinert — 12px ist die Untergrenze. */
+  labelKurz: string;
+  /** true, wenn die Station GANZ dunkel ist. Jede Station ist
+   *  entweder ganz hell oder ganz dunkel — dunkle Panels innerhalb
+   *  einer hellen Station gibt es nicht mehr. Kopfzeile und
+   *  Stationsleiste mischen ihre Schriftfarbe daraus. */
+  dunkel: boolean;
   /** id des Abschnitts im vertikalen Zweig, für scrollIntoView. */
   domId: string;
   /**
@@ -51,26 +57,22 @@ export interface SectionDef {
  */
 export const SECTIONS: readonly SectionDef[] = [
   {
-    key: "hero", label: "Einstieg",
-    navLabel: "Start", navSub: "Einführung",
+    key: "hero", label: "Einstieg", labelKurz: "Einstieg", dunkel: false,
     domId: "section-hero",
     imageIds: ["hero-zuerich"],
   },
   {
-    key: "philosophie", label: "Wealth Management",
-    navLabel: "Philosophie", navSub: "Anlagephilosophie",
+    key: "philosophie", label: "Wealth Management", labelKurz: "Wealth", dunkel: true,
     domId: "section-anlagephilosophie",
     imageIds: ["sardona"],
   },
   {
-    key: "vermoegen", label: "Portfolio",
-    navLabel: "Vermögensverwaltung", navSub: "Mandat & Prozess",
+    key: "vermoegen", label: "Portfolio", labelKurz: "Portfolio", dunkel: false,
     domId: "section-vermoegensverwaltung",
     imageIds: [],
   },
   {
-    key: "strategien", label: "Ihre Vorteile",
-    navLabel: "Portfolio Management", navSub: "Wie wir investieren",
+    key: "strategien", label: "Ihre Vorteile", labelKurz: "Vorteile", dunkel: true,
     domId: "section-anlagestrategien",
     imageIds: [],
   },
@@ -87,8 +89,7 @@ export const SECTIONS: readonly SectionDef[] = [
      Im Redesign verliert sie den Filmstrip und schrumpft auf
      SECTION_WIDTH. Dann ändert sich hier nichts ausser der Breite. */
   {
-    key: "ueber-uns", label: "Team",
-    navLabel: "Über uns", navSub: "Team & Geschichte",
+    key: "ueber-uns", label: "Team", labelKurz: "Team", dunkel: false,
     domId: "section-ueber-uns",
     imageIds: [
       "olivier-bill", "marco-ludescher", "rolf-schneider",
@@ -96,8 +97,7 @@ export const SECTIONS: readonly SectionDef[] = [
     ],
   },
   {
-    key: "kontakt", label: "Kontakt",
-    navLabel: "Kontakt", navSub: "Gespräch vereinbaren",
+    key: "kontakt", label: "Kontakt", labelKurz: "Kontakt", dunkel: true,
     domId: "section-kontakt",
     imageIds: [],
   },
@@ -123,6 +123,28 @@ export function indexOfSection(key: string | null | undefined): number {
  * Stelle landet — auch dann, wenn sie per Deep-Link geöffnet wurde und
  * der Track vorher nie dort war.
  */
+/**
+ * Verweise, die AUSSERHALB der Stationsleiste stehen: sie gehören
+ * ins Fussband von Station 6 und ins mobile Menü, sonst nirgends.
+ * Eine Quelle, damit beide dasselbe führen.
+ */
+export interface NebenVerweis {
+  text: string;
+  href: string;
+  /** true = eigene Rechtsseite, wird als Overlay geöffnet. */
+  legal?: boolean;
+  extern?: boolean;
+}
+
+export const NEBEN_VERWEISE: readonly NebenVerweis[] = [
+  { text: "Solutions", href: "https://solutions.telliancapital.ch", extern: true },
+  { text: "LinkedIn", href: "https://www.linkedin.com/company/tellian-capital", extern: true },
+  { text: "FAQ", href: "/faq" },
+  { text: "Datenschutz", href: "/datenschutz", legal: true },
+  { text: "Kundeninformation", href: "/kundeninformation", legal: true },
+  { text: "Impressum", href: "/impressum", legal: true },
+];
+
 export const SUBPAGE_SECTION_KEY: Readonly<Record<string, string>> = {
   "/vermoegensverwaltung": "vermoegen",
   "/anlagestrategien": "strategien",

@@ -168,7 +168,9 @@ interface MapOverlayProps {
   returnFocusRef: React.RefObject<HTMLButtonElement | null>;
 }
 
-function MapOverlay({ open, onClose, returnFocusRef }: MapOverlayProps) {
+/* Wird von Station6Kontakt weiterverwendet — die Karte selbst
+   (Mapbox, Stil, Marker) bleibt unverändert. */
+export function MapOverlay({ open, onClose, returnFocusRef }: MapOverlayProps) {
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const isAnimatingRef = useRef(false);
   const [rendered, setRendered] = useState(open);

@@ -113,7 +113,39 @@ const SOURCES = [
        Alle Stufen durch 4 teilbar, also ohne Rundungsrest. */
     widths: [420, 620, 820, 1104],
   },
+  {
+    /* BANDAUSSCHNITT — dasselbe Motiv für den schmalen Zweig.
+
+       Der Hero legt das Bild dort als Band über die volle Breite. Mit
+       dem 4:5-Ausschnitt wäre das bei 390px Fenster 488px hoch — der
+       Titel stünde unter dem Falz. Der Ausschnitt entsteht deshalb
+       HIER und nicht über object-fit im Browser.
+
+       Gleiche Symmetrieachse (0.477) und gleiche Tonung wie oben, nur
+       breiter und flacher: 0.477 − 0.46/2 = 0.247. top ist gegenüber
+       dem hohen Ausschnitt abgesenkt (0.235 → 0.28), sonst nähme der
+       Himmel im flachen Format zu viel Platz ein; die Giebelfiguren
+       stehen weiterhin ganz im Bild. */
+    id: "opernhaus-band",
+    src: "src/assets/opernhaus3.jpg",
+    crop: {
+      left: 0.247,
+      top: 0.28,
+      width: 0.46,
+      ratio: 1.8,          /* Breite / Höhe = 9:5 */
+      saturation: 0.78,
+      contrast: 1.04,
+    },
+    /* Der Ausschnitt misst 2112×1173. Volle Fensterbreite bei bis zu
+       dreifacher Pixeldichte auf dem Telefon — die Leiter endet dort,
+       wo die Quelle aufhört. */
+    widths: [432, 774, 1152, 1548, 2106],
+  },
   ...[
+    /* Namensgeber. Läuft durch dieselbe Verarbeitung wie die
+       Porträts — gleiche Formate, gleiche Grössenstufen, keine
+       eigene Tonung —, damit es sich im Raster nicht herausfällt. */
+    ["wilhelm-tell", "wilhelmTell.jpg"],
     ["olivier-bill", "Olivier-Bill.JPG"],
     ["marco-ludescher", "Marco-Ludescher.JPG"],
     ["rolf-schneider", "Rolf-Schneider.JPG"],
