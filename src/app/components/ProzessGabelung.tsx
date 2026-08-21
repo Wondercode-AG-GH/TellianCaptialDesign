@@ -35,7 +35,7 @@ const KARTEN = [
     eyebrow: "TELLIAN ENTSCHEIDET",
     name: "Mandat",
     text: "Sie erteilen die Verwaltungsvollmacht. Tellian Capital trifft die Anlageentscheide auf Basis Ihres Risikoprofils.",
-    verweis: "Anlageausschuss und Strategien",
+    knopf: "Mehr zum Mandat",
   },
   {
     id: "advisory",
@@ -43,7 +43,7 @@ const KARTEN = [
     eyebrow: "SIE ENTSCHEIDEN",
     name: "Advisory",
     text: "Sie bleiben aktiver Investor. Wir liefern Analyse und Empfehlung, die finale Entscheidung treffen Sie.",
-    verweis: "Mehr zu Advisory",
+    knopf: "Mehr zu Advisory",
   },
 ] as const;
 
@@ -59,12 +59,13 @@ const GABEL_ZU =
   "M96 0 V18 a10 10 0 0 0 10 10 H190 a10 10 0 0 1 10 10 V56 " +
   "M304 0 V18 a10 10 0 0 1 -10 10 H210 a10 10 0 0 0 -10 10 V56";
 
+/* Reiner Text auf der Fläche — keine Kontur, keine Füllung.
+   Vorher standen vier ähnliche Rechtecke im Bild, zwei davon
+   klickbar und zwei nicht. Jetzt sind es zwei, und beide sind es. */
 function Band({ titel }: { titel: string }) {
   return (
     <div
       style={{
-        border: `1px solid var(--tellian-pm-line)`,
-        borderRadius: "var(--tellian-pm-radius)",
         paddingTop: "var(--tellian-pm-band-pad-y)",
         paddingBottom: "var(--tellian-pm-band-pad-y)",
         paddingLeft: "16px",
@@ -157,6 +158,7 @@ export function ProzessGabelung({
           display: "grid",
           gridTemplateColumns: gestapelt ? "1fr" : "1fr 1fr",
           gap: gestapelt ? "16px" : "var(--tellian-pm-card-gap)",
+          alignItems: "stretch",
         }}
       >
         {KARTEN.map((k) => (
@@ -165,20 +167,25 @@ export function ProzessGabelung({
             type="button"
             onClick={handler[k.id]}
             className="tellian-pm-karte"
+            /* EIN Bedienelement je Karte. Der Knopf darunter ist ein
+               span, kein zweiter Knopf — die ganze Karte ist die
+               Klickfläche, ein Tastaturschritt, eine Ansage. */
             style={{
-              display: "block",
+              /* Flex, damit der Knopf unten sitzt, auch wenn die
+                 beiden Karten unterschiedlich lange Texte tragen. */
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              height: "100%",
               width: "100%",
               textAlign: "left",
               font: "inherit",
               cursor: "pointer",
-              /* Fläche und Hover-Fläche stehen als eigene
-                 Eigenschaften an der Karte; die Fläche selbst setzt
-                 die Regel unten. Inline gesetzt schlüge sie jede
-                 :hover-Regel — genau daran ist der Hover der Karten
-                 vorher wirkungslos geblieben. */
-              ["--flaeche" as string]: `var(--tellian-pm-card-${k.id})`,
-              ["--flaeche-hover" as string]: `var(--tellian-pm-card-${k.id}-hover)`,
-              border: `1px solid var(--tellian-pm-line)`,
+              /* Kontur und Füllung stehen in der Regel unten, NICHT
+                 hier: inline gesetzt schlagen sie jede :hover-Regel,
+                 und der Zustand bliebe wirkungslos. */
+              borderStyle: "solid",
+              borderWidth: "1px",
               borderRadius: "var(--tellian-pm-radius)",
               padding: "var(--tellian-pm-card-pad)",
             }}
@@ -186,11 +193,16 @@ export function ProzessGabelung({
             <span
               style={{
                 display: "flex",
-                alignItems: "center",
+                alignItems: "flex-start",
                 gap: "7px",
                 fontFamily: sans,
                 fontSize: "var(--tellian-pm-card-eyebrow-size)",
-                letterSpacing: "var(--tellian-pm-caps-tracking)",
+                letterSpacing: "var(--tellian-pm-card-eyebrow-tracking)",
+                lineHeight: "var(--tellian-pm-card-eyebrow-leading)",
+                /* Zwei Zeilen fest: die eine Zeile bricht um, die
+                   andere nicht — ohne Reserve stünden die Namen der
+                   beiden Karten auf verschiedenen Linien. */
+                minHeight: "calc(2 * var(--tellian-pm-card-eyebrow-size) * var(--tellian-pm-card-eyebrow-leading))",
                 color: C.accent,
               }}
             >
@@ -200,6 +212,8 @@ export function ProzessGabelung({
                   flex: "0 0 auto",
                   width: "6px",
                   height: "6px",
+                  /* Auf die Mittellinie der ersten Zeile. */
+                  marginTop: "calc((var(--tellian-pm-card-eyebrow-size) * var(--tellian-pm-card-eyebrow-leading) - 6px) / 2)",
                   borderRadius: "50%",
                   backgroundColor:
                     k.punkt === "purple" ? C.purple : C.muted,
@@ -235,17 +249,31 @@ export function ProzessGabelung({
               {k.text}
             </span>
 
+            {/* Sieht aus wie ein Knopf, ist aber Teil der Karte.
+                Ein echtes <button> hier ergäbe ein zweites Klickziel,
+                einen zweiten Tastaturschritt und eine zweite Ansage. */}
             <span
+              className="tellian-pm-knopf"
               style={{
-                display: "block",
-                marginTop: "13px",
+                display: "inline-block",
+                marginTop: "auto",
+                paddingTop: "var(--tellian-pm-card-pad)",
                 fontFamily: sans,
                 fontSize: "var(--tellian-pm-card-link-size)",
-                letterSpacing: "0.04em",
-                color: C.ink,
+                letterSpacing: "0.06em",
               }}
             >
-              {k.verweis} <span aria-hidden>→</span>
+              <span
+                style={{
+                  display: "inline-block",
+                  color: "var(--tellian-pm-knopf-ink)",
+                  padding: "var(--tellian-pm-knopf-pad)",
+                  borderRadius: "2px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {k.knopf} <span aria-hidden>→</span>
+              </span>
             </span>
           </button>
         ))}
@@ -264,20 +292,42 @@ export function ProzessGabelung({
           sich inline gar nicht ausdrücken. */}
       <style>{`
         .tellian-pm-karte {
-          background-color: var(--flaeche);
-          transition: border-color 200ms ease, background-color 200ms ease;
+          border-color: var(--tellian-pm-line);
+          background-color: var(--tellian-pm-card-bg);
+          transform: translateY(0);
+          box-shadow: none;
+          transition:
+            border-color var(--tellian-pm-card-ms) ease,
+            background-color var(--tellian-pm-card-ms) ease,
+            transform var(--tellian-pm-card-ms) ease,
+            box-shadow var(--tellian-pm-card-ms) ease;
         }
         .tellian-pm-karte:hover,
         .tellian-pm-karte:focus-visible {
           border-color: var(--tellian-pm-line-active);
-          background-color: var(--flaeche-hover);
+          background-color: var(--tellian-pm-card-bg-aktiv);
+          transform: translateY(var(--tellian-pm-card-hub));
+          box-shadow: var(--tellian-pm-card-schatten);
+        }
+        /* Der Knopf dunkelt mit der Karte nach — er ist Teil von ihr,
+           kein eigenes Ziel, also hat er auch keinen eigenen Hover. */
+        .tellian-pm-knopf > span {
+          background-color: var(--tellian-pm-knopf-bg);
+          transition: background-color var(--tellian-pm-card-ms) ease;
+        }
+        .tellian-pm-karte:hover .tellian-pm-knopf > span,
+        .tellian-pm-karte:focus-visible .tellian-pm-knopf > span {
+          background-color: var(--tellian-pm-knopf-bg-aktiv);
         }
         .tellian-pm-karte:focus-visible {
           outline: 2px solid var(--tellian-pm-focus-ring);
-          outline-offset: 2px;
+          outline-offset: 3px;
         }
         @media (prefers-reduced-motion: reduce) {
-          .tellian-pm-karte { transition: none; }
+          .tellian-pm-karte,
+          .tellian-pm-karte * { transition: none !important; }
+          .tellian-pm-karte:hover,
+          .tellian-pm-karte:focus-visible { transform: none; }
         }
       `}</style>
     </div>

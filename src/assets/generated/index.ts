@@ -9,18 +9,18 @@ import i4 from "./sardona/sardona-420.webp";
 import i5 from "./sardona/sardona-720.webp";
 import i6 from "./sardona/sardona-420.jpg";
 import i7 from "./sardona/sardona-720.jpg";
-import i8 from "./opernhaus/opernhaus-420.avif";
-import i9 from "./opernhaus/opernhaus-620.avif";
-import i10 from "./opernhaus/opernhaus-820.avif";
-import i11 from "./opernhaus/opernhaus-1104.avif";
-import i12 from "./opernhaus/opernhaus-420.webp";
-import i13 from "./opernhaus/opernhaus-620.webp";
-import i14 from "./opernhaus/opernhaus-820.webp";
-import i15 from "./opernhaus/opernhaus-1104.webp";
-import i16 from "./opernhaus/opernhaus-420.jpg";
-import i17 from "./opernhaus/opernhaus-620.jpg";
-import i18 from "./opernhaus/opernhaus-820.jpg";
-import i19 from "./opernhaus/opernhaus-1104.jpg";
+import i8 from "./opernhaus/opernhaus-432.avif";
+import i9 from "./opernhaus/opernhaus-768.avif";
+import i10 from "./opernhaus/opernhaus-1080.avif";
+import i11 from "./opernhaus/opernhaus-1530.avif";
+import i12 from "./opernhaus/opernhaus-432.webp";
+import i13 from "./opernhaus/opernhaus-768.webp";
+import i14 from "./opernhaus/opernhaus-1080.webp";
+import i15 from "./opernhaus/opernhaus-1530.webp";
+import i16 from "./opernhaus/opernhaus-432.jpg";
+import i17 from "./opernhaus/opernhaus-768.jpg";
+import i18 from "./opernhaus/opernhaus-1080.jpg";
+import i19 from "./opernhaus/opernhaus-1530.jpg";
 import i20 from "./opernhaus-band/opernhaus-band-432.avif";
 import i21 from "./opernhaus-band/opernhaus-band-774.avif";
 import i22 from "./opernhaus-band/opernhaus-band-1152.avif";
@@ -148,25 +148,25 @@ export const IMAGES = {
     ],
   },
   "opernhaus": {
-    nativeWidth: 1104,
-    nativeHeight: 1380,
+    nativeWidth: 1533,
+    nativeHeight: 1022,
     avif: [
-      { w: 420, h: 525, url: i8 },
-      { w: 620, h: 775, url: i9 },
-      { w: 820, h: 1025, url: i10 },
-      { w: 1104, h: 1380, url: i11 },
+      { w: 432, h: 288, url: i8 },
+      { w: 768, h: 512, url: i9 },
+      { w: 1080, h: 720, url: i10 },
+      { w: 1530, h: 1020, url: i11 },
     ],
     webp: [
-      { w: 420, h: 525, url: i12 },
-      { w: 620, h: 775, url: i13 },
-      { w: 820, h: 1025, url: i14 },
-      { w: 1104, h: 1380, url: i15 },
+      { w: 432, h: 288, url: i12 },
+      { w: 768, h: 512, url: i13 },
+      { w: 1080, h: 720, url: i14 },
+      { w: 1530, h: 1020, url: i15 },
     ],
     jpg: [
-      { w: 420, h: 525, url: i16 },
-      { w: 620, h: 775, url: i17 },
-      { w: 820, h: 1025, url: i18 },
-      { w: 1104, h: 1380, url: i19 },
+      { w: 432, h: 288, url: i16 },
+      { w: 768, h: 512, url: i17 },
+      { w: 1080, h: 720, url: i18 },
+      { w: 1530, h: 1020, url: i19 },
     ],
   },
   "opernhaus-band": {

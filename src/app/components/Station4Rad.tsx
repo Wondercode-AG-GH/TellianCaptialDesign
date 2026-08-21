@@ -335,7 +335,7 @@ export function Station4Rad({ panelRef, isVertical = false, domId }: Props) {
         style={{
           backgroundColor: "var(--tellian-r4-bg)",
           backgroundImage:
-            "radial-gradient(ellipse at 50% 34%, var(--tellian-r4-glow) 0%, var(--tellian-r4-bg) 62%)",
+            "var(--tellian-flaeche-dunkel-schmal)",
           paddingTop: "var(--tellian-abschnitt-luft-schmal)",
           paddingBottom: "var(--tellian-abschnitt-luft-schmal)",
           paddingLeft: "clamp(20px, 6vw, 48px)",
@@ -451,7 +451,7 @@ export function Station4Rad({ panelRef, isVertical = false, domId }: Props) {
           inset: 0,
           backgroundColor: "var(--tellian-r4-bg)",
           backgroundImage:
-            "radial-gradient(ellipse at 50% 46%, var(--tellian-r4-glow) 0%, var(--tellian-r4-bg) 60%)",
+            "var(--tellian-flaeche-dunkel)",
         }}
       />
 

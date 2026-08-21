@@ -214,13 +214,13 @@ export function Station1Einstieg({
     </div>
   );
 
-  /* ══ Bildpanel — exakt 4:5 ══
+  /* ══ Bildpanel — exakt 3:2 ══
      Das Panel wird NICHT im Browser beschnitten; der Ausschnitt kommt
      aus der Bildaufbereitung. Die Fläche steht in Mushroom, bevor das
      Motiv da ist, und bleibt stehen, wenn es fehlt. */
   const bildpanel = (breit: boolean) => {
     const motiv = breit ? imageId : (bandImageId ?? imageId);
-    const verhaeltnis = breit || !bandImageId ? "4 / 5" : "9 / 5";
+    const verhaeltnis = breit || !bandImageId ? "3 / 2" : "9 / 5";
     return (
       <div
         style={{

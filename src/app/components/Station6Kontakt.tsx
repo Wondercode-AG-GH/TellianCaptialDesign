@@ -596,7 +596,13 @@ export function Station6Kontakt({
      Formular. */
   if (isVertical) {
     return (
-      <section id={domId} style={{ backgroundColor: "var(--tellian-k6-bg)" }}>
+      <section
+        id={domId}
+        style={{
+          backgroundColor: "var(--tellian-k6-bg)",
+          backgroundImage: "var(--tellian-flaeche-dunkel-schmal)",
+        }}
+      >
         <div
           style={{
             paddingTop: "var(--tellian-abschnitt-luft-schmal)",
@@ -629,7 +635,11 @@ export function Station6Kontakt({
     <div
       ref={panelRef}
       className="flex-shrink-0 h-screen relative"
-      style={{ width: SECTION_WIDTH_LAST, backgroundColor: "var(--tellian-k6-bg)" }}
+      style={{
+        width: SECTION_WIDTH_LAST,
+        backgroundColor: "var(--tellian-k6-bg)",
+        backgroundImage: "var(--tellian-flaeche-dunkel)",
+      }}
     >
       <div
         style={{

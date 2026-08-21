@@ -40,7 +40,11 @@ import { SectionEnteredProvider } from "./components/SectionEntry";
 import { Station1Einstieg } from "./components/Station1Einstieg";
 import { prefetchImages } from "./components/ResponsiveImage";
 import { useVerticalSectionIndex } from "./components/useVerticalSectionIndex";
-import preloadLogo from "../assets/logo/Tellian__archive white logo horizontal.svg";
+/* Silver Mist statt Archive White. Dieselbe Sperrung — gemessen
+   deckungsgleich (Leinwand 3034x1902, Motiv 2354px breit, Versatz
+   320,607) —, nur die gelieferte Farbfassung ist eine andere.
+   Eingefaerbt wird nichts. */
+import preloadLogo from "../assets/logo/Tellian__Silver Mist logo.svg";
 
 /* Tokens: C, serif, sans from ./tokens.ts; EASE from ../styles/motion.ts */
 
@@ -1359,7 +1363,6 @@ export default function App() {
         <Station1Einstieg
           isVertical
           imageId="opernhaus"
-          bandImageId="opernhaus-band"
           imageAlt="Opernhaus Zürich, Fassadenausschnitt"
           onContactClick={navigateToContact}
         />

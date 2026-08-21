@@ -48,6 +48,32 @@
   --tellian-dot-inactive: #C8C5BB;
   --tellian-dot-active: #8A8575;
   --tellian-purple: #281F33;          /* Imperial Purple */
+
+  /* ══ DIE DUNKLE STATIONSFLÄCHE ══
+     Eine Definition für alle drei dunklen Stationen (02, 04, 06).
+     Vorher trug nur Station 4 den Lichtschein; 2 und 6 standen flach
+     und wirkten daneben tot. Gemessen war Station 4 in der Mitte um
+     13/11/15 Punkte heller und lief zu den Rändern auf denselben
+     Wert aus.
+
+     Der Schein sitzt bei 50 % / 46 % und ist ab 60 % Radius weg. In
+     Station 4 liegt damit das Rad darin — in 2 und 6 sitzt er in der
+     Mitte der Station, nicht hinter ihrem Motiv. Wenn er dort dem
+     Motiv folgen soll, gehört je Station ein eigener Mittelpunkt
+     hierher. */
+  --tellian-flaeche-glanz: #372B44;
+  --tellian-flaeche-dunkel: radial-gradient(
+    ellipse at 50% 46%,
+    var(--tellian-flaeche-glanz) 0%,
+    var(--tellian-purple) 60%
+  );
+  /* Schmal ist die Station höher als breit; der Schein sitzt dort
+     weiter oben, damit er nicht im Fussbereich landet. */
+  --tellian-flaeche-dunkel-schmal: radial-gradient(
+    ellipse at 50% 34%,
+    var(--tellian-flaeche-glanz) 0%,
+    var(--tellian-purple) 60%
+  );
   --tellian-silver-mist: #BFBFBF;    /* Silver Mist */
   --tellian-ink: #191718;             /* Semantic: active typography (= Iron Veil) */
   --tellian-greige-soft: #C8C3BA;     /* Warm greige for inactive/subdued type */
@@ -226,13 +252,22 @@
   --tellian-pm-card-gap: 4%;
 
   --tellian-pm-band-title-size: 14px;
-  --tellian-pm-band-sub-size: 9px;
+  /* 9px unterschritt die Untergrenze von 12px. */
+  --tellian-pm-band-sub-size: 12px;
   --tellian-pm-band-pad-y: 13px;
   --tellian-pm-card-pad: clamp(14px, 1.3vw, 20px);
-  --tellian-pm-card-eyebrow-size: 9px;
+  --tellian-pm-card-eyebrow-size: 12px;   /* war 9px */
+  /* Bei 12px und 0.16em Sperrung bricht "TELLIAN ENTSCHEIDET" um,
+     "SIE ENTSCHEIDEN" nicht — die beiden Karten liefen dadurch
+     auseinander. Engere Sperrung für diese Zeile, und zwei Zeilen
+     fest reserviert, damit beide Namen auf einer Linie stehen. */
+  --tellian-pm-card-eyebrow-tracking: 0.08em;
+  --tellian-pm-card-eyebrow-leading: 1.35;
   --tellian-pm-card-name-size: clamp(19px, 1.7vw, 25px);
   --tellian-pm-card-text-size: 12px;
-  --tellian-pm-card-link-size: 11px;
+  /* Beschriftung des Knopfs in der Karte. Kleiner als der
+     Hauptknopf in Station 1 (13px), aber nicht unter 12px. */
+  --tellian-pm-card-link-size: 12px;
   --tellian-pm-caps-tracking: 0.18em;
   --tellian-pm-radius: 2px;
 
@@ -256,17 +291,31 @@
      von Imperial Purple, 70.2° der von Mushroom. Die Helligkeit
      bleibt knapp unter dem Untergrund (L 0.966), die Buntheit
      bleibt klein — leicht, aber unterscheidbar. */
-  --tellian-pm-card-mandat: oklch(94.5% 0.014 304.5);
-  --tellian-pm-card-mandat-hover: oklch(92.5% 0.020 304.5);
-  --tellian-pm-card-advisory: oklch(94.5% 0.012 70.2);
-  --tellian-pm-card-advisory-hover: oklch(92.5% 0.017 70.2);
+  /* EINE Füllung für beide Karten. Vorher trugen sie zwei leicht
+     verschiedene Töne; die Unterscheidung liegt jetzt allein beim
+     farbigen Punkt vor der Eyebrow-Zeile. */
+  --tellian-pm-card-bg: oklch(96.5% 0.004 300);
+  --tellian-pm-card-bg-aktiv: oklch(93.5% 0.008 300);
+
+  /* Der Knopf in der Karte. Dieselbe Farbe wie der Hauptknopf in
+     Station 1 — die Seite soll ein einziges Klicksignal führen. */
+  --tellian-pm-knopf-bg: var(--tellian-button);
+  --tellian-pm-knopf-bg-aktiv: var(--tellian-button-hover);
+  --tellian-pm-knopf-ink: var(--tellian-dark);
+  --tellian-pm-knopf-pad: 9px 14px;
+
+  /* Reaktion der Karte. Kurz und knapp — sie soll antworten, nicht
+     springen. */
+  --tellian-pm-card-hub: -3px;
+  --tellian-pm-card-schatten: 0 10px 24px -12px rgba(40, 31, 51, 0.38);
+  --tellian-pm-card-ms: 200ms;
   --tellian-pm-focus-ring: var(--tellian-purple);
 
   /* ── STATION 4 — IHRE VORTEILE (Rad) ──
      Dunkle Station. Der radiale Verlauf ist kein Schmuck: eine grosse
      einfarbige Fläche wirkt flach, weil das Auge keine Tiefe findet. */
   --tellian-r4-bg: var(--tellian-purple);
-  --tellian-r4-glow: #372B44;
+  --tellian-r4-glow: var(--tellian-flaeche-glanz);
   --tellian-r4-ink: var(--tellian-bg);
   --tellian-r4-ink-dim: rgba(244, 244, 240, 0.45);
   --tellian-r4-accent: var(--tellian-muted);
@@ -693,7 +742,7 @@
 
   /* Bildpanel: Fläche von Anfang an reserviert, damit nichts
      springt und die Station ohne Foto vollständig bleibt. */
-  --tellian-s1-panel-ratio: 0.8;          /* Breite / Höhe = 4:5 */
+  --tellian-s1-panel-ratio: 1.5;          /* Breite / Höhe = 3:2 */
   --tellian-s1-stage-pad: clamp(24px, 4vh, 56px);
 
   /* ══ BÜHNE ══
@@ -723,13 +772,17 @@
      und halbiert ihn ungefähr. */
   --tellian-abschnitt-luft-schmal: clamp(36px, 5.5vh, 60px);
   /* Nutzbare Höhe der Bühne. Die Panelbreite wird daraus abgeleitet,
-     damit das Format 4:5 auch auf flachen Fenstern exakt bleibt,
+     damit das Format 3:2 auch auf flachen Fenstern exakt bleibt,
      statt beschnitten oder gestaucht zu werden. */
   --tellian-s1-stage-height: var(--tellian-buehne-hoehe);
-  /* Breite des Panels: rund ein Drittel der Station, aber nie mehr,
-     als die Resthöhe im Verhältnis 4:5 zulässt. */
+  /* Breite des Panels, nie mehr als die Resthöhe im Verhältnis 3:2
+     zulässt. Die 32 % waren für das frühere HOCHKANTE 4:5-Motiv
+     gerechnet; quer ergaben sie gemessene 422x281px — das Bild stand
+     verloren in der Fläche. 36 % ist der grösste Wert, bei dem der
+     Standfirst bei 1512px noch zwei Spalten behält: die Grid braucht
+     687px, bei 36 % bleiben ihr 714px. */
   --tellian-s1-panel-width: min(
-    32%,
+    36%,
     calc(var(--tellian-s1-stage-height) * var(--tellian-s1-panel-ratio))
   );
   --tellian-s1-panel-placeholder: var(--tellian-muted);

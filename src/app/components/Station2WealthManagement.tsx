@@ -152,7 +152,13 @@ export function Station2WealthManagement({
      Reihenfolge: Titel, Haarlinie, Text, Grafik, Knopf. */
   if (isVertical) {
     return (
-      <section id="section-anlagephilosophie" style={{ backgroundColor: "var(--tellian-s2-bg)" }}>
+      <section
+        id="section-anlagephilosophie"
+        style={{
+          backgroundColor: "var(--tellian-s2-bg)",
+          backgroundImage: "var(--tellian-flaeche-dunkel-schmal)",
+        }}
+      >
         <div
           style={{
             paddingTop: "var(--tellian-abschnitt-luft-schmal)",
@@ -209,7 +215,11 @@ export function Station2WealthManagement({
          Kasten um die Grafik hatte. Sie läuft über die volle Höhe,
          auch hinter beiden Bändern — die sind durchsichtig und
          schreiben darüber in ihrer hellen Fassung. */
-      style={{ width: SECTION_WIDTH, backgroundColor: "var(--tellian-s2-bg)" }}
+      style={{
+        width: SECTION_WIDTH,
+        backgroundColor: "var(--tellian-s2-bg)",
+        backgroundImage: "var(--tellian-flaeche-dunkel)",
+      }}
     >
       <div
         style={{

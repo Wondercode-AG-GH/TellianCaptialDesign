@@ -81,51 +81,35 @@ const SOURCES = [
   },
   {
     id: "opernhaus",
-    src: "src/assets/opernhaus3.jpg",
-    /* Ausschnitt aus der Frontalaufnahme, 4591×3061.
+    src: "src/assets/opernhaus_1.1.png",
+    /* GANZES BILD, KEIN AUSSCHNITT.
+       1535x1025, also 1.4976 — praktisch genau 3:2. Der Auftrag war,
+       moeglichst viel zu zeigen; bei ratio 1.5 und voller Breite
+       fallen 2px Hoehe weg, sonst nichts.
 
-       left stammt NICHT aus der ursprünglichen Abnahme (0.404). Jene
-       Zahlen galten für eine 8000×5333-Aufnahme mit anderem
-       Bildausschnitt; hier treffen sie eine andere Stelle. Gemessen
-       liegt die Symmetrieachse der Fassade bei 47.7 % der Bildbreite,
-       0.404 hätte den Ausschnitt um 215px daneben gesetzt — ein
-       Fünftel seiner eigenen Breite. left ist deshalb aus der Achse
-       abgeleitet: 0.477 − 0.24/2 = 0.357.
-
-       top ist gegenüber der Abnahme (0.315) angehoben, damit die
-       beiden Giebelfiguren ganz im Bild stehen statt angeschnitten.
-       Sie gehörten laut Abnahme ausdrücklich dazu.
-
-       Verhältnis und Tonung sind unverändert übernommen. */
+       KEINE TONUNG.
+       Die frueheren Werte (saturation 0.78, contrast 1.04) waren fuer
+       die Frontalaufnahme bei Tageslicht gerechnet. Diese Aufnahme
+       ist eine Daemmerungsszene und bringt ihre Waerme selbst mit;
+       0.78 Saettigung nahm sie ihr sichtbar. */
     crop: {
-      left: 0.357,
-      top: 0.235,
-      width: 0.24,
-      ratio: 0.8,          /* Breite / Höhe = 4:5 */
-      saturation: 0.78,
-      contrast: 1.04,
+      left: 0,
+      /* Nicht 1.0: exactBox rundet 1535 auf das naechste Vielfache
+         von 3 und landet bei 1536x1024 — einen Pixel breiter als die
+         Quelle, die Extraktion bricht ab. 0.998 ergibt 1533x1022 und
+         liegt damit knapp innerhalb. Verloren gehen 2px Breite und
+         3px Hoehe. */
+      top: 0,
+      width: 0.998,
+      ratio: 1.5,          /* Breite / Hoehe = 3:2 */
     },
-    /* Der Ausschnitt misst 1104×1380. Das Panel braucht 402px (1×) bis
-       rund 1540px auf einem 2560er Schirm bei doppelter Pixeldichte —
-       die Leiter endet deshalb dort, wo die Quelle aufhört. Auf sehr
-       grossen Schirmen bleibt ein Rest Weichheit; alles Grössere wäre
-       hochgerechnet und damit nur scheinbar schärfer.
-       Alle Stufen durch 4 teilbar, also ohne Rundungsrest. */
-    widths: [420, 620, 820, 1104],
+    /* Die Quelle ist 1535px breit — dort endet die Leiter. Das Panel
+       misst rund ein Drittel der Station, auf einem 2560er Schirm bei
+       doppelter Pixeldichte also gut 1600px; der Rest waere
+       hochgerechnet und nur scheinbar schaerfer. */
+    widths: [432, 768, 1080, 1530],
   },
   {
-    /* BANDAUSSCHNITT — dasselbe Motiv für den schmalen Zweig.
-
-       Der Hero legt das Bild dort als Band über die volle Breite. Mit
-       dem 4:5-Ausschnitt wäre das bei 390px Fenster 488px hoch — der
-       Titel stünde unter dem Falz. Der Ausschnitt entsteht deshalb
-       HIER und nicht über object-fit im Browser.
-
-       Gleiche Symmetrieachse (0.477) und gleiche Tonung wie oben, nur
-       breiter und flacher: 0.477 − 0.46/2 = 0.247. top ist gegenüber
-       dem hohen Ausschnitt abgesenkt (0.235 → 0.28), sonst nähme der
-       Himmel im flachen Format zu viel Platz ein; die Giebelfiguren
-       stehen weiterhin ganz im Bild. */
     id: "opernhaus-band",
     src: "src/assets/opernhaus3.jpg",
     crop: {
