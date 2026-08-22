@@ -4,6 +4,7 @@ import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import { useSubpageMode } from "./components/useSubpageMode";
 import { SubpageOverlay } from "./components/SubpageOverlay";
 import { UnterseiteAnlageprozess } from "./components/UnterseiteAnlageprozess";
+import { UnterseiteAdvisory } from "./components/UnterseiteAdvisory";
 import logoHorizontal from "../assets/logo/Tellian__Imperial purple logo.svg";
 import { AnlagestrategienDetail } from "./components/AnlagestrategienDetail";
 import { PortfolioManagementDetail } from "./components/PortfolioManagementDetail";
@@ -1132,10 +1133,12 @@ export default function App() {
        Stehen vor dem Scroll-Hook, weil dieser isDetailMode für seine
        locked-Option braucht. */
   const vvw = useSubpageMode("/vermoegensverwaltung");
+  /* Advisory hängt an derselben Station wie Mandat — Station 3. */
+  const adv = useSubpageMode("/advisory");
   const ast = useSubpageMode("/anlagestrategien");
   const pm  = useSubpageMode("/portfolio-management");
   /* Detail mode is active when any subpage is open */
-  const isDetailMode = vvw.isDetail || ast.isDetail || pm.isDetail;
+  const isDetailMode = vvw.isDetail || ast.isDetail || pm.isDetail || adv.isDetail;
 
   /* ── Horizontaler Scroll mit Sektions-Rastung (nur Desktop) ──
         `locked` sperrt Eingaben, solange ein Overlay offen ist oder das
@@ -1362,6 +1365,7 @@ export default function App() {
             Titel, anderem Text, anderem Bild und anderer Schrift. */}
         <Station1Einstieg
           isVertical
+          bereit={introComplete}
           imageId="opernhaus"
           imageAlt="Opernhaus Zürich, Fassadenausschnitt"
           onContactClick={navigateToContact}
@@ -1375,7 +1379,16 @@ export default function App() {
           isVertical
           domId="section-vermoegensverwaltung"
           onMandat={ast.openDetail}
+          onAdvisory={adv.openDetail}
         />
+        <SubpageOverlay
+          isOpen={adv.isDetail}
+          onClose={adv.closeDetail}
+          eyebrow=""
+          headline={null}
+        >
+          <UnterseiteAdvisory isMobile aktiv={adv.isDetail} onContactClick={navigateToContact} />
+        </SubpageOverlay>
         {/* Unterseite /vermoegensverwaltung, schmale Fassung. */}
         <Section3Vermoegensverwaltung
           nurUnterseite
@@ -1497,7 +1510,18 @@ export default function App() {
           <StationPortfolioManagement
             panelRef={panelRef(2)}
             onMandat={ast.openDetail}
+            onAdvisory={adv.openDetail}
           />
+          {/* Unterseite /advisory — dieselbe Hülle wie schmal, damit
+              Kopfzeile, Rückweg und Verhalten überall gleich sind. */}
+          <SubpageOverlay
+            isOpen={adv.isDetail}
+            onClose={adv.closeDetail}
+            eyebrow=""
+            headline={null}
+          >
+            <UnterseiteAdvisory aktiv={adv.isDetail} onContactClick={navigateToContact} />
+          </SubpageOverlay>
           {/* Die Station ist ersetzt; die Unterseite /vermoegensverwaltung
               liegt weiterhin in diesem Bauteil und wird von Station 2 aus
               verlinkt. Sie bleibt deshalb eingehängt — ohne Station. */}

@@ -99,7 +99,7 @@ export function SubpageOverlay({
             background: "transparent", border: "none", cursor: "pointer",
             padding: "10px 4px", minHeight: "44px",
             display: "inline-flex", alignItems: "center", gap: "6px",
-            fontFamily: sans, fontSize: "11px", letterSpacing: "0.15em",
+            fontFamily: sans, fontSize: "12px", letterSpacing: "0.13em",
             textTransform: "uppercase", color: C.stone,
             transition: "color 300ms ease-out",
           }}
@@ -128,7 +128,7 @@ export function SubpageOverlay({
       >
         <span
           style={{
-            fontFamily: sans, fontSize: "10px", letterSpacing: "0.28em",
+            fontFamily: sans, fontSize: "12px", letterSpacing: "0.22em",
             color: C.stone, textTransform: "uppercase", display: "block",
           }}
         >

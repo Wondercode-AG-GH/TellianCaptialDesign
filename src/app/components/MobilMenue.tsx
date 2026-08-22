@@ -95,7 +95,11 @@ export function MobilMenue({
     color: C.accent,
     background: "transparent",
     border: "none",
-    padding: "6px 0",
+    /* Trefferfläche 44px. */
+    padding: "13px 0",
+    minHeight: "var(--tellian-tippziel)",
+    display: "inline-flex",
+    alignItems: "center",
     textAlign: "left",
     textDecoration: "none",
     cursor: "pointer",

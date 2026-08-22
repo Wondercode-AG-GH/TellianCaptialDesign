@@ -1,27 +1,37 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 
-import { C, cormorant, sans } from "../tokens";
+import { cormorant, sans } from "../tokens";
 import { SECTION_WIDTH_LAST } from "../sections";
-import { FloatingField } from "./FloatingField";
 import { MapOverlay } from "./Section6Kontakt";
+import { kontaktSenden, ZIEL_KONFIGURIERT } from "../kontaktZiel";
 import type { LegalPath } from "./LegalOverlay";
 
 /* ═══════════════════════════════════════════════════════════
    STATION 6 — KONTAKT
 
-   Links die Angaben, rechts das Formular, darunter ein Fussband
-   über die volle Breite.
+   BREIT: zwei Spalten, links die Angaben, rechts das Formular,
+   darunter das Fussband. Beide Spalten enden auf einer gemeinsamen
+   Kante — der Adressblock wird dafür an den unteren Rand der linken
+   Spalte geschoben. Vorher kippte die linke Spalte nach oben und
+   liess unten ein leeres Feld stehen.
 
-   TELEFON UND E-MAIL SIND VERWEISE, KEIN TEXT
-   Für alle, die lieber anrufen als tippen, ist die Nummer der
-   wichtigste Weg auf der ganzen Seite. Als blosser Text zwingt sie
-   auf dem Telefon zum Abtippen.
+   Die Eyebrow "Kontakt" mit Haarlinie ist weg: sie sagte nichts, was
+   die Stationsleiste nicht schon sagt. Der Rahmen um das Formular ist
+   ebenfalls weg — er umschloss vor allem Luft, und die Feldrahmen
+   schwammen als zweite Ebene darin.
 
-   DAS FORMULAR SPRICHT DIE SPRACHE DER SEITE
-   Vorher 16px Radius und eine eigene Füllung — das einzige so
-   gebaute Element weit und breit. Jetzt scharfe Kanten und eine
-   Haarlinie; die Füllung bleibt als sehr leichter warmer Ton, damit
-   der Eingabebereich als Fläche lesbar bleibt.
+   SCHMAL: Telefon und E-Mail stehen als zwei grosse Bedienflächen VOR
+   dem Formular. Für die ältere Klientel ist der Anruf der wichtigste
+   Weg auf der ganzen Seite; als blosse Textzeile ist er nicht als
+   Bedienelement erkennbar und zwingt zum Abtippen.
    ═══════════════════════════════════════════════════════════ */
 
 const TELEFON_ANZEIGE = "+41 44 224 40 24";
@@ -59,98 +69,320 @@ const FUSS_RECHTS: readonly FussVerweis[] = [
   { text: "Impressum", legal: "/impressum" },
 ];
 
+/* ── Prüfung ──────────────────────────────────────────────────
+
+   GROSSZÜGIG, NICHT STRENG
+   Eine strenge Adressregel weist gültige Adressen mit Pluszeichen,
+   Apostroph oder neuer Endung ab. Hier wird nur verlangt: etwas, ein
+   @, etwas, ein Punkt, etwas. Bei der Nummer ist die Schwelle noch
+   tiefer — das Feld ist optional, und eine gültige Nummer abzulehnen
+   ist schlimmer, als eine unsaubere durchzulassen.
+   ══════════════════════════════════════════════════════════ */
+
+type Feldname = "name" | "email" | "telefon" | "nachricht";
+type Felder = Record<Feldname, string>;
+type Fehlerliste = Partial<Record<Feldname, string>>;
+
+const LEER: Felder = { name: "", email: "", telefon: "", nachricht: "" };
+
+const MAIL_VOLLSTAENDIG = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/* Trennzeichen, die in geschriebenen Nummern üblich sind. */
+const TEL_TRENNER = /[\s.\-/()]/g;
+/* +41, 0041 oder 0-Vorwahl, danach 7 bis 15 Ziffern. */
+const TEL_KERN = /^(?:\+|00)?\d{7,15}$/;
+
+/** Meldung für ein Feld, oder undefined wenn es stimmt. */
+function pruefeFeld(k: Feldname, f: Felder): string | undefined {
+  const v = f[k].trim();
+
+  if (k === "name") {
+    if (!v) return "Bitte tragen Sie Ihren Namen ein.";
+    return undefined;
+  }
+
+  if (k === "email") {
+    if (!v) return "Bitte tragen Sie Ihre E-Mail-Adresse ein, damit wir antworten können.";
+    if (!v.includes("@")) return "Es fehlt noch das @, zum Beispiel name@beispiel.ch";
+    if (!MAIL_VOLLSTAENDIG.test(v))
+      return "Nach dem @ fehlt noch die Domain, zum Beispiel beispiel.ch";
+    return undefined;
+  }
+
+  if (k === "telefon") {
+    /* Leer ist immer gültig. */
+    if (!v) return undefined;
+    if (!TEL_KERN.test(v.replace(TEL_TRENNER, "")))
+      return "Die Nummer scheint unvollständig. Sie können das Feld auch leer lassen.";
+    return undefined;
+  }
+
+  if (!v) return "Bitte schreiben Sie uns kurz, worum es geht.";
+  return undefined;
+}
+
+const REIHENFOLGE: readonly Feldname[] = ["name", "email", "telefon", "nachricht"];
+
+function pruefeAlles(f: Felder): Fehlerliste {
+  const raus: Fehlerliste = {};
+  for (const k of REIHENFOLGE) {
+    const m = pruefeFeld(k, f);
+    if (m) raus[k] = m;
+  }
+  return raus;
+}
+
+/* ── Zeichen am Fehler ────────────────────────────────────────
+   Fehler dürfen nie nur an der Farbe hängen: wer Rot nicht von Grau
+   unterscheidet, sieht sonst gar nichts. Deshalb zusätzlich dieses
+   Zeichen, ein Text und eine kräftigere Feldkontur. */
+function FehlerZeichen() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      aria-hidden
+      focusable="false"
+      style={{ flexShrink: 0, marginTop: "2px" }}
+    >
+      <circle cx="7" cy="7" r="6.25" fill="none" stroke="currentColor" strokeWidth="1.25" />
+      <path d="M7 3.7v4.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="7" cy="10.4" r="0.85" fill="currentColor" />
+    </svg>
+  );
+}
+
+/* ── Ein Feld ─────────────────────────────────────────────────
+
+   FESTE BESCHRIFTUNG ÜBER DEM FELD
+   Vorher wanderte das Etikett beim Tippen in die obere Kante des
+   Feldes. Das spart Platz und kostet Verlässlichkeit: sobald etwas
+   drinsteht, muss man sich merken, was wo hingehört. Jetzt steht die
+   Beschriftung fest darüber und bewegt sich nie.
+   ══════════════════════════════════════════════════════════ */
+
+interface FeldProps {
+  name: Feldname;
+  beschriftung: string;
+  /** Wird als "— optional" hinter die Beschriftung gesetzt. */
+  optional?: boolean;
+  wert: string;
+  onWert: (v: string) => void;
+  onVerlassen: () => void;
+  fehler?: string;
+  mehrzeilig?: boolean;
+  zeilen?: number;
+  type?: string;
+  autoComplete?: string;
+  inputMode?: "text" | "email" | "tel";
+  autoCapitalize?: string;
+}
+
+function KontaktFeld({
+  name,
+  beschriftung,
+  optional = false,
+  wert,
+  onWert,
+  onVerlassen,
+  fehler,
+  mehrzeilig = false,
+  zeilen = 5,
+  type = "text",
+  autoComplete,
+  inputMode,
+  autoCapitalize,
+}: FeldProps) {
+  const id = useId();
+  const fehlerId = `${id}-meldung`;
+
+  const kontur = fehler
+    ? "var(--tellian-field-error)"
+    : "var(--tellian-field-line)";
+
+  const feldStil: React.CSSProperties = {
+    fontFamily: sans,
+    /* Mindestens 16px — darunter zoomt iOS beim Antippen. */
+    fontSize: "var(--tellian-field-size)",
+    lineHeight: 1.5,
+    color: "var(--tellian-field-ink)",
+    /* Im Fehler zusätzlich dicker, damit der Zustand nicht allein an
+       der Farbe hängt. */
+    border: `${fehler ? "2px" : "1px"} solid ${kontur}`,
+    borderRadius: 0,
+    backgroundColor: "var(--tellian-field-bg)",
+    padding: fehler ? "11px 13px" : "12px 14px",
+    width: "100%",
+    boxSizing: "border-box",
+    appearance: "none",
+    resize: "none",
+  };
+
+  const geteilt = {
+    id,
+    name,
+    value: wert,
+    onBlur: onVerlassen,
+    autoComplete,
+    inputMode,
+    autoCapitalize,
+    "aria-invalid": fehler ? (true as const) : undefined,
+    "aria-describedby": fehler ? fehlerId : undefined,
+    className: "tellian-k6-feld",
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+      <label
+        htmlFor={id}
+        style={{
+          fontFamily: sans,
+          fontSize: "var(--tellian-field-label-size)",
+          lineHeight: 1.3,
+          color: "var(--tellian-k6-ink)",
+        }}
+      >
+        {beschriftung}
+        {optional && (
+          /* KEINE STERNCHEN.
+             Gekennzeichnet wird nur, was weggelassen werden darf —
+             das ist die kürzere und die freundlichere Liste. */
+          <span style={{ color: "var(--tellian-k6-dim)" }}> — optional</span>
+        )}
+      </label>
+
+      {mehrzeilig ? (
+        <textarea
+          {...geteilt}
+          rows={zeilen}
+          onChange={(e) => onWert(e.target.value)}
+          style={{ ...feldStil, minHeight: `${zeilen * 26}px` }}
+        />
+      ) : (
+        <input
+          {...geteilt}
+          type={type}
+          spellCheck={type === "email" ? false : undefined}
+          onChange={(e) => onWert(e.target.value)}
+          style={{ ...feldStil, height: "50px" }}
+        />
+      )}
+
+      {fehler && (
+        <span
+          id={fehlerId}
+          role="alert"
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "7px",
+            marginTop: "1px",
+            fontFamily: sans,
+            fontSize: "13px",
+            lineHeight: 1.45,
+            color: "var(--tellian-field-error)",
+          }}
+        >
+          <FehlerZeichen />
+          <span>{fehler}</span>
+        </span>
+      )}
+    </div>
+  );
+}
+
 /* ── Formular ─────────────────────────────────────────────── */
 
 type Zustand = "bereit" | "sendet" | "fertig" | "fehler";
 
-interface Felder {
-  vorname: string;
-  nachname: string;
-  email: string;
-  telefon: string;
-  nachricht: string;
-}
-
-const LEER: Felder = {
-  vorname: "",
-  nachname: "",
-  email: "",
-  telefon: "",
-  nachricht: "",
-};
-
-/* Absichtlich grosszügig: eine strengere Prüfung weist gültige
-   Adressen ab, und der Server prüft ohnehin. Hier geht es nur darum,
-   Tippfehler vor dem Absenden zu bemerken. */
-const MAIL_MUSTER = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-function pruefen(f: Felder): Partial<Record<keyof Felder, string>> {
-  const fehler: Partial<Record<keyof Felder, string>> = {};
-  if (!f.vorname.trim()) fehler.vorname = "Bitte ausfüllen.";
-  if (!f.nachname.trim()) fehler.nachname = "Bitte ausfüllen.";
-  if (!f.email.trim()) fehler.email = "Bitte ausfüllen.";
-  else if (!MAIL_MUSTER.test(f.email.trim()))
-    fehler.email = "Diese Adresse sieht nicht vollständig aus.";
-  if (!f.nachricht.trim()) fehler.nachricht = "Bitte ausfüllen.";
-  return fehler;
-}
+/* Unter dieser Zeit zwischen Aufbau und Absenden war es kein Mensch.
+   Zusammen mit dem verborgenen Feld ersetzt das ein Captcha — die
+   Hürde, an der ältere Nutzer am häufigsten aufgeben. */
+const MENSCHENZEIT_MS = 3000;
 
 function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
   const [felder, setFelder] = useState<Felder>(LEER);
-  const [fehler, setFehler] = useState<Partial<Record<keyof Felder, string>>>({});
+  const [fehler, setFehler] = useState<Fehlerliste>({});
   const [zustand, setZustand] = useState<Zustand>("bereit");
-  /* Erst nach dem ersten Absendeversuch meldet das Formular beim
-     Verlassen eines Feldes. Vorher wäre es eine Rüge dafür, dass man
-     noch nicht fertig ist. */
-  const versucht = useRef(false);
+  /* Verborgenes Zusatzfeld — nur Bots füllen es aus. */
+  const [honigtopf, setHonigtopf] = useState("");
+  const honigId = useId();
+
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const aufgebaut = useRef(Date.now());
   const [springen, setSpringen] = useState(false);
 
+  /* Der Sprung zum ersten fehlerhaften Feld muss WARTEN, bis React
+     gerendert hat: unmittelbar nach setFehler trägt noch kein Element
+     aria-invalid, und die Suche liefe ins Leere. */
   useEffect(() => {
     if (!springen) return;
     setSpringen(false);
-    const erstes = formRef.current?.querySelector<HTMLElement>(
-      "[aria-invalid='true']",
-    );
-    erstes?.focus();
+    const erstes = formRef.current?.querySelector<HTMLElement>("[aria-invalid='true']");
+    if (!erstes) return;
+    /* preventScroll, weil der eingebaute Sprung im breiten Zweig den
+       waagrechten Track anfassen würde. Gescrollt wird nur, wenn das
+       Feld wirklich ausserhalb des Bildes liegt — und nur senkrecht. */
+    erstes.focus({ preventScroll: true });
+    const r = erstes.getBoundingClientRect();
+    const oben = 0;
+    const unten = window.innerHeight;
+    if (r.top < oben + 8 || r.bottom > unten - 8) {
+      erstes.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    }
   }, [springen]);
 
-  const formRef = useRef<HTMLFormElement | null>(null);
-
-  const setzen = (k: keyof Felder) => (v: string) => {
-    setFelder((alt) => ({ ...alt, [k]: v }));
-    if (versucht.current) {
-      setFehler((alt) => {
-        const neu = { ...alt };
-        delete neu[k];
-        return neu;
-      });
-    }
+  const setzen = (k: Feldname) => (v: string) => {
+    setFelder((alt) => {
+      const neu = { ...alt, [k]: v };
+      /* Ist das Feld einmal im Fehler, wird ab jetzt bei JEDER
+         Eingabe neu geprüft — die Meldung soll verschwinden, sobald
+         es stimmt, nicht erst beim Verlassen. */
+      setFehler((f) => (f[k] ? { ...f, [k]: pruefeFeld(k, neu) } : f));
+      return neu;
+    });
   };
 
-  const feldPruefen = (k: keyof Felder) => () => {
-    if (!versucht.current) return;
-    const alle = pruefen(felder);
-    setFehler((alt) => ({ ...alt, [k]: alle[k] }));
+  /* Geprüft wird beim VERLASSEN, nicht beim Tippen. Wer mitten im
+     Wort gerügt wird, tippt gegen die Meldung an. */
+  const verlassen = (k: Feldname) => () => {
+    setFehler((alt) => ({ ...alt, [k]: pruefeFeld(k, felder) }));
   };
 
   const absenden = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
-      versucht.current = true;
-      const gefunden = pruefen(felder);
+
+      /* SPAM: verborgenes Feld ausgefüllt oder unrealistisch schnell
+         abgeschickt. Beides endet still im Erfolgszustand — wer
+         einem Bot sagt, woran er gescheitert ist, hilft ihm. */
+      const verdacht =
+        honigtopf.trim().length > 0 ||
+        Date.now() - aufgebaut.current < MENSCHENZEIT_MS;
+
+      const gefunden = pruefeAlles(felder);
       setFehler(gefunden);
       if (Object.keys(gefunden).length) {
-        /* Der Sprung zum ersten fehlerhaften Feld muss WARTEN, bis
-           React gerendert hat: unmittelbar nach setFehler trägt noch
-           kein Element aria-invalid, und die Suche liefe ins Leere.
-           Deshalb über einen Merker und einen Effekt. */
+        /* Der Knopf ist nie gesperrt: man darf drücken und erfährt
+           dann, was fehlt. */
         setSpringen(true);
         return;
       }
+
+      if (verdacht) {
+        setZustand("fertig");
+        return;
+      }
+
       setZustand("sendet");
       try {
-        // TODO: echte Übermittlung. Bis dahin nur die Zustände.
-        await new Promise((r) => setTimeout(r, 900));
+        await kontaktSenden({
+          name: felder.name.trim(),
+          email: felder.email.trim(),
+          telefon: felder.telefon.trim(),
+          nachricht: felder.nachricht.trim(),
+          sprache: document.documentElement.lang || "de",
+        });
         setZustand("fertig");
       } catch {
         /* Die Eingaben bleiben vollständig stehen — nichts ist
@@ -158,20 +390,23 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
         setZustand("fehler");
       }
     },
-    [felder],
+    [felder, honigtopf],
   );
 
   /* Die Erfolgsmeldung ERSETZT das Formular an Ort und Stelle. Ein
-     Toast verschwindet, bevor man ihn gelesen hat, und danach weiss
-     niemand, ob die Anfrage draussen ist. */
+     Einblender verschwindet, bevor man ihn gelesen hat, und danach
+     weiss niemand, ob die Anfrage draussen ist.
+
+     Von einer Bestätigungs-E-Mail steht hier bewusst nichts — es ist
+     nicht festgelegt, dass es sie gibt. */
   if (zustand === "fertig") {
     return (
-      <div role="status" aria-live="polite" style={{ padding: "8px 0" }}>
+      <div role="status" aria-live="polite" style={{ padding: "4px 0" }}>
         <span
           style={{
             display: "block",
             fontFamily: cormorant,
-            fontSize: "clamp(26px, 2.4vw, 34px)",
+            fontSize: "clamp(28px, 2.6vw, 38px)",
             fontWeight: 300,
             lineHeight: 1.15,
             color: "var(--tellian-k6-ink)",
@@ -182,22 +417,48 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
         <span
           style={{
             display: "block",
-            marginTop: "12px",
+            marginTop: "14px",
+            maxWidth: "34em",
             fontFamily: sans,
-            fontSize: "14px",
+            fontSize: "15px",
             lineHeight: 1.65,
             color: "var(--tellian-k6-dim)",
           }}
         >
-          Ihre Anfrage ist bei uns. Wir melden uns bei Ihnen.
+          Ihre Anfrage ist bei uns. Wir melden uns bei Ihnen, in der Regel
+          innerhalb eines Arbeitstages.
+        </span>
+        <span
+          style={{
+            display: "block",
+            marginTop: "20px",
+            fontFamily: sans,
+            fontSize: "15px",
+            lineHeight: 1.65,
+            color: "var(--tellian-k6-dim)",
+          }}
+        >
+          Wenn es eilt, erreichen Sie uns direkt unter{" "}
+          <a
+            href={TELEFON_LINK}
+            className="tellian-k6-tel"
+            style={{
+              color: "var(--tellian-k6-ink)",
+              textDecoration: "underline",
+              textUnderlineOffset: "4px",
+            }}
+          >
+            {TELEFON_ANZEIGE}
+          </a>
+          . {OEFFNUNG}.
         </span>
       </div>
     );
   }
 
   const paar: React.CSSProperties = gestapelt
-    ? { display: "flex", flexDirection: "column", gap: "16px" }
-    : { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" };
+    ? { display: "flex", flexDirection: "column", gap: "18px" }
+    : { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "18px" };
 
   const sendet = zustand === "sendet";
 
@@ -206,35 +467,81 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
       ref={formRef}
       onSubmit={absenden}
       noValidate
-      style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+      style={{ display: "flex", flexDirection: "column", gap: "18px" }}
     >
-      <div style={paar}>
-        <FloatingField
-          label="Vorname" required value={felder.vorname}
-          onChange={setzen("vorname")} onBlurPruefen={feldPruefen("vorname")}
-          fehler={fehler.vorname}
-        />
-        <FloatingField
-          label="Nachname" required value={felder.nachname}
-          onChange={setzen("nachname")} onBlurPruefen={feldPruefen("nachname")}
-          fehler={fehler.nachname}
+      {/* Für Menschen verborgen, für Bots verlockend. Nicht
+          display:none — das überspringen viele Bots gezielt. */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          width: "1px",
+          height: "1px",
+          overflow: "hidden",
+        }}
+      >
+        <label htmlFor={honigId}>Bitte dieses Feld leer lassen</label>
+        <input
+          id={honigId}
+          name="webseite"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={honigtopf}
+          onChange={(e) => setHonigtopf(e.target.value)}
         />
       </div>
+
       <div style={paar}>
-        <FloatingField
-          label="E-Mail" type="email" required value={felder.email}
-          onChange={setzen("email")} onBlurPruefen={feldPruefen("email")}
+        <KontaktFeld
+          name="name"
+          beschriftung="Name"
+          wert={felder.name}
+          onWert={setzen("name")}
+          onVerlassen={verlassen("name")}
+          fehler={fehler.name}
+          autoComplete="name"
+          autoCapitalize="words"
+        />
+        <KontaktFeld
+          name="email"
+          beschriftung="E-Mail"
+          type="email"
+          wert={felder.email}
+          onWert={setzen("email")}
+          onVerlassen={verlassen("email")}
           fehler={fehler.email}
-        />
-        <FloatingField
-          label="Telefon" type="tel" value={felder.telefon}
-          onChange={setzen("telefon")}
+          autoComplete="email"
+          inputMode="email"
+          autoCapitalize="none"
         />
       </div>
-      <FloatingField
-        label="Nachricht" required multiline rows={5} value={felder.nachricht}
-        onChange={setzen("nachricht")} onBlurPruefen={feldPruefen("nachricht")}
+
+      <KontaktFeld
+        name="telefon"
+        beschriftung="Telefon"
+        optional
+        type="tel"
+        wert={felder.telefon}
+        onWert={setzen("telefon")}
+        onVerlassen={verlassen("telefon")}
+        fehler={fehler.telefon}
+        autoComplete="tel"
+        inputMode="tel"
+      />
+
+      <KontaktFeld
+        name="nachricht"
+        beschriftung="Ihre Nachricht"
+        mehrzeilig
+        zeilen={5}
+        wert={felder.nachricht}
+        onWert={setzen("nachricht")}
+        onVerlassen={verlassen("nachricht")}
         fehler={fehler.nachricht}
+        autoComplete="off"
+        autoCapitalize="sentences"
       />
 
       <p
@@ -254,30 +561,53 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
           role="alert"
           style={{
             margin: 0,
-            padding: "12px 14px",
-            border: "1px solid var(--tellian-error-dunkel)",
+            padding: "14px 16px",
+            border: "2px solid var(--tellian-field-error)",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "10px",
             fontFamily: sans,
-            fontSize: "13px",
+            fontSize: "14px",
             lineHeight: 1.6,
             color: "var(--tellian-k6-ink)",
           }}
         >
-          Das Absenden hat nicht geklappt. Ihre Eingaben sind erhalten —
-          versuchen Sie es nochmals, oder erreichen Sie uns direkt unter{" "}
-          <a href={TELEFON_LINK} style={{ color: "inherit" }}>
-            {TELEFON_ANZEIGE}
-          </a>{" "}
-          und{" "}
-          <a href={`mailto:${MAIL}`} style={{ color: "inherit" }}>
-            {MAIL}
-          </a>
-          .
+          <span style={{ color: "var(--tellian-field-error)", display: "flex" }}>
+            <FehlerZeichen />
+          </span>
+          <span>
+            Das Absenden hat nicht geklappt. Ihre Eingaben sind erhalten —
+            versuchen Sie es nochmals, oder erreichen Sie uns direkt unter{" "}
+            <a
+              href={TELEFON_LINK}
+              className="tellian-k6-tel"
+              style={{
+                color: "inherit",
+                textDecoration: "underline",
+                textUnderlineOffset: "3px",
+              }}
+            >
+              {TELEFON_ANZEIGE}
+            </a>{" "}
+            oder{" "}
+            <a
+              href={`mailto:${MAIL}`}
+              className="tellian-k6-tel"
+              style={{
+                color: "inherit",
+                textDecoration: "underline",
+                textUnderlineOffset: "3px",
+              }}
+            >
+              {MAIL}
+            </a>
+            .
+          </span>
         </p>
       )}
 
-      {/* Ein primärer Knopf. Karte, FAQ und Solutions bleiben
-          zurückhaltend — sonst konkurrieren vier Wege um dieselbe
-          Aufmerksamkeit. */}
+      {/* Nie gesperrt, ausser während des Sendens. Ein von vornherein
+          toter Knopf sagt nicht, was fehlt — er lässt einen suchen. */}
       <button
         type="submit"
         disabled={sendet}
@@ -285,7 +615,7 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
         className="tellian-k6-primaer"
         style={{
           fontFamily: sans,
-          fontSize: "12px",
+          fontSize: "13px",
           fontWeight: 500,
           letterSpacing: "0.16em",
           textTransform: "uppercase",
@@ -295,19 +625,29 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
           backgroundColor: "var(--tellian-button)",
           border: "none",
           borderRadius: 0,
-          padding: "16px 24px",
+          padding: "17px 26px",
+          minHeight: "var(--tellian-tippziel)",
           cursor: sendet ? "progress" : "pointer",
-          opacity: sendet ? 0.7 : 1,
           width: gestapelt ? "100%" : "fit-content",
           alignSelf: gestapelt ? "stretch" : "flex-start",
           display: "inline-flex",
           alignItems: "center",
-          gap: "10px",
-          transition: "background-color 200ms ease, opacity 200ms ease",
+          justifyContent: "center",
+          gap: "12px",
+          transition: "background-color 200ms ease",
         }}
       >
-        {sendet ? "Wird gesendet …" : "Anfrage senden"}
-        {!sendet && <span aria-hidden>→</span>}
+        {sendet ? (
+          <>
+            <span aria-hidden className="tellian-k6-kreisel" />
+            Wird gesendet …
+          </>
+        ) : (
+          <>
+            Anfrage senden
+            <span aria-hidden>→</span>
+          </>
+        )}
       </button>
     </form>
   );
@@ -347,7 +687,7 @@ export function Station6Kontakt({
     </h2>
   );
 
-  const lead = (
+  const lead = (zweizeilig: boolean) => (
     <p
       style={{
         margin: 0,
@@ -359,17 +699,22 @@ export function Station6Kontakt({
       }}
     >
       {LEAD[0]}
-      <br />
-      {LEAD[1]}
+      {zweizeilig && (
+        <>
+          <br />
+          {LEAD[1]}
+        </>
+      )}
     </p>
   );
+
+  /* ── BREIT: Telefon und E-Mail als Verweise im Textfluss ── */
 
   const telefon = (
     <a
       href={TELEFON_LINK}
       className="tellian-k6-tel"
       style={{
-        display: "inline-block",
         fontFamily: cormorant,
         fontSize: "var(--tellian-k6-phone-size)",
         fontWeight: 300,
@@ -396,25 +741,149 @@ export function Station6Kontakt({
     </p>
   );
 
+  /* Dauerhaft unterstrichen. Ohne Strich liest sich eine Adresse wie
+     Fliesstext, und niemand versucht, sie anzutippen. */
   const mail = (
     <a
       href={`mailto:${MAIL}`}
       className="tellian-k6-tel"
       style={{
-        display: "inline-block",
-        marginTop: "clamp(16px, 2vh, 26px)",
+        marginTop: "clamp(14px, 2vh, 24px)",
         fontFamily: sans,
         fontSize: "var(--tellian-k6-mail-size)",
         color: "var(--tellian-k6-ink)",
-        textDecoration: "none",
+        textDecoration: "underline",
+        textDecorationThickness: "1px",
+        textUnderlineOffset: "5px",
+        textDecorationColor: "var(--tellian-k6-line)",
       }}
     >
       {MAIL}
     </a>
   );
 
+  /* ── SCHMAL: zwei grosse Bedienflächen ── */
+
+  const kachel = (
+    href: string,
+    zeichen: ReactNode,
+    ueberschrift: string,
+    wert: string,
+    zusatz?: string,
+  ) => (
+    <a
+      href={href}
+      className="tellian-k6-kachel"
+      style={{
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "14px",
+        padding: "var(--tellian-k6-kachel-pad)",
+        border: "1px solid var(--tellian-k6-kachel-line)",
+        backgroundColor: "var(--tellian-k6-kachel-bg)",
+        textDecoration: "none",
+        minHeight: "var(--tellian-tippziel)",
+        boxSizing: "border-box",
+        transition: "background-color 200ms ease, border-color 200ms ease",
+      }}
+    >
+      <span
+        aria-hidden
+        style={{
+          display: "flex",
+          flexShrink: 0,
+          marginTop: "3px",
+          color: "var(--tellian-k6-ink)",
+        }}
+      >
+        {zeichen}
+      </span>
+      <span style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+        <span
+          style={{
+            fontFamily: sans,
+            fontSize: "13px",
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: "var(--tellian-k6-dim)",
+          }}
+        >
+          {ueberschrift}
+        </span>
+        <span
+          style={{
+            marginTop: "6px",
+            fontFamily: cormorant,
+            fontSize: "clamp(24px, 6.4vw, 32px)",
+            fontWeight: 300,
+            lineHeight: 1.1,
+            color: "var(--tellian-k6-ink)",
+            wordBreak: "break-word",
+          }}
+        >
+          {wert}
+        </span>
+        {zusatz && (
+          <span
+            style={{
+              marginTop: "8px",
+              fontFamily: sans,
+              fontSize: "13px",
+              lineHeight: 1.45,
+              color: "var(--tellian-k6-dim)",
+            }}
+          >
+            {zusatz}
+          </span>
+        )}
+      </span>
+    </a>
+  );
+
+  const zeichenTelefon = (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden focusable="false">
+      <path
+        d="M6.3 2.8 8 6.1l-1.7 1.6c.9 2 2.3 3.4 4.3 4.3l1.6-1.7 3.3 1.7-.6 3c-.2.7-.8 1.1-1.5 1C8.1 15.3 4.7 11.9 3.2 5.9c-.1-.7.3-1.3 1-1.5l2.1-.6z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
+  const zeichenMail = (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden focusable="false">
+      <rect x="2.2" y="4.4" width="15.6" height="11.2" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M2.6 5.1 10 10.7l7.4-5.6" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+    </svg>
+  );
+
+  const trennzeile = (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "14px",
+      }}
+    >
+      <span aria-hidden style={{ flex: 1, height: "1px", backgroundColor: "var(--tellian-k6-line)" }} />
+      <span
+        style={{
+          fontFamily: sans,
+          fontSize: "13px",
+          letterSpacing: "0.08em",
+          color: "var(--tellian-k6-dim)",
+          whiteSpace: "nowrap",
+        }}
+      >
+        Oder schreiben Sie uns
+      </span>
+      <span aria-hidden style={{ flex: 1, height: "1px", backgroundColor: "var(--tellian-k6-line)" }} />
+    </div>
+  );
+
   const firma = (
-    <div style={{ marginTop: "clamp(24px, 3vh, 40px)" }}>
+    <div>
       <span
         style={{
           display: "block",
@@ -447,7 +916,7 @@ export function Station6Kontakt({
         onClick={() => setKarteOffen(true)}
         className="tellian-k6-still"
         style={{
-          marginTop: "12px",
+          marginTop: "10px",
           background: "transparent",
           border: "none",
           padding: 0,
@@ -459,41 +928,6 @@ export function Station6Kontakt({
       >
         Auf Karte anzeigen <span aria-hidden>→</span>
       </button>
-    </div>
-  );
-
-  const formularflaeche = (
-    <div
-      style={{
-        border: `1px solid var(--tellian-k6-form-line)`,
-        backgroundColor: "var(--tellian-k6-form-bg)",
-        borderRadius: 0,
-        padding: "var(--tellian-k6-form-pad)",
-      }}
-    >
-      <span
-        style={{
-          display: "block",
-          fontFamily: sans,
-          fontSize: "10px",
-          letterSpacing: "0.22em",
-          textTransform: "uppercase",
-          color: "var(--tellian-k6-meta)",
-        }}
-      >
-        Schreiben Sie uns
-      </span>
-      <div
-        aria-hidden
-        style={{
-          width: "28px",
-          height: "1px",
-          backgroundColor: "var(--tellian-k6-line)",
-          marginTop: "12px",
-          marginBottom: "24px",
-        }}
-      />
-      <Formular gestapelt={isVertical} />
     </div>
   );
 
@@ -521,15 +955,19 @@ export function Station6Kontakt({
 
       <nav
         aria-label="Rechtliches und weitere Seiten"
-        style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px" }}
+        /* Die Trenner standen beim Umbruch als führendes Zeichen am
+           Zeilenanfang — auf dem Telefon brach die Liste immer um.
+           Statt Trennern ein klarer Abstand. */
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          columnGap: "clamp(16px, 4vw, 28px)",
+          rowGap: "0px",
+        }}
       >
-        {FUSS_RECHTS.map((v, i) => (
-          <span key={v.text} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            {i > 0 && (
-              <span aria-hidden style={{ color: "var(--tellian-k6-line)", fontSize: "10px" }}>
-                ·
-              </span>
-            )}
+        {FUSS_RECHTS.map((v) => (
+          <span key={v.text} style={{ display: "flex", alignItems: "center" }}>
             {v.legal ? (
               <button
                 type="button"
@@ -575,10 +1013,57 @@ export function Station6Kontakt({
     <style>{`
       .tellian-k6-tel:hover,
       .tellian-k6-still:hover { text-decoration: underline; text-underline-offset: 4px; }
+      /* TREFFERFLÄCHEN
+         Gemessen waren die Fussverweise 18px hoch, Telefon 29,
+         E-Mail 24. Der Zuwachs kommt aus dem Innenabstand und wird
+         mit negativem Aussenabstand ausgeglichen — das Schriftbild
+         und der Umbruch bleiben, wie sie sind. */
+      .tellian-k6-still,
+      .tellian-k6-tel {
+        display: inline-flex;
+        align-items: center;
+        min-height: var(--tellian-tippziel);
+        padding-top: 12px;
+        padding-bottom: 12px;
+        margin-top: -12px;
+        margin-bottom: -12px;
+      }
       .tellian-k6-primaer:hover:not(:disabled) { background-color: var(--tellian-button-hover); }
+      .tellian-k6-primaer:disabled { opacity: 0.8; }
+      .tellian-k6-kachel:hover {
+        background-color: var(--tellian-k6-kachel-bg-hover);
+        border-color: var(--tellian-k6-kachel-line-hover);
+      }
+      .tellian-k6-feld { outline: none; }
+      .tellian-k6-feld::placeholder { color: transparent; }
+      .tellian-k6-feld:focus {
+        border-color: var(--tellian-field-focus);
+      }
+      /* SICHTBARER FOKUSRING
+         Diese Regel stand vorher mit einem Komma am Ende und ohne
+         Block da — damit war der GANZE Block ungültig und Station 6
+         hatte auf keinem Element einen Ring. */
       .tellian-k6-tel:focus-visible,
       .tellian-k6-still:focus-visible,
       .tellian-k6-primaer:focus-visible,
+      .tellian-k6-kachel:focus-visible,
+      .tellian-k6-feld:focus-visible {
+        outline: 2px solid var(--tellian-k6-focus);
+        outline-offset: 3px;
+      }
+      .tellian-k6-kreisel {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 2px solid currentColor;
+        border-top-color: transparent;
+        display: inline-block;
+        animation: tellian-k6-dreh 800ms linear infinite;
+      }
+      @keyframes tellian-k6-dreh { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) {
+        .tellian-k6-kreisel { animation-duration: 2400ms; }
+      }
     `}</style>
   );
 
@@ -591,9 +1076,8 @@ export function Station6Kontakt({
   );
 
   /* ── SCHMAL ──
-     Reihenfolge: Titel, Zeile, Telefon, Öffnungszeiten, E-Mail,
-     Formular, Firmenblock, Fussband. Telefon steht bewusst vor dem
-     Formular. */
+     Titel, ein Satz, die beiden Bedienflächen, Trennzeile, Formular,
+     Adressblock, Fussband. */
   if (isVertical) {
     return (
       <section
@@ -601,6 +1085,12 @@ export function Station6Kontakt({
         style={{
           backgroundColor: "var(--tellian-k6-bg)",
           backgroundImage: "var(--tellian-flaeche-dunkel-schmal)",
+          /* Sprünge aus Menü, Stationsleiste und Adresszeile setzen
+             die Oberkante der Station auf die Fensteroberkante — also
+             hinter die feste Kopfzeile, die jetzt deckt. Ohne diese
+             Reserve stand "Sprechen wir." zur Hälfte darunter.
+             Freies Scrollen bleibt davon unberührt. */
+          scrollMarginTop: "var(--tellian-kopf-height)",
         }}
       >
         <div
@@ -614,14 +1104,27 @@ export function Station6Kontakt({
           }}
         >
           {titel}
-          {lead}
-          <div style={{ marginTop: "clamp(24px, 3vh, 40px)" }}>{telefon}</div>
-          {oeffnung}
-          {mail}
-          <div style={{ marginTop: "clamp(28px, 4vh, 44px)" }}>
-            {formularflaeche}
+          {lead(false)}
+
+          <div
+            style={{
+              marginTop: "clamp(26px, 3.4vh, 40px)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "14px",
+            }}
+          >
+            {kachel(TELEFON_LINK, zeichenTelefon, "Anrufen", TELEFON_ANZEIGE, OEFFNUNG)}
+            {kachel(`mailto:${MAIL}`, zeichenMail, "E-Mail", MAIL)}
           </div>
-          {firma}
+
+          <div style={{ marginTop: "clamp(30px, 4vh, 46px)" }}>{trennzeile}</div>
+
+          <div style={{ marginTop: "clamp(22px, 3vh, 32px)" }}>
+            <Formular gestapelt />
+          </div>
+
+          <div style={{ marginTop: "clamp(30px, 4vh, 46px)" }}>{firma}</div>
           <div style={{ marginTop: "clamp(28px, 4vh, 44px)" }}>{fussband}</div>
         </div>
         {karte}
@@ -666,45 +1169,46 @@ export function Station6Kontakt({
             flex: 1,
             minHeight: 0,
             display: "flex",
-            alignItems: "center",
-            gap: "clamp(40px, 5vw, 110px)",
+            flexDirection: "column",
+            justifyContent: "center",
           }}
         >
-          {/* ══ Angaben ══ */}
-          <div style={{ flex: "1 1 0", minWidth: 0 }}>
-            <span
+          {/* GEMEINSAME UNTERKANTE
+              Die Zeile ist so hoch wie ihre höhere Spalte, und beide
+              Spalten werden auf diese Höhe gezogen (align: stretch).
+              Der Adressblock steht mit marginTop:auto am Boden seiner
+              Spalte — damit enden Angaben und Formular auf derselben
+              Linie, statt dass links unten ein leeres Feld bleibt. */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "stretch",
+              gap: "clamp(40px, 5vw, 110px)",
+            }}
+          >
+            {/* ══ Angaben ══ */}
+            <div
               style={{
-                display: "block",
-                fontFamily: sans,
-                fontSize: "10px",
-                letterSpacing: "0.22em",
-                textTransform: "uppercase",
-                color: "var(--tellian-k6-meta)",
+                flex: "1 1 0",
+                minWidth: 0,
+                display: "flex",
+                flexDirection: "column",
               }}
             >
-              Kontakt
-            </span>
-            <div
-              aria-hidden
-              style={{
-                width: "28px",
-                height: "1px",
-                backgroundColor: "var(--tellian-k6-line)",
-                marginTop: "14px",
-                marginBottom: "clamp(18px, 2.4vh, 30px)",
-              }}
-            />
-            {titel}
-            {lead}
-            <div style={{ marginTop: "clamp(22px, 3vh, 40px)" }}>{telefon}</div>
-            {oeffnung}
-            {mail}
-            {firma}
-          </div>
+              {titel}
+              {lead(true)}
+              <div style={{ marginTop: "clamp(22px, 3vh, 40px)" }}>{telefon}</div>
+              {oeffnung}
+              <div style={{ display: "flex" }}>{mail}</div>
+              <div style={{ marginTop: "auto", paddingTop: "clamp(24px, 3vh, 44px)" }}>
+                {firma}
+              </div>
+            </div>
 
-          {/* ══ Formular ══ */}
-          <div style={{ flex: "0 0 clamp(380px, 38%, 560px)" }}>
-            {formularflaeche}
+            {/* ══ Formular — ohne Rahmen und ohne eigene Fläche ══ */}
+            <div style={{ flex: "0 0 clamp(380px, 38%, 560px)" }}>
+              <Formular />
+            </div>
           </div>
         </div>
 

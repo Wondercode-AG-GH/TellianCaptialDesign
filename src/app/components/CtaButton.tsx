@@ -59,7 +59,7 @@ export function CtaButton({
           transition-colors duration-300 ease-out
           active:scale-[0.98]
           px-6 py-4
-          text-[11px]
+          text-[12px]
           hover:bg-tellian-button-hover
           ${widthFull ? "w-full" : ""}
           ${className}
@@ -94,7 +94,7 @@ export function CtaButton({
         hover:bg-tellian-button-hover
         active:scale-[0.98]
         px-6 py-3 md:px-8 md:py-4
-        text-[10px] md:text-[11px]
+        text-[12px]
         ${widthFull ? "w-full justify-center" : ""}
         ${className}
       `}

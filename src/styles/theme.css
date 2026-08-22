@@ -88,6 +88,17 @@
      erkennbar dasselbe Rot. */
   --tellian-error-dunkel: #E8796E;
   --tellian-error-bg: #FDF2F1;
+
+  /* ── FEHLERFARBE DES FORMULARS ──
+     Zwei Werte, weil einer nicht reicht. Für 4.5 : 1 auf Archive
+     White (#F4F4F0) muss die relative Leuchtdichte unter 0.158
+     liegen, für 4.5 : 1 auf Imperial Purple (#281F33) über 0.264 —
+     die beiden Bereiche überschneiden sich nicht. Ein einziges
+     kräftiges Rot ist deshalb auf einem der beiden Gründe immer
+     falsch; auf Purple wirkt es zusätzlich grell.
+     Beide Werte sind gegen ihren tatsächlichen Grund gemessen. */
+  --tellian-fehler-auf-hell: #A83A2F;    /* 5.75 : 1 auf #F4F4F0 */
+  --tellian-fehler-auf-dunkel: #E8796E;  /* 5.54 : 1 auf #281F33 */
   --tellian-success: #3D7B5F;
   --tellian-success-bg: #F0F7F3;
   --tellian-warning: #A68B3C;
@@ -190,6 +201,18 @@
      Die Fläche ist bewusst deutlich breiter als die Grafik: die soll
      Luft um sich haben und nicht bis an die Kante laufen. Breite
      unverändert; der Innenabstand hält den Rand frei. */
+  /* ══ BEZIEHUNGSLINIEN IM DREIECK, SCHMALE FASSUNG ══
+     Gestrichelt mit Kreuzen darauf lasen sich die Linien wie
+     durchtrennte Beziehungen. Jetzt durchgezogen, und die
+     STRICHSTÄRKE trägt die Aussage: das Depot liegt bei der Bank,
+     alles andere sind Aufträge und Vollmachten. */
+  --tellian-s2-linie-dick: 2.5px;
+  --tellian-s2-linie-duenn: 1px;
+  --tellian-s2-linie-depot: var(--tellian-muted);        /* Mushroom */
+  --tellian-s2-linie-auftrag: var(--tellian-silver-mist);
+  --tellian-s2-legende-size: 12px;
+  --tellian-s2-legende-muster: 22px;
+
   --tellian-s2-panel-width: clamp(560px, 42%, 700px);
   /* Station 2 ist ganz dunkel. Die Farbe stammt aus dem Kasten, der
      vorher nur die Grafik trug — jetzt trägt sie die ganze Station.
@@ -265,6 +288,9 @@
   --tellian-pm-card-eyebrow-leading: 1.35;
   --tellian-pm-card-name-size: clamp(19px, 1.7vw, 25px);
   --tellian-pm-card-text-size: 12px;
+  /* Zielgruppenzeile: Serifenschrift kursiv in Imperial Purple. */
+  --tellian-pm-card-fuer-size: clamp(13px, 1.1vw, 16px);
+  --tellian-pm-card-fuer-color: var(--tellian-purple);
   /* Beschriftung des Knopfs in der Karte. Kleiner als der
      Hauptknopf in Station 1 (13px), aber nicht unter 12px. */
   --tellian-pm-card-link-size: 12px;
@@ -633,6 +659,27 @@
   --tellian-t5-heading-leading: var(--tellian-pm-title-leading);
   --tellian-t5-heading-tracking: var(--tellian-pm-title-tracking);
 
+  /* ── UNTERSEITE ADVISORY ──
+     Dieselben Masse wie die Unterseite Anlageprozess, damit die
+     beiden als Paar lesen. Die Seite passt auf einen Bildschirm. */
+  --tellian-adv-title-size: clamp(34px, 3.6vw, 54px);
+  --tellian-adv-title-leading: 1.06;
+  --tellian-adv-lead-size: 15px;
+  --tellian-adv-lead-leading: 1.68;
+  --tellian-adv-lead-measure: 46em;
+  --tellian-adv-num-size: clamp(30px, 3vw, 46px);
+  --tellian-adv-num-color: var(--tellian-muted);
+  --tellian-adv-num-gap: clamp(8px, 0.8vw, 14px);
+  --tellian-adv-step-title-size: clamp(20px, 1.8vw, 28px);
+  --tellian-adv-step-text-size: 13px;
+  --tellian-adv-block-title-size: 15px;
+  --tellian-adv-block-text-size: 13px;
+  --tellian-adv-block-measure: 24em;
+  --tellian-adv-col-gap: clamp(24px, 3vw, 64px);
+  --tellian-adv-pad-x: clamp(28px, 5vw, 110px);
+  --tellian-adv-weg-max: 60em;
+  --tellian-adv-line: var(--tellian-line);
+
   /* ── STATION 6 — KONTAKT ── */
   --tellian-k6-title-size: clamp(38px, 4.4vw, 64px);
   --tellian-k6-title-weight: 300;
@@ -669,7 +716,17 @@
   --tellian-field-ink: var(--tellian-bg);              /* 14.28 : 1 */
   --tellian-field-label: rgba(244, 244, 240, 0.62);    /*  6.32 : 1 */
   --tellian-field-focus: var(--tellian-bg);
-  --tellian-field-error: var(--tellian-error-dunkel);  /*  5.54 : 1 */
+  /* Station 6 liegt auf Imperial Purple — also die dunkle Fassung.
+     Sie trägt Text (5.54 : 1) und Feldkontur (dieselbe Farbe, damit
+     der Fehler auch als Kontur die 3 : 1 für Bedienelemente hält). */
+  --tellian-field-error: var(--tellian-fehler-auf-dunkel);
+  /* MINDESTENS 16px IN EINGABEFELDERN
+     Darunter zoomt iOS beim Antippen von selbst in die Seite und
+     der Nutzer landet in einem Ausschnitt, aus dem er sich wieder
+     herausziehen muss. Gilt für input UND textarea. */
+  --tellian-field-size: 16px;
+  /* Feste Beschriftung über dem Feld, nicht im Feld. */
+  --tellian-field-label-size: 14px;
 
   /* Fussband */
   /* 11px unterschritt die Untergrenze von 12px. */
@@ -678,6 +735,15 @@
   --tellian-k6-foot-color: var(--tellian-k6-meta);
 
   --tellian-k6-focus: var(--tellian-bg);
+
+  /* Grosse Bedienflächen für Anrufen und E-Mail — nur schmal.
+     Die Kontur ist ein Bedienelement und braucht 3 : 1; 45 % Weiss
+     auf Imperial Purple trägt 4.03 : 1. */
+  --tellian-k6-kachel-line: rgba(244, 244, 240, 0.45);
+  --tellian-k6-kachel-line-hover: rgba(244, 244, 240, 0.72);
+  --tellian-k6-kachel-bg: rgba(244, 244, 240, 0.05);
+  --tellian-k6-kachel-bg-hover: rgba(244, 244, 240, 0.10);
+  --tellian-k6-kachel-pad: clamp(16px, 4vw, 22px);
 
   /* ══ DIE BEIDEN BÄNDER ══
      Kopfzeile oben, Stationsleiste unten, beide über die volle
@@ -697,12 +763,26 @@
   --tellian-kopf-height: clamp(44px, 6.4vh, 60px);
   --tellian-station-height: clamp(40px, 5.6vh, 56px);
   --tellian-band-pad-x: clamp(20px, 3.2vw, 56px);
+  /* TIPPZIELE
+     Gemessen lagen fast alle Bedienelemente auf dem Telefon bei 12
+     bis 29px Höhe — DE/EN 19x12, Kundenportal 118x12, die
+     Fussverweise 27–160x18. Die Richtgrösse ist 44px. Der Zuwachs
+     kommt aus Innenabstand, nicht aus grösserer Schrift: das
+     Schriftbild bleibt, die Trefferfläche wächst. */
+  --tellian-tippziel: 44px;
 
   /* Kopfzeile */
   --tellian-kopf-logo-h: clamp(20px, 2.9vh, 28px);
   --tellian-kopf-size: 12px;
   --tellian-kopf-tracking: 0.14em;
   --tellian-kopf-gap: clamp(14px, 1.6vw, 28px);
+  /* DECKENDE FLÄCHE — NUR IM SCHMALEN ZWEIG
+     Dort scrollt die Seite senkrecht unter der festen Kopfzeile
+     durch; ohne Fläche lag das Logo im Formular. Auf Desktop bleibt
+     die Kopfzeile durchsichtig, weil der Track waagrecht läuft und
+     die Farbgrenze durch das Band wandert. */
+  --tellian-kopf-flaeche-hell: var(--tellian-bg);
+  --tellian-kopf-flaeche-dunkel: var(--tellian-purple);
 
   /* Stationsleiste — 13px in Iron Veil, Ziffern in Mushroom.
      Vorher 10px in Silver Mist, das trug den Auftritt nicht. */

@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import { sans } from "../tokens";
 import { SECTIONS } from "../sections";
 import { zonenMaske, hatZone, type Zone } from "./useBandTon";
@@ -67,6 +69,39 @@ export function Kopfzeile({
   menueOffen = false,
   onMenue,
 }: Props) {
+  /* ── DECKENDE FLÄCHE, NUR IM SCHMALEN ZWEIG ──
+     Dort scrollt die Seite senkrecht unter der festen Kopfzeile
+     durch. Ohne Fläche lief der Inhalt sichtbar hindurch — gemeldet
+     war das Logo, das im Kontaktformular stand.
+
+     Erst AB DEM SCROLLEN, nicht von Anfang an: am Anfang der Seite
+     steht der Hero, und ein deckender Balken würde ihm oben ein
+     Stück abschneiden.
+
+     Der Ton folgt der Fläche darunter, also derselben Quelle, aus
+     der auch die Schrift ihre Fassung zieht. Im schmalen Zweig
+     liefert useBandZonen genau eine Zone — die der aktiven Station.
+
+     Auf Desktop bleibt die Kopfzeile durchsichtig: dort läuft der
+     Track waagrecht, die Farbgrenze wandert durch das Band, und eine
+     Fläche wäre genau die, die es nicht geben soll. */
+  const [gescrollt, setGescrollt] = useState(false);
+  useEffect(() => {
+    if (!isVertical) return;
+    const auf = () => setGescrollt(window.scrollY > 4);
+    auf();
+    window.addEventListener("scroll", auf, { passive: true });
+    return () => window.removeEventListener("scroll", auf);
+  }, [isVertical]);
+
+  const grundDunkel = zonen[0]?.dunkel ?? false;
+  const flaeche =
+    isVertical && gescrollt
+      ? grundDunkel
+        ? "var(--tellian-kopf-flaeche-dunkel)"
+        : "var(--tellian-kopf-flaeche-hell)"
+      : "transparent";
+
   const inhalt = (schicht: Schicht) => {
     const griff = schicht === "griff";
     const aufDunkel = schicht === "dunkel";
@@ -89,7 +124,14 @@ export function Kopfzeile({
       lineHeight: 1,
       background: "transparent",
       border: "none",
-      padding: 0,
+      /* Trefferfläche über den Innenabstand, nicht über die Schrift.
+         Nur die Griffschicht braucht sie — die Farbschichten malen
+         nur und würden durch den Abstand verschoben. */
+      padding: griff ? "0 8px" : 0,
+      margin: griff ? "0 -8px" : 0,
+      minHeight: griff ? "var(--tellian-tippziel)" : undefined,
+      display: "inline-flex",
+      alignItems: "center",
       cursor: griff ? "pointer" : "default",
     };
 
@@ -246,8 +288,10 @@ export function Kopfzeile({
         right: 0,
         zIndex: 160,
         height: "var(--tellian-kopf-height)",
-        /* Keine eigene Fläche, keine Trennlinie. */
-        background: "transparent",
+        /* Breit: keine eigene Fläche, keine Trennlinie.
+           Schmal: ab dem Scrollen deckend — siehe oben. */
+        backgroundColor: flaeche,
+        transition: "background-color 220ms ease",
         border: "none",
         pointerEvents: "none",
       }}

@@ -192,12 +192,17 @@ export function Station2WealthManagement({
           <ParteiDreieck compact embedded onNavigate={onCtaClick} />
         </div>
 
+        {/* Der Knopf stand links, während die Grafik darüber mittig
+            sitzt — auf dem Telefon las sich das wie zwei Blöcke, die
+            nicht zusammengehören. */}
         <div
           style={{
             paddingTop: "clamp(28px, 5vh, 44px)",
             paddingBottom: "var(--tellian-abschnitt-luft-schmal)",
             paddingLeft: "clamp(20px, 6vw, 48px)",
             paddingRight: "clamp(20px, 6vw, 48px)",
+            display: "flex",
+            justifyContent: "center",
           }}
         >
           {knopf}

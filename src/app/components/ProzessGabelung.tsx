@@ -1,3 +1,5 @@
+import { Fragment as ReactFragment } from "react";
+
 import { C, cormorant, sans } from "../tokens";
 
 /* ═══════════════════════════════════════════════════════════
@@ -24,9 +26,17 @@ import { C, cormorant, sans } from "../tokens";
    lassen und die Linien danebenlaufen.
    ═══════════════════════════════════════════════════════════ */
 
-const BAND_OBEN = "Analyse und Vorschlag";
-const BAND_UNTEN = "Umsetzung und Überwachung";
+/* Nicht "Analyse und Vorschlag": beim Mandat geht kein Vorschlag an
+   den Kunden, der Anlageausschuss entscheidet selbstständig. */
+const BAND_OBEN = "Analyse und Datengrundlage";
 const BAND_SUB = "TELLIAN CAPITAL";
+
+/* Schmal gibt es keine Grafik. Was die Gabelung dort erzählt, sagt
+   dieser Satz — Diagramme mit Linien und Klammern setzen eine
+   Lesekompetenz voraus, die hier nicht angenommen werden kann. */
+const EINSTIEG_SCHMAL =
+  "Beide Wege beginnen gleich: dieselbe Analyse, dieselbe " +
+  "Datengrundlage. Der Unterschied ist, wer entscheidet.";
 
 const KARTEN = [
   {
@@ -34,7 +44,8 @@ const KARTEN = [
     punkt: "purple" as const,
     eyebrow: "TELLIAN ENTSCHEIDET",
     name: "Mandat",
-    text: "Sie erteilen die Verwaltungsvollmacht. Tellian Capital trifft die Anlageentscheide auf Basis Ihres Risikoprofils.",
+    text: "Sie erteilen die Verwaltungsvollmacht. Der Anlageausschuss trifft sämtliche Allokationsentscheide, auf Basis Ihres Risikoprofils.",
+    fuer: "Für Kunden, die die täglichen Anlageentscheide vollständig in erfahrene Hände geben möchten.",
     knopf: "Mehr zum Mandat",
   },
   {
@@ -42,7 +53,8 @@ const KARTEN = [
     punkt: "muted" as const,
     eyebrow: "SIE ENTSCHEIDEN",
     name: "Advisory",
-    text: "Sie bleiben aktiver Investor. Wir liefern Analyse und Empfehlung, die finale Entscheidung treffen Sie.",
+    text: "Die finale Entscheidung liegt immer bei Ihnen. Wir beraten und helfen beim Feinschliff, führen Transaktionen aber nicht eigenmächtig aus.",
+    fuer: "Für Kunden, die aktiver Investor bleiben möchten.",
     knopf: "Mehr zu Advisory",
   },
 ] as const;
@@ -53,11 +65,6 @@ const GABEL_AB =
   "M200 0 V18 a10 10 0 0 1 -10 10 H106 a10 10 0 0 0 -10 10 V56 " +
   "M200 18 a10 10 0 0 0 10 10 H294 a10 10 0 0 1 10 10 V56";
 
-/* Zusammenlauf nach unten: gespiegelt, aus den Kartenmitten in die
-   Bandmitte. */
-const GABEL_ZU =
-  "M96 0 V18 a10 10 0 0 0 10 10 H190 a10 10 0 0 1 10 10 V56 " +
-  "M304 0 V18 a10 10 0 0 1 -10 10 H210 a10 10 0 0 0 -10 10 V56";
 
 /* Reiner Text auf der Fläche — keine Kontur, keine Füllung.
    Vorher standen vier ähnliche Rechtecke im Bild, zwei davon
@@ -139,31 +146,50 @@ export function ProzessGabelung({
     <div
       style={{
         width: "100%",
-        maxWidth: "var(--tellian-pm-graphic-max)",
+        /* Schmal keine Deckelung: gemessen sass die Grafik dadurch
+           22px eingerückt gegenüber dem Fliesstext daneben — zwei
+           Blöcke, die nicht auf einer Kante standen. */
+        maxWidth: gestapelt ? "none" : "var(--tellian-pm-graphic-max)",
         margin: "0 auto",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      <Band titel={BAND_OBEN} />
-
+      {/* SCHMAL: KEINE GRAFIK
+          Weder Bänder noch Linien noch Klammern. Was die Gabelung
+          erzählt, steht als Satz darüber; darunter zwei vollständige
+          Karten — das Muster, das jeder kennt. */}
       {gestapelt ? (
-        <div style={{ height: "20px" }} />
+        <p
+          style={{
+            margin: "0 0 clamp(20px, 3.4vh, 32px)",
+            fontFamily: sans,
+            fontSize: "var(--tellian-pm-body-size, 15px)",
+            lineHeight: 1.6,
+            color: C.accent,
+          }}
+        >
+          {EINSTIEG_SCHMAL}
+        </p>
       ) : (
-        <Verbindung d={GABEL_AB} />
+        <>
+          <Band titel={BAND_OBEN} />
+          <Verbindung d={GABEL_AB} />
+        </>
       )}
 
       <div
         style={{
           display: "grid",
           gridTemplateColumns: gestapelt ? "1fr" : "1fr 1fr",
-          gap: gestapelt ? "16px" : "var(--tellian-pm-card-gap)",
+          gap: gestapelt ? "clamp(18px, 3vh, 28px)" : "var(--tellian-pm-card-gap)",
           alignItems: "stretch",
         }}
       >
-        {KARTEN.map((k) => (
+        {KARTEN.map((k, ki) => (
+          <ReactFragment key={k.id}>
+
           <button
-            key={k.id}
             type="button"
             onClick={handler[k.id]}
             className="tellian-pm-karte"
@@ -249,6 +275,34 @@ export function ProzessGabelung({
               {k.text}
             </span>
 
+            {/* Zielgruppe — letzte Zeile vor dem Knopf, abgesetzt
+                durch eine Haarlinie. Serifenschrift kursiv in
+                Imperial Purple: sie benennt nicht den Weg, sondern
+                den Menschen, der ihn geht. */}
+            <span
+              aria-hidden
+              style={{
+                display: "block",
+                width: "100%",
+                height: "1px",
+                marginTop: "var(--tellian-pm-card-pad)",
+                backgroundColor: "var(--tellian-pm-line)",
+              }}
+            />
+            <span
+              style={{
+                display: "block",
+                marginTop: "10px",
+                fontFamily: cormorant,
+                fontStyle: "italic",
+                fontSize: "var(--tellian-pm-card-fuer-size)",
+                lineHeight: 1.4,
+                color: "var(--tellian-pm-card-fuer-color)",
+              }}
+            >
+              {k.fuer}
+            </span>
+
             {/* Sieht aus wie ein Knopf, ist aber Teil der Karte.
                 Ein echtes <button> hier ergäbe ein zweites Klickziel,
                 einen zweiten Tastaturschritt und eine zweite Ansage. */}
@@ -276,16 +330,10 @@ export function ProzessGabelung({
               </span>
             </span>
           </button>
+          </ReactFragment>
         ))}
       </div>
 
-      {gestapelt ? (
-        <div style={{ height: "20px" }} />
-      ) : (
-        <Verbindung d={GABEL_ZU} />
-      )}
-
-      <Band titel={BAND_UNTEN} />
 
       {/* Zustände als Regel statt als Ereignis: onMouseEnter/Leave
           würde die Tastatur nicht bedienen, und :focus-visible lässt

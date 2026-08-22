@@ -49,6 +49,39 @@ const PARTIES = [
 ] as const;
 
 /* ─── Relationship edge labels ─── */
+/* Die drei Beziehungen, in der Reihenfolge der LEGENDE — das
+   Wichtigste zuerst. `kante` verweist auf den Index in mEdges
+   ([0,1] Sie↔Tellian, [0,2] Sie↔Banken, [1,2] Tellian↔Banken);
+   Zeichnung und Legende laufen dadurch auseinander, ohne dass die
+   Zuordnung verlorengeht.
+
+   Die Strichstärke trägt die Aussage: dick liegt das Vermögen, dünn
+   laufen Auftrag und Vollmacht. */
+const BEZIEHUNGEN = [
+  {
+    kante: 1,
+    staerke: "var(--tellian-s2-linie-dick)",
+    farbe: "var(--tellian-s2-linie-depot)",
+    text: "Depot und Konto bleiben bei Ihnen",
+  },
+  {
+    kante: 0,
+    staerke: "var(--tellian-s2-linie-duenn)",
+    farbe: "var(--tellian-s2-linie-auftrag)",
+    text: "Verwaltungsvollmacht an Tellian",
+  },
+  {
+    kante: 2,
+    staerke: "var(--tellian-s2-linie-duenn)",
+    farbe: "var(--tellian-s2-linie-auftrag)",
+    text: "Anlageaufträge an die Bank",
+  },
+] as const;
+
+/** Beziehung zu einer Kante der Zeichnung. */
+const bezZuKante = (i: number) =>
+  BEZIEHUNGEN.find((b) => b.kante === i) ?? BEZIEHUNGEN[0];
+
 const EDGE_LABELS = [
   { de: "Vermögensverwaltungsauftrag", en: "Asset management mandate" },
   { de: "Depot-/Kontobeziehung", en: "Custody/account relationship" },
@@ -59,13 +92,19 @@ const EDGE_LABELS = [
    GEOMETRY — separated circles, R=80, gap=30px, c2c=190
    ═══════════════════════════════════════════════════════════════ */
 const R = 80;
-const C2C = 190; // center-to-center (gap = C2C - 2R = 30px)
+/* Mitte zu Mitte. Bei 190 blieben 30px Spalt, und die gedrehten
+   Kantenbeschriftungen sassen so dicht an den Kreisen, dass sie
+   sie streiften. 220 gibt 60px Spalt und den Beschriftungen Raum. */
+const C2C = 220;
+/* Alles andere skaliert mit, damit die Geometrie eine bleibt statt
+   aus abgestimmten Einzelzahlen zu bestehen. */
+const SKALA = C2C / 190;
 
 /** Circle centres — equilateral triangle */
 const VENN = [
-  { dx:   0, dy: -110 },   // Kunde (Sie) — top
-  { dx: -95, dy:   55 },   // Tellian — bottom-left
-  { dx:  95, dy:   55 },   // Banken — bottom-right
+  { dx:   0, dy: -110 * SKALA },   // Kunde (Sie) — oben
+  { dx: -95 * SKALA, dy: 55 * SKALA },   // Tellian — unten links
+  { dx:  95 * SKALA, dy: 55 * SKALA },   // Banken — unten rechts
 ];
 
 /** Icon bounding-box sizes (centred in each circle) */
@@ -96,16 +135,16 @@ function edgeEndpoints(a: number, b: number) {
 }
 const EDGE_PAIRS: [number, number][] = [[0, 1], [0, 2], [1, 2]];
 
-/** Outer label positions — +38px outward from original, HTML rotated spans */
+/** Lage der Kantenbeschriftungen — skaliert mit der Geometrie. */
 const LABEL_POS = [
-  { x: -137, y: -80, rot: -60 },   // K↔T upper-left (+38px outward)
-  { x:  137, y: -80, rot:  60 },   // K↔B upper-right (+38px outward)
-  { x:    0, y: 188, rot:   0 },   // T↔B below (+38px downward)
+  { x: -137 * SKALA, y: -80 * SKALA, rot: -60 },   // Sie ↔ Tellian
+  { x:  137 * SKALA, y: -80 * SKALA, rot:  60 },   // Sie ↔ Banken
+  { x:    0, y: 188 * SKALA, rot:   0 },           // Tellian ↔ Banken
 ];
 
 /** Fixed reading zone — ONE position for ALL hover texts, below cluster.
     52px below "Vollmacht" label (y=188), 70px above nav-pill at 1024px. */
-const READING_ZONE_Y = 240;
+const READING_ZONE_Y = 240 * SKALA;
 
 /* ═══════════════════════════════════════════════════════════════
    ICONS
@@ -154,14 +193,21 @@ export function ParteiDreieck({
 
   /* ════════════════ MOBILE — visual diagram (compact) ════════════════ */
   if (compact) {
-    const mR = 52;  // mobile circle radius
+    const mR = 52;  // Radius der Kreise, schmal
+    /* Wie breit auseinandergerückt: bei 60/35 berührten sich die
+       Kreise fast und die Beschriftungen klebten an ihnen. */
     const mVenn = [
-      { dx: 0,   dy: -70 },   // Sie — top
-      { dx: -60, dy:  35 },   // Tellian — bottom-left
-      { dx:  60, dy:  35 },   // Banken — bottom-right
+      { dx: 0,   dy: -82 + 20 },   // Sie — oben
+      { dx: -72, dy:  41 + 20 },   // Tellian — unten links
+      { dx:  72, dy:  41 + 20 },   // Banken — unten rechts
     ];
-    const mCW = 280;
-    const mCH = 340;
+    const mCW = 320;
+    /* Gemessen standen 30px tot oben und 71px tot unten in einem
+       380px hohen Kasten bei 279px Inhalt. Der Kasten fasst ihn jetzt
+       eng; die Verschiebung um 20px hält den oberen Rand da, wo er
+       war, und nimmt die Leere unten weg — die Legende schliesst
+       damit unmittelbar an. */
+    const mCH = 310;
     const mEdges: [number, number][] = [[0, 1], [0, 2], [1, 2]];
     const mW55 = "rgba(244,244,240,0.55)";
     const mW75 = "rgba(244,244,240,0.75)";
@@ -210,15 +256,16 @@ export function ParteiDreieck({
             {mEdges.map(([a, b], i) => {
               const ep = mEdgeEndpoints(a, b);
               const cx = mCW / 2, cy = mCH / 2;
+              const art = bezZuKante(i);
               return (
-                <g key={`me-${i}`}>
-                  <line x1={cx + ep.x1} y1={cy + ep.y1} x2={cx + ep.x2} y2={cy + ep.y2}
-                    stroke={mW35} strokeWidth={0.5} strokeDasharray="3 4" />
-                  <g transform={`translate(${cx + ep.mx},${cy + ep.my}) rotate(${ep.angle})`}>
-                    <path d="M-3,-2.5 L0,0 L-3,2.5" stroke={mW35} strokeWidth={0.7} fill="none" />
-                    <path d="M3,-2.5 L0,0 L3,2.5" stroke={mW35} strokeWidth={0.7} fill="none" />
-                  </g>
-                </g>
+                <line
+                  key={`me-${i}`}
+                  x1={cx + ep.x1} y1={cy + ep.y1}
+                  x2={cx + ep.x2} y2={cy + ep.y2}
+                  stroke={art.farbe}
+                  strokeWidth={art.staerke}
+                  strokeLinecap="round"
+                />
               );
             })}
           </svg>
@@ -285,18 +332,49 @@ export function ParteiDreieck({
           })}
         </div>
 
-        {/* Edge labels (horizontal, below diagram for mobile) */}
-        <div style={{
-          display: "flex", flexDirection: "column", alignItems: "center",
-          gap: 6, marginTop: 12, opacity: hovered !== null ? 0 : 1,
-          transition: rm ? "none" : `opacity 300ms ${EASE.standard}`,
-        }}>
-          {EDGE_LABELS.map((label, i) => (
-            <span key={i} style={{
-              fontFamily: sans, fontSize: 12, letterSpacing: "0.04em",
-              textTransform: "uppercase", color: mW55, whiteSpace: "nowrap",
-            }}>
-              {label.de}
+        {/* ══ Legende ══
+            Die drei Namen standen als lose Liste weit unter der
+            Grafik — drei zusammenhanglose Wörter ohne Bezug zu den
+            Linien, die sie benennen. Jetzt je Zeile ein Musterstrich,
+            der GENAU dem Strich in der Grafik entspricht, und der
+            Text daneben. Kein Abstand dazwischen: die Legende
+            schliesst unmittelbar an die Grafik an. */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+            width: mCW,
+            margin: "0 auto",
+            opacity: hovered !== null ? 0 : 1,
+            transition: rm ? "none" : `opacity 300ms ${EASE.standard}`,
+          }}
+        >
+          {BEZIEHUNGEN.map((bz) => (
+            <span
+              key={bz.text}
+              style={{ display: "flex", alignItems: "center", gap: 12 }}
+            >
+              <span
+                aria-hidden
+                style={{
+                  flex: "0 0 var(--tellian-s2-legende-muster)",
+                  height: bz.staerke,
+                  borderRadius: bz.staerke,
+                  backgroundColor: bz.farbe,
+                }}
+              />
+              <span
+                style={{
+                  fontFamily: sans,
+                  fontSize: "var(--tellian-s2-legende-size)",
+                  lineHeight: 1.45,
+                  letterSpacing: "0.01em",
+                  color: mW75,
+                }}
+              >
+                {bz.text}
+              </span>
             </span>
           ))}
         </div>

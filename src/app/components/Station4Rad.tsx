@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { C, cormorant, sans } from "../tokens";
 import { useSectionEntered } from "./SectionEntry";
 import { useTitelHoehe } from "./useTitelHoehe";
-import monogramm from "../../assets/logo/Tellian__Archive White monogram logo.svg";
 
 /* ═══════════════════════════════════════════════════════════
    STATION 4 — IHRE VORTEILE
@@ -297,14 +296,6 @@ export function Station4Rad({ panelRef, isVertical = false, domId }: Props) {
     </h2>
   );
 
-  const monogrammBild = (groesse: string) => (
-    <img
-      src={monogramm}
-      alt=""
-      aria-hidden
-      style={{ width: groesse, height: "auto", display: "block" }}
-    />
-  );
 
   const stil = (
     <style>{`
@@ -343,9 +334,6 @@ export function Station4Rad({ panelRef, isVertical = false, domId }: Props) {
         }}
       >
         {kopf}
-        <div style={{ marginTop: "clamp(28px, 4vh, 44px)", display: "flex", justifyContent: "center" }}>
-          {monogrammBild("190px")}
-        </div>
 
         <ol
           style={{
@@ -593,20 +581,6 @@ export function Station4Rad({ panelRef, isVertical = false, domId }: Props) {
           </svg>
 
           {/* Monogramm */}
-          <div
-            style={{
-              position: "absolute",
-              left: "50%",
-              top: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "calc(var(--tellian-r4-wheel) * 0.42)",
-              display: "flex",
-              justifyContent: "center",
-              pointerEvents: "none",
-            }}
-          >
-            {monogrammBild("100%")}
-          </div>
 
           {/* Beschriftungen — alle waagrecht, in zwei Fluchten */}
           {PUNKTE.map((p, i) => {

@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import { C, cormorant, sans } from "../tokens";
 import { SECTION_WIDTH } from "../sections";
 import { useSectionEntered } from "./SectionEntry";
@@ -38,6 +40,9 @@ interface Props {
   panelRef?: (el: HTMLDivElement | null) => void;
   /** Schmaler Zweig: dieselben Bausteine, gestapelt. */
   isVertical?: boolean;
+  /** Schmal: erst wenn der Ladebildschirm weg ist, läuft der
+   *  Eintritt — sonst spielt er dahinter und ist vorbei. */
+  bereit?: boolean;
   onContactClick?: () => void;
   /**
    * Motiv für das Bildpanel. Fehlt es, bleibt die reservierte Fläche
@@ -57,6 +62,7 @@ interface Props {
 export function Station1Einstieg({
   panelRef,
   isVertical = false,
+  bereit = true,
   onContactClick,
   imageId,
   imageAlt = "",
@@ -64,11 +70,32 @@ export function Station1Einstieg({
 }: Props) {
   const entered = useSectionEntered();
   const reducedMotion = usePrefersReducedMotion();
-  /* Der schmale Zweig steht ohne Eintrittsanimation da — wie die
-     schmalen Zweige der Stationen 2, 3 und 5 auch. Dort gibt es
-     keinen SectionEnteredProvider, `entered` bliebe also dauerhaft
-     false und die Station unsichtbar. */
-  const shown = isVertical || entered || reducedMotion;
+  /* SCHMAL LÄUFT DER EINTRITT BEIM LADEN, NICHT BEIM BETRETEN
+     Im vertikalen Zweig gibt es keinen SectionEnteredProvider —
+     `entered` bliebe dauerhaft false. Der Hero ist dort aber das
+     Erste, was man sieht; er braucht kein Betreten, sondern den
+     Moment, in dem der Ladebildschirm weggefahren ist.
+
+     Zwei Frames Abstand, aus demselben Grund wie auf der Unterseite:
+     ein CSS-Übergang braucht einen Ausgangszustand, der vorher im
+     DOM stand. Ohne das steht alles sofort da. */
+  const [gestartet, setGestartet] = useState(false);
+  useEffect(() => {
+    if (!isVertical || !bereit) {
+      setGestartet(false);
+      return;
+    }
+    let zweiter = 0;
+    const erster = requestAnimationFrame(() => {
+      zweiter = requestAnimationFrame(() => setGestartet(true));
+    });
+    return () => {
+      cancelAnimationFrame(erster);
+      cancelAnimationFrame(zweiter);
+    };
+  }, [isVertical, bereit]);
+
+  const shown = isVertical ? gestartet || reducedMotion : entered || reducedMotion;
 
   /** Eintritt eines Elements — bei reduzierter Bewegung sofort. */
   const enter = (delay: number, distance = 18) => ({

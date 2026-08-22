@@ -80,7 +80,7 @@ export function AnlagestrategienDetail({
             <span
               style={{
                 fontFamily: sans,
-                fontSize: "10px",
+                fontSize: "12px",
                 letterSpacing: "0.22em",
                 textTransform: "uppercase",
                 color: C.stone,
@@ -185,7 +185,7 @@ export function AnlagestrategienDetail({
         }}
       >
         <div style={{ maxWidth: "760px" }}>
-          <span style={{ fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em", textTransform: "uppercase", color: C.stone, display: "block" }}>
+          <span style={{ fontFamily: sans, fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: C.stone, display: "block" }}>
             Inhouse-Expertise
           </span>
           <h2 style={{ fontFamily: serif, fontSize: isMobile ? "clamp(28px, 8vw, 36px)" : "32px", lineHeight: 1.12, letterSpacing: "-0.02em", fontWeight: 400, margin: "14px 0 0 0", color: C.dark }}>
@@ -229,7 +229,7 @@ export function AnlagestrategienDetail({
         }}
       >
         <div style={{ maxWidth: "760px" }}>
-          <span style={{ fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em", textTransform: "uppercase", color: C.stone, display: "block" }}>
+          <span style={{ fontFamily: sans, fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: C.stone, display: "block" }}>
             Risikokontrolle
           </span>
           <h2 style={{ fontFamily: serif, fontSize: isMobile ? "clamp(28px, 8vw, 36px)" : "32px", lineHeight: 1.12, letterSpacing: "-0.02em", fontWeight: 400, margin: "14px 0 0 0", color: C.dark }}>
@@ -287,7 +287,7 @@ export function AnlagestrategienDetail({
         <span
           style={{
             fontFamily: sans,
-            fontSize: "10px",
+            fontSize: "12px",
             letterSpacing: "0.22em",
             textTransform: "uppercase",
             color: C.stone,
@@ -344,7 +344,7 @@ export function AnlagestrategienDetail({
         <span
           style={{
             fontFamily: sans,
-            fontSize: "8px",
+            fontSize: "12px",
             letterSpacing: "0.16em",
             color: C.muted,
             opacity: 0.6,

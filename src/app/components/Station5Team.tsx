@@ -325,7 +325,15 @@ export function Station5Team({
          zur Hälfte leer. Erst display:block dehnt es. */
       .tellian-t5-bild picture { display: block; width: 100%; height: 100%; }
       .tellian-t5-bild img { width: 100%; height: 100%; object-fit: cover; }
-      .tellian-t5-verweis { text-underline-offset: 4px; }
+      .tellian-t5-verweis {
+        text-underline-offset: 4px;
+        /* Trefferfläche, ohne die Schrift zu ändern. */
+        display: inline-flex;
+        align-items: center;
+        min-height: var(--tellian-tippziel);
+        padding: 12px 0;
+        margin: -12px 0;
+      }
       .tellian-t5-verweis:hover { text-decoration: underline; }
       @media (prefers-reduced-motion: reduce) {
         .tellian-t5-streifen, .tellian-t5-panel, .tellian-t5-name,

@@ -149,7 +149,7 @@ export function ExpandableBody({
           padding: "10px 4px",
           minHeight: "44px",
           fontFamily: sans,
-          fontSize: "10px",
+          fontSize: "12px",
           letterSpacing: "0.18em",
           textTransform: "uppercase",
           color: C.stone,
@@ -165,7 +165,7 @@ export function ExpandableBody({
             display: "inline-block",
             transform: expanded ? "rotate(180deg)" : "none",
             transition: "transform 300ms ease-out",
-            fontSize: "10px",
+            fontSize: "12px",
             lineHeight: 1,
           }}
         >

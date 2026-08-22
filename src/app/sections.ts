@@ -147,6 +147,7 @@ export const NEBEN_VERWEISE: readonly NebenVerweis[] = [
 
 export const SUBPAGE_SECTION_KEY: Readonly<Record<string, string>> = {
   "/vermoegensverwaltung": "vermoegen",
+  "/advisory": "vermoegen",
   "/anlagestrategien": "strategien",
   "/portfolio-management": "strategien",
 };

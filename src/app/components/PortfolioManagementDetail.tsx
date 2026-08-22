@@ -48,7 +48,7 @@ export function PortfolioManagementDetail({ isMobile, onContactClick }: Props) {
       {/* ═══ Sektion 1 — Anlageprozess (PROZESS) ═══ */}
       <section style={{ ...sectionPad, borderTop: `1px solid ${C.line}` }}>
         <div style={{ maxWidth: "600px" }}>
-          <span style={{ fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em", textTransform: "uppercase", color: C.stone, display: "block" }}>
+          <span style={{ fontFamily: sans, fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: C.stone, display: "block" }}>
             Anlageprozess
           </span>
           <h2 style={{ fontFamily: serif, fontSize: hSize, lineHeight: 1.12, color: C.dark, letterSpacing: "-0.02em", fontWeight: 400, margin: "16px 0 0 0" }}>
@@ -90,7 +90,7 @@ export function PortfolioManagementDetail({ isMobile, onContactClick }: Props) {
       {/* ═══ Sektion 2 — Anlagekomitee (KOMITEE) ═══ */}
       <section style={{ ...sectionPad, borderTop: `1px solid ${C.line}` }}>
         <div style={{ maxWidth: "600px" }}>
-          <span style={{ fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em", textTransform: "uppercase", color: C.stone, display: "block" }}>
+          <span style={{ fontFamily: sans, fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: C.stone, display: "block" }}>
             {PM_TEXT_SECTIONS[0].eyebrow}
           </span>
           <h2 style={{ fontFamily: serif, fontSize: hSize, lineHeight: 1.12, color: C.dark, letterSpacing: "-0.02em", fontWeight: 400, margin: "16px 0 0 0" }}>
@@ -109,7 +109,7 @@ export function PortfolioManagementDetail({ isMobile, onContactClick }: Props) {
       {/* ═══ Sektion 3 — Anlagestrategien (STRATEGIEN, Option A: Zeilen) ═══ */}
       <section style={{ ...sectionPad, borderTop: `1px solid ${C.line}` }}>
         <div style={{ maxWidth: "600px" }}>
-          <span style={{ fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em", textTransform: "uppercase", color: C.stone, display: "block" }}>
+          <span style={{ fontFamily: sans, fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: C.stone, display: "block" }}>
             Anlagestrategien
           </span>
           <h2 style={{ fontFamily: serif, fontSize: hSize, lineHeight: 1.12, color: C.dark, letterSpacing: "-0.02em", fontWeight: 400, margin: "16px 0 0 0" }}>
@@ -131,7 +131,7 @@ export function PortfolioManagementDetail({ isMobile, onContactClick }: Props) {
                   <span style={{ fontFamily: serif, fontSize: "15px", color: C.dark, lineHeight: 1.3 }}>
                     {s.name}
                   </span>
-                  <span style={{ fontFamily: sans, fontSize: "11px", color: C.stone, letterSpacing: "0.08em" }}>
+                  <span style={{ fontFamily: sans, fontSize: "12px", color: C.stone, letterSpacing: "0.06em" }}>
                     ({s.tag})
                   </span>
                 </div>
@@ -162,7 +162,7 @@ export function PortfolioManagementDetail({ isMobile, onContactClick }: Props) {
       {/* ═══ Sektion 4 — Anlageuniversum (UNIVERSUM) ═══ */}
       <section style={{ ...sectionPad, borderTop: `1px solid ${C.line}` }}>
         <div style={{ maxWidth: "600px" }}>
-          <span style={{ fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em", textTransform: "uppercase", color: C.stone, display: "block" }}>
+          <span style={{ fontFamily: sans, fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: C.stone, display: "block" }}>
             {PM_TEXT_SECTIONS[1].eyebrow}
           </span>
           <h2 style={{ fontFamily: serif, fontSize: hSize, lineHeight: 1.12, color: C.dark, letterSpacing: "-0.02em", fontWeight: 400, margin: "16px 0 0 0" }}>
@@ -191,7 +191,7 @@ export function PortfolioManagementDetail({ isMobile, onContactClick }: Props) {
           gap: "20px",
         }}
       >
-        <span style={{ fontFamily: sans, fontSize: "10px", letterSpacing: "0.22em", textTransform: "uppercase", color: C.stone }}>
+        <span style={{ fontFamily: sans, fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: C.stone }}>
           Nächster Schritt
         </span>
         <h3 style={{
@@ -216,7 +216,7 @@ export function PortfolioManagementDetail({ isMobile, onContactClick }: Props) {
       }}>
         <div style={{ width: "16px", height: "1px", backgroundColor: C.line }} />
         <span style={{
-          fontFamily: sans, fontSize: "8px", letterSpacing: "0.16em",
+          fontFamily: sans, fontSize: "12px", letterSpacing: "0.14em",
           color: C.muted, opacity: 0.6, textTransform: "uppercase", textAlign: "center",
         }}>
           Tellian Capital AG &mdash; Est. 1996 &mdash; Zürich

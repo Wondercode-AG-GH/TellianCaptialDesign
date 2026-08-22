@@ -64,7 +64,7 @@ export function FaqAccordion({ items, schemaId }: FaqAccordionProps) {
           id={`faq-heading-${schemaId}`}
           style={{
             fontFamily: sans,
-            fontSize: "10px",
+            fontSize: "12px",
             letterSpacing: "0.18em",
             color: C.stone,
             textTransform: "uppercase",

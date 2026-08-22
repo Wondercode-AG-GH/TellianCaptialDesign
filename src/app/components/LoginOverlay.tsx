@@ -168,7 +168,7 @@ export function LoginOverlay({ open, onClose, onSupportClick }: LoginOverlayProp
         <p
           style={{
             fontFamily: sans,
-            fontSize: "11px",
+            fontSize: "12px",
             color: C.muted,
             marginTop: "20px",
             marginBottom: 0,

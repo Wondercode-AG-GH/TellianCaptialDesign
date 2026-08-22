@@ -59,7 +59,7 @@ export function AnlageprozessDetail({ isMobile, onContactClick }: AnlageprozessD
             <span
               style={{
                 fontFamily: sans,
-                fontSize: "10px",
+                fontSize: "12px",
                 letterSpacing: "0.22em",
                 textTransform: "uppercase",
                 color: C.stone,
@@ -182,7 +182,7 @@ export function AnlageprozessDetail({ isMobile, onContactClick }: AnlageprozessD
         <span
           style={{
             fontFamily: sans,
-            fontSize: "10px",
+            fontSize: "12px",
             letterSpacing: "0.22em",
             textTransform: "uppercase",
             color: C.stone,
@@ -239,7 +239,7 @@ export function AnlageprozessDetail({ isMobile, onContactClick }: AnlageprozessD
         <span
           style={{
             fontFamily: sans,
-            fontSize: "8px",
+            fontSize: "12px",
             letterSpacing: "0.16em",
             color: C.muted,
             opacity: 0.6,

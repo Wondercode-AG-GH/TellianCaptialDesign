@@ -19,7 +19,9 @@ const TITLE_LINES = ["Portfolio", "Management"] as const;
 
 const BODY = [
   "Die Vermögensverwaltung bei Tellian Capital folgt einem strukturierten, quantitativen Anlageprozess. Unsere Kauf- und Verkaufsentscheide stützen sich auf eine fortlaufende, evidenzbasierte Auswertung von Daten und Modellen – unabhängig von kurzfristigem Marktrauschen oder medialen Trends.",
-  "Auf dieser empirischen Datengrundlage trifft der Anlageausschuss sämtliche Allokationsentscheide. Damit gewährleisten wir einen wiederholbaren, objektiven und risikobewussten Investmentansatz über alle Marktzyklen hinweg.",
+  /* Beschrieb vorher nur das Mandat und widersprach damit der
+     Advisory-Karte: dort entscheidet der Kunde. */
+  "Auf dieser empirischen Datengrundlage entstehen sämtliche Allokationsentscheide. Wer sie trifft, hängt vom gewählten Weg ab.",
 ] as const;
 
 /* Staffelung wie in den Stationen 1 und 2, damit der Takt hält. */
