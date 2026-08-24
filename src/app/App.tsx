@@ -1401,7 +1401,11 @@ export default function App() {
         />
 
         {/* ── IHRE VORTEILE ── */}
-        <Station4Rad isVertical domId="section-anlagestrategien" />
+        <Station4Rad
+          isVertical
+          domId="section-anlagestrategien"
+          istAktiv={SECTIONS[activeIndex]?.key === "strategien"}
+        />
         {/* Unterseite /anlagestrategien, schmale Fassung. */}
         <Section4Anlagestrategien
           nurUnterseite
@@ -1537,7 +1541,10 @@ export default function App() {
 
         {/* CHAPTER 4 — IHRE VORTEILE */}
         <SectionEnteredProvider value={entered[3]}>
-          <Station4Rad panelRef={panelRef(3)} />
+          <Station4Rad
+            panelRef={panelRef(3)}
+            istAktiv={SECTIONS[activeIndex]?.key === "strategien"}
+          />
           {/* Die Station ist ersetzt; die Unterseite /anlagestrategien
               liegt weiterhin in diesem Bauteil und wird von der
               Mandat-Karte in Station 3 aus verlinkt. */}

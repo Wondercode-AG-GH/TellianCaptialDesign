@@ -205,23 +205,29 @@ export function Station5Team({
     </h2>
   );
 
-  const portraet = (person: Person, position: string) =>
+  /* KEIN object-position MEHR
+     Die Kopfhöhe steckt jetzt im Bild selbst: jede Quelle ist in der
+     Bildaufbereitung auf 4:5 beschnitten, Kopfoberkante auf 6 % der
+     Ausschnitthöhe, Kopfhöhe auf 29 % — siehe scripts/optimize-images.mjs.
+
+     Vorher stand hier für alle derselbe Versatz "50% 26%". Das kann
+     nicht aufgehen, weil die Köpfe in den Quellen zwischen 9.5 % und
+     23.0 % der Bildhöhe sitzen: derselbe Versatz setzte Rolf oben an
+     und liess über Marco eine Handbreit Luft.
+
+     4:5 ist schmaler als jede Kachelform (gemessen 0.80 bis 1.03, beim
+     Auswählen breiter). object-fit: cover beschneidet dadurch nur noch
+     links und rechts — die Kopfhöhe steht auf jeder Fensterbreite und
+     in jedem Zustand fest. Genau die Rolle, die cover haben soll:
+     Sicherheitsnetz, nicht Werkzeug für den Ausschnitt. */
+  const portraet = (person: Person) =>
     person.bild ? (
       <ResponsiveImage
         id={person.bild}
         alt=""
         sizes={isVertical ? "46vw" : "26vw"}
         className="w-full h-full"
-        /* Der Kopf sitzt im oberen Drittel des Originals. Im schmalen
-           Streifen zeigt object-position ihn an; beim Öffnen wandert
-           der Ausschnitt zurück in die Mitte, weil dann fast das
-           ganze Bild sichtbar ist. */
-        objectPosition={position}
-        style={{
-          display: "block",
-          transition:
-            "object-position var(--tellian-t5-panel-ms) var(--tellian-t5-panel-ease)",
-        }}
+        style={{ display: "block" }}
       />
     ) : (
       <span
@@ -402,7 +408,7 @@ export function Station5Team({
                             backgroundColor: "var(--tellian-t5-placeholder-bg)",
                           }}
                         >
-                          {portraet(person, "50% 26%")}
+                          {portraet(person)}
                         </span>
                         <span
                           style={{
@@ -609,7 +615,7 @@ export function Station5Team({
                         transition: takt("right", gewaehlt),
                       }}
                     >
-                      {portraet(person, "50% 26%")}
+                      {portraet(person)}
                     </span>
 
                     <button

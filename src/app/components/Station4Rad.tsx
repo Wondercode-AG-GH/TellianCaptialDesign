@@ -122,17 +122,29 @@ interface Props {
   panelRef?: (el: HTMLDivElement | null) => void;
   isVertical?: boolean;
   domId?: string;
+  /** Steht die Station gerade im Bild? Beim Eintreten fällt das Rad
+      auf den Ruhepunkt zurück. */
+  istAktiv?: boolean;
 }
 
-export function Station4Rad({ panelRef, isVertical = false, domId }: Props) {
+/* RUHEPUNKT
+   Beim Eintreten und nach jedem Verlassen des Rades steht der erste
+   Punkt. Vorher war der Ruhezustand "nichts gewählt": der
+   Erklärbehälter blieb leer, und wer die Station nur ansah, ohne mit
+   dem Zeiger hineinzufahren, bekam nie zu lesen, wovon sie handelt. */
+const RUHE = 0;
+
+export function Station4Rad({
+  panelRef,
+  isVertical = false,
+  domId,
+  istAktiv = false,
+}: Props) {
   /* Welcher Punkt den Tabstopp trägt. Ohne Auswahl der erste — sonst
      stünde die ganze Gruppe auf tabIndex -1 und wäre mit der
      Tabulatortaste überhaupt nicht zu erreichen. Genau das war der
      Fall, nachdem der Ruhepunkt entfallen ist. */
-  /* null heisst: nichts gezeigt. Der Behälter erscheint erst, wenn
-     ein Punkt gewählt ist — ein voreingestelltes 08 behauptete eine
-     Auswahl, die niemand getroffen hat. */
-  const [aktiv, setAktiv] = useState<number | null>(null);
+  const [aktiv, setAktiv] = useState<number>(RUHE);
   const knopfRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const segRefs = useRef<(SVGPathElement | null)[]>([]);
 
@@ -174,6 +186,14 @@ export function Station4Rad({ panelRef, isVertical = false, domId }: Props) {
     return () => clearTimeout(t);
   }, [darfZeichnen, betreten]);
 
+  /* Jedes Mal, wenn die Station ins Bild kommt, steht wieder der
+     erste Punkt — nicht der, auf dem der Zeiger beim letzten Besuch
+     zufällig liegen geblieben ist. Nur auf der steigenden Flanke,
+     damit ein Klick innerhalb der Station nicht zurückgesetzt wird. */
+  useEffect(() => {
+    if (istAktiv) setAktiv(RUHE);
+  }, [istAktiv]);
+
   /* Pfeiltasten wandern durch die Punkte — ein Tabstopp für alle acht
      statt acht einzelner. Das ist das übliche Muster für eine Gruppe
      gleichrangiger Schalter. */
@@ -205,7 +225,7 @@ export function Station4Rad({ panelRef, isVertical = false, domId }: Props) {
      stünde die ganze Gruppe auf tabIndex -1 und wäre mit der
      Tabulatortaste überhaupt nicht erreichbar. Genau das war der
      Fall, nachdem der voreingestellte Ruhepunkt entfallen ist. */
-  const tabPunkt = aktiv ?? 0;
+  const tabPunkt = aktiv;
 
   /* ── Erklärbehälter ──
      Erscheint beim Zeigen auf einen Punkt und liegt ABSOLUT unter dem
@@ -228,11 +248,6 @@ export function Station4Rad({ panelRef, isVertical = false, domId }: Props) {
         boxSizing: "border-box",
         display: "grid",
         textAlign: "center",
-        opacity: aktiv === null ? 0 : 1,
-        visibility: aktiv === null ? "hidden" : "visible",
-        transform: aktiv === null ? "translateY(6px)" : "translateY(0)",
-        transition:
-          "opacity 200ms ease-out, transform 200ms ease-out, visibility 200ms",
       }}
     >
       {PUNKTE.map((p, i) => (
@@ -480,7 +495,7 @@ export function Station4Rad({ panelRef, isVertical = false, domId }: Props) {
              der Fokus steht noch darin. Sonst risse ein weggezogener
              Zeiger dem Tastaturnutzer den Text weg. */
           onMouseLeave={(e) => {
-            if (!e.currentTarget.contains(document.activeElement)) setAktiv(null);
+            if (!e.currentTarget.contains(document.activeElement)) setAktiv(RUHE);
           }}
           style={{
             position: "absolute",
