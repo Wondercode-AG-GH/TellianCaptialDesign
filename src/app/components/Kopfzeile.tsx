@@ -5,17 +5,19 @@ import { SECTIONS } from "../sections";
 import { zonenMaske, hatZone, type Zone } from "./useBandTon";
 import logoDunkel from "../../assets/logo/tellian-logo-dunkel.svg";
 import logoHell from "../../assets/logo/tellian-logo-hell.svg";
+import monoDunkel from "../../assets/logo/tellian-monogramm-dunkel.svg";
+import monoHell from "../../assets/logo/tellian-monogramm-hell.svg";
 
 /* ═══════════════════════════════════════════════════════════
    KOPFZEILE
 
-   Eines von genau zwei Navigationselementen. Links das Logo, rechts
-   die Sprachwahl und das Kundenportal. Sonst nichts.
+   Links das Logo, rechts Sprachwahl, ein senkrechter Trenner und das
+   Kundenportal. Sonst nichts.
 
-   KEINE EIGENE FLÄCHE, KEIN KASTEN
+   KEINE EIGENE FLÄCHE
    Die Kopfzeile ist durchsichtig und liegt über dem, was gerade
-   darunter ist. Weder Logo noch Sprachwahl noch Kundenportal tragen
-   einen Rahmen.
+   darunter ist. Nur im schmalen Zweig bekommt sie ab dem Scrollen eine
+   deckende Fläche — dort läuft der Inhalt sonst hindurch.
 
    DREI SCHICHTEN STATT EINER FARBE
    Weil immer ein Streifen der Nachbarstation im Fenster steht, läuft
@@ -29,15 +31,20 @@ import logoHell from "../../assets/logo/tellian-logo-hell.svg";
      3. unsichtbar und unmaskiert als Griff — sie trägt die Knöpfe,
         den Tastaturweg und den Fokusring.
    Die ersten beiden sind reine Farbe (aria-hidden, keine Zeiger).
-   Der Wechsel ist dadurch von selbst stetig: die Maske wandert mit
-   dem Track, ohne dass irgendwo umgeschaltet würde.
 
-   WARUM ZWEI LOGODATEIEN UND KEINE EINFÄRBUNG
-   Die Markenassets führen dieselbe Sperrung zweimal: "Imperial
-   purple and white" für helle Stationen, "Silver Mist" für dunkle.
-   Beide werden als Datei genommen; eingefärbt wird nichts. Nur die
-   Leinwand ist enger beschnitten, damit sich das Logo nach seiner
-   echten Höhe bemessen lässt.
+   WARUM DER PORTALZUSTAND IM ZUSTAND STEHT UND NICHT IN :hover
+   Die beiden Farbschichten nehmen keine Zeiger an — sie bekämen also
+   nie ein :hover. Gezeigt wird aber auf der Griffschicht, gefüllt
+   werden muss in den Farbschichten. Der Zustand wandert deshalb durch
+   React zu allen dreien. Läuft die Farbgrenze durch den Knopf, füllt
+   sich seine linke Hälfte in Imperial Purple und seine rechte in
+   Mushroom — jede Seite in der Farbe, die auf ihrem Grund trägt.
+
+   EIN KASTEN, UND NUR EINER
+   Die Vorgabe "kein Kasten um irgendein Element der Bänder" gilt
+   weiter für Logo, Sprachwahl und Stationsleiste. Das Kundenportal ist
+   die Ausnahme: es ist die wichtigste Handlung der Seite und sah
+   vorher aus wie die Sprachwahl, ein Schalter, den man einmal benutzt.
    ═══════════════════════════════════════════════════════════ */
 
 const SPRACHEN = ["DE", "EN"] as const;
@@ -59,6 +66,25 @@ interface Props {
   onMenue?: () => void;
 }
 
+/* Schlosszeichen. Rein dekorativ — der Knopf trägt seinen Namen
+   bereits als Text, das Zeichen würde ihn nur doppelt vorlesen. */
+function Schloss() {
+  return (
+    <svg
+      width="11"
+      height="13"
+      viewBox="0 0 11 13"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+      style={{ flexShrink: 0, display: "block" }}
+    >
+      <rect x="0.6" y="5.2" width="9.8" height="7.2" rx="1" stroke="currentColor" strokeWidth="1.1" />
+      <path d="M2.9 5.2V3.4a2.6 2.6 0 0 1 5.2 0v1.8" stroke="currentColor" strokeWidth="1.1" />
+    </svg>
+  );
+}
+
 export function Kopfzeile({
   zonen,
   sprache,
@@ -71,20 +97,8 @@ export function Kopfzeile({
 }: Props) {
   /* ── DECKENDE FLÄCHE, NUR IM SCHMALEN ZWEIG ──
      Dort scrollt die Seite senkrecht unter der festen Kopfzeile
-     durch. Ohne Fläche lief der Inhalt sichtbar hindurch — gemeldet
-     war das Logo, das im Kontaktformular stand.
-
-     Erst AB DEM SCROLLEN, nicht von Anfang an: am Anfang der Seite
-     steht der Hero, und ein deckender Balken würde ihm oben ein
-     Stück abschneiden.
-
-     Der Ton folgt der Fläche darunter, also derselben Quelle, aus
-     der auch die Schrift ihre Fassung zieht. Im schmalen Zweig
-     liefert useBandZonen genau eine Zone — die der aktiven Station.
-
-     Auf Desktop bleibt die Kopfzeile durchsichtig: dort läuft der
-     Track waagrecht, die Farbgrenze wandert durch das Band, und eine
-     Fläche wäre genau die, die es nicht geben soll. */
+     durch. Erst AB DEM SCROLLEN: am Anfang steht der Hero, und ein
+     deckender Balken schnitte ihm oben ein Stück ab. */
   const [gescrollt, setGescrollt] = useState(false);
   useEffect(() => {
     if (!isVertical) return;
@@ -102,6 +116,9 @@ export function Kopfzeile({
         : "var(--tellian-kopf-flaeche-hell)"
       : "transparent";
 
+  /* Zeiger ODER Tastaturfokus füllen das Portalfeld. */
+  const [portalAn, setPortalAn] = useState(false);
+
   const inhalt = (schicht: Schicht) => {
     const griff = schicht === "griff";
     const aufDunkel = schicht === "dunkel";
@@ -115,6 +132,26 @@ export function Kopfzeile({
       : aufDunkel
         ? "var(--tellian-band-dim-dunkel)"
         : "var(--tellian-band-dim-hell)";
+    const trenner = griff
+      ? "transparent"
+      : aufDunkel
+        ? "var(--tellian-kopf-trenner-dunkel)"
+        : "var(--tellian-kopf-trenner-hell)";
+    const portalLinie = griff
+      ? "transparent"
+      : aufDunkel
+        ? "var(--tellian-kopf-portal-line-dunkel)"
+        : "var(--tellian-kopf-portal-line-hell)";
+    const portalFuellung = griff
+      ? "transparent"
+      : aufDunkel
+        ? "var(--tellian-kopf-portal-fuell-dunkel)"
+        : "var(--tellian-kopf-portal-fuell-hell)";
+    const portalInkGefuellt = griff
+      ? "transparent"
+      : aufDunkel
+        ? "var(--tellian-kopf-portal-ink-fuell-dunkel)"
+        : "var(--tellian-kopf-portal-ink-fuell-hell)";
 
     const klein: React.CSSProperties = {
       fontFamily: sans,
@@ -124,12 +161,7 @@ export function Kopfzeile({
       lineHeight: 1,
       background: "transparent",
       border: "none",
-      /* Trefferfläche über den Innenabstand, nicht über die Schrift.
-         Nur die Griffschicht braucht sie — die Farbschichten malen
-         nur und würden durch den Abstand verschoben. */
-      padding: griff ? "0 8px" : 0,
-      margin: griff ? "0 -8px" : 0,
-      minHeight: griff ? "var(--tellian-tippziel)" : undefined,
+      padding: 0,
       display: "inline-flex",
       alignItems: "center",
       cursor: griff ? "pointer" : "default",
@@ -143,15 +175,23 @@ export function Kopfzeile({
             e.preventDefault();
             if (griff) onLogo();
           }}
-          className="tellian-kopf-ziel"
+          className="tellian-kopf-ziel tellian-kopf-logo"
           aria-label={`Tellian Capital — zurück zu ${SECTIONS[0].label}`}
           aria-hidden={!griff}
           tabIndex={griff ? undefined : -1}
           style={{ display: "flex", alignItems: "center", flexShrink: 0 }}
         >
+          {/* WENN DER PLATZ NICHT REICHT, GEHT DIE WORTMARKE
+              Unter 420px ragte die Kopfzeile rechts hinaus — gemessen
+              bei 390px stand die Menükante auf 396. Weg muss dann die
+              Wortmarke, nicht das Kundenportal. Umgeschaltet wird über
+              eine Medienabfrage und nicht über einen Messwert im
+              Zustand: die drei Schichten müssen im selben Bild
+              dasselbe zeigen, und ein Zustand käme einen Frame zu
+              spät. */}
           <span
+            className="tellian-kopf-wortmarke"
             style={{
-              display: "block",
               height: "var(--tellian-kopf-logo-h)",
               aspectRatio: "3.274",
             }}
@@ -164,27 +204,45 @@ export function Kopfzeile({
               />
             )}
           </span>
+          <span
+            className="tellian-kopf-monogramm"
+            style={{
+              height: "var(--tellian-kopf-logo-h)",
+              aspectRatio: "1.139",
+            }}
+          >
+            {!griff && (
+              <img
+                src={aufDunkel ? monoHell : monoDunkel}
+                alt=""
+                style={{ width: "100%", height: "100%", display: "block" }}
+              />
+            )}
+          </span>
         </a>
 
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "var(--tellian-kopf-gap)",
+            gap: "var(--tellian-kopf-gruppe-gap)",
             flexShrink: 0,
           }}
         >
+          {/* ── Sprachwahl ── leiser als das Portal. Ein Schalter,
+              keine Handlung: aktive Sprache in voller Stärke, die
+              andere gedämpft, dazwischen ein Schrägstrich. */}
           <div
             role={griff ? "group" : undefined}
             aria-label={griff ? "Sprache" : undefined}
             aria-hidden={!griff}
-            style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            style={{ display: "flex", alignItems: "center", gap: "6px" }}
           >
             {SPRACHEN.map((s, i) => (
-              <span key={s} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span key={s} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 {i > 0 && (
                   <span aria-hidden style={{ ...klein, color: dim, cursor: "default" }}>
-                    ·
+                    /
                   </span>
                 )}
                 <button
@@ -192,7 +250,7 @@ export function Kopfzeile({
                   onClick={() => griff && onSprache(s)}
                   aria-pressed={sprache === s}
                   tabIndex={griff ? undefined : -1}
-                  className="tellian-kopf-ziel"
+                  className="tellian-kopf-ziel tellian-kopf-sprache"
                   style={{ ...klein, color: sprache === s ? ink : dim }}
                 >
                   {s}
@@ -201,14 +259,52 @@ export function Kopfzeile({
             ))}
           </div>
 
+          {/* ── Senkrechter Trenner ──
+              Trennt Nebensache von Hauptsache, ohne eine Linie unter
+              das ganze Band zu ziehen. */}
+          <span
+            aria-hidden
+            style={{
+              display: "block",
+              width: "1px",
+              height: "var(--tellian-kopf-trenner-h)",
+              backgroundColor: trenner,
+              flexShrink: 0,
+            }}
+          />
+
+          {/* ── Kundenportal ── das einzige Feld im Band. */}
           <button
             type="button"
             onClick={() => griff && onPortal()}
+            onMouseEnter={() => griff && setPortalAn(true)}
+            onMouseLeave={() => griff && setPortalAn(false)}
+            onFocus={() => griff && setPortalAn(true)}
+            onBlur={() => griff && setPortalAn(false)}
             tabIndex={griff ? undefined : -1}
             aria-hidden={!griff}
-            className="tellian-kopf-ziel"
-            style={{ ...klein, color: ink, whiteSpace: "nowrap" }}
+            className="tellian-kopf-ziel tellian-kopf-portal"
+            style={{
+              fontFamily: sans,
+              fontSize: "var(--tellian-kopf-portal-size)",
+              letterSpacing: "var(--tellian-kopf-tracking)",
+              textTransform: "uppercase",
+              lineHeight: 1,
+              color: portalAn ? portalInkGefuellt : ink,
+              backgroundColor: portalAn ? portalFuellung : "transparent",
+              border: `1px solid ${portalAn ? portalFuellung : portalLinie}`,
+              borderRadius: 0,
+              height: "var(--tellian-kopf-portal-h)",
+              padding: "0 var(--tellian-kopf-portal-pad-x)",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              whiteSpace: "nowrap",
+              cursor: griff ? "pointer" : "default",
+              transition: "background-color 180ms ease, border-color 180ms ease, color 180ms ease",
+            }}
           >
+            <Schloss />
             Kundenportal
           </button>
 
@@ -220,7 +316,7 @@ export function Kopfzeile({
               aria-label={menueOffen ? "Menü schliessen" : "Menü öffnen"}
               aria-hidden={!griff}
               tabIndex={griff ? undefined : -1}
-              className="tellian-kopf-ziel"
+              className="tellian-kopf-ziel tellian-kopf-menue"
               style={{
                 ...klein,
                 display: "flex",
@@ -229,7 +325,6 @@ export function Kopfzeile({
                 gap: "5px",
                 width: "24px",
                 height: "24px",
-                padding: 0,
               }}
             >
               {[0, 1, 2].map((i) => (
@@ -266,8 +361,8 @@ export function Kopfzeile({
     return {
       position: "absolute",
       inset: 0,
-      paddingLeft: "var(--tellian-band-pad-x)",
-      paddingRight: "var(--tellian-band-pad-x)",
+      paddingLeft: "var(--tellian-kopf-pad-x)",
+      paddingRight: "var(--tellian-kopf-pad-x)",
       boxSizing: "border-box",
       display: "flex",
       alignItems: "center",
@@ -288,8 +383,6 @@ export function Kopfzeile({
         right: 0,
         zIndex: 160,
         height: "var(--tellian-kopf-height)",
-        /* Breit: keine eigene Fläche, keine Trennlinie.
-           Schmal: ab dem Scrollen deckend — siehe oben. */
         backgroundColor: flaeche,
         transition: "background-color 220ms ease",
         border: "none",
@@ -312,7 +405,31 @@ export function Kopfzeile({
       <div style={schichtStil("griff")}>{inhalt("griff")}</div>
 
       <style>{`
-        .tellian-kopf-ziel { text-decoration: none; outline: none; }
+        .tellian-kopf-ziel { text-decoration: none; outline: none; position: relative; }
+        /* TREFFERFLÄCHEN
+           Der Zuwachs kommt aus einer unsichtbaren Auflage, nicht aus
+           Innenabstand: die drei Schichten müssen deckungsgleich
+           bleiben, sonst sitzt die Farbe neben dem Griff. */
+        .tellian-kopf-sprache::after,
+        .tellian-kopf-portal::after,
+        .tellian-kopf-logo::after,
+        .tellian-kopf-menue::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 50%;
+          height: var(--tellian-tippziel);
+          transform: translateY(-50%);
+        }
+        .tellian-kopf-sprache::after { left: -6px; right: -6px; }
+        .tellian-kopf-menue::after { left: -10px; right: -10px; }
+        .tellian-kopf-wortmarke { display: block; }
+        .tellian-kopf-monogramm { display: none; }
+        @media (max-width: 419px) {
+          .tellian-kopf-wortmarke { display: none; }
+          .tellian-kopf-monogramm { display: block; }
+        }
         .tellian-kopf-ziel:focus-visible {
           outline: 2px solid var(--tellian-muted);
           outline-offset: 3px;

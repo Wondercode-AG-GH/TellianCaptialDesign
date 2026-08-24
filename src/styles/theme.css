@@ -760,7 +760,7 @@
      mitwachsen zu lassen. */
   --tellian-rail-width: 0px;
 
-  --tellian-kopf-height: clamp(44px, 6.4vh, 60px);
+  /* --tellian-kopf-height steht weiter unten bei der Kopfzeile. */
   --tellian-station-height: clamp(40px, 5.6vh, 56px);
   --tellian-band-pad-x: clamp(20px, 3.2vw, 56px);
   /* TIPPZIELE
@@ -771,11 +771,54 @@
      Schriftbild bleibt, die Trefferfläche wächst. */
   --tellian-tippziel: 44px;
 
-  /* Kopfzeile */
-  --tellian-kopf-logo-h: clamp(20px, 2.9vh, 28px);
-  --tellian-kopf-size: 12px;
+  /* ── KOPFZEILE ──
+     Feste Höhe statt vh: der Inhalt wächst nicht mit dem Fenster.
+     Logo 26px, Portalfeld 36px — 64px lassen oben und unten je 14px.
+     Vorher clamp(44px, 6.4vh, 60px), gemessen 58px bei 900er Fenster. */
+  --tellian-kopf-height: 64px;
+  --tellian-kopf-logo-h: 26px;
+  /* 11px ist die Untergrenze im Band; die Sprachwahl darf sie nutzen,
+     das Kundenportal steht als Hauptsache eine Stufe darüber. */
+  --tellian-kopf-size: 11px;
+  --tellian-kopf-portal-size: 12px;
   --tellian-kopf-tracking: 0.14em;
   --tellian-kopf-gap: clamp(14px, 1.6vw, 28px);
+  /* Abstand innerhalb der rechten Gruppe: Sprache | Trenner | Portal */
+  --tellian-kopf-gruppe-gap: clamp(12px, 1.2vw, 18px);
+  /* Eigener Randabstand, damit sich das Band auf sehr schmalen
+     Geräten zusammenziehen kann, ohne die Stationsleiste oder das
+     mobile Menü mitzunehmen — die lesen weiter --tellian-band-pad-x. */
+  --tellian-kopf-pad-x: var(--tellian-band-pad-x);
+
+  /* Senkrechter Trenner — kurze Haarlinie, keine Linie unter dem Band. */
+  --tellian-kopf-trenner-h: 15px;
+  --tellian-kopf-trenner-hell: rgba(25, 23, 24, 0.30);
+  --tellian-kopf-trenner-dunkel: rgba(244, 244, 240, 0.30);
+
+  /* ── KUNDENPORTAL ──
+     Das einzige Element der Kopfzeile mit einer Form, und die einzige
+     Farbfläche im Band. Die Kontur ist ein Bedienelement und braucht
+     3 : 1 gegen ihren Grund.
+
+     Auf Archive White: Iron Veil mit 45 % Deckung trägt 2.87 : 1 —
+     zu wenig. 55 % trägt 3.86 : 1.
+     Auf Imperial Purple: 45 % Weiss trägt 4.02 : 1. */
+  --tellian-kopf-portal-line-hell: rgba(25, 23, 24, 0.55);    /* 3.86 : 1 */
+  --tellian-kopf-portal-line-dunkel: rgba(244, 244, 240, 0.45); /* 4.02 : 1 */
+  --tellian-kopf-portal-h: 36px;
+  --tellian-kopf-portal-pad-x: clamp(12px, 1.1vw, 18px);
+  /* Gefüllter Zustand bei Zeiger und Tastaturfokus. Die Füllung ist
+     jeweils die Gegenfarbe des Grundes, die Schrift die des Grundes —
+     hell auf Purple 14.28 : 1, Iron auf Mushroom 8.17 : 1. */
+  --tellian-kopf-portal-fuell-hell: var(--tellian-purple);
+  --tellian-kopf-portal-ink-fuell-hell: var(--tellian-bg);
+  --tellian-kopf-portal-fuell-dunkel: var(--tellian-muted);
+  --tellian-kopf-portal-ink-fuell-dunkel: var(--tellian-dark);
+
+  /* Unter 360px reicht die Breite nicht mehr: gemessen stand die
+     Menükante bei 320px auf 341. Enger gesetzt und mit knapperem
+     Portalfeld passt es. Weiter gekürzt wird nichts — das
+     Kundenportal bleibt, die Wortmarke ist schon weg. */
   /* DECKENDE FLÄCHE — NUR IM SCHMALEN ZWEIG
      Dort scrollt die Seite senkrecht unter der festen Kopfzeile
      durch; ohne Fläche lag das Logo im Formular. Auf Desktop bleibt
@@ -876,6 +919,14 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 }
+@media (max-width: 359px) {
+  :root {
+    --tellian-kopf-pad-x: 14px;
+    --tellian-kopf-gruppe-gap: 9px;
+    --tellian-kopf-portal-pad-x: 9px;
+  }
+}
+
 
 .dark {
   --background: oklch(0.145 0 0);

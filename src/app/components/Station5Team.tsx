@@ -205,21 +205,33 @@ export function Station5Team({
     </h2>
   );
 
-  /* KEIN object-position MEHR
-     Die Kopfhöhe steckt jetzt im Bild selbst: jede Quelle ist in der
-     Bildaufbereitung auf 4:5 beschnitten, Kopfoberkante auf 6 % der
-     Ausschnitthöhe, Kopfhöhe auf 29 % — siehe scripts/optimize-images.mjs.
+  /* DER AUSSCHNITT WIRD OBEN VERANKERT
 
-     Vorher stand hier für alle derselbe Versatz "50% 26%". Das kann
-     nicht aufgehen, weil die Köpfe in den Quellen zwischen 9.5 % und
-     23.0 % der Bildhöhe sitzen: derselbe Versatz setzte Rolf oben an
-     und liess über Marco eine Handbreit Luft.
+     Wo der Kopf im Bild sitzt, steckt in der Bildaufbereitung: jede
+     Quelle ist auf 0.96 beschnitten, Scheitel auf 7 % der
+     Ausschnitthöhe, Kopfhöhe auf 31.5 % — siehe
+     scripts/optimize-images.mjs. Daran ändert sich hier nichts.
 
-     4:5 ist schmaler als jede Kachelform (gemessen 0.80 bis 1.03, beim
-     Auswählen breiter). object-fit: cover beschneidet dadurch nur noch
-     links und rechts — die Kopfhöhe steht auf jeder Fensterbreite und
-     in jedem Zustand fest. Genau die Rolle, die cover haben soll:
-     Sicherheitsnetz, nicht Werkzeug für den Ausschnitt. */
+     WARUM DER ANKER TROTZDEM NÖTIG IST
+     Die Kachel hat keine feste Form. Über die Fensterbreiten gemessen
+     schwankt sie zwischen 0.80 und 1.03 — damit liess sich ein
+     Ausschnittverhältnis knapp darunter wählen. Über die Fenster-
+     HÖHEN gemessen reicht sie aber bis 1.75: bei 1200x560 misst die
+     Kachel 205x117, bei 1506x700 258x174. Die Reihe teilt sich die
+     Breite in fünf, die Höhe kommt aus der Bühne — auf niedrigen
+     Fenstern wird die Kachel zum Querformat.
+
+     Gegen 1.75 hilft kein Ausschnittverhältnis mehr: ein 1.75-Kasten,
+     der einen Kopf von 31.5 % seiner Höhe enthält, wäre breiter als
+     die Quelle. Der Ausschnitt müsste auf Kopf und Schultern
+     zusammenschrumpfen — ein anderes Bild.
+
+     Mit dem Anker oben schneidet cover immer NUR UNTEN weg. Der
+     Scheitel steht damit auf jeder Fensterform, von 7 % der Kachel-
+     höhe bei 0.96 bis 13 % bei 1.75. Das ist die Rolle, die cover
+     haben soll: es entscheidet nicht, WELCHER Ausschnitt gezeigt
+     wird — das steht im Bild —, sondern nur, an welcher Kante es
+     kürzt, wenn der Behälter seine Form ändert. */
   const portraet = (person: Person) =>
     person.bild ? (
       <ResponsiveImage
@@ -227,6 +239,7 @@ export function Station5Team({
         alt=""
         sizes={isVertical ? "46vw" : "26vw"}
         className="w-full h-full"
+        objectPosition="50% 0%"
         style={{ display: "block" }}
       />
     ) : (

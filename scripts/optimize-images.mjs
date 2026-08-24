@@ -137,10 +137,26 @@ const SOURCES = [
 
      Zwei Regeln, je Person einzeln abgenommen:
        · Scheitel auf 7 % der Ausschnitthöhe,
-       · Kopfhöhe (Scheitel bis Kinn) auf 31.5 % der Ausschnitthöhe.
+       · Kopfhöhe (Scheitel bis Kinn) auf 28 % der Ausschnitthöhe.
      Die zweite Regel gleicht die Aufnahmedistanz aus — Rolf wurde
      näher fotografiert als Marco, sonst wären die Köpfe zwar auf
      gleicher Höhe, aber verschieden gross.
+
+     WO DAS ZURÜCKTRETEN ENDET
+     Die Quelle ist 2:3; bei einem Ausschnitt von 0.96 ist seine
+     Höhe damit auf 69.2 % der Quellhöhe begrenzt, sonst wäre der
+     Kasten breiter als das Bild. Daraus folgt je Person eine
+     kleinstmögliche Kopfhöhe:
+
+       Marco 22.0 · Olivier 24.9 · Jasmina 26.5 · Andreas 27.2
+       Bryan 29.2 · Rolf 31.2
+
+     Einheitlich ist also bei 31.2 % Schluss — Rolfs Aufnahme ist zu
+     nah, sein Ausschnitt nutzt bereits 99.6 % der Quellbreite. Bei
+     28 % erreichen vier von sechs das Ziel; Rolf bleibt bei 31.2 %,
+     Bryan bei 29.2 %. Der Unterschied ist gewollt und dokumentiert:
+     ein weiteres Zurücktreten braucht eine neue Aufnahme von Rolf,
+     nicht einen anderen Ausschnitt.
 
      WARUM 0.96 UND NICHT 4:5
      Ein erster Anlauf nahm 4:5 (0.8) in der Annahme, cover beschneide
@@ -168,16 +184,18 @@ const SOURCES = [
      Messraster über den Originalen (2 % senkrecht, 5 % waagrecht). */
   ...[
     /* id, Datei, links, oben, Breite — alles Anteile der Quelle. */
-    ["olivier-bill",      "Olivier-Bill.JPG",     0.107, 0.162, 0.786],
-    ["marco-ludescher",   "Marco-Ludescher.JPG",  0.153, 0.196, 0.695],
-    /* Rolf steht am linken Rand seiner Quelle; der auf die
+    ["olivier-bill",      "Olivier-Bill.JPG",     0.058, 0.157, 0.885],
+    ["marco-ludescher",   "Marco-Ludescher.JPG",  0.109, 0.192, 0.782],
+    /* Rolf und Bryan liegen an der Breitengrenze ihrer Quelle — ihre
+       Köpfe bleiben deshalb bei 31.2 % bzw. 29.2 % statt 28 %.
+       Rolf steht zusätzlich am linken Rand seiner Quelle; der auf die
        Gesichtsmitte zentrierte Kasten liefe links hinaus. Deshalb
        bündig an der Kante — sein Gesicht sitzt dann auf 44 % statt
        50 % des Ausschnitts, was in der Kachel nicht auffällt. */
-    ["rolf-schneider",    "Rolf-Schneider.JPG",   0.000, 0.047, 0.988],
-    ["bryan-honegger",    "Bryan-Honegger.png",   0.039, 0.059, 0.923],
-    ["andreas-truempler", "Andreas-Trümpler.JPG", 0.037, 0.084, 0.860],
-    ["jasmina-rukavina",  "Jasmina-Rukavina.JPG", 0.082, 0.070, 0.836],
+    ["rolf-schneider",    "Rolf-Schneider.JPG",   0.000, 0.047, 0.996],
+    ["bryan-honegger",    "Bryan-Honegger.png",   0.002, 0.056, 0.996],
+    ["andreas-truempler", "Andreas-Trümpler.JPG", 0.000, 0.079, 0.967],
+    ["jasmina-rukavina",  "Jasmina-Rukavina.JPG", 0.029, 0.065, 0.941],
     /* Wilhelm Tell ist die Aufnahme einer Statue, kein Porträt eines
        Mitarbeiters. Die Kopfregeln gelten für ihn nicht: sein Kopf
        misst nur rund 7 % der Quellhöhe, auf 31.5 % gezogen bliebe von

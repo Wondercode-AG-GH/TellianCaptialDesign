@@ -143,8 +143,22 @@ const LABEL_POS = [
 ];
 
 /** Fixed reading zone — ONE position for ALL hover texts, below cluster.
-    52px below "Vollmacht" label (y=188), 70px above nav-pill at 1024px. */
+    52px below "Vollmacht" label (y=188). */
 const READING_ZONE_Y = 240 * SKALA;
+
+/* Oberkante der Lesezone im ungeskalierten Kasten. Bei CH=560 sind das
+   558 — der Text beginnt also praktisch an der Unterkante und hängt
+   mit seiner ganzen Höhe darunter hinaus.
+
+   Genau das war der Fehler: die Skalierung rechnete gegen CH und kannte
+   den Text nicht. Auf hohen Fenstern hatte die Bühne genug Reserve, auf
+   niedrigen lief der Text in die Stationsleiste. Gemeldet bei rund
+   817px Fensterhöhe.
+
+   Die Texthöhe wird nicht geraten, sondern gemessen: sie hängt an der
+   Schrift, am Umbruch und an der Sprache. Ein fester Wert wäre nach der
+   ersten Textänderung falsch. */
+const LESEZONE_OBEN = CH / 2 + READING_ZONE_Y;
 
 /* ═══════════════════════════════════════════════════════════════
    ICONS
@@ -454,7 +468,33 @@ export function ParteiDreieck({
      sich auf die Fläche beziehen. */
   const flaecheRef = useRef<HTMLDivElement>(null);
   const massRef = useRef<HTMLDivElement>(null);
+  const leseRef = useRef<HTMLDivElement>(null);
   const [skala, setSkala] = useState(1);
+  /* Höhe des längsten Erklärtexts, ungeskaliert. Startwert 0: bis zur
+     ersten Messung verhält sich alles wie vorher. */
+  const [lesehoehe, setLesehoehe] = useState(0);
+
+  /* offsetHeight statt getBoundingClientRect: der Kasten steckt in
+     einem transform: scale(), und der Rect käme geskaliert zurück —
+     die Skalierung würde sich dann selbst füttern. */
+  useEffect(() => {
+    if (!embedded) return;
+    const el = leseRef.current;
+    if (!el) return;
+    const messen = () => {
+      const h = Math.max(
+        0,
+        ...Array.from(el.children).map((c) => (c as HTMLElement).offsetHeight),
+      );
+      if (h > 0) setLesehoehe((alt) => (Math.abs(alt - h) > 0.5 ? h : alt));
+    };
+    messen();
+    const obs = new ResizeObserver(messen);
+    obs.observe(el);
+    /* Vor dem Laden der Schriften misst man die Ersatzschrift. */
+    document.fonts?.ready.then(messen).catch(() => {});
+    return () => obs.disconnect();
+  }, [embedded]);
 
   useEffect(() => {
     if (!embedded) return;
@@ -469,7 +509,28 @@ export function ParteiDreieck({
          Höchstmass zulässt, muss auch hineinpassen. */
       const maxB = Math.min(r.width, m.width || r.width);
       const maxH = Math.min(r.height, m.height || r.height);
-      const s = Math.min(maxB / CW, maxH / CH);
+      /* DREI SCHRANKEN.
+         1. Breite.
+         2. --tellian-s2-graphic-max-height (68 %) begrenzt die
+            GRAFIK — deshalb gegen CH, nicht gegen CH plus Text.
+            Beides gegen dieselbe Schranke zu rechnen liess das
+            Dreieck um ein Fünftel schrumpfen, obwohl unter dem Text
+            noch 101px frei waren.
+         3. Der Erklärtext hängt unter der Mitte des Rahmens und ragt
+            aus ihm heraus. Er reicht TIEFE unter die Mitte; passen
+            muss das in die halbe Bühne, sonst landet er in der
+            Stationsleiste. Diese Schranke greift, ohne die Grafik zu
+            verschieben — sie macht sie nur kleiner, wenn es eng wird. */
+      const tiefe = READING_ZONE_Y + lesehoehe;
+      /* Ein Haar Abstand, damit der Text nicht exakt auf der Kante der
+         Stationsleiste sitzt. */
+      const LUFT = 12;
+      const raumUnten = Math.max(0, r.height / 2 - LUFT);
+      const s = Math.min(
+        maxB / CW,
+        maxH / CH,
+        tiefe > 0 ? raumUnten / tiefe : Infinity,
+      );
       if (Number.isFinite(s) && s > 0) setSkala(s);
     };
     messen();
@@ -477,7 +538,7 @@ export function ParteiDreieck({
     obs.observe(el);
     obs.observe(mass);
     return () => obs.disconnect();
-  }, [embedded]);
+  }, [embedded, lesehoehe]);
 
   /* Nearest-centre hover.
      Das Rechteck ist skaliert, die Geometrie darunter nicht — ohne
@@ -555,12 +616,68 @@ export function ParteiDreieck({
         style={{
           position: "relative",
           width: CW,
+          /* Bewusst CH und NICHT die Höhe samt Erklärtext.
+             Der Rahmen ist das, was in der Bühne zentriert wird. Zählt
+             man den Text mit, wandert die Grafik um die halbe
+             Texthöhe nach oben und steht nicht mehr auf einer Höhe
+             mit der Textspalte links — gemessen 73 bis 117px zu hoch.
+             Der Text hängt deshalb weiterhin unten heraus; dass er in
+             die Bühne passt, stellt die Skalierung sicher. */
           height: CH,
           flex: "0 0 auto",
           transform: skala === 1 ? undefined : `scale(${skala})`,
           transformOrigin: "center center",
         }}
       >
+        {/* Messkästen für die Erklärtexte — einer je Partei.
+            DIESELBE GEOMETRIE WIE DIE LESEZONE, nicht nur dieselbe
+            Schrift. Ein erster Versuch gab ihnen width: 220; die echte
+            Zone trägt aber maxWidth: 220 und schrumpft im 380er Rahmen
+            auf gemessene 160. Schmaler heisst mehr Zeilen, und die
+            Messung fiel um 10px zu klein aus — der Text ragte weiter
+            in die Stationsleiste, als die Schranke annahm.
+
+            Drei getrennte Kästen und nicht drei Kinder in einem: in
+            einem gemeinsamen Kasten zieht der breiteste Text die
+            anderen mit auf seine Breite. Unsichtbar, ohne Zeiger,
+            ohne Vorlesestimme. */}
+        <div
+          ref={leseRef}
+          aria-hidden
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: CW,
+            height: 0,
+            visibility: "hidden",
+            pointerEvents: "none",
+          }}
+        >
+          {PARTIES.map((party) => (
+            <div
+              key={`mass-${party.id}`}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: "50%",
+                transform: "translateX(-50%)",
+                maxWidth: 220,
+                textAlign: "center",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 10 }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", flexShrink: 0 }} />
+                <span style={{ fontFamily: sans, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>
+                  {party.label.de}
+                </span>
+              </div>
+              <p style={{ fontFamily: serif, fontSize: 13.5, lineHeight: 1.5, margin: 0 }} lang="de">
+                {party.prosa.de}
+              </p>
+            </div>
+          ))}
+        </div>
         {/* ── Title at eyebrow height ── */}
         <span style={{
           position: "absolute",
@@ -749,33 +866,23 @@ export function ParteiDreieck({
         })()}
       </div>
 
-      {/* ── Reduced-motion: all prosa permanently visible in the reading zone ── */}
-      {rm && (
-        <div style={{
-          position: "absolute",
-          top: `calc(50% + ${READING_ZONE_Y}px)`,
-          left: "50%", transform: "translateX(-50%)",
-          maxWidth: 240, textAlign: "center",
-        }}>
-          {PARTIES.map((party, pi) => (
-            <div key={`rm-${party.id}`} style={{ marginTop: pi === 0 ? 0 : 18 }}>
-              <span style={{
-                fontFamily: sans, fontSize: 12, letterSpacing: "0.14em",
-                textTransform: "uppercase", color: party.color,
-                fontWeight: 600, display: "block", marginBottom: 4,
-              }}>
-                {party.label.de}
-              </span>
-              <p style={{
-                fontFamily: serif, fontSize: 12.5, color: W90,
-                lineHeight: 1.5, margin: 0,
-              }} lang="de">
-                {party.prosa.de}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* ── KEIN EIGENER ZWEIG FÜR REDUZIERTE BEWEGUNG ──
+          Hier stand ein Ersatzblock, der bei prefers-reduced-motion
+          ALLE DREI Prosatexte dauerhaft untereinander zeigte. Er lag
+          auf derselben Stelle wie der Block darüber, und der war nur
+          mit `hovered !== null` abgesichert, nicht mit `!rm`. Mit der
+          Einstellung liefen beide gleichzeitig: der gezeigte Text
+          landete auf dem ersten Eintrag der Dauerliste, und die drei
+          gestapelten Texte reichten unten in die Stationsleiste.
+
+          Gemeldet von einem Kunden, im Büro nicht nachstellbar — die
+          Einstellung sitzt im Betriebssystem, nicht im Browser.
+
+          Der Ersatzblock war ohnehin unnötig: Zeigen ist keine
+          Animation. Der Block oben zeigt jetzt für alle genau einen
+          Text; bei reduzierter Bewegung entfällt lediglich das
+          Einblenden, wofür die `animation`-Eigenschaft dort schon auf
+          "none" schaltet. */}
 
       </div>
 

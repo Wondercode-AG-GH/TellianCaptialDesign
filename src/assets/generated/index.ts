@@ -195,8 +195,8 @@ export const IMAGES = {
     ],
   },
   "olivier-bill": {
-    nativeWidth: 3672,
-    nativeHeight: 3825,
+    nativeWidth: 4128,
+    nativeHeight: 4300,
     avif: [
       { w: 336, h: 350, url: i35 },
       { w: 624, h: 650, url: i36 },
@@ -214,8 +214,8 @@ export const IMAGES = {
     ],
   },
   "marco-ludescher": {
-    nativeWidth: 3240,
-    nativeHeight: 3375,
+    nativeWidth: 3648,
+    nativeHeight: 3800,
     avif: [
       { w: 336, h: 350, url: i44 },
       { w: 624, h: 650, url: i45 },
@@ -233,8 +233,8 @@ export const IMAGES = {
     ],
   },
   "rolf-schneider": {
-    nativeWidth: 4608,
-    nativeHeight: 4800,
+    nativeWidth: 4656,
+    nativeHeight: 4850,
     avif: [
       { w: 336, h: 350, url: i53 },
       { w: 624, h: 650, url: i54 },
@@ -252,8 +252,8 @@ export const IMAGES = {
     ],
   },
   "bryan-honegger": {
-    nativeWidth: 936,
-    nativeHeight: 975,
+    nativeWidth: 1008,
+    nativeHeight: 1050,
     avif: [
       { w: 336, h: 350, url: i62 },
       { w: 624, h: 650, url: i63 },
@@ -268,8 +268,8 @@ export const IMAGES = {
     ],
   },
   "andreas-truempler": {
-    nativeWidth: 4008,
-    nativeHeight: 4175,
+    nativeWidth: 4512,
+    nativeHeight: 4700,
     avif: [
       { w: 336, h: 350, url: i68 },
       { w: 624, h: 650, url: i69 },
@@ -287,8 +287,8 @@ export const IMAGES = {
     ],
   },
   "jasmina-rukavina": {
-    nativeWidth: 3912,
-    nativeHeight: 4075,
+    nativeWidth: 4392,
+    nativeHeight: 4575,
     avif: [
       { w: 336, h: 350, url: i77 },
       { w: 624, h: 650, url: i78 },
