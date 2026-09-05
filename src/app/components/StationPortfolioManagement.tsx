@@ -149,9 +149,10 @@ export function StationPortfolioManagement({
             fontSize: "var(--tellian-pm-body-size)",
             lineHeight: "var(--tellian-pm-body-leading)" as unknown as number,
             color: "var(--tellian-pm-dunkel-dim)",
-            /* v5: 16px, Zeilenabstand 1.75, rund 50ch. */
+            /* v5: 16px, Zeilenabstand 1.75 — flache Fenster enger,
+               siehe --tellian-lauf-lh. */
             fontSize: "16px",
-            lineHeight: 1.75,
+            lineHeight: "var(--tellian-lauf-lh)" as unknown as number,
             maxWidth: "50ch",
           }}
         >
@@ -228,8 +229,8 @@ export function StationPortfolioManagement({
           alignItems: "center",
           columnGap: "clamp(48px, 6.7vw, 96px)",
           paddingLeft:
-            "calc(var(--tellian-rail-width) + clamp(28px, 3.4vw, 56px))",
-          paddingRight: "clamp(28px, 3.4vw, 56px)",
+            "calc(var(--tellian-rail-width) + var(--tellian-station-pad-x))",
+          paddingRight: "var(--tellian-station-pad-x)",
           paddingTop: "var(--tellian-s1-stage-pad)",
           paddingBottom: "var(--tellian-s1-stage-pad)",
           boxSizing: "border-box",
@@ -241,7 +242,7 @@ export function StationPortfolioManagement({
             minWidth: 0,
             display: "flex",
             flexDirection: "column",
-            gap: "clamp(18px, 3vh, 34px)",
+            gap: "var(--tellian-abstand-titel)",
           }}
         >
           <div style={enter(STEP.title, 24)}>{titel}</div>

@@ -156,7 +156,7 @@ export function ProzessGabelung({
           auf der Kante der Spalte. */}
       <h3
         style={{
-          margin: "0 0 clamp(18px, 3vh, 30px)",
+          margin: "0 0 clamp(14px, 2.4vh, 30px)",
           fontFamily: serif,
           fontSize: "var(--tellian-pm-wege-size)",
           fontWeight: 400,
@@ -175,7 +175,8 @@ export function ProzessGabelung({
         <p
           style={{
             /* v5: 15.5px, rund 66ch, 40px Abstand zu den Karten. */
-            margin: "0 0 40px",
+            /* v5: 40px auf Standardhöhe; flache Fenster atmen mit. */
+            margin: "0 0 clamp(26px, 4.4vh, 40px)",
             fontFamily: sans,
             fontSize: "15.5px",
             lineHeight: 1.65,
@@ -279,7 +280,7 @@ export function ProzessGabelung({
                 {k.eyebrow}
               </span>,
               {
-                padding: "22px var(--tellian-pm-dip-pad-x) 14px",
+                padding: "clamp(16px, 2.6vh, 22px) var(--tellian-pm-dip-pad-x) 12px",
                 borderBottom: "1px solid var(--tellian-pm-fuge)",
               },
             )}
@@ -297,7 +298,7 @@ export function ProzessGabelung({
               >
                 {k.name}
               </span>,
-              { padding: "22px var(--tellian-pm-dip-pad-x) 0" },
+              { padding: "clamp(16px, 2.6vh, 22px) var(--tellian-pm-dip-pad-x) 0" },
             )}
 
             {/* Zeile 3 — Beschreibung */}
@@ -306,7 +307,7 @@ export function ProzessGabelung({
                 style={{
                   fontFamily: sans,
                   fontSize: "var(--tellian-pm-card-text-size)",
-                  lineHeight: 1.6,
+                  lineHeight: 1.5,
                   color: C.accent,
                 }}
               >
@@ -335,14 +336,14 @@ export function ProzessGabelung({
                     fontFamily: cormorant,
                     fontStyle: "italic",
                     fontSize: "var(--tellian-pm-card-fuer-size)",
-                    lineHeight: 1.45,
+                    lineHeight: 1.4,
                     color: "var(--tellian-pm-card-fuer-color)",
                   }}
                 >
                   {k.fuer}
                 </span>
               </>,
-              { padding: "18px var(--tellian-pm-dip-pad-x) 0" },
+              { padding: "clamp(14px, 2.2vh, 18px) var(--tellian-pm-dip-pad-x) 0" },
             )}
 
             {/* Zeile 5 — CTA am Kartenfuss */}

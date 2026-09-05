@@ -1196,8 +1196,8 @@ export function Station6Kontakt({
           flexDirection: "column",
           /* Die Schiene liegt fixed und nimmt keinen Platz im Fluss. */
           paddingLeft:
-            "calc(var(--tellian-rail-width) + clamp(28px, 3.4vw, 64px))",
-          paddingRight: "clamp(28px, 3.4vw, 64px)",
+            "calc(var(--tellian-rail-width) + var(--tellian-station-pad-x))",
+          paddingRight: "var(--tellian-station-pad-x)",
           paddingTop: "var(--tellian-s1-stage-pad)",
           paddingBottom: "clamp(16px, 2vh, 28px)",
           boxSizing: "border-box",

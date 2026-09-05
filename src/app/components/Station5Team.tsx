@@ -430,8 +430,8 @@ export function Station5Team({
           display: "flex",
           alignItems: "stretch",
           paddingLeft:
-            "calc(var(--tellian-rail-width) + clamp(28px, 3.4vw, 56px))",
-          paddingRight: "clamp(28px, 3.4vw, 56px)",
+            "calc(var(--tellian-rail-width) + var(--tellian-station-pad-x))",
+          paddingRight: "var(--tellian-station-pad-x)",
           paddingTop: "var(--tellian-s1-stage-pad)",
           paddingBottom: "var(--tellian-s1-stage-pad)",
           boxSizing: "border-box",

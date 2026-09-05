@@ -289,9 +289,9 @@
      einzelne Wort muss keine halbe Station tragen. */
   /* v5-Briefing: H1 44–64px; der Umbruch läuft über ein weiches
      Trennzeichen im Titelsatz, nicht über automatische Trennung. */
-  --tellian-pm-titel-dunkel-size: clamp(44px, 4.4vw, 64px);
+  --tellian-pm-titel-dunkel-size: clamp(40px, 4vw, 64px);   /* P2: flache Fenster */
   /* Senkrechte Abstände der Spur — atmen mit der Fensterhöhe. */
-  --tellian-pm-spur-gap: clamp(14px, 2.4vh, 32px);
+  --tellian-pm-spur-gap: clamp(12px, 2vh, 32px);   /* P2: flache Fenster */
   --tellian-pm-body-gap: clamp(20px, 2.2vw, 36px);
   --tellian-pm-body-pad-right: clamp(28px, 3vw, 48px);
 
@@ -427,10 +427,10 @@
      Station ist so breit wie ihr Inhalt — nach unten gedeckelt bei
      70vw, damit sie noch als volle Station liest, nach oben bei den
      94vw der übrigen. */
-  --tellian-r4-pad-left: clamp(24px, 3vw, 56px);
+  --tellian-r4-pad-left: var(--tellian-station-pad-x);   /* P2 */
   --tellian-r4-title-col: clamp(150px, 14vw, 210px);
   --tellian-r4-mid-gap: clamp(36px, 4vw, 90px);
-  --tellian-r4-edge: clamp(28px, 3.4vw, 56px);
+  --tellian-r4-edge: var(--tellian-station-pad-x);       /* P2 */
   --tellian-r4-block: calc(
     var(--tellian-r4-wheel)
     + 2 * (var(--tellian-r4-label-col) + var(--tellian-r4-label-gap))
@@ -853,6 +853,29 @@
      Schriftbild bleibt, die Trefferfläche wächst. */
   --tellian-tippziel: 44px;
 
+  /* ══ P2 — SPACING-SYSTEM (8er-Raster) ══
+     Ein Satz Abstände für alle sechs Stationen, statt je Station
+     eigener clamp-Werte. Dokumentierte Tokens:
+
+     --tellian-station-pad-x   Stationskante → erster Inhalt,
+                               waagrecht. Richtwert 96–128px auf
+                               Desktop, nie unter 64 (Briefing P2).
+                               6.5vw: 94px @1440, 125px @1920.
+     --tellian-abstand-titel   Titel → Fliesstext (32…48, 8er).
+     --tellian-abstand-block   Block → Block     (40…64, 8er).
+
+     Der Hell/Dunkel-Wechsel bekommt damit von selbst Luft: die
+     Farbkante liegt an der Stationskante, der Inhalt beginnt erst
+     nach pad-x. */
+  --tellian-station-pad-x: clamp(64px, 6.5vw, 128px);
+  --tellian-abstand-titel: clamp(32px, 4vh, 48px);
+  --tellian-abstand-block: clamp(40px, 5vh, 64px);
+
+  /* Zeilenabstand des Stations-Lauftexts (v5: 1.75). Auf flachen
+     Fenstern eine Stufe enger, sonst lief die EN-Textspalte von
+     Station 02 bei 1280×800 exakt 2px in die Stationsleiste. */
+  --tellian-lauf-lh: 1.75;
+
   /* ── KOPFZEILE ──
      Feste Höhe statt vh: der Inhalt wächst nicht mit dem Fenster.
      Logo 26px, Portalfeld 36px — 64px lassen oben und unten je 14px.
@@ -1011,6 +1034,12 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 }
+@media (max-height: 830px) {
+  :root {
+    --tellian-lauf-lh: 1.6;
+  }
+}
+
 @media (max-width: 359px) {
   :root {
     --tellian-kopf-pad-x: 14px;

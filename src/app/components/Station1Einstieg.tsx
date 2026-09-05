@@ -185,7 +185,7 @@ export function Station1Einstieg({
       style={{
         /* Einfacher Abstand — die Haarlinie, deren Platz der doppelte
            Wert freihielt, ist seit dem Redesign weg. */
-        marginTop: "clamp(24px, 3.4vh, 44px)",
+        marginTop: "var(--tellian-abstand-titel)",
         /* Schrift MUSS hier gesetzt sein: `ch` löst gegen die Schrift
            des Elements auf, an dem es steht. Ohne das rechnet der
            Container mit der geerbten Schrift und das Zeilenmass fällt
@@ -325,8 +325,8 @@ export function Station1Einstieg({
           /* Die Schiene liegt fixed über dem Track und nimmt keinen
              Platz im Fluss. Ihre Breite muss die Bühne selbst
              freihalten, sonst beginnt der Titel unter ihr. */
-          paddingLeft: "calc(var(--tellian-rail-width) + clamp(28px, 3.4vw, 56px))",
-          paddingRight: "clamp(28px, 3.4vw, 56px)",
+          paddingLeft: "calc(var(--tellian-rail-width) + var(--tellian-station-pad-x))",
+          paddingRight: "var(--tellian-station-pad-x)",
           display: "flex",
           alignItems: "center",
           gap: "clamp(32px, 5vw, 96px)",

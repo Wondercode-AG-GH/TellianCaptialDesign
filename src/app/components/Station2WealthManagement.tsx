@@ -181,8 +181,8 @@ export function Station2WealthManagement({
           alignItems: "center",
           columnGap: "clamp(48px, 6.7vw, 96px)",
           paddingLeft:
-            "calc(var(--tellian-rail-width) + clamp(28px, 3.4vw, 56px))",
-          paddingRight: "clamp(28px, 3.4vw, 56px)",
+            "calc(var(--tellian-rail-width) + var(--tellian-station-pad-x))",
+          paddingRight: "var(--tellian-station-pad-x)",
           paddingTop: "var(--tellian-s1-stage-pad)",
           paddingBottom: "var(--tellian-s1-stage-pad)",
           boxSizing: "border-box",
@@ -194,7 +194,7 @@ export function Station2WealthManagement({
             minWidth: 0,
             display: "flex",
             flexDirection: "column",
-            gap: "clamp(18px, 3vh, 32px)",
+            gap: "var(--tellian-abstand-titel)",
           }}
         >
           <div style={enter(STEP.title, 24)}>{titel}</div>
