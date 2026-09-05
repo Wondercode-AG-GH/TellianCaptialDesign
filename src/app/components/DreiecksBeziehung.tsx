@@ -1,5 +1,8 @@
-import { C, sans } from "../tokens";
-import { PersonenIcon, BankIcon } from "./DreieckIcons";
+import { useState } from "react";
+
+import { C, cormorant, sans } from "../tokens";
+import { BankIcon } from "./DreieckIcons";
+import gruppeIcon from "../../redesign/gruppe.png";
 import monogramm from "../../assets/logo/tellian-monogramm-hell.svg";
 
 /* ═══════════════════════════════════════════════════════════
@@ -38,6 +41,9 @@ interface Inhalt {
   bank: string;
   /** Sie↔Tellian · Sie↔Depotbank · Tellian↔Depotbank */
   kanten: readonly [string, string, string];
+  /** P7: Erklärtexte je Knoten — 1:1 aus der früheren
+      Implementierung (ParteiDreieck), nichts neu formuliert. */
+  prosa: Readonly<Record<"sie" | "tellian" | "bank", string>>;
 }
 
 const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
@@ -50,6 +56,11 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
       "Depot- / Kontobeziehung",
       "Vermögensverwaltungsvollmacht",
     ],
+    prosa: {
+      sie: "Sie haben einen persönlichen Ansprechpartner und jederzeit vollständige Transparenz. Ihr Portfolio wird laufend überwacht, und Sie werden regelmässig darüber informiert.",
+      tellian: "Unsere Leistungen für Sie\u00A0→",
+      bank: "Ihr Vermögen liegt bei ausgewählten Kooperationsbanken in der Schweiz und in Liechtenstein — zu besten Konditionen.",
+    },
   },
   EN: {
     sie: "You",
@@ -62,6 +73,11 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
       "Custody/account relationship",
       "Asset management authority",
     ],
+    prosa: {
+      sie: "You have a personal point of contact and full transparency at all times. Your portfolio is continuously monitored, and you are kept regularly informed.",
+      tellian: "Our services for you\u00A0→",
+      bank: "Your assets are held at selected partner banks in Switzerland and Liechtenstein — on the best terms.",
+    },
   },
   /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
   FR: {
@@ -73,6 +89,11 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
       "Depot- / Kontobeziehung",
       "Vermögensverwaltungsvollmacht",
     ],
+    prosa: {
+      sie: "Sie haben einen persönlichen Ansprechpartner und jederzeit vollständige Transparenz. Ihr Portfolio wird laufend überwacht, und Sie werden regelmässig darüber informiert.",
+      tellian: "Unsere Leistungen für Sie\u00A0→",
+      bank: "Ihr Vermögen liegt bei ausgewählten Kooperationsbanken in der Schweiz und in Liechtenstein — zu besten Konditionen.",
+    },
   },
 };
 
@@ -80,10 +101,21 @@ const pz = (v: number, ganz: number) => `${((v / ganz) * 100).toFixed(2)}%`;
 
 interface Props {
   sprache?: "DE" | "EN";
+  /** P7: Klick/Enter auf den Tellian-Knoten führt zur Mandat-
+      Unterseite. */
+  onMandat?: () => void;
 }
 
-export function DreiecksBeziehung({ sprache = "DE" }: Props) {
+type KnotenId = "sie" | "tellian" | "bank";
+
+export function DreiecksBeziehung({ sprache = "DE", onMandat }: Props) {
   const inhalt = INHALT[sprache];
+  /* P7: Zeigen/Fokus/Tap hebt einen Knoten hervor und zeigt seinen
+     Erklärtext in der Lesezone unter der Grafik. Auf Touch gilt:
+     erster Tap zeigt den Text, zweiter Tap auf «T» navigiert —
+     dieselbe Regel trägt auch den Mausklick (Zeigen aktiviert
+     bereits, der Klick löst dann aus). */
+  const [aktiv, setAktiv] = useState<KnotenId | null>(null);
 
   /* Beschriftungspunkte. Die Seitenwörter sitzen bei 62 % des Wegs
      von «Sie» abwärts — auf halber Höhe berührten sich die beiden
@@ -99,15 +131,33 @@ export function DreiecksBeziehung({ sprache = "DE" }: Props) {
   const m3 = { x: (K.tellian.x + K.bank.x) / 2, y: 472 };
 
   const knoten = (
+    id: KnotenId,
     zentrum: { x: number; y: number },
     fuellung: string,
     kontur: string | null,
     kind: React.ReactNode,
     beschriftung: string,
-  ) => (
+  ) => {
+    const istCta = id === "tellian";
+    return (
     <>
-      <div
-        aria-hidden
+      <button
+        type="button"
+        onMouseEnter={() => setAktiv(id)}
+        onMouseLeave={() => setAktiv((a) => (a === id ? null : a))}
+        onFocus={() => setAktiv(id)}
+        onBlur={() => setAktiv((a) => (a === id ? null : a))}
+        onClick={() => {
+          if (istCta && aktiv === id) {
+            onMandat?.();
+            return;
+          }
+          setAktiv(id);
+        }}
+        aria-label={istCta
+          ? `${beschriftung} — ${inhalt.prosa[id].replace("\u00A0→", "")}`
+          : `${beschriftung} — ${inhalt.prosa[id]}`}
+        className="tellian-dreieck-knoten"
         style={{
           position: "absolute",
           left: pz(zentrum.x, 640),
@@ -122,10 +172,13 @@ export function DreiecksBeziehung({ sprache = "DE" }: Props) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          padding: 0,
+          cursor: "pointer",
+          font: "inherit",
         }}
       >
         {kind}
-      </div>
+      </button>
       <span
         style={{
           position: "absolute",
@@ -143,7 +196,8 @@ export function DreiecksBeziehung({ sprache = "DE" }: Props) {
         {beschriftung}
       </span>
     </>
-  );
+    );
+  };
 
   const wort = (zentrum: { x: number; y: number }, text: string) => (
     <span
@@ -168,8 +222,9 @@ export function DreiecksBeziehung({ sprache = "DE" }: Props) {
   );
 
   return (
+    <div style={{ width: "100%" }}>
     <div
-      role="img"
+      role="group"
       aria-label={
         `${inhalt.sie} — ${inhalt.tellian}: ${inhalt.kanten[0]}. ` +
         `${inhalt.sie} — ${inhalt.bank}: ${inhalt.kanten[1]}. ` +
@@ -207,19 +262,24 @@ export function DreiecksBeziehung({ sprache = "DE" }: Props) {
         ))}
       </svg>
 
-      {/* Knoten. «Sie» in Mushroom mit Personen-Icon —
-          TODO-ASSET-SIE: das Icon wird später durch ein finales
-          Asset ersetzt (in Arbeit); bis dahin das bestehende. */}
+      {/* Knoten. «Sie» mit dem finalen Gruppen-Asset (P6) — 512px
+          Quelle bei ~150px Darstellung, scharf auch auf 3x-Dichte.
+          Strichzeichnung in Schwarz auf Mushroom: 4.1 : 1. */}
       {knoten(
+        "sie",
         K.sie,
         C.muted,
         null,
-        <span style={{ width: "46%", aspectRatio: "512 / 335.09", display: "flex" }}>
-          <PersonenIcon w="100%" h="100%" color={C.purple} />
-        </span>,
+        <img
+          src={gruppeIcon}
+          alt=""
+          aria-hidden
+          style={{ width: "48%", height: "auto", display: "block" }}
+        />,
         inhalt.sie,
       )}
       {knoten(
+        "tellian",
         K.tellian,
         C.purple,
         null,
@@ -232,6 +292,7 @@ export function DreiecksBeziehung({ sprache = "DE" }: Props) {
         inhalt.tellian,
       )}
       {knoten(
+        "bank",
         K.bank,
         C.bg,
         C.purple,
@@ -245,6 +306,46 @@ export function DreiecksBeziehung({ sprache = "DE" }: Props) {
       {wort(m1, inhalt.kanten[0])}
       {wort(m2, inhalt.kanten[1])}
       {wort(m3, inhalt.kanten[2])}
+    </div>
+
+    {/* ── P7: Lesezone — EIN Platz für alle drei Erklärtexte.
+        Feste Höhe über das unsichtbare Stapeln aller Texte, damit
+        beim Zeigen nichts springt. aria-live liest den Wechsel vor. */}
+    <div
+      aria-live="polite"
+      style={{ position: "relative", marginTop: "10px", display: "grid" }}
+    >
+      {(["sie", "tellian", "bank"] as const).map((id) => (
+        <p
+          key={id}
+          lang={sprache === "EN" ? "en" : "de"}
+          style={{
+            gridArea: "1 / 1",
+            margin: 0,
+            textAlign: "center",
+            fontFamily: cormorant,
+            fontStyle: "italic",
+            fontSize: "16px",
+            lineHeight: 1.5,
+            color: C.ink,
+            maxWidth: "34em",
+            justifySelf: "center",
+            visibility: aktiv === id ? "visible" : "hidden",
+          }}
+        >
+          {inhalt.prosa[id]}
+        </p>
+      ))}
+    </div>
+
+    <style>{`
+      .tellian-dreieck-knoten { outline: none; }
+      .tellian-dreieck-knoten:focus-visible {
+        outline: 2px solid var(--tellian-accent);
+        outline-offset: 4px;
+      }
+      .tellian-dreieck-knoten:hover { filter: brightness(0.97); }
+    `}</style>
     </div>
   );
 }

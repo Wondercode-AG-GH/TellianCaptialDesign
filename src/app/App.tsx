@@ -1396,7 +1396,7 @@ export default function App() {
         />
 
         {/* ── WEALTH MANAGEMENT (hell, Überarbeitung folgt) ── */}
-        <Station2WealthManagement isVertical sprache={sprache} />
+        <Station2WealthManagement isVertical sprache={sprache} onMandat={man.openDetail} />
         <SubpageOverlay
           isOpen={adv.isDetail}
           onClose={adv.closeDetail}
@@ -1562,6 +1562,7 @@ export default function App() {
           <Station2WealthManagement
             panelRef={panelRef(2)}
             sprache={sprache}
+            onMandat={man.openDetail}
           />
           {/* Die Station ist ersetzt; die Unterseite /vermoegensverwaltung
               liegt weiterhin in diesem Bauteil und wird von Station 2 aus

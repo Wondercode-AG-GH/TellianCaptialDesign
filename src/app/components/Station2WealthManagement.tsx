@@ -65,12 +65,15 @@ interface Props {
   /** Schmale Fassung für Tablet und Telefon. */
   isVertical?: boolean;
   sprache?: "DE" | "EN";
+  /** P7: Tellian-Knoten der Grafik → Unterseite Mandat. */
+  onMandat?: () => void;
 }
 
 export function Station2WealthManagement({
   panelRef,
   isVertical = false,
   sprache = "DE",
+  onMandat,
 }: Props) {
   const entered = useSectionEntered();
   const reducedMotion = usePrefersReducedMotion();
@@ -156,7 +159,7 @@ export function Station2WealthManagement({
         >
           {titel}
           {absaetze}
-          <DreiecksBeziehung sprache={sprache} />
+          <DreiecksBeziehung sprache={sprache} onMandat={onMandat} />
         </div>
       </section>
     );
@@ -219,7 +222,7 @@ export function Station2WealthManagement({
                 "min(100%, calc((100vh - var(--tellian-kopf-height) - var(--tellian-station-height) - 2 * var(--tellian-s1-stage-pad)) * (640 / 560)))",
             }}
           >
-            <DreiecksBeziehung sprache={sprache} />
+            <DreiecksBeziehung sprache={sprache} onMandat={onMandat} />
           </div>
         </div>
       </div>
