@@ -702,7 +702,7 @@
   --tellian-t5-cols-schmal: 2;
   /* P4: Kachelform = Ausschnittform (0.96) — der Ausschnitt steht
      vollständig im Bild, nichts wird doppelt beschnitten. */
-  --tellian-t5-tile-ratio: 0.96;
+  --tellian-t5-tile-ratio: 0.9;   /* P3: Kachelform = neue Ausschnittform */
   /* Eigene Grösse: schmal steht unter dem Namen noch die Rolle, das
      Band trägt dort also fünf Zeilen statt zwei. */
   --tellian-t5-name-size-schmal: 13px;
@@ -729,8 +729,11 @@
   /* P4: +25 % Reihenbreite — die Kacheln werden ein Viertel
      breiter dargestellt. Die Station ist ein Filmstreifen, ihre
      Breite wächst einfach mit (section-width rechnet daraus). */
+  /* P3: 1.1 statt 1.25 — die Kachel wird schmaler (Form 0.9), damit
+     der höhere Ausschnitt fast vollständig ins Bild kommt; ein Teil
+     des P4-Breitenzuwachses geht dafür zurück (ausgewiesen). */
   --tellian-t5-row-w: calc(
-    1.25 * (94vw - var(--tellian-rail-width) - 2 * clamp(24px, 2.8vw, 48px))
+    1.1 * (94vw - var(--tellian-rail-width) - 2 * clamp(24px, 2.8vw, 48px))
   );
   --tellian-t5-section-width: calc(
     var(--tellian-titel-links) + var(--tellian-t5-title-col)

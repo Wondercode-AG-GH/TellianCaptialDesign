@@ -41,13 +41,16 @@ const PERSONEN: readonly Person[] = [
   { id: "bryan", name: "Bryan Anthony Honegger", rolle: "Relationship Manager", bild: "bryan-honegger" },
   { id: "andreas", name: "Andreas Trümpler", rolle: "Risk Management", bild: "andreas-truempler" },
   { id: "jasmina", name: "Jasmina Rukavina", rolle: "Back-Office / Office Management", bild: "jasmina-rukavina" },
-  /* TODO-TEXT-JOERG-BODE: kein persönlicher Text geliefert. */
-  { id: "joerg", name: "Jörg Bode", rolle: "Rolle offen" },
+  /* TODO-TEXT-JOERG-BODE: kein persönlicher Text geliefert.
+     TODO-ROLLE-JOERG: Rolle unbestätigt — Zeile bleibt leer. */
+  { id: "joerg", name: "Jörg Bode", rolle: "" },
   /* TODO-TEXT-THIBAUT: kein persönlicher Text geliefert.
-     TODO-KONTAKT-THIBAUT: Vorname/Nachname/Tag ausstehend. */
-  { id: "thibaut", name: "Thibaut", rolle: "Rolle offen" },
-  /* TODO-TEXT-STEFAN-MUELLER: kein persönlicher Text geliefert. */
-  { id: "stefan", name: "Stefan Müller", rolle: "Rolle offen" },
+     TODO-KONTAKT-THIBAUT: Vorname/Nachname/Tag ausstehend.
+     TODO-ROLLE-THIBAUT: Rolle unbestätigt — Zeile bleibt leer. */
+  { id: "thibaut", name: "Thibaut", rolle: "" },
+  /* TODO-TEXT-STEFAN-MUELLER: kein persönlicher Text geliefert.
+     TODO-ROLLE-STEFAN-MUELLER: Rolle unbestätigt — Zeile leer. */
+  { id: "stefan", name: "Stefan Müller", rolle: "" },
 ];
 
 /* ── PERSONENTEXTE — wörtlich aus dem Briefing, Absatzstruktur
@@ -276,21 +279,23 @@ export function Station5Team({
           >
             {person.name}
           </span>
-          <span
-            style={{
-              display: "block",
-              marginTop: "3px",
-              fontFamily: sans,
-              fontSize: "var(--tellian-t5-role-size)",
-              lineHeight: "var(--tellian-t5-role-leading)",
-              color: C.accent,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {person.rolle}
-          </span>
+          {person.rolle !== "" && (
+            <span
+              style={{
+                display: "block",
+                marginTop: "3px",
+                fontFamily: sans,
+                fontSize: "var(--tellian-t5-role-size)",
+                lineHeight: "var(--tellian-t5-role-leading)",
+                color: C.accent,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {person.rolle}
+            </span>
+          )}
           {hatText && (
             <span
               className="tellian-t5-mehr"
@@ -327,7 +332,7 @@ export function Station5Team({
         }}
         onClick={() => oeffnen(person)}
         aria-haspopup="dialog"
-        aria-label={`${person.name}, ${person.rolle} — ${UI[sprache].mehr}`}
+        aria-label={`${person.name}${person.rolle ? ", " + person.rolle : ""} — ${UI[sprache].mehr}`}
         className="tellian-t5-kachel"
         style={{
           display: "flex",

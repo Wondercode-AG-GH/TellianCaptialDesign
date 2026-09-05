@@ -155,31 +155,30 @@ const SOURCES = [
        · Kopfhöhe (Scheitel bis Kinn) auf 28 % der Ausschnitthöhe.
      Die zweite Regel gleicht die Aufnahmedistanz aus — Rolf wurde
      näher fotografiert als Marco, sonst wären die Köpfe zwar auf
-     gleicher Höhe, aber verschieden gross     P4 — MAXIMAL HERAUSGEZOOMT, VOM ORIGINAL GERECHNET
-     Bei 0.96 und einer 2:3-Quelle ist die Ausschnitthöhe auf 69.2 %
-     der Quellhöhe begrenzt (sonst wäre der Kasten breiter als das
-     Bild). Jede Person nutzt jetzt GENAU diese Grenze — mehr Bild
-     gibt es aus diesen Aufnahmen nicht. Der Scheitel liegt bei 6 %.
-
-     Die Köpfe sind damit nicht mehr gleich gross (22–31 % der
-     Ausschnitthöhe): Rolf und Bryan sind zu nah aufgenommen, ihre
-     Grenze liegt höher. Das ist der Preis des Herauszoomens und im
-     Review so gewollt; angleichen liesse sich nur durch neue
-     Aufnahmen. */
+     gleicher Höhe, aber verschieden gr     P3 (Review 05.09) — NOCH ~13 % WEITER RAUS, EINE AUGENLINIE
+     Formatwechsel 0.96 → 0.9: die Ausschnitthöhe darf damit 73.8 %
+     der 2:3-Quelle nutzen (vorher 69.2). Vereinheitlicht wird über
+     die AUGEN, nicht den Scheitel: die Augenlinie (Scheitel +
+     0.36 × Kopfhöhe, am Original abgelesen) liegt bei allen auf
+     22 % der Ausschnitthöhe. Der Kopfraum variiert dadurch leicht
+     (11–15 %) — Folge der unterschiedlichen Aufnahmedistanzen; bei
+     gleicher Augenhöhe UND gleichem Kopfraum müssten die Köpfe
+     gleich gross sein, und das geben Rolfs und Bryans Aufnahmen
+     nicht her. Alles vom Original gerechnet. */
   ...[
     /* id, Datei, links, oben, Breite — Anteile der Quelle. */
-    ["olivier-bill",      "Olivier-Bill.JPG",     0.002, 0.159, 0.996],
-    ["marco-ludescher",   "Marco-Ludescher.JPG",  0.002, 0.189, 0.996],
-    ["rolf-schneider",    "Rolf-Schneider.JPG",   0.000, 0.054, 0.996],
-    ["bryan-honegger",    "Bryan-Honegger.png",   0.002, 0.063, 0.996],
-    ["andreas-truempler", "Andreas-Trümpler.JPG", 0.002, 0.085, 0.996],
-    ["jasmina-rukavina",  "Jasmina-Rukavina.JPG", 0.002, 0.070, 0.996],
+    ["olivier-bill",      "Olivier-Bill.JPG",     0.002, 0.100, 0.996],
+    ["marco-ludescher",   "Marco-Ludescher.JPG",  0.002, 0.122, 0.996],
+    ["rolf-schneider",    "Rolf-Schneider.JPG",   0.000, 0.010, 0.996],
+    ["bryan-honegger",    "Bryan-Honegger.png",   0.002, 0.014, 0.996],
+    ["andreas-truempler", "Andreas-Trümpler.JPG", 0.002, 0.031, 0.996],
+    ["jasmina-rukavina",  "Jasmina-Rukavina.JPG", 0.002, 0.015, 0.996],
     /* Wilhelm Tell unverändert — Statue, eigene Regeln. */
     ["wilhelm-tell",      "WilhelmTell_2.png",    0.000, 0.195, 0.960],
   ].map(([id, file, left, top, width]) => ({
     id,
     src: `src/assets/team/${file}`,
-    crop: { left, top, width, ratio: 0.96 },
+    crop: { left, top, width, ratio: 0.9 },
     /* 167 · 302 · 538 CSS-Pixel, verdoppelt */
     widths: [340, 620, 1080],
   })),
