@@ -16,15 +16,9 @@ import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
    solange die Maschine das Ziel bestimmt, wirkt es wie Automatik,
    egal wie weich die Kurve ist.
 
-   Jetzt gilt: die Position folgt der Eingabe. Wo die Bewegung
-   IM INNEREN einer Sektion ausläuft, bleibt sie stehen — breite
-   Stationen (04, 05) scrollen frei durch. Nur eine Regel kommt dazu
-   (Review 05.09 abends, P3): endet die Geste mit einer sichtbaren
-   STATIONSGRENZE im Bild, vollendet der Antrieb — die nächste
-   Station rastet an ihrem Anfang ein (Grenze links der Bildmitte),
-   oder die angebrochene kehrt ganz ins Bild zurück (Grenze rechts).
-   Halbe Stationen bleiben nicht stehen; halbe Rad-Umdrehungen im
-   Inneren schon.
+   Jetzt gilt: die Position folgt der Eingabe, sonst nichts. Wo die
+   Bewegung ausläuft, bleibt sie stehen — auch mitten zwischen zwei
+   Sektionen. Das ist erlaubt und der ganze Punkt.
 
    Das Ausrollen bauen wir NICHT nach. Ein Trackpad liefert seine
    Momentum-Phase bereits im Event-Strom mit; wir müssen sie nur nicht
@@ -59,17 +53,6 @@ const SMOOTH_TAU_MS = 22;
 
 /** Dauer eines befohlenen Sprungs (Navigation, Direktsprung). */
 const JUMP_MS = 600;
-
-/** Ruhefenster nach der letzten Eingabe, bevor der Antrieb eine
-    sichtbare Stationsgrenze auflöst. Ein Trackpad liefert seine
-    Momentum-Deltas im Strom mit Lücken unter ~100ms — 160ms Ruhe
-    heisst: die Geste ist wirklich vorbei. */
-const SETTLE_MS = 160;
-
-/** Dauer der Vollendungsfahrt an die Grenze. Kürzer als JUMP_MS:
-    es ist eine Korrektur um höchstens eine Bildbreite, kein Sprung
-    über die halbe Seite. */
-const SETTLE_JUMP_MS = 450;
 
 /** Kurve dafür — s. EASE.snap in motion.ts. */
 const JUMP_EASE = EASE.snapArr;
@@ -289,9 +272,6 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 
   const debugRef = useRef<ScrollDebugInfo>(createDebugInfo());
   const lastEventTsRef = useRef(0);
-  /* Letzte ECHTE Eingabe (Wheel, Touch, Glide) — Grundlage für das
-     Ruhefenster der Grenz-Vollendung. */
-  const lastInputTsRef = useRef(0);
 
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   /** Bereich der Sektionen, die weit genug im Bild sind, um als
@@ -376,46 +356,6 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
      BEWEGUNG
      ═══════════════════════════════════════════════════════ */
 
-  /**
-   * Ziel der Grenz-Vollendung — oder null, wenn nichts zu tun ist.
-   *
-   * Steht im Bild eine Stationsgrenze, gibt es genau zwei ruhige
-   * Auflösungen: die rechte Station rastet an ihrem ANFANG ein
-   * (P3: Snap am Stationsanfang), oder die linke kehrt vollständig
-   * ins Bild zurück. Es gewinnt die Seite, auf der die Grenze schon
-   * steht — Bildmitte als Scheide, ohne Hysterese: die Fahrt löst
-   * die Lage auf, ein Flattern gibt es nicht.
-   *
-   * Liegt KEINE Grenze im Bild (das Innere der breiten Stationen 04
-   * und 05), bleibt die Position, wo die Geste sie liess.
-   */
-  const settleTarget = useCallback((): number | null => {
-    const sections = measuredRef.current;
-    const vw = containerRef.current?.clientWidth ?? 0;
-    if (!sections.length || !vw) return null;
-    const pos = posRef.current;
-    /* Ein Stationsanfang ist IMMER eine legitime Ruhe — auch wenn
-       rechts ein Streifen des Nachbarn hereinschaut, weil die
-       Station schmaler ist als das Bild (03 läuft auf 94vw). Ohne
-       diese Regel schöbe der Vollender solche Lagen ewig hin und
-       her: jede Auflösung öffnete auf der anderen Seite eine neue
-       Grenze. */
-    if (sections.some((sec) => Math.abs(sec.snap - pos) < 1)) return null;
-    const sichtbar = sections.filter(
-      (sec) => sec.offset < pos + vw - 1 && sec.end > pos + 1,
-    );
-    if (sichtbar.length < 2) return null;
-    const grenze = sichtbar[1].offset;
-    const max = maxScrollRef.current;
-    const vor = Math.max(0, Math.min(grenze, max));
-    /* Rückwärts höchstens bis zum ANFANG der linken Station: eine
-       Station unter Bildbreite kann nie «ganz ins Bild» — ihr
-       Anfang ist dann die ruhige Lage. */
-    const zurueck = Math.max(0, Math.min(Math.max(grenze - vw, sichtbar[0].snap), max));
-    const ziel = grenze - pos < vw / 2 ? vor : zurueck;
-    return Math.abs(ziel - pos) < 0.5 ? null : ziel;
-  }, []);
-
   const clamp = useCallback(
     (v: number) => Math.max(0, Math.min(v, maxScrollRef.current)),
     []
@@ -492,24 +432,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       if (t >= 1) {
         jumpRef.current = null;
         velocityRef.current = 0;
-        /* Auch ein befohlener Schritt (Pfeiltaste) darf nicht mit
-           halber Station stehenbleiben — Grenze im Bild? Vollenden.
-           Navigationssprünge landen exakt auf einem Anfang und
-           liefern hier null. */
-        const ziel = lockedRef.current ? null : settleTarget();
-        if (ziel !== null) {
-          jumpRef.current = {
-            from: posRef.current,
-            to: ziel,
-            start: now,
-            duration: reducedMotionRef.current ? 0 : SETTLE_JUMP_MS,
-          };
-          targetRef.current = ziel;
-          setScrollDirection(ziel > posRef.current ? "forward" : "backward");
-          moving = true;
-        } else {
-          setScrollDirection("idle");
-        }
+        setScrollDirection("idle");
       } else {
         moving = true;
       }
@@ -526,29 +449,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       } else {
         posRef.current = targetRef.current;
         velocityRef.current = 0;
-        /* Geste ausgelaufen. Erst das Ruhefenster abwarten (der
-           Momentum-Strom eines Trackpads pausiert kürzer), dann eine
-           sichtbare Grenze auflösen. Solange das Fenster offen ist,
-           tickt der Automat leer weiter statt einzuschlafen. */
-        const still = now - lastInputTsRef.current >= SETTLE_MS;
-        if (!still) {
-          moving = true;
-        } else {
-          const ziel = lockedRef.current ? null : settleTarget();
-          if (ziel !== null) {
-            jumpRef.current = {
-              from: posRef.current,
-              to: ziel,
-              start: now,
-              duration: reducedMotionRef.current ? 0 : SETTLE_JUMP_MS,
-            };
-            targetRef.current = ziel;
-            setScrollDirection(ziel > posRef.current ? "forward" : "backward");
-            moving = true;
-          } else {
-            setScrollDirection("idle");
-          }
-        }
+        setScrollDirection("idle");
       }
     }
 
@@ -567,7 +468,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 
     rafRef.current = moving ? requestAnimationFrame(tick) : 0;
     if (!moving) lastFrameRef.current = 0;
-  }, [write, syncIndex, settleTarget]);
+  }, [write, syncIndex]);
 
   const startRaf = useCallback(() => {
     if (!rafRef.current) {
@@ -579,7 +480,6 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   /** Nimmt Eingabe entgegen. Das ist der ganze Scroll-Pfad. */
   const push = useCallback(
     (delta: number) => {
-      lastInputTsRef.current = performance.now();
       jumpRef.current = null;
       const before = targetRef.current;
       targetRef.current = clamp(targetRef.current + delta);
@@ -913,8 +813,6 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 export const SCROLL_TUNING = {
   SMOOTH_TAU_MS,
   JUMP_MS,
-  SETTLE_MS,
-  SETTLE_JUMP_MS,
   KEY_MS,
   KEY_STEP_FRACTION,
   LAYER_SPEED,
