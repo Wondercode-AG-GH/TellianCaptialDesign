@@ -159,7 +159,7 @@ export function Station2WealthManagement({
         >
           {titel}
           {absaetze}
-          <DreiecksBeziehung sprache={sprache} onMandat={onMandat} />
+          <DreiecksBeziehung sprache={sprache} onMandat={onMandat} kompakt />
         </div>
       </section>
     );

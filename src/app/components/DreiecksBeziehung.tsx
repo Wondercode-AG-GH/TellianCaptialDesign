@@ -31,11 +31,6 @@ import monogramm from "../../assets/logo/tellian-monogramm-hell.svg";
    ═══════════════════════════════════════════════════════════ */
 
 /* Knotenzentren im 640×560-Raster. */
-const K = {
-  sie: { x: 320, y: 128 },
-  tellian: { x: 150, y: 420 },
-  bank: { x: 490, y: 420 },
-} as const;
 const R = 78;
 
 interface Inhalt {
@@ -106,12 +101,33 @@ interface Props {
   /** P7: Klick/Enter auf den Tellian-Knoten führt zur Mandat-
       Unterseite. */
   onMandat?: () => void;
+  /** Vertikales Layout (<1024px): die Grafik ist dort so klein,
+      dass das untere Linienwort nicht zwischen die Kreise passt —
+      es weicht unter die Kreise aus, die Knotennamen eine Stufe
+      tiefer. */
+  kompakt?: boolean;
 }
 
 type KnotenId = "sie" | "tellian" | "bank";
 
-export function DreiecksBeziehung({ sprache = "DE", onMandat }: Props) {
+export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }: Props) {
   const inhalt = INHALT[sprache];
+  /* GEOMETRIE, layoutabhängig (Review 05.09 abends, P1):
+     — Breit: Basis auf 124/516 gezogen, damit das Wort «Vermögens-
+       verwaltungsvollmacht» DIREKT unter seiner Linie zwischen die
+       Kreise passt; Feld 640×560.
+     — Kompakt: die Schrift skaliert nicht mit, bei ~330px Breite
+       ist das Wort breiter als die ganze Kreislücke. Schmale Basis
+       (die Knotennamen liefen sonst seitlich hinaus), das untere
+       Wort unter den Kreisen, die Knotennamen eine Ebene tiefer,
+       und ein höheres Feld (640×640), damit sich die Zeilen nicht
+       stapeln. Die Seitenwörter sitzen GESTAFFELT (45 %/64 % des
+       Wegs): auf gleicher Höhe sind beide zusammen breiter als die
+       ganze Grafik. */
+  const K = kompakt
+    ? ({ sie: { x: 320, y: 128 }, tellian: { x: 150, y: 420 }, bank: { x: 490, y: 420 } } as const)
+    : ({ sie: { x: 320, y: 128 }, tellian: { x: 124, y: 420 }, bank: { x: 516, y: 420 } } as const);
+  const VH = kompakt ? 640 : 560;
   /* P7: Zeigen/Fokus/Tap hebt einen Knoten hervor und zeigt seinen
      Erklärtext in der Lesezone unter der Grafik. Auf Touch gilt:
      erster Tap zeigt den Text, zweiter Tap auf «T» navigiert —
@@ -129,19 +145,22 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat }: Props) {
     y: a.y + (b.y - a.y) * t,
   });
   /* EINE Regel für alle drei Linienwörter: mittig zur Linie, auf
-     der vom Dreieck abgewandten Seite, mit konstantem Abstand von
-     der Linie — der Anker ist die zugewandte KANTE des Worts, nicht
-     seine Mitte, damit der Abstand unabhängig von der Wortlänge
-     stimmt. Keine Farbteller mehr: nichts kreuzt mehr eine Linie,
-     und der Teller war es, der die Ecke aus dem T-Kreis schnitt.
+     der vom Dreieck abgewandten Seite, mit kleinem festem Abstand
+     zur Linie. Keine Farbteller mehr: nichts kreuzt mehr eine
+     Linie, und der Teller war es, der die Ecke aus dem T-Kreis
+     schnitt.
 
-     Das untere Wort weicht in der DISTANZ ab (unter die Kreise
-     statt 20 Einheiten unter die Linie): es ist breiter als die
-     Lücke zwischen den Kreisen, auf dem Telefon um ein Mehrfaches —
-     jeder Platz auf Linienhöhe kollidierte dort mit einem Kreis. */
-  const m1 = entlang(K.sie, K.tellian, 0.62);
-  const m2 = entlang(K.sie, K.bank, 0.62);
-  const m3 = { x: (K.tellian.x + K.bank.x) / 2, y: K.tellian.y + R + 26 };
+     Das untere Wort hängt mit der OBERKANTE 9 Einheiten unter der
+     Linie T↔Depotbank, mittig zwischen den Kreisen — dafür ist die
+     Basis breit genug gezogen. Nur im kompakten Layout (Telefon)
+     weicht es unter die Kreise aus: die Grafik skaliert, die
+     Schrift nicht, und bei ~330px Breite ist das Wort breiter als
+     die ganze Kreislücke. */
+  const m1 = entlang(K.sie, K.tellian, kompakt ? 0.45 : 0.62);
+  const m2 = entlang(K.sie, K.bank, kompakt ? 0.64 : 0.62);
+  const m3 = kompakt
+    ? { x: 320, y: K.tellian.y + R + 24 }
+    : { x: 320, y: K.tellian.y + 9 };
 
   const knoten = (
     id: KnotenId,
@@ -178,7 +197,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat }: Props) {
         style={{
           position: "absolute",
           left: pz(zentrum.x, 640),
-          top: pz(zentrum.y, 560),
+          top: pz(zentrum.y, VH),
           width: pz(2 * R, 640),
           aspectRatio: "1",
           transform: "translate(-50%, -50%)",
@@ -200,7 +219,15 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat }: Props) {
         style={{
           position: "absolute",
           left: pz(zentrum.x, 640),
-          top: pz(zentrum.y + R + 48, 560),
+          /* Kompakt steht «Sie» ÜBER seinem Kreis: unterhalb kreuzen
+             die gestaffelten Seitenwörter. Die unteren Namen rücken
+             eine Ebene unter das Vollmacht-Wort (+80). */
+          top: pz(
+            kompakt && id === "sie"
+              ? zentrum.y - R - 26
+              : zentrum.y + R + (kompakt ? 80 : 26),
+            VH,
+          ),
           transform: "translate(-50%, -50%)",
           fontFamily: sans,
           fontSize: "13px",
@@ -219,19 +246,17 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat }: Props) {
   const wort = (
     zentrum: { x: number; y: number },
     text: string,
-    anker: "links" | "rechts" | "mitte",
+    anker: "oben" | "mitte",
   ) => (
     <span
       style={{
         position: "absolute",
         left: pz(zentrum.x, 640),
-        top: pz(zentrum.y, 560),
+        top: pz(zentrum.y, VH),
         transform:
-          anker === "rechts"
-            ? "translate(-100%, -50%)"
-            : anker === "links"
-              ? "translate(0, -50%)"
-              : "translate(-50%, -50%)",
+          anker === "oben"
+            ? "translate(-50%, 0)"
+            : "translate(-50%, -50%)",
         fontFamily: sans,
         fontSize: "12px",
         letterSpacing: "0.04em",
@@ -255,12 +280,12 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat }: Props) {
       style={{
         position: "relative",
         width: "100%",
-        aspectRatio: "640 / 560",
+        aspectRatio: `640 / ${VH}`,
       }}
     >
       {/* Linien — Imperial Purple, 1px, nicht mitskalierend. */}
       <svg
-        viewBox="0 0 640 560"
+        viewBox={`0 0 640 ${VH}`}
         preserveAspectRatio="xMidYMid meet"
         aria-hidden
         focusable="false"
@@ -331,7 +356,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat }: Props) {
           px, die Grafik skaliert). */}
       {wort({ x: m1.x - 12, y: m1.y }, inhalt.kanten[0], "mitte")}
       {wort({ x: m2.x + 12, y: m2.y }, inhalt.kanten[1], "mitte")}
-      {wort(m3, inhalt.kanten[2], "mitte")}
+      {wort(m3, inhalt.kanten[2], kompakt ? "mitte" : "oben")}
     </div>
 
     {/* ── P7: Lesezone — EIN Platz für alle drei Erklärtexte.
