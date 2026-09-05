@@ -888,7 +888,7 @@
      Logo 26px, Portalfeld 36px — 64px lassen oben und unten je 14px.
      Vorher clamp(44px, 6.4vh, 60px), gemessen 58px bei 900er Fenster. */
   --tellian-kopf-height: 64px;
-  --tellian-kopf-logo-h: 26px;
+  --tellian-kopf-logo-h: 35px;   /* P5: +33 % (26 → 35) */
   /* 11px ist die Untergrenze im Band; die Sprachwahl darf sie nutzen,
      das Kundenportal steht als Hauptsache eine Stufe darüber. */
   --tellian-kopf-size: 11px;
@@ -1052,6 +1052,9 @@
     --tellian-kopf-pad-x: 14px;
     --tellian-kopf-gruppe-gap: 9px;
     --tellian-kopf-portal-pad-x: 9px;
+    /* P5: das +33 %-Logo (35px) trieb das Band bei 320px wieder
+       hinaus; hier gilt die alte Höhe. */
+    --tellian-kopf-logo-h: 26px;
   }
 }
 
