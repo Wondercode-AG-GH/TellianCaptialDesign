@@ -155,68 +155,26 @@ const SOURCES = [
        · Kopfhöhe (Scheitel bis Kinn) auf 28 % der Ausschnitthöhe.
      Die zweite Regel gleicht die Aufnahmedistanz aus — Rolf wurde
      näher fotografiert als Marco, sonst wären die Köpfe zwar auf
-     gleicher Höhe, aber verschieden gross.
+     gleicher Höhe, aber verschieden gross     P4 — MAXIMAL HERAUSGEZOOMT, VOM ORIGINAL GERECHNET
+     Bei 0.96 und einer 2:3-Quelle ist die Ausschnitthöhe auf 69.2 %
+     der Quellhöhe begrenzt (sonst wäre der Kasten breiter als das
+     Bild). Jede Person nutzt jetzt GENAU diese Grenze — mehr Bild
+     gibt es aus diesen Aufnahmen nicht. Der Scheitel liegt bei 6 %.
 
-     WO DAS ZURÜCKTRETEN ENDET
-     Die Quelle ist 2:3; bei einem Ausschnitt von 0.96 ist seine
-     Höhe damit auf 69.2 % der Quellhöhe begrenzt, sonst wäre der
-     Kasten breiter als das Bild. Daraus folgt je Person eine
-     kleinstmögliche Kopfhöhe:
-
-       Marco 22.0 · Olivier 24.9 · Jasmina 26.5 · Andreas 27.2
-       Bryan 29.2 · Rolf 31.2
-
-     Einheitlich ist also bei 31.2 % Schluss — Rolfs Aufnahme ist zu
-     nah, sein Ausschnitt nutzt bereits 99.6 % der Quellbreite. Bei
-     28 % erreichen vier von sechs das Ziel; Rolf bleibt bei 31.2 %,
-     Bryan bei 29.2 %. Der Unterschied ist gewollt und dokumentiert:
-     ein weiteres Zurücktreten braucht eine neue Aufnahme von Rolf,
-     nicht einen anderen Ausschnitt.
-
-     WARUM 0.96 UND NICHT 4:5
-     Ein erster Anlauf nahm 4:5 (0.8) in der Annahme, cover beschneide
-     dann nur links und rechts. Das ist falsch herum: ein Bild, das
-     SCHMALER ist als die Kachel, wird oben und unten beschnitten.
-     Gemessen bei 1512: Kachel 1.032, sichtbar nur 77.5 % der
-     Bildhöhe, das Fenster begann bei 11.2 % — der Scheitel bei 6 %
-     lag darüber und war weg. Erst im ausgeklappten Zustand (Kachel
-     0.86, sichtbar 93.1 %) kam er zum Vorschein.
-
-     Die Kachel hat keine feste Form: gemessen 0.802 auf dem Telefon,
-     0.818 bei 1024, 1.032 bei 1512, 1.018 bei 1920, 0.926 bei 2560,
-     und beim Ausklappen 0.86. 0.96 liegt knapp unter der breitesten
-     Ruheform. Damit gilt:
-       · bei 1512 und 1920 werden rund 6 % der Höhe beschnitten, über
-         dem Scheitel bleiben noch 3.5 % Luft — er steht, aber knapp;
-       · überall sonst ist die volle Ausschnitthöhe zu sehen;
-       · beim Ausklappen wird die Kachel schmaler als 0.96, also ist
-         dort IMMER die volle Höhe zu sehen — das Bild geht auf.
-     Weiter als bis zur vollen Ausschnitthöhe kann cover nicht
-     herauszoomen; bei 1024, 2560 und auf dem Telefon steht deshalb
-     schon in Ruhe alles, und das Ausklappen nimmt nur Breite weg.
-
-     Die Zahlen unten sind Anteile der Quelle, abgelesen an einem
-     Messraster über den Originalen (2 % senkrecht, 5 % waagrecht). */
+     Die Köpfe sind damit nicht mehr gleich gross (22–31 % der
+     Ausschnitthöhe): Rolf und Bryan sind zu nah aufgenommen, ihre
+     Grenze liegt höher. Das ist der Preis des Herauszoomens und im
+     Review so gewollt; angleichen liesse sich nur durch neue
+     Aufnahmen. */
   ...[
-    /* id, Datei, links, oben, Breite — alles Anteile der Quelle. */
-    ["olivier-bill",      "Olivier-Bill.JPG",     0.058, 0.157, 0.885],
-    ["marco-ludescher",   "Marco-Ludescher.JPG",  0.109, 0.192, 0.782],
-    /* Rolf und Bryan liegen an der Breitengrenze ihrer Quelle — ihre
-       Köpfe bleiben deshalb bei 31.2 % bzw. 29.2 % statt 28 %.
-       Rolf steht zusätzlich am linken Rand seiner Quelle; der auf die
-       Gesichtsmitte zentrierte Kasten liefe links hinaus. Deshalb
-       bündig an der Kante — sein Gesicht sitzt dann auf 44 % statt
-       50 % des Ausschnitts, was in der Kachel nicht auffällt. */
-    ["rolf-schneider",    "Rolf-Schneider.JPG",   0.000, 0.047, 0.996],
-    ["bryan-honegger",    "Bryan-Honegger.png",   0.002, 0.056, 0.996],
-    ["andreas-truempler", "Andreas-Trümpler.JPG", 0.000, 0.079, 0.967],
-    ["jasmina-rukavina",  "Jasmina-Rukavina.JPG", 0.029, 0.065, 0.941],
-    /* Wilhelm Tell ist die Aufnahme einer Statue, kein Porträt eines
-       Mitarbeiters. Die Kopfregeln gelten für ihn nicht: sein Kopf
-       misst nur rund 7 % der Quellhöhe, auf 31.5 % gezogen bliebe von
-       der Figur nichts als der Kopf. Stattdessen die ganze Figur —
-       vom Hut bis zur Inschrift auf dem Sockel, mit vergleichbarer
-       Luft oben. */
+    /* id, Datei, links, oben, Breite — Anteile der Quelle. */
+    ["olivier-bill",      "Olivier-Bill.JPG",     0.002, 0.159, 0.996],
+    ["marco-ludescher",   "Marco-Ludescher.JPG",  0.002, 0.189, 0.996],
+    ["rolf-schneider",    "Rolf-Schneider.JPG",   0.000, 0.054, 0.996],
+    ["bryan-honegger",    "Bryan-Honegger.png",   0.002, 0.063, 0.996],
+    ["andreas-truempler", "Andreas-Trümpler.JPG", 0.002, 0.085, 0.996],
+    ["jasmina-rukavina",  "Jasmina-Rukavina.JPG", 0.002, 0.070, 0.996],
+    /* Wilhelm Tell unverändert — Statue, eigene Regeln. */
     ["wilhelm-tell",      "WilhelmTell_2.png",    0.000, 0.195, 0.960],
   ].map(([id, file, left, top, width]) => ({
     id,

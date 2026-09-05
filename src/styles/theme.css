@@ -625,10 +625,10 @@
      den Kacheln fehlten. Die Formel ist an dieselben Tokens gebunden,
      aus denen der Kopf entsteht, damit beides nicht auseinanderläuft. */
   --tellian-t5-head-gap: clamp(14px, 2.2vh, 30px);
-  --tellian-t5-head-reserve: calc(
-    2 * var(--tellian-t5-title-size) * var(--tellian-t5-title-leading)
-    + var(--tellian-t5-head-gap)
-  );
+  /* P4: Der Titel steht seit dem Redesign in einer EIGENEN Spalte
+     links — die Reserve über den Reihen war ein Relikt und kostete
+     die Kacheln rund 100px Höhe. */
+  --tellian-t5-head-reserve: 0px;
   /* Luft zwischen Kachelunterkante und Namensband. */
   --tellian-t5-label-gap: 10px;
   --tellian-t5-row-gap: clamp(10px, 1.4vh, 20px);
@@ -692,7 +692,9 @@
 
   /* Schmal: zwei Spalten, Story klappt unter der Reihe auf. */
   --tellian-t5-cols-schmal: 2;
-  --tellian-t5-tile-ratio: 4 / 5;
+  /* P4: Kachelform = Ausschnittform (0.96) — der Ausschnitt steht
+     vollständig im Bild, nichts wird doppelt beschnitten. */
+  --tellian-t5-tile-ratio: 0.96;
   /* Eigene Grösse: schmal steht unter dem Namen noch die Rolle, das
      Band trägt dort also fünf Zeilen statt zwei. */
   --tellian-t5-name-size-schmal: 13px;
@@ -716,8 +718,11 @@
      flexibel, würde die Titelspalte sie schmaler machen. */
   --tellian-t5-title-col: clamp(150px, 14vw, 210px);
   --tellian-t5-mid-gap: clamp(36px, 4vw, 90px);
+  /* P4: +25 % Reihenbreite — die Kacheln werden ein Viertel
+     breiter dargestellt. Die Station ist ein Filmstreifen, ihre
+     Breite wächst einfach mit (section-width rechnet daraus). */
   --tellian-t5-row-w: calc(
-    94vw - var(--tellian-rail-width) - 2 * clamp(24px, 2.8vw, 48px)
+    1.25 * (94vw - var(--tellian-rail-width) - 2 * clamp(24px, 2.8vw, 48px))
   );
   --tellian-t5-section-width: calc(
     var(--tellian-titel-links) + var(--tellian-t5-title-col)
