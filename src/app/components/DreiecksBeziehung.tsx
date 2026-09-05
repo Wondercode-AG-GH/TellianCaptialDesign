@@ -2,7 +2,10 @@ import { useState } from "react";
 
 import { C, cormorant, sans } from "../tokens";
 import { BankIcon } from "./DreieckIcons";
-import gruppeIcon from "../../redesign/gruppe.png";
+/* TODO-ASSET-SIE-SVG: finales Vektor-Icon der Brand-Designerin
+   ausstehend. Bis dahin die nachgeschärfte PNG-Fassung (384px,
+   Striche verdichtet), damit es neben den Vektor-Icons besteht. */
+import gruppeIcon from "../../assets/gruppe-scharf.png";
 import monogramm from "../../assets/logo/tellian-monogramm-hell.svg";
 
 /* ═══════════════════════════════════════════════════════════
@@ -41,9 +44,11 @@ interface Inhalt {
   bank: string;
   /** Sie↔Tellian · Sie↔Depotbank · Tellian↔Depotbank */
   kanten: readonly [string, string, string];
-  /** P7: Erklärtexte je Knoten — 1:1 aus der früheren
-      Implementierung (ParteiDreieck), nichts neu formuliert. */
-  prosa: Readonly<Record<"sie" | "tellian" | "bank", string>>;
+  /** Erklärtexte. Die Depotbank trägt KEINEN Text mehr: die Zeile
+      «Ihr Vermögen liegt bei ausgewählten Kooperationsbanken …»
+      stammte nicht aus dem Quelldokument und ist ersatzlos
+      gelöscht (Review 05.09, P1.1). */
+  prosa: Readonly<Record<"sie" | "tellian", string>>;
 }
 
 const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
@@ -59,7 +64,6 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
     prosa: {
       sie: "Sie haben einen persönlichen Ansprechpartner und jederzeit vollständige Transparenz. Ihr Portfolio wird laufend überwacht, und Sie werden regelmässig darüber informiert.",
       tellian: "Unsere Leistungen für Sie\u00A0→",
-      bank: "Ihr Vermögen liegt bei ausgewählten Kooperationsbanken in der Schweiz und in Liechtenstein — zu besten Konditionen.",
     },
   },
   EN: {
@@ -76,7 +80,6 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
     prosa: {
       sie: "You have a personal point of contact and full transparency at all times. Your portfolio is continuously monitored, and you are kept regularly informed.",
       tellian: "Our services for you\u00A0→",
-      bank: "Your assets are held at selected partner banks in Switzerland and Liechtenstein — on the best terms.",
     },
   },
   /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
@@ -92,7 +95,6 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
     prosa: {
       sie: "Sie haben einen persönlichen Ansprechpartner und jederzeit vollständige Transparenz. Ihr Portfolio wird laufend überwacht, und Sie werden regelmässig darüber informiert.",
       tellian: "Unsere Leistungen für Sie\u00A0→",
-      bank: "Ihr Vermögen liegt bei ausgewählten Kooperationsbanken in der Schweiz und in Liechtenstein — zu besten Konditionen.",
     },
   },
 };
@@ -126,9 +128,20 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat }: Props) {
     x: a.x + (b.x - a.x) * t,
     y: a.y + (b.y - a.y) * t,
   });
+  /* EINE Regel für alle drei Linienwörter: mittig zur Linie, auf
+     der vom Dreieck abgewandten Seite, mit konstantem Abstand von
+     der Linie — der Anker ist die zugewandte KANTE des Worts, nicht
+     seine Mitte, damit der Abstand unabhängig von der Wortlänge
+     stimmt. Keine Farbteller mehr: nichts kreuzt mehr eine Linie,
+     und der Teller war es, der die Ecke aus dem T-Kreis schnitt.
+
+     Das untere Wort weicht in der DISTANZ ab (unter die Kreise
+     statt 20 Einheiten unter die Linie): es ist breiter als die
+     Lücke zwischen den Kreisen, auf dem Telefon um ein Mehrfaches —
+     jeder Platz auf Linienhöhe kollidierte dort mit einem Kreis. */
   const m1 = entlang(K.sie, K.tellian, 0.62);
   const m2 = entlang(K.sie, K.bank, 0.62);
-  const m3 = { x: (K.tellian.x + K.bank.x) / 2, y: 472 };
+  const m3 = { x: (K.tellian.x + K.bank.x) / 2, y: K.tellian.y + R + 26 };
 
   const knoten = (
     id: KnotenId,
@@ -154,9 +167,13 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat }: Props) {
           }
           setAktiv(id);
         }}
-        aria-label={istCta
-          ? `${beschriftung} — ${inhalt.prosa[id].replace("\u00A0→", "")}`
-          : `${beschriftung} — ${inhalt.prosa[id]}`}
+        aria-label={
+          id === "bank"
+            ? beschriftung
+            : istCta
+              ? `${beschriftung} — ${inhalt.prosa[id].replace("\u00A0→", "")}`
+              : `${beschriftung} — ${inhalt.prosa[id]}`
+        }
         className="tellian-dreieck-knoten"
         style={{
           position: "absolute",
@@ -183,7 +200,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat }: Props) {
         style={{
           position: "absolute",
           left: pz(zentrum.x, 640),
-          top: pz(zentrum.y + R + 26, 560),
+          top: pz(zentrum.y + R + 48, 560),
           transform: "translate(-50%, -50%)",
           fontFamily: sans,
           fontSize: "13px",
@@ -199,22 +216,27 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat }: Props) {
     );
   };
 
-  const wort = (zentrum: { x: number; y: number }, text: string) => (
+  const wort = (
+    zentrum: { x: number; y: number },
+    text: string,
+    anker: "links" | "rechts" | "mitte",
+  ) => (
     <span
       style={{
         position: "absolute",
         left: pz(zentrum.x, 640),
         top: pz(zentrum.y, 560),
-        transform: "translate(-50%, -50%)",
+        transform:
+          anker === "rechts"
+            ? "translate(-100%, -50%)"
+            : anker === "links"
+              ? "translate(0, -50%)"
+              : "translate(-50%, -50%)",
         fontFamily: sans,
         fontSize: "12px",
         letterSpacing: "0.04em",
         whiteSpace: "nowrap",
         color: C.accent,
-        /* Teller in der Stationsfarbe: die Linie läuft durch das
-           Wort, ohne es zu durchstreichen. */
-        backgroundColor: C.bg,
-        padding: "4px 10px",
       }}
     >
       {text}
@@ -302,10 +324,11 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat }: Props) {
         inhalt.bank,
       )}
 
-      {/* Verbindungswörter — waagrecht auf den Linienmitten. */}
-      {wort(m1, inhalt.kanten[0])}
-      {wort(m2, inhalt.kanten[1])}
-      {wort(m3, inhalt.kanten[2])}
+      {/* Verbindungswörter — je mit der zugewandten Kante 20
+          Einheiten neben der Linienmitte, abgewandt vom Dreieck. */}
+      {wort({ x: m1.x - 20, y: m1.y }, inhalt.kanten[0], "rechts")}
+      {wort({ x: m2.x + 20, y: m2.y }, inhalt.kanten[1], "links")}
+      {wort(m3, inhalt.kanten[2], "mitte")}
     </div>
 
     {/* ── P7: Lesezone — EIN Platz für alle drei Erklärtexte.
@@ -315,7 +338,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat }: Props) {
       aria-live="polite"
       style={{ position: "relative", marginTop: "10px", display: "grid" }}
     >
-      {(["sie", "tellian", "bank"] as const).map((id) => (
+      {(["sie", "tellian"] as const).map((id) => (
         <p
           key={id}
           lang={sprache === "EN" ? "en" : "de"}
