@@ -80,34 +80,49 @@ const SOURCES = [
     quality: { avif: 30 },
   },
   {
-    id: "opernhaus",
-    src: "src/assets/opernhaus_1.1.png",
-    /* GANZES BILD, KEIN AUSSCHNITT.
-       1535x1025, also 1.4976 — praktisch genau 3:2. Der Auftrag war,
-       moeglichst viel zu zeigen; bei ratio 1.5 und voller Breite
-       fallen 2px Hoehe weg, sonst nichts.
-
-       KEINE TONUNG.
-       Die frueheren Werte (saturation 0.78, contrast 1.04) waren fuer
-       die Frontalaufnahme bei Tageslicht gerechnet. Diese Aufnahme
-       ist eine Daemmerungsszene und bringt ihre Waerme selbst mit;
-       0.78 Saettigung nahm sie ihr sichtbar. */
+    id: "hero-tellian",
+    src: "src/redesign/Tellian Capital Hero Image.jpg",
+    /* REDESIGN STATION 1. Quelle 4992x3328 — exakt 3:2, endlich eine
+       Quelle, die hohe Pixeldichten wirklich traegt. GANZES BILD,
+       kein Ausschnitt noetig; 0.999 nur wegen der Ganzzahlrundung
+       von exactBox (4992 ist kein Vielfaches von 3). Keine Tonung. */
     crop: {
       left: 0,
-      /* Nicht 1.0: exactBox rundet 1535 auf das naechste Vielfache
-         von 3 und landet bei 1536x1024 — einen Pixel breiter als die
-         Quelle, die Extraktion bricht ab. 0.998 ergibt 1533x1022 und
-         liegt damit knapp innerhalb. Verloren gehen 2px Breite und
-         3px Hoehe. */
       top: 0,
-      width: 0.998,
-      ratio: 1.5,          /* Breite / Hoehe = 3:2 */
+      width: 0.999,
+      ratio: 1.5,          /* Breite / Hoehe = 3:2, wie die Quelle */
     },
-    /* Die Quelle ist 1535px breit — dort endet die Leiter. Das Panel
-       misst rund ein Drittel der Station, auf einem 2560er Schirm bei
-       doppelter Pixeldichte also gut 1600px; der Rest waere
-       hochgerechnet und nur scheinbar schaerfer. */
-    widths: [432, 768, 1080, 1530],
+    /* Panel gemessen bis ~1550 CSS-px (45 % von 3440); 2160 deckt
+       1080 CSS-px bei doppelter Dichte, 3110 die Spitze. Ausweich-
+       formate enden frueher, wo sie das 250-kB-Budget reissen. */
+    widths: { avif: [432, 768, 1080, 1536, 2160, 3110], webp: [432, 768, 1080, 1536, 2160], jpg: [432, 768, 1080, 1536] },
+    /* s. PUBLIC_DIR — wird in index.html vorgeladen, braucht stabile
+       Namen. Löst hero-zuerich als vorgeladenes Motiv ab. */
+    publicAsset: true,
+  },
+  {
+    id: "opernhaus",
+    src: "src/assets/opernhaus3-1.jpeg",
+    /* GANZES BILD.
+       Quelle 1447x1087, also 4:3. Das Panel traegt jetzt dasselbe
+       Verhaeltnis (--tellian-s1-panel-ratio) — vorher 3:2, was 122px
+       Hoehe kostete, also 11 % des Motivs. Beschnitten wird nur noch,
+       was exactBox zum Aufgehen der Ganzzahlen braucht.
+
+       KEINE TONUNG, wie beim Vorgaenger. Die Aufnahme bringt ihre
+       Waerme selbst mit. */
+    crop: {
+      left: 0,
+      top: 0,
+      /* 0.997 statt 1.0: exactBox rundet auf ein Vielfaches von 4.
+         1447 landete bei 1448 und damit einen Pixel ausserhalb der
+         Quelle. 0.997 ergibt 1444x1083 — es fallen 3px Breite und
+         4px Hoehe weg, sonst nichts. */
+      width: 0.997,
+      ratio: 4 / 3,        /* Breite / Hoehe = 4:3, wie die Quelle */
+    },
+    /* Die Leiter endet bei 1440 — dort endet der Ausschnitt. */
+    widths: [432, 768, 1080, 1440],
   },
   {
     id: "opernhaus-band",

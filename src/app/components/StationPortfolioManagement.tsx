@@ -1,28 +1,63 @@
-import { C, cormorant, sans } from "../tokens";
+import { C, sans, serif } from "../tokens";
 import { SECTION_WIDTH } from "../sections";
 import { useSectionEntered } from "./SectionEntry";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 import { ProzessGabelung } from "./ProzessGabelung";
 
 /* ═══════════════════════════════════════════════════════════
-   PORTFOLIO MANAGEMENT
+   STATION 02 — VERMÖGENSVERWALTUNG (dunkel)
 
-   Zwei Spalten, durchgehend hell — kein farbiges Panel. Links der
-   Text, rechts die Gabelung.
+   KORREKTUR-SESSION: Der Abschnitt war fälschlich als helle Station
+   03 gebaut — eine überlange linke Spalte, die Karten rechts
+   angehängt. Jetzt Position 02 auf Imperial Purple, neu gegliedert
+   in EINE Lesespur von oben nach unten:
 
-   Kein abschliessender Knopf: die beiden Karten SIND die Handlung.
-   Ein zusätzlicher Knopf darunter wäre ein dritter Weg neben zwei
-   gleichrangigen und würde die Gabelung entwerten.
+     Titel → Absatz 1 | Absatz 2 (zwei gleichrangige Spalten)
+           → Absatz 3 als Intro auf den Auswahlbereich
+           → «Zwei Wege, ein Anspruch» mit den beiden Karten.
+
+   Die Texte selbst sind unverändert (Briefing der Vorsession).
+   Die Karten bleiben helle Flächen — auf dem dunklen Grund grenzen
+   sie sich damit von selbst ab, und ihre gesamte Innen-Typografie
+   behält die geprüften Kontraste des Hell-Schemas.
    ═══════════════════════════════════════════════════════════ */
 
-const TITLE_LINES = ["Portfolio", "Management"] as const;
+/* ── INHALTE, WÖRTLICH AUS DEM REDESIGN-BRIEFING ── */
+interface StationInhalt {
+  titel: readonly string[];
+  absaetze: readonly string[];
+}
 
-const BODY = [
-  "Die Vermögensverwaltung bei Tellian Capital folgt einem strukturierten, quantitativen Anlageprozess. Unsere Kauf- und Verkaufsentscheide stützen sich auf eine fortlaufende, evidenzbasierte Auswertung von Daten und Modellen – unabhängig von kurzfristigem Marktrauschen oder medialen Trends.",
-  /* Beschrieb vorher nur das Mandat und widersprach damit der
-     Advisory-Karte: dort entscheidet der Kunde. */
-  "Auf dieser empirischen Datengrundlage entstehen sämtliche Allokationsentscheide. Wer sie trifft, hängt vom gewählten Weg ab.",
-] as const;
+const INHALT: Readonly<Record<"DE" | "EN" | "FR", StationInhalt>> = {
+  DE: {
+    titel: ["Vermögensverwaltung"],
+    absaetze: [
+      "Unser Portfoliomanagement ist unabhängig und frei von Interessenkonflikten. Hauseigene Investmentexpertise, ein internationales Netzwerk sowie der Zugang zu einzigartigen Investmentmöglichkeiten bilden die Grundlage unserer Vermögensverwaltung. Dabei verbinden wir unsere bewährten Anlagestrategien mit individuellen Lösungen, abgestimmt auf Ihre persönlichen Ziele und Bedürfnisse.",
+      "Vermögen ist für uns mehr als eine Zahl. Es steht für das, was Sie aufgebaut haben, für Ihre Pläne und für die Menschen, die Ihnen wichtig sind. Deshalb betrachten wir Ihre persönliche und finanzielle Situation als Ganzes und richten unsere Vermögensverwaltung konsequent an Ihre Prioritäten und Ihrem Anlagehorizont aus.",
+      "Im Mittelpunkt steht unser Vermögensverwaltungsmandat: Wir übernehmen die Anlageentscheide innerhalb der gemeinsam definierten Strategie. Mit Advisory bleiben die Anlageentscheide bei Ihnen, begleitet durch unsere Beratung.",
+    ],
+  },
+  EN: {
+    /* Eine Zeile wie im Deutschen: der Umbruch auf zwei Zeilen war
+       Satz, nicht Text — und kostete auf flachen Fenstern genau die
+       55px, um die der englische Stapel unten überlief. */
+    titel: ["Wealth Management"],
+    absaetze: [
+      "Our portfolio management is independent and free from conflicts of interest. In-house investment expertise, an international network and access to distinctive investment opportunities form the foundation of our approach to wealth management. We combine our proven investment strategies with tailored solutions designed around your individual objectives and needs.",
+      "To us, wealth is more than a number. It represents what you have built, the plans you have for the future and the people who matter to you. That is why we take a holistic view of your personal and financial circumstances and align our wealth management approach with your priorities and investment horizon.",
+      "At the core of our offering is our discretionary wealth management mandate, where we make investment decisions on your behalf within the strategy defined together with you. With our advisory service, investment decisions remain in your hands, supported by our expertise and personal guidance.",
+    ],
+  },
+  /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
+  FR: {
+    titel: ["Vermögensverwaltung"],
+    absaetze: [
+      "Unser Portfoliomanagement ist unabhängig und frei von Interessenkonflikten. Hauseigene Investmentexpertise, ein internationales Netzwerk sowie der Zugang zu einzigartigen Investmentmöglichkeiten bilden die Grundlage unserer Vermögensverwaltung. Dabei verbinden wir unsere bewährten Anlagestrategien mit individuellen Lösungen, abgestimmt auf Ihre persönlichen Ziele und Bedürfnisse.",
+      "Vermögen ist für uns mehr als eine Zahl. Es steht für das, was Sie aufgebaut haben, für Ihre Pläne und für die Menschen, die Ihnen wichtig sind. Deshalb betrachten wir Ihre persönliche und finanzielle Situation als Ganzes und richten unsere Vermögensverwaltung konsequent an Ihre Prioritäten und Ihrem Anlagehorizont aus.",
+      "Im Mittelpunkt steht unser Vermögensverwaltungsmandat: Wir übernehmen die Anlageentscheide innerhalb der gemeinsam definierten Strategie. Mit Advisory bleiben die Anlageentscheide bei Ihnen, begleitet durch unsere Beratung.",
+    ],
+  },
+};
 
 /* Staffelung wie in den Stationen 1 und 2, damit der Takt hält. */
 const STEP = { title: 0, body: 260, grafik: 120 } as const;
@@ -30,9 +65,10 @@ const DURATION = 460;
 
 interface Props {
   panelRef?: (el: HTMLDivElement | null) => void;
-  /** Karten untereinander, Verbindungen entfallen. */
+  /** Karten untereinander. */
   isVertical?: boolean;
   domId?: string;
+  sprache?: "DE" | "EN";
   onMandat?: () => void;
   onAdvisory?: () => void;
 }
@@ -41,9 +77,11 @@ export function StationPortfolioManagement({
   panelRef,
   isVertical = false,
   domId,
+  sprache = "DE",
   onMandat,
   onAdvisory,
 }: Props) {
+  const inhalt = INHALT[sprache];
   const entered = useSectionEntered();
   const reducedMotion = usePrefersReducedMotion();
   const shown = entered || reducedMotion || isVertical;
@@ -59,52 +97,50 @@ export function StationPortfolioManagement({
 
   const titel = (
     <h2
+      /* «Vermögensverwaltung» misst bei 38px gemessene 392px und lief
+         auf dem Telefon rechts hinaus — Silbentrennung statt
+         kleinerer Schrift. hyphens braucht die Sprache des Texts. */
+      lang={sprache === "EN" ? "en" : "de"}
       style={{
         margin: 0,
-        fontFamily: cormorant,
-        fontSize: "var(--tellian-pm-title-size)",
-        fontWeight: "var(--tellian-pm-title-weight)" as unknown as number,
+        hyphens: "manual",
+        overflowWrap: "break-word",
+        fontFamily: serif,
+        fontSize: "var(--tellian-pm-titel-dunkel-size)",
+        fontWeight: 400,
         lineHeight: "var(--tellian-pm-title-leading)" as unknown as number,
         letterSpacing: "var(--tellian-pm-title-tracking)",
-        color: C.ink,
+        color: "var(--tellian-pm-dunkel-ink)",
       }}
     >
-      {TITLE_LINES[0]}
-      <br />
-      <em style={{ fontStyle: "italic", fontWeight: "inherit" }}>
-        {TITLE_LINES[1]}
-      </em>
+      {/* v5: weiches Trennzeichen statt automatischer Trennung —
+          der Umbruch fällt damit immer zwischen «Vermögens» und
+          «verwaltung», nie mitten in eine Silbe. Für den Text
+          unsichtbar; die Prüfsonde filtert das Zeichen heraus. */}
+      {inhalt.titel[0].replace("Vermögensverwaltung", "Vermögens\u00ADverwaltung")}
+      {inhalt.titel[1] && (
+        <>
+          <br />
+          <em style={{ fontStyle: "italic", fontWeight: "inherit" }}>
+            {inhalt.titel[1]}
+          </em>
+        </>
+      )}
     </h2>
   );
 
-
-  /* Zwei gesetzte Absätze, kein CSS-columns. Bei 200 % Zoom oder im
-     Französischen bricht das Raster auf eine Spalte um, statt das
-     Zeilenmass zu unterschreiten. */
-  const flieSStext = (
+  /* Absatz 1 und 2 — die TEXTZONE links, untereinander mit festem
+     Zeilenmass. Absatz 3 steht NICHT hier: er ist der Lead des
+     Auswahlbereichs rechts und wandert in die Gabelung. */
+  const textzone = (
     <div
       style={{
-        /* `100%` im min() der Rasterspalte braucht eine BESTIMMTE
-           Breite, sonst fällt es auf das Zeilenmass zurück. In der
-           schmalen Spalte (align-items: flex-start) ist die Breite
-           sonst schrumpfend und damit unbestimmt — gemessen ergab das
-           bei 320px Fenster eine 338px breite Spalte in einem 280px
-           breiten Kasten. */
-        width: "100%",
-        /* Schrift MUSS hier stehen: relative Masse im Raster lösen
-           gegen die Schrift des Elements auf, an dem sie gesetzt
-           sind, nicht gegen die geerbte. */
-        fontFamily: sans,
-        fontSize: "var(--tellian-pm-body-size)",
-        display: "grid",
-        gridTemplateColumns:
-          "repeat(auto-fit, minmax(min(var(--tellian-pm-body-measure), 100%), 1fr))",
-        gap: "var(--tellian-pm-body-gap)",
-        maxWidth:
-          "calc(var(--tellian-pm-body-measure) * 2 + var(--tellian-pm-body-gap))",
+        display: "flex",
+        flexDirection: "column",
+        gap: "clamp(14px, 2.2vh, 24px)",
       }}
     >
-      {BODY.map((text, i) => (
+      {inhalt.absaetze.slice(0, 2).map((text, i) => (
         <p
           key={i}
           style={{
@@ -112,8 +148,11 @@ export function StationPortfolioManagement({
             fontFamily: sans,
             fontSize: "var(--tellian-pm-body-size)",
             lineHeight: "var(--tellian-pm-body-leading)" as unknown as number,
-            color: C.accent,
-            maxWidth: "var(--tellian-pm-body-measure)",
+            color: "var(--tellian-pm-dunkel-dim)",
+            /* v5: 16px, Zeilenabstand 1.75, rund 50ch. */
+            fontSize: "16px",
+            lineHeight: 1.75,
+            maxWidth: "50ch",
           }}
         >
           {text}
@@ -125,36 +164,33 @@ export function StationPortfolioManagement({
   /* ── SCHMAL ── */
   if (isVertical) {
     return (
-      <section id={domId} style={{ backgroundColor: C.bg }}>
+      <section
+        id={domId}
+        style={{
+          backgroundColor: "var(--tellian-purple)",
+          backgroundImage: "var(--tellian-flaeche-dunkel-schmal)",
+          scrollMarginTop: "var(--tellian-kopf-height)",
+        }}
+      >
         <div
           style={{
             paddingTop: "var(--tellian-abschnitt-luft-schmal)",
-            paddingBottom: "clamp(40px, 6vh, 64px)",
+            paddingBottom: "var(--tellian-abschnitt-luft-schmal)",
             paddingLeft: "clamp(20px, 6vw, 48px)",
             paddingRight: "clamp(20px, 6vw, 48px)",
             display: "flex",
             flexDirection: "column",
-            /* Summe der beiden alten Abstände: dazwischen stand die
-               Haarlinie. Ohne die Anpassung wäre der Titel hier auf
-               25px an den Text gerückt, während er in Station 1 auf
-               52px steht. */
-            gap: "calc(clamp(24px, 3.4vh, 44px) + clamp(20px, 2.8vh, 36px))",
+            gap: "clamp(24px, 3.6vh, 40px)",
             alignItems: "flex-start",
           }}
         >
           {titel}
-          {flieSStext}
-        </div>
-
-        <div
-          style={{
-            paddingBottom: "var(--tellian-abschnitt-luft-schmal)",
-            paddingLeft: "clamp(20px, 6vw, 48px)",
-            paddingRight: "clamp(20px, 6vw, 48px)",
-          }}
-        >
+          {textzone}
           <ProzessGabelung
             gestapelt
+            aufDunkel
+            lead={inhalt.absaetze[2]}
+            sprache={sprache}
             onMandat={onMandat}
             onAdvisory={onAdvisory}
           />
@@ -163,76 +199,64 @@ export function StationPortfolioManagement({
     );
   }
 
-  /* ── BREIT ── */
+  /* ── BREIT ──
+     Das Raster der Seite: links die Textzone, rechts die
+     «Darstellung» der Station — hier der Auswahlbereich mit dem
+     Lead (Absatz 3) und den beiden Karten. 5/7-Teilung wie im
+     Briefing; der volle Stapel über die Stationsbreite brach das
+     Muster der übrigen Stationen. */
   return (
     <div
       ref={panelRef}
       className="flex-shrink-0 h-screen relative"
-      style={{ width: SECTION_WIDTH, backgroundColor: C.bg }}
+      style={{
+        width: SECTION_WIDTH,
+        backgroundColor: "var(--tellian-purple)",
+        backgroundImage: "var(--tellian-flaeche-dunkel)",
+      }}
     >
       <div
         style={{
-          /* Nur die TEXTBÜHNE weicht den beiden Bändern aus.
-             Flächen und Bilder laufen darunter durch. */
+          /* Nur die TEXTBÜHNE weicht den beiden Bändern aus. */
           position: "absolute",
           top: "var(--tellian-kopf-height)",
           bottom: "var(--tellian-station-height)",
           left: 0,
           right: 0,
-          display: "flex",
-          alignItems: "stretch",
+          display: "grid",
+          gridTemplateColumns: "5fr 7fr",
+          alignItems: "center",
+          columnGap: "clamp(48px, 6.7vw, 96px)",
+          paddingLeft:
+            "calc(var(--tellian-rail-width) + clamp(28px, 3.4vw, 56px))",
+          paddingRight: "clamp(28px, 3.4vw, 56px)",
+          paddingTop: "var(--tellian-s1-stage-pad)",
+          paddingBottom: "var(--tellian-s1-stage-pad)",
+          boxSizing: "border-box",
         }}
       >
-        {/* ══ Textspalte ══ */}
+        {/* ══ Textzone links ══ */}
         <div
           style={{
-            flex: "1 1 0",
             minWidth: 0,
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
-            /* Die Schiene liegt fixed und nimmt keinen Platz im Fluss;
-               die Station hält ihren Streifen selbst frei. */
-            paddingLeft:
-              "calc(var(--tellian-rail-width) + clamp(28px, 3.4vw, 56px))",
-            paddingRight: "var(--tellian-pm-body-pad-right)",
-            paddingTop: "var(--tellian-s1-stage-pad)",
-            paddingBottom: "var(--tellian-s1-stage-pad)",
-            boxSizing: "border-box",
+            gap: "clamp(18px, 3vh, 34px)",
           }}
         >
           <div style={enter(STEP.title, 24)}>{titel}</div>
-
-          <div
-            style={{
-              /* Summe der beiden alten Abstände: dazwischen stand
-                 die Haarlinie, der Rhythmus bleibt derselbe. */
-              marginTop: "calc(clamp(24px, 3.4vh, 44px) + clamp(20px, 2.8vh, 36px))",
-              ...enter(STEP.body),
-            }}
-          >
-            {flieSStext}
-          </div>
+          <div style={enter(STEP.body)}>{textzone}</div>
         </div>
 
-        {/* ══ Grafikfeld — hell, kein Panel ══
-            Die Grafik füllt es bewusst nicht aus: Höchstbreite plus
-            Innenabstand halten Luft an allen vier Seiten. */}
-        <div
-          style={{
-            flex: "0 0 var(--tellian-pm-field-width)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            paddingLeft: "var(--tellian-pm-graphic-pad)",
-            paddingRight: "var(--tellian-pm-graphic-pad)",
-            paddingTop: "var(--tellian-pm-graphic-pad)",
-            paddingBottom: "var(--tellian-pm-graphic-pad)",
-            boxSizing: "border-box",
-            ...enter(STEP.grafik, 20),
-          }}
-        >
-          <ProzessGabelung onMandat={onMandat} onAdvisory={onAdvisory} />
+        {/* ══ Darstellung rechts: Zwei Wege ══ */}
+        <div style={{ minWidth: 0, ...enter(STEP.grafik + 140) }}>
+          <ProzessGabelung
+            aufDunkel
+            lead={inhalt.absaetze[2]}
+            sprache={sprache}
+            onMandat={onMandat}
+            onAdvisory={onAdvisory}
+          />
         </div>
       </div>
     </div>

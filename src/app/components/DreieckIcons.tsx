@@ -14,8 +14,10 @@
    ═══════════════════════════════════════════════════════════ */
 
 interface IconProps {
-  w: number;
-  h: number;
+  /* Zahl (px) oder CSS-Mass — die Dreiecksgrafik skaliert ihre
+     Knoten in Prozent, die Icons wachsen mit. */
+  w: number | string;
+  h: number | string;
   color: string;
 }
 

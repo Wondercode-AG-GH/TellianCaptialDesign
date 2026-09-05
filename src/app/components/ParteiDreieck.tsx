@@ -223,9 +223,10 @@ export function ParteiDreieck({
        damit unmittelbar an. */
     const mCH = 310;
     const mEdges: [number, number][] = [[0, 1], [0, 2], [1, 2]];
-    const mW55 = "rgba(244,244,240,0.55)";
-    const mW75 = "rgba(244,244,240,0.75)";
-    const mW35 = "rgba(244,244,240,0.35)";
+    /* KORREKTUR: helle Fläche — siehe Kommentar im breiten Zweig. */
+    const mW55 = C.accent;
+    const mW75 = "rgba(25,23,24,0.75)";
+    const mW35 = "rgba(25,23,24,0.35)";
 
     function mEdgeEndpoints(a: number, b: number) {
       const ax = mVenn[a].dx, ay = mVenn[a].dy;
@@ -334,7 +335,7 @@ export function ParteiDreieck({
                     : { top: `calc(50% + ${v.dy}px + ${mR + 8}px)`, transform: "translateX(-50%)" }
                   ),
                   fontFamily: sans, fontSize: 12, letterSpacing: "0.14em",
-                  textTransform: "uppercase", color: act ? C.bg : mW75,
+                  textTransform: "uppercase", color: act ? C.ink : mW75,
                   fontWeight: act ? 600 : 400, whiteSpace: "nowrap",
                   pointerEvents: "none", opacity: faded ? 0.25 : 1,
                   transition: rm ? "none" : `all 260ms ${EASE.standard}`,
@@ -407,7 +408,7 @@ export function ParteiDreieck({
               </div>
               {isCta ? (
                 <a href="#vermoegensverwaltung" onClick={(e) => { e.preventDefault(); onNavigate?.(); }}
-                  style={{ fontFamily: serif, fontSize: 13, color: C.bg, lineHeight: 1.5, textDecoration: "none", display: "block", cursor: "pointer" }}>
+                  style={{ fontFamily: serif, fontSize: 13, color: C.ink, lineHeight: 1.5, textDecoration: "none", display: "block", cursor: "pointer" }}>
                   {party.prosa.de}
                 </a>
               ) : (
@@ -563,11 +564,16 @@ export function ParteiDreieck({
   const lineOp = entered ? (anyHover ? 0.08 : 1) : 0;
 
   /* Light-on-dark color helpers */
-  const W = C.bg;
-  const W90 = "rgba(244,244,240,0.90)";
-  const W75 = "rgba(244,244,240,0.75)";
-  const W55 = "rgba(244,244,240,0.55)";
-  const W35 = "rgba(244,244,240,0.35)";
+  /* KORREKTUR: Die Station liegt jetzt auf der hellen Fläche — die
+     Schriftstufen sind vom Weiss- aufs Iron-Veil-Schema gespiegelt.
+     Variablennamen unverändert, damit der Diff klein bleibt; die
+     Station wird in einer eigenen Session neu aufgebaut.
+     55 % Iron trüge nur 3.86 : 1 — dafür steht Accent (5.17 : 1). */
+  const W = C.ink;
+  const W90 = "rgba(25,23,24,0.90)";
+  const W75 = "rgba(25,23,24,0.75)";
+  const W55 = C.accent;
+  const W35 = "rgba(25,23,24,0.35)";
 
   return (
     <div

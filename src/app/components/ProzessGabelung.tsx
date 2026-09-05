@@ -1,146 +1,139 @@
-import { Fragment as ReactFragment } from "react";
-
-import { C, cormorant, sans } from "../tokens";
+import { C, cormorant, sans, serif } from "../tokens";
 
 /* ═══════════════════════════════════════════════════════════
-   PROZESSGABELUNG — Stamm, Gabelung, Zusammenlauf
+   ZWEI WEGE — Auswahlbereich der Station Vermögensverwaltung
 
-   Fünf Teile von oben nach unten: Band, Verbindung, zwei Karten,
-   Verbindung, Band.
+   Ein Titel über zwei gleichrangigen Karten. Die frühere Grafik
+   (Band «Analyse und Datengrundlage», Gabelungslinien) ist mit dem
+   Redesign entfallen — was sie erzählte, steht jetzt im dritten
+   Absatz des Stationstexts.
 
-   EINE Grafik für beide Karten, nicht eine je Karte. Die Bänder
-   umschliessen die Gabelung, und genau das ist die Aussage: derselbe
-   Prozess vorher wie nachher, nur der Entscheid gabelt sich. Zwei
-   getrennte Grafiken würden zwei Prozesse behaupten.
-
-   WARUM DIE VERBINDUNGEN SVG SIND
-   Als Rahmen aus border-Kanten wären die Rundungen an jeder Breite
-   andere. Das SVG behält sein Seitenverhältnis (preserveAspectRatio
-   in der Voreinstellung) und skaliert gleichmässig — die Rundung
-   bleibt eine Rundung.
-
-   WARUM DER KARTENABSTAND IN PROZENT STEHT
-   Die Linien enden bei 24 % und 76 % der Breite, weil dort bei
-   4 % Abstand die Kartenmitten liegen: (100 − 4) / 4 = 24. Ein
-   fester Pixelabstand würde die Mitten mit der Breite wandern
-   lassen und die Linien danebenlaufen.
+   EIN Bedienelement je Karte: die ganze Karte ist die Klickfläche,
+   ein Tastaturschritt, eine Ansage. Der «Knopf» unten ist ein span.
    ═══════════════════════════════════════════════════════════ */
 
-/* Nicht "Analyse und Vorschlag": beim Mandat geht kein Vorschlag an
-   den Kunden, der Anlageausschuss entscheidet selbstständig. */
-const BAND_OBEN = "Analyse und Datengrundlage";
-const BAND_SUB = "TELLIAN CAPITAL";
+/* ── INHALTE, WÖRTLICH AUS DEM REDESIGN-BRIEFING ──
+   Band («Analyse und Datengrundlage») und Einstiegssatz des schmalen
+   Zweigs sind entfallen; an ihrer Stelle steht der Titel des
+   Auswahlbereichs. Die Verbindungsgrafik entfällt mit dem Band. */
 
-/* Schmal gibt es keine Grafik. Was die Gabelung dort erzählt, sagt
-   dieser Satz — Diagramme mit Linien und Klammern setzen eine
-   Lesekompetenz voraus, die hier nicht angenommen werden kann. */
-const EINSTIEG_SCHMAL =
-  "Beide Wege beginnen gleich: dieselbe Analyse, dieselbe " +
-  "Datengrundlage. Der Unterschied ist, wer entscheidet.";
-
-const KARTEN = [
-  {
-    id: "mandat",
-    punkt: "purple" as const,
-    eyebrow: "TELLIAN ENTSCHEIDET",
-    name: "Mandat",
-    text: "Sie erteilen die Verwaltungsvollmacht. Der Anlageausschuss trifft sämtliche Allokationsentscheide, auf Basis Ihres Risikoprofils.",
-    fuer: "Für Kunden, die die täglichen Anlageentscheide vollständig in erfahrene Hände geben möchten.",
-    knopf: "Mehr zum Mandat",
-  },
-  {
-    id: "advisory",
-    punkt: "muted" as const,
-    eyebrow: "SIE ENTSCHEIDEN",
-    name: "Advisory",
-    text: "Die finale Entscheidung liegt immer bei Ihnen. Wir beraten und helfen beim Feinschliff, führen Transaktionen aber nicht eigenmächtig aus.",
-    fuer: "Für Kunden, die aktiver Investor bleiben möchten.",
-    knopf: "Mehr zu Advisory",
-  },
-] as const;
-
-/* Gabelung nach unten: Stamm aus der Bandmitte, dann zwei Äste auf
-   die Kartenmitten bei x 96 und 304 von 400. */
-const GABEL_AB =
-  "M200 0 V18 a10 10 0 0 1 -10 10 H106 a10 10 0 0 0 -10 10 V56 " +
-  "M200 18 a10 10 0 0 0 10 10 H294 a10 10 0 0 1 10 10 V56";
-
-
-/* Reiner Text auf der Fläche — keine Kontur, keine Füllung.
-   Vorher standen vier ähnliche Rechtecke im Bild, zwei davon
-   klickbar und zwei nicht. Jetzt sind es zwei, und beide sind es. */
-function Band({ titel }: { titel: string }) {
-  return (
-    <div
-      style={{
-        paddingTop: "var(--tellian-pm-band-pad-y)",
-        paddingBottom: "var(--tellian-pm-band-pad-y)",
-        paddingLeft: "16px",
-        paddingRight: "16px",
-        textAlign: "center",
-      }}
-    >
-      <div
-        style={{
-          fontFamily: sans,
-          fontSize: "var(--tellian-pm-band-title-size)",
-          fontWeight: 600,
-          color: C.ink,
-          lineHeight: 1.3,
-        }}
-      >
-        {titel}
-      </div>
-      <div
-        style={{
-          marginTop: "5px",
-          fontFamily: sans,
-          fontSize: "var(--tellian-pm-band-sub-size)",
-          letterSpacing: "var(--tellian-pm-caps-tracking)",
-          color: C.accent,
-          lineHeight: 1.3,
-        }}
-      >
-        {BAND_SUB}
-      </div>
-    </div>
-  );
+interface Karte {
+  id: "mandat" | "advisory";
+  punkt: "purple" | "muted";
+  eyebrow: string;
+  name: string;
+  text: string;
+  fuer: string;
+  knopf: string;
 }
 
-/** Rein dekorativ — die Reihenfolge steht schon im Text der Bänder. */
-function Verbindung({ d }: { d: string }) {
-  return (
-    <svg
-      viewBox="0 0 400 56"
-      aria-hidden
-      focusable="false"
-      style={{ display: "block", width: "100%", height: "auto" }}
-    >
-      <path
-        d={d}
-        fill="none"
-        stroke="var(--tellian-pm-connector)"
-        strokeWidth={1}
-        vectorEffect="non-scaling-stroke"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
+interface GabelungInhalt {
+  wegeTitel: string;
+  karten: readonly [Karte, Karte];
 }
+
+const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
+  DE: {
+    wegeTitel: "Zwei Wege, ein Anspruch",
+    karten: [
+      {
+        id: "mandat",
+        punkt: "purple",
+        eyebrow: "Wir verwalten",
+        name: "Mandat",
+        text: "Sie übertragen uns die Verwaltung Ihres Portfolios. Wir treffen die Anlageentscheide innerhalb Ihrer definierten Strategie und Ihres Risikoprofils.",
+        fuer: "Für Kunden, die ihre Anlageentscheide in professionelle Hände geben möchten.",
+        knopf: "Mehr zum Mandat",
+      },
+      {
+        id: "advisory",
+        punkt: "muted",
+        eyebrow: "Sie entscheiden",
+        name: "Advisory",
+        text: "Wir analysieren Ihr Portfolio auf Basis Ihrer Ziele und Ihres Risikoprofils und beraten Sie unter Berücksichtigung des aktuellen Marktumfelds.",
+        fuer: "Für Kunden, die ihre Anlageentscheide selbst treffen und dabei auf professionelle Beratung setzen möchten.",
+        knopf: "Mehr zu Advisory",
+      },
+    ],
+  },
+  EN: {
+    /* TODO-EN-TITEL: Ein englischer Titel für den Auswahlbereich
+       liegt nicht vor; bis dahin steht der bestehende deutsche. */
+    wegeTitel: "Zwei Wege, ein Anspruch",
+    karten: [
+      {
+        id: "mandat",
+        punkt: "purple",
+        eyebrow: "We manage",
+        name: "Discretionary Mandate",
+        text: "You entrust us with the management of your portfolio. We make investment decisions within your agreed strategy and risk profile.",
+        fuer: "For clients who wish to place their investment decisions in professional hands.",
+        knopf: "Learn more about our mandate",
+      },
+      {
+        id: "advisory",
+        punkt: "muted",
+        eyebrow: "You decide",
+        name: "Advisory",
+        text: "We analyse your portfolio in the context of your objectives, risk profile and the current market environment, and translate this into specific investment recommendations.",
+        fuer: "For clients who wish to make their own investment decisions while benefiting from professional advice.",
+        knopf: "Learn more about Advisory",
+      },
+    ],
+  },
+  /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
+  FR: {
+    wegeTitel: "Zwei Wege, ein Anspruch",
+    karten: [
+      {
+        id: "mandat",
+        punkt: "purple",
+        eyebrow: "Wir verwalten",
+        name: "Mandat",
+        text: "Sie übertragen uns die Verwaltung Ihres Portfolios. Wir treffen die Anlageentscheide innerhalb Ihrer definierten Strategie und Ihres Risikoprofils.",
+        fuer: "Für Kunden, die ihre Anlageentscheide in professionelle Hände geben möchten.",
+        knopf: "Mehr zum Mandat",
+      },
+      {
+        id: "advisory",
+        punkt: "muted",
+        eyebrow: "Sie entscheiden",
+        name: "Advisory",
+        text: "Wir analysieren Ihr Portfolio auf Basis Ihrer Ziele und Ihres Risikoprofils und beraten Sie unter Berücksichtigung des aktuellen Marktumfelds.",
+        fuer: "Für Kunden, die ihre Anlageentscheide selbst treffen und dabei auf professionelle Beratung setzen möchten.",
+        knopf: "Mehr zu Advisory",
+      },
+    ],
+  },
+};
 
 interface Props {
-  /** Karten untereinander, Verbindungen entfallen. */
+  /** Karten untereinander. */
   gestapelt?: boolean;
+  /** Station liegt auf Imperial Purple: Titel hell, Fokusring hell.
+      Die Karten selbst bleiben helle Flächen — auf dunklem Grund
+      grenzen sie sich damit von selbst ab, und ihre Innen-Typografie
+      behält die Kontraste des Hell-Schemas. */
+  aufDunkel?: boolean;
+  /** Lead-Text zwischen Titel und Karten — Absatz 3 der Station:
+      er leitet inhaltlich auf die beiden Wege über und gehört
+      deshalb IN den Auswahlbereich, nicht in die Textzone links. */
+  lead?: string;
+  sprache?: "DE" | "EN";
   onMandat?: () => void;
   onAdvisory?: () => void;
 }
 
 export function ProzessGabelung({
   gestapelt = false,
+  aufDunkel = false,
+  lead,
+  sprache = "DE",
   onMandat,
   onAdvisory,
 }: Props) {
   const handler = { mandat: onMandat, advisory: onAdvisory } as const;
+  const inhalt = INHALT[sprache];
 
   return (
     <div
@@ -149,189 +142,241 @@ export function ProzessGabelung({
         /* Schmal keine Deckelung: gemessen sass die Grafik dadurch
            22px eingerückt gegenüber dem Fliesstext daneben — zwei
            Blöcke, die nicht auf einer Kante standen. */
-        maxWidth: gestapelt ? "none" : "var(--tellian-pm-graphic-max)",
-        margin: "0 auto",
+        /* In der dunklen, gestapelten Spur läuft der Bereich mit der
+           vollen Spurbreite; die alte Deckelung galt dem schmalen
+           Grafikfeld rechts neben dem Text. */
+        maxWidth: gestapelt || aufDunkel ? "none" : "var(--tellian-pm-graphic-max)",
+        margin: aufDunkel ? "0" : "0 auto",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      {/* SCHMAL: KEINE GRAFIK
-          Weder Bänder noch Linien noch Klammern. Was die Gabelung
-          erzählt, steht als Satz darüber; darunter zwei vollständige
-          Karten — das Muster, das jeder kennt. */}
-      {gestapelt ? (
-        <p
-          style={{
-            margin: "0 0 clamp(20px, 3.4vh, 32px)",
-            fontFamily: sans,
-            fontSize: "var(--tellian-pm-body-size, 15px)",
-            lineHeight: 1.6,
-            color: C.accent,
-          }}
-        >
-          {EINSTIEG_SCHMAL}
-        </p>
-      ) : (
-        <>
-          <Band titel={BAND_OBEN} />
-          <Verbindung d={GABEL_AB} />
-        </>
-      )}
-
-      <div
+      {/* Titel des Auswahlbereichs — Lustria, wie die Titel des
+          Redesigns. Breit zentriert über den Karten, schmal links
+          auf der Kante der Spalte. */}
+      <h3
         style={{
-          display: "grid",
-          gridTemplateColumns: gestapelt ? "1fr" : "1fr 1fr",
-          gap: gestapelt ? "clamp(18px, 3vh, 28px)" : "var(--tellian-pm-card-gap)",
-          alignItems: "stretch",
+          margin: "0 0 clamp(18px, 3vh, 30px)",
+          fontFamily: serif,
+          fontSize: "var(--tellian-pm-wege-size)",
+          fontWeight: 400,
+          lineHeight: 1.2,
+          color: aufDunkel ? "var(--tellian-pm-wege-color)" : C.ink,
+          /* In der gestapelten Spur steht der Titel auf der linken
+             Kante wie alles andere — zentriert war er nur über dem
+             alten, freistehenden Grafikfeld. */
+          textAlign: gestapelt || aufDunkel ? "left" : "center",
         }}
       >
-        {KARTEN.map((k, ki) => (
-          <ReactFragment key={k.id}>
+        {inhalt.wegeTitel}
+      </h3>
 
+      {lead && (
+        <p
+          style={{
+            /* v5: 15.5px, rund 66ch, 40px Abstand zu den Karten. */
+            margin: "0 0 40px",
+            fontFamily: sans,
+            fontSize: "15.5px",
+            lineHeight: 1.65,
+            maxWidth: "66ch",
+            color: aufDunkel ? "var(--tellian-pm-dunkel-dim)" : C.accent,
+          }}
+        >
+          {lead}
+        </p>
+      )}
+
+      {/* ── DIPTYCHON (v5) ──
+          Zwei Karten als EIN Block: 2px Fuge innen, 1px Hairline
+          aussen, beides Mushroom mit 35 % Deckung — gelöst über
+          columnGap und padding des Rahmens, dessen Fläche in der
+          Fugenfarbe durchscheint. Kein Schatten, keine Radien.
+
+          ZEILENGENAU ÜBER BEIDE KARTEN: der Rahmen definiert fünf
+          Zeilen (Kopf / Titel / Beschreibung / Kursivzeile / CTA),
+          jede Karte erbt sie mit grid-template-rows: subgrid. Die
+          Kursivzeile ist die 1fr-Zeile — sie federt, damit beide
+          CTAs am Kartenfuss auf derselben Höhe stehen.
+
+          Gestapelt (Telefon) entfallen Fuge und Subgrid; jede Karte
+          trägt ihre eigene 1px-Hairline als Kontur. */}
+      <div
+        style={
+          gestapelt
+            ? {
+                display: "flex",
+                flexDirection: "column",
+                gap: "clamp(18px, 3vh, 28px)",
+              }
+            : {
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gridTemplateRows: "auto auto auto 1fr auto",
+                columnGap: "2px",
+                padding: "1px",
+                backgroundColor: "var(--tellian-pm-fuge)",
+              }
+        }
+      >
+        {inhalt.karten.map((k) => {
+          const zeile = (inhaltZeile: React.ReactNode, stil: React.CSSProperties) =>
+            gestapelt ? (
+              <span style={{ display: "block", ...stil }}>{inhaltZeile}</span>
+            ) : (
+              <span style={{ display: "block", minWidth: 0, ...stil }}>{inhaltZeile}</span>
+            );
+          return (
           <button
+            key={k.id}
             type="button"
             onClick={handler[k.id]}
-            className="tellian-pm-karte"
-            /* EIN Bedienelement je Karte. Der Knopf darunter ist ein
-               span, kein zweiter Knopf — die ganze Karte ist die
-               Klickfläche, ein Tastaturschritt, eine Ansage. */
+            className={aufDunkel ? "tellian-pm-karte tellian-pm-karte--aufdunkel" : "tellian-pm-karte"}
+            /* EIN Bedienelement je Karte: die ganze Karte ist die
+               Klickfläche. Der «Knopf» unten ist ein span. */
             style={{
-              /* Flex, damit der Knopf unten sitzt, auch wenn die
-                 beiden Karten unterschiedlich lange Texte tragen. */
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              height: "100%",
-              width: "100%",
               textAlign: "left",
               font: "inherit",
               cursor: "pointer",
-              /* Kontur und Füllung stehen in der Regel unten, NICHT
-                 hier: inline gesetzt schlagen sie jede :hover-Regel,
-                 und der Zustand bliebe wirkungslos. */
-              borderStyle: "solid",
-              borderWidth: "1px",
-              borderRadius: "var(--tellian-pm-radius)",
-              padding: "var(--tellian-pm-card-pad)",
+              border: gestapelt ? "1px solid var(--tellian-pm-fuge)" : "none",
+              borderRadius: 0,
+              padding: 0,
+              ...(gestapelt
+                ? { display: "flex", flexDirection: "column", alignItems: "stretch" }
+                : {
+                    display: "grid",
+                    gridTemplateRows: "subgrid",
+                    gridRow: "1 / -1",
+                    alignItems: "start",
+                  }),
             }}
           >
-            <span
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: "7px",
-                fontFamily: sans,
-                fontSize: "var(--tellian-pm-card-eyebrow-size)",
-                letterSpacing: "var(--tellian-pm-card-eyebrow-tracking)",
-                lineHeight: "var(--tellian-pm-card-eyebrow-leading)",
-                /* Zwei Zeilen fest: die eine Zeile bricht um, die
-                   andere nicht — ohne Reserve stünden die Namen der
-                   beiden Karten auf verschiedenen Linien. */
-                minHeight: "calc(2 * var(--tellian-pm-card-eyebrow-size) * var(--tellian-pm-card-eyebrow-leading))",
-                color: C.accent,
-              }}
-            >
-              <span
-                aria-hidden
-                style={{
-                  flex: "0 0 auto",
-                  width: "6px",
-                  height: "6px",
-                  /* Auf die Mittellinie der ersten Zeile. */
-                  marginTop: "calc((var(--tellian-pm-card-eyebrow-size) * var(--tellian-pm-card-eyebrow-leading) - 6px) / 2)",
-                  borderRadius: "50%",
-                  backgroundColor:
-                    k.punkt === "purple" ? C.purple : C.muted,
-                }}
-              />
-              {k.eyebrow}
-            </span>
-
-            <span
-              style={{
-                display: "block",
-                marginTop: "10px",
-                fontFamily: cormorant,
-                fontSize: "var(--tellian-pm-card-name-size)",
-                fontWeight: 300,
-                lineHeight: 1.1,
-                color: C.ink,
-              }}
-            >
-              {k.name}
-            </span>
-
-            <span
-              style={{
-                display: "block",
-                marginTop: "9px",
-                fontFamily: sans,
-                fontSize: "var(--tellian-pm-card-text-size)",
-                lineHeight: 1.55,
-                color: C.accent,
-              }}
-            >
-              {k.text}
-            </span>
-
-            {/* Zielgruppe — letzte Zeile vor dem Knopf, abgesetzt
-                durch eine Haarlinie. Serifenschrift kursiv in
-                Imperial Purple: sie benennt nicht den Weg, sondern
-                den Menschen, der ihn geht. */}
-            <span
-              aria-hidden
-              style={{
-                display: "block",
-                width: "100%",
-                height: "1px",
-                marginTop: "var(--tellian-pm-card-pad)",
-                backgroundColor: "var(--tellian-pm-line)",
-              }}
-            />
-            <span
-              style={{
-                display: "block",
-                marginTop: "10px",
-                fontFamily: cormorant,
-                fontStyle: "italic",
-                fontSize: "var(--tellian-pm-card-fuer-size)",
-                lineHeight: 1.4,
-                color: "var(--tellian-pm-card-fuer-color)",
-              }}
-            >
-              {k.fuer}
-            </span>
-
-            {/* Sieht aus wie ein Knopf, ist aber Teil der Karte.
-                Ein echtes <button> hier ergäbe ein zweites Klickziel,
-                einen zweiten Tastaturschritt und eine zweite Ansage. */}
-            <span
-              className="tellian-pm-knopf"
-              style={{
-                display: "inline-block",
-                marginTop: "auto",
-                paddingTop: "var(--tellian-pm-card-pad)",
-                fontFamily: sans,
-                fontSize: "var(--tellian-pm-card-link-size)",
-                letterSpacing: "0.06em",
-              }}
-            >
+            {/* Zeile 1 — Kopf: Eyebrow mit Farbpunkt, darunter die
+                Hairline über die VOLLE Kartenbreite (randlos). */}
+            {zeile(
               <span
                 style={{
-                  display: "inline-block",
-                  color: "var(--tellian-pm-knopf-ink)",
-                  padding: "var(--tellian-pm-knopf-pad)",
-                  borderRadius: "2px",
-                  whiteSpace: "nowrap",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  fontFamily: sans,
+                  fontSize: "var(--tellian-pm-card-eyebrow-size)",
+                  letterSpacing: "var(--tellian-pm-card-eyebrow-tracking)",
+                  lineHeight: "var(--tellian-pm-card-eyebrow-leading)",
+                  color: C.accent,
                 }}
               >
-                {k.knopf} <span aria-hidden>→</span>
-              </span>
-            </span>
+                <span
+                  aria-hidden
+                  style={{
+                    flex: "0 0 auto",
+                    width: "7px",
+                    height: "7px",
+                    borderRadius: "50%",
+                    backgroundColor: k.punkt === "purple" ? C.purple : C.muted,
+                  }}
+                />
+                {k.eyebrow}
+              </span>,
+              {
+                padding: "22px var(--tellian-pm-dip-pad-x) 14px",
+                borderBottom: "1px solid var(--tellian-pm-fuge)",
+              },
+            )}
+
+            {/* Zeile 2 — Kartentitel */}
+            {zeile(
+              <span
+                style={{
+                  fontFamily: serif,
+                  fontSize: "var(--tellian-pm-card-name-size)",
+                  fontWeight: 400,
+                  lineHeight: 1.15,
+                  color: C.ink,
+                }}
+              >
+                {k.name}
+              </span>,
+              { padding: "22px var(--tellian-pm-dip-pad-x) 0" },
+            )}
+
+            {/* Zeile 3 — Beschreibung */}
+            {zeile(
+              <span
+                style={{
+                  fontFamily: sans,
+                  fontSize: "var(--tellian-pm-card-text-size)",
+                  lineHeight: 1.6,
+                  color: C.accent,
+                }}
+              >
+                {k.text}
+              </span>,
+              { padding: "12px var(--tellian-pm-dip-pad-x) 0" },
+            )}
+
+            {/* Zeile 4 — Hairline (innerhalb des Innenabstands) und
+                Kursivzeile. Die 1fr-Zeile: sie federt die
+                unterschiedlich langen Zeilen ab. */}
+            {zeile(
+              <>
+                <span
+                  aria-hidden
+                  style={{
+                    display: "block",
+                    height: "1px",
+                    backgroundColor: "var(--tellian-pm-fuge)",
+                  }}
+                />
+                <span
+                  style={{
+                    display: "block",
+                    marginTop: "14px",
+                    fontFamily: cormorant,
+                    fontStyle: "italic",
+                    fontSize: "var(--tellian-pm-card-fuer-size)",
+                    lineHeight: 1.45,
+                    color: "var(--tellian-pm-card-fuer-color)",
+                  }}
+                >
+                  {k.fuer}
+                </span>
+              </>,
+              { padding: "18px var(--tellian-pm-dip-pad-x) 0" },
+            )}
+
+            {/* Zeile 5 — CTA am Kartenfuss */}
+            {zeile(
+              <span
+                className="tellian-pm-knopf"
+                style={{
+                  display: "inline-block",
+                  fontFamily: sans,
+                  fontSize: "var(--tellian-pm-card-link-size)",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                <span
+                  style={{
+                    display: "inline-block",
+                    color: "var(--tellian-pm-knopf-ink)",
+                    padding: "var(--tellian-pm-knopf-pad)",
+                    borderRadius: 0,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {k.knopf} <span aria-hidden>→</span>
+                </span>
+              </span>,
+              {
+                padding:
+                  "22px var(--tellian-pm-dip-pad-x) var(--tellian-pm-dip-pad-unten)",
+                ...(gestapelt ? { marginTop: "auto" } : { alignSelf: "end" }),
+              },
+            )}
           </button>
-          </ReactFragment>
-        ))}
+          );
+        })}
       </div>
 
 
@@ -370,6 +415,26 @@ export function ProzessGabelung({
         .tellian-pm-karte:focus-visible {
           outline: 2px solid var(--tellian-pm-focus-ring);
           outline-offset: 3px;
+        }
+        /* Auf Imperial Purple wäre der purpurne Ring unsichtbar. */
+        .tellian-pm-karte--aufdunkel:focus-visible {
+          outline-color: var(--tellian-pm-focus-ring-dunkel);
+        }
+        /* Auf dem dunklen Grund tragen die Karten Archive White als
+           Fläche (Briefing); der leichte Tint des Hell-Schemas wäre
+           hier ununterscheidbar vom Weiss. Rahmen entfällt — die
+           Fläche grenzt sich selbst ab. */
+        .tellian-pm-karte--aufdunkel {
+          background-color: var(--tellian-bg);
+          /* v5: kein Schatten, keine Hebung — der Block steht ruhig. */
+          transform: none;
+          box-shadow: none;
+        }
+        .tellian-pm-karte--aufdunkel:hover,
+        .tellian-pm-karte--aufdunkel:focus-visible {
+          background-color: var(--tellian-pm-card-bg-aktiv);
+          transform: none;
+          box-shadow: none;
         }
         @media (prefers-reduced-motion: reduce) {
           .tellian-pm-karte,

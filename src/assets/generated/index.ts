@@ -12,15 +12,15 @@ import i7 from "./sardona/sardona-720.jpg";
 import i8 from "./opernhaus/opernhaus-432.avif";
 import i9 from "./opernhaus/opernhaus-768.avif";
 import i10 from "./opernhaus/opernhaus-1080.avif";
-import i11 from "./opernhaus/opernhaus-1530.avif";
+import i11 from "./opernhaus/opernhaus-1440.avif";
 import i12 from "./opernhaus/opernhaus-432.webp";
 import i13 from "./opernhaus/opernhaus-768.webp";
 import i14 from "./opernhaus/opernhaus-1080.webp";
-import i15 from "./opernhaus/opernhaus-1530.webp";
+import i15 from "./opernhaus/opernhaus-1440.webp";
 import i16 from "./opernhaus/opernhaus-432.jpg";
 import i17 from "./opernhaus/opernhaus-768.jpg";
 import i18 from "./opernhaus/opernhaus-1080.jpg";
-import i19 from "./opernhaus/opernhaus-1530.jpg";
+import i19 from "./opernhaus/opernhaus-1440.jpg";
 import i20 from "./opernhaus-band/opernhaus-band-432.avif";
 import i21 from "./opernhaus-band/opernhaus-band-774.avif";
 import i22 from "./opernhaus-band/opernhaus-band-1152.avif";
@@ -147,26 +147,51 @@ export const IMAGES = {
       { w: 720, h: 960, url: i7 },
     ],
   },
-  "opernhaus": {
-    nativeWidth: 1533,
-    nativeHeight: 1022,
+  "hero-tellian": {
+    nativeWidth: 4986,
+    nativeHeight: 3324,
     avif: [
-      { w: 432, h: 288, url: i8 },
-      { w: 768, h: 512, url: i9 },
-      { w: 1080, h: 720, url: i10 },
-      { w: 1530, h: 1020, url: i11 },
+      { w: 432, h: 288, url: "/img/hero-tellian/hero-tellian-432.avif" },
+      { w: 768, h: 512, url: "/img/hero-tellian/hero-tellian-768.avif" },
+      { w: 1080, h: 720, url: "/img/hero-tellian/hero-tellian-1080.avif" },
+      { w: 1536, h: 1024, url: "/img/hero-tellian/hero-tellian-1536.avif" },
+      { w: 2160, h: 1440, url: "/img/hero-tellian/hero-tellian-2160.avif" },
+      { w: 3111, h: 2074, url: "/img/hero-tellian/hero-tellian-3111.avif" },
     ],
     webp: [
-      { w: 432, h: 288, url: i12 },
-      { w: 768, h: 512, url: i13 },
-      { w: 1080, h: 720, url: i14 },
-      { w: 1530, h: 1020, url: i15 },
+      { w: 432, h: 288, url: "/img/hero-tellian/hero-tellian-432.webp" },
+      { w: 768, h: 512, url: "/img/hero-tellian/hero-tellian-768.webp" },
+      { w: 1080, h: 720, url: "/img/hero-tellian/hero-tellian-1080.webp" },
+      { w: 1536, h: 1024, url: "/img/hero-tellian/hero-tellian-1536.webp" },
+      { w: 2160, h: 1440, url: "/img/hero-tellian/hero-tellian-2160.webp" },
     ],
     jpg: [
-      { w: 432, h: 288, url: i16 },
-      { w: 768, h: 512, url: i17 },
-      { w: 1080, h: 720, url: i18 },
-      { w: 1530, h: 1020, url: i19 },
+      { w: 432, h: 288, url: "/img/hero-tellian/hero-tellian-432.jpg" },
+      { w: 768, h: 512, url: "/img/hero-tellian/hero-tellian-768.jpg" },
+      { w: 1080, h: 720, url: "/img/hero-tellian/hero-tellian-1080.jpg" },
+      { w: 1536, h: 1024, url: "/img/hero-tellian/hero-tellian-1536.jpg" },
+    ],
+  },
+  "opernhaus": {
+    nativeWidth: 1444,
+    nativeHeight: 1083,
+    avif: [
+      { w: 432, h: 324, url: i8 },
+      { w: 768, h: 576, url: i9 },
+      { w: 1080, h: 810, url: i10 },
+      { w: 1440, h: 1080, url: i11 },
+    ],
+    webp: [
+      { w: 432, h: 324, url: i12 },
+      { w: 768, h: 576, url: i13 },
+      { w: 1080, h: 810, url: i14 },
+      { w: 1440, h: 1080, url: i15 },
+    ],
+    jpg: [
+      { w: 432, h: 324, url: i16 },
+      { w: 768, h: 576, url: i17 },
+      { w: 1080, h: 810, url: i18 },
+      { w: 1440, h: 1080, url: i19 },
     ],
   },
   "opernhaus-band": {

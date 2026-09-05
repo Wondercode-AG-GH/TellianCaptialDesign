@@ -1,197 +1,201 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
-import { C, cormorant, sans } from "../tokens";
-import { ResponsiveImage } from "./ResponsiveImage";
+import { C, sans, serif } from "../tokens";
 import { useTitelHoehe } from "./useTitelHoehe";
+import { ResponsiveImage } from "./ResponsiveImage";
+import { TeamDetail } from "./TeamDetail";
 import type { ImageId } from "../../assets/generated";
 
 /* ═══════════════════════════════════════════════════════════
-   STATION 5 — TEAM
+   STATION 05 — DAS TEAM (hell)
 
-   Eine Reihe aus zehn Porträtstreifen. Wer gezeigt wird, öffnet
-   sich; die übrigen weichen zusammen.
+   Redesign: Die Übersicht zeigt je Karte Foto, Name und Rolle —
+   keine langen Texte mehr in der Station. Die persönlichen Texte
+   leben ausschliesslich in der Detailansicht (TeamDetail), die per
+   Klick auf die ganze Karte öffnet. Karten MIT Text tragen das
+   Label «Mehr erfahren»; Karten ohne Text sind bewusst keine
+   Bedienelemente.
 
-   WARUM IN DIE BREITE UND NICHT IN DIE HÖHE
-   Das frühere Raster aus fünf Spalten hatte bei 1512px Fenster
-   Kacheln von 167×208. Eine Story von 30 Wörtern brauchte gemessene
-   216px und passte erst ab rund 1900px Fensterbreite hinein. Wächst
-   der Streifen dagegen in die BREITE, bleibt die Reihenhöhe stehen
-   und der Text bekommt Platz, ohne dass irgendetwas wandert.
+   Die frühere Hover-Mechanik (aufziehende Streifen mit Story im
+   Bild) ist entfallen — Inhalte, die erst beim Zeigen erscheinen,
+   sind für die Zielgruppe 65+ das falsche Muster.
 
-   Nebeneffekt, der die Sache trägt: geschlossen ist ein Streifen
-   schmal und hoch, geöffnet nähert er sich dem Format der Porträts
-   selbst (2:3). Das Bild wird beim Öffnen also nicht beschnitten,
-   sondern vollständiger.
-
-   WARUM DER TITEL LINKS STEHT UND DIE STATION ÜBERSTEHT
-   Der Titel sitzt auf der Höhe des Titels von Station 3 (siehe
-   useTitelHoehe). Die Reihen rücken dafür um eine Titelspalte nach
-   rechts, und die Station wird um genau diese Spalte breiter — sie
-   ist damit 106 bis 113vw breit, und die letzte Spalte Porträts
-   kommt erst beim Weiterscrollen herein. Die Reihenbreite steht
-   fest (--tellian-t5-row-w), damit die Kacheln GENAU ihre bisherige
-   Grösse behalten.
-
-   WARUM DER VOLLE NAME UNTER DER KACHEL STEHT
-   Um die Personen geht es hier, nicht um die Kacheln. Der Name
-   bekommt deshalb zwei fest reservierte Zeilen: die langen brechen
-   um, die kurzen lassen die zweite Zeile leer — so bleibt die
-   untere Reihe auf ihrer Linie stehen.
+   TODO-FOTOS: Die Porträts sind die bisherigen Platzhalter-
+   Aufnahmen; die finalen Teamfotos stehen aus.
    ═══════════════════════════════════════════════════════════ */
 
-const STORY_PLATZHALTER =
-  "Platzhalter. Hier steht die persönliche Story — zwei bis drei Sätze, " +
-  "maximal rund 30 Wörter. Noch nicht von Tellian geliefert.";
-
 interface Person {
+  id: string;
   name: string;
   rolle: string;
   bild?: ImageId;
-  story?: string;
 }
 
 const PERSONEN: readonly Person[] = [
-  { name: "Wilhelm Tell", rolle: "Namensgeber", bild: "wilhelm-tell" },
-  { name: "Olivier M. Bill", rolle: "CEO", bild: "olivier-bill" },
-  { name: "Marco Ludescher", rolle: "Head of Portfolio Management", bild: "marco-ludescher" },
-  { name: "Rolf Schneider", rolle: "Relationship Manager", bild: "rolf-schneider" },
-  { name: "Bryan Anthony Honegger", rolle: "Relationship Manager", bild: "bryan-honegger" },
-  { name: "Andreas Trümpler", rolle: "Risk Management", bild: "andreas-truempler" },
-  { name: "Jasmina Rukavina", rolle: "Back-Office / Office Management", bild: "jasmina-rukavina" },
-  { name: "Jörg Bode", rolle: "Rolle offen" },
-  { name: "Thibaut", rolle: "Rolle offen" },
-  { name: "Stefan Müller", rolle: "Rolle offen" },
+  /* TODO-TEXT-WILHELM-TELL: kein persönlicher Text geliefert. */
+  { id: "wilhelm", name: "Wilhelm Tell", rolle: "Namensgeber", bild: "wilhelm-tell" },
+  { id: "olivier", name: "Olivier M. Bill", rolle: "CEO", bild: "olivier-bill" },
+  { id: "marco", name: "Marco Ludescher", rolle: "Head of Portfolio Management", bild: "marco-ludescher" },
+  { id: "rolf", name: "Rolf Schneider", rolle: "Relationship Manager", bild: "rolf-schneider" },
+  /* TODO-TEXT-BRYAN: kein persönlicher Text geliefert. */
+  { id: "bryan", name: "Bryan Anthony Honegger", rolle: "Relationship Manager", bild: "bryan-honegger" },
+  { id: "andreas", name: "Andreas Trümpler", rolle: "Risk Management", bild: "andreas-truempler" },
+  { id: "jasmina", name: "Jasmina Rukavina", rolle: "Back-Office / Office Management", bild: "jasmina-rukavina" },
+  /* TODO-TEXT-JOERG-BODE: kein persönlicher Text geliefert. */
+  { id: "joerg", name: "Jörg Bode", rolle: "Rolle offen" },
+  /* TODO-TEXT-THIBAUT: kein persönlicher Text geliefert.
+     TODO-KONTAKT-THIBAUT: Vorname/Nachname/Tag ausstehend. */
+  { id: "thibaut", name: "Thibaut", rolle: "Rolle offen" },
+  /* TODO-TEXT-STEFAN-MUELLER: kein persönlicher Text geliefert. */
+  { id: "stefan", name: "Stefan Müller", rolle: "Rolle offen" },
 ];
 
-/* Ein Etikett, kein Satz — wie "Portfolio / Management" in
-   Station 3. Zwei Zeilen, die zweite kursiv. */
+/* ── PERSONENTEXTE — wörtlich aus dem Briefing, Absatzstruktur
+      exakt (2 bzw. 3 Absätze), ohne Auszeichnungen. ── */
+type L = "DE" | "EN" | "FR";
+
+const TEXTE: Readonly<Record<string, Readonly<Record<L, readonly string[]>>>> = {
+  rolf: {
+    DE: [
+      "Bei Tellian Capital konzentriere ich mich auf zwei Bereiche, die mir seit jeher besonders am Herzen liegen: den persönlichen Austausch mit unseren Kunden und das quantitative Portfoliomanagement. Als Gründungspartner habe ich das Fundament der heutigen Tellian Capital – vormals Blumer & Partner – mitgelegt und das Unternehmen seit der Jahrtausendwende durch ganz unterschiedliche Marktphasen geführt. Heute schätze ich es besonders, diese Erfahrung weiterzugeben und gleichzeitig nah am täglichen Geschehen zu bleiben.",
+      "Neben meiner Arbeit ist meine Familie mein wichtigster Anker. Eine Leidenschaft begleitet mich schon fast mein ganzes Leben: der Rennsport. Ob auf Asphalt, Schnee oder Eis – ich bin viele Jahre selbst Rennen gefahren. Besonders die Nordschleife des Nürburgrings kenne ich dabei Kurve für Kurve.",
+    ],
+    EN: [
+      "At Tellian Capital, I focus on two areas that have always been particularly close to me: personal relationships with our clients and quantitative portfolio management. As a founding partner, I helped lay the foundations of today's Tellian Capital – formerly Blumer & Partner – and have guided the firm through very different market environments since the turn of the millennium. Today, I particularly value the opportunity to pass on this experience while remaining closely involved in the day-to-day business.",
+      "Outside of work, my family is my most important anchor. Another passion has been with me for almost my entire life: motor racing. Whether on asphalt, snow or ice, I spent many years racing myself. And when it comes to the Nürburgring's Nordschleife, I know every corner.",
+    ],
+    /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
+    FR: [
+      "Bei Tellian Capital konzentriere ich mich auf zwei Bereiche, die mir seit jeher besonders am Herzen liegen: den persönlichen Austausch mit unseren Kunden und das quantitative Portfoliomanagement. Als Gründungspartner habe ich das Fundament der heutigen Tellian Capital – vormals Blumer & Partner – mitgelegt und das Unternehmen seit der Jahrtausendwende durch ganz unterschiedliche Marktphasen geführt. Heute schätze ich es besonders, diese Erfahrung weiterzugeben und gleichzeitig nah am täglichen Geschehen zu bleiben.",
+      "Neben meiner Arbeit ist meine Familie mein wichtigster Anker. Eine Leidenschaft begleitet mich schon fast mein ganzes Leben: der Rennsport. Ob auf Asphalt, Schnee oder Eis – ich bin viele Jahre selbst Rennen gefahren. Besonders die Nordschleife des Nürburgrings kenne ich dabei Kurve für Kurve.",
+    ],
+  },
+  marco: {
+    DE: [
+      "Mich faszinieren die Kapitalmärkte in all ihren Facetten. Rohstoffe spielen dabei für mich eine besondere Rolle – nicht als kurzfristiger Trend, sondern aus langfristiger Überzeugung. Ich schätze klare Positionen und eine konsequente Umsetzung. Unsere Sicht auf die Märkte bringe ich regelmässig in Analysen auf den Punkt und vertrete sie gerne im Austausch mit Schweizer Börsenmedien.",
+      "Abseits der Märkte gehört meine Leidenschaft dem Golf. Ich spiele seit vielen Jahren aktiv und durfte dabei auch den einen oder anderen sportlichen Erfolg feiern. Den Wettbewerb mag ich bis heute – mit Ehrgeiz, Freude am Spiel und der nötigen Gelassenheit. Und nach einer guten Runde darf ein Stück Apfelstrudel nicht fehlen.",
+    ],
+    EN: [
+      "I am fascinated by capital markets in all their facets. Commodities hold a particular place for me – not as a short-term trend, but as a long-term conviction. I value clear views and disciplined execution. I regularly distil our perspective on the markets into concise analysis and enjoy discussing it with Swiss financial media.",
+      "Away from the markets, golf is my passion. I have been playing competitively for many years and have enjoyed a few successes along the way. I still appreciate the competitive side of the game – with ambition, enjoyment and the right sense of perspective. And after a good game, a slice of apple strudel is always welcome.",
+    ],
+    /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
+    FR: [
+      "Mich faszinieren die Kapitalmärkte in all ihren Facetten. Rohstoffe spielen dabei für mich eine besondere Rolle – nicht als kurzfristiger Trend, sondern aus langfristiger Überzeugung. Ich schätze klare Positionen und eine konsequente Umsetzung. Unsere Sicht auf die Märkte bringe ich regelmässig in Analysen auf den Punkt und vertrete sie gerne im Austausch mit Schweizer Börsenmedien.",
+      "Abseits der Märkte gehört meine Leidenschaft dem Golf. Ich spiele seit vielen Jahren aktiv und durfte dabei auch den einen oder anderen sportlichen Erfolg feiern. Den Wettbewerb mag ich bis heute – mit Ehrgeiz, Freude am Spiel und der nötigen Gelassenheit. Und nach einer guten Runde darf ein Stück Apfelstrudel nicht fehlen.",
+    ],
+  },
+  jasmina: {
+    DE: [
+      "Meine Arbeit ist sehr vielseitig – und genau das macht sie für mich spannend. Ich mag es, wenn die vielen kleinen Dinge des Büroalltags ineinandergreifen und am Ende alles zusammenfliesst. Besonders schätze ich dabei den Kontakt mit unterschiedlichen Menschen, ihren Geschichten und Persönlichkeiten.",
+      "Mir ist wichtig, dass sich Kunden genauso wie meine Kolleginnen und Kollegen bei uns wohlfühlen. Dazu gehören für mich eine gute Organisation, ein offenes Ohr, ein angenehmes Ambiente und ein Blick für die Details. Denn viele gute Gespräche beginnen ganz einfach bei einer Tasse Kaffee.",
+      "Inspiration finde ich auch auf Reisen. Neue Orte, Kulturen und Begegnungen geben mir immer wieder neue Eindrücke und Ideen, die ich gerne mit nach Hause und in meinen Alltag einbringe.",
+    ],
+    EN: [
+      "My role is highly varied – and that is exactly what makes it so rewarding. I enjoy seeing the many details of everyday office life come together seamlessly. Above all, I value meeting different people and getting to know their stories and personalities.",
+      "It is important to me that our clients and colleagues alike feel welcome and at ease. Good organisation, an open ear, a pleasant atmosphere and attention to detail all play a part. After all, many good conversations simply begin over a cup of coffee.",
+      "I also find inspiration through travel. New places, cultures and encounters give me fresh perspectives and ideas that I enjoy bringing back into my everyday life.",
+    ],
+    /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
+    FR: [
+      "Meine Arbeit ist sehr vielseitig – und genau das macht sie für mich spannend. Ich mag es, wenn die vielen kleinen Dinge des Büroalltags ineinandergreifen und am Ende alles zusammenfliesst. Besonders schätze ich dabei den Kontakt mit unterschiedlichen Menschen, ihren Geschichten und Persönlichkeiten.",
+      "Mir ist wichtig, dass sich Kunden genauso wie meine Kolleginnen und Kollegen bei uns wohlfühlen. Dazu gehören für mich eine gute Organisation, ein offenes Ohr, ein angenehmes Ambiente und ein Blick für die Details. Denn viele gute Gespräche beginnen ganz einfach bei einer Tasse Kaffee.",
+      "Inspiration finde ich auch auf Reisen. Neue Orte, Kulturen und Begegnungen geben mir immer wieder neue Eindrücke und Ideen, die ich gerne mit nach Hause und in meinen Alltag einbringe.",
+    ],
+  },
+  andreas: {
+    DE: [
+      "Bei Tellian Capital sorge ich im Hintergrund dafür, dass unsere quantitative Analyse reibungslos läuft und unser Portfoliomanagement sowie Trading auf präzise Daten, verlässliche Modelle und eine disziplinierte Umsetzung bauen können. Mich fasziniert es, Ordnung in komplexe Systeme zu bringen und so das Fundament für fundierte Anlageentscheidungen zu schaffen.",
+      "Meine Leidenschaft für Strategie lebe ich auch abseits des Schreibtischs – viele Jahre als Präsident der Schachgesellschaft Zürich, des ältesten Schachklubs der Welt, bei dem ich zum 200-jährigen Jubiläum ein Turnier mit ehemaligen Schachweltmeistern organisieren durfte.",
+      "Heute lade ich meine Batterien am liebsten beim Golfen und bei der Entdeckung feiner Weine auf.",
+    ],
+    EN: [
+      "At Tellian Capital, I work behind the scenes to ensure that our quantitative analysis runs seamlessly and that our portfolio management and trading are built on precise data, robust models and disciplined execution. I enjoy bringing structure to complex systems and creating a solid foundation for well-informed investment decisions.",
+      "My passion for strategy extends well beyond the office. For many years, I served as President of the Schachgesellschaft Zürich, the world's oldest chess club, where I had the privilege of organising a tournament with former World Chess Champions to mark its 200th anniversary.",
+      "Today, I recharge my batteries on the golf course and through discovering fine wines.",
+    ],
+    /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
+    FR: [
+      "Bei Tellian Capital sorge ich im Hintergrund dafür, dass unsere quantitative Analyse reibungslos läuft und unser Portfoliomanagement sowie Trading auf präzise Daten, verlässliche Modelle und eine disziplinierte Umsetzung bauen können. Mich fasziniert es, Ordnung in komplexe Systeme zu bringen und so das Fundament für fundierte Anlageentscheidungen zu schaffen.",
+      "Meine Leidenschaft für Strategie lebe ich auch abseits des Schreibtischs – viele Jahre als Präsident der Schachgesellschaft Zürich, des ältesten Schachklubs der Welt, bei dem ich zum 200-jährigen Jubiläum ein Turnier mit ehemaligen Schachweltmeistern organisieren durfte.",
+      "Heute lade ich meine Batterien am liebsten beim Golfen und bei der Entdeckung feiner Weine auf.",
+    ],
+  },
+  olivier: {
+    DE: [
+      "Die Finanzwelt ist oft komplex und laut. Meine persönliche Motivation als CEO ist es, für unsere Kunden Ruhe, Struktur und langfristige Sicherheit zu schaffen. Ich verstehe uns als unabhängige Lotsen, die Ihr Vermögen mit der gleichen Sorgfalt und Hingabe betreuen wie das eigene.",
+      "Dieses Vertrauen beginnt bei uns im Haus: Ein offenes, unkompliziertes Verhältnis im Team und kurze Wege sind mir genauso wichtig wie das ehrliche Gespräch mit Ihnen über Ihre Lebenspläne.",
+      "Meine Energie und den Fokus hole ich mir beim Sport, mit der Familie und auf Reisen.",
+    ],
+    EN: [
+      "The financial world can often feel complex and noisy. As CEO, my personal motivation is to bring clarity, structure and long-term confidence to our clients. I see our role as an independent guide, looking after your wealth with the same care and commitment we would apply to our own.",
+      "For me, trust starts within our firm. An open and straightforward relationship within the team, short decision-making paths and direct communication are just as important as an honest conversation with you about your plans and ambitions.",
+      "I find my energy and focus through sport, time with my family and travelling.",
+    ],
+    /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
+    FR: [
+      "Die Finanzwelt ist oft komplex und laut. Meine persönliche Motivation als CEO ist es, für unsere Kunden Ruhe, Struktur und langfristige Sicherheit zu schaffen. Ich verstehe uns als unabhängige Lotsen, die Ihr Vermögen mit der gleichen Sorgfalt und Hingabe betreuen wie das eigene.",
+      "Dieses Vertrauen beginnt bei uns im Haus: Ein offenes, unkompliziertes Verhältnis im Team und kurze Wege sind mir genauso wichtig wie das ehrliche Gespräch mit Ihnen über Ihre Lebenspläne.",
+      "Meine Energie und den Fokus hole ich mir beim Sport, mit der Familie und auf Reisen.",
+    ],
+  },
+};
+
+const UI = {
+  DE: { mehr: "Mehr erfahren" },
+  EN: { mehr: "Learn more" },
+  /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
+  FR: { mehr: "Mehr erfahren" },
+} as const;
+
 const TITEL = ["Das", "Team."] as const;
 
 const initialen = (name: string) =>
   name.split(/\s+/).slice(0, 2).map((t) => t[0]).join("");
 
-const LINKEDIN = "https://www.linkedin.com/company/tellian-capital";
-
-/* Gemessen: beim Weg aus der Reihe streift der Zeiger bis zu drei
-   fremde Kacheln. Ohne Verzug zog jede davon auf. */
-const OEFFNEN_VERZUG = 70;
-const SCHLIESSEN_VERZUG = 90;
-
 interface Props {
   panelRef?: (el: HTMLDivElement | null) => void;
   isVertical?: boolean;
   domId?: string;
-  onContactClick?: () => void;
+  sprache?: "DE" | "EN";
+  /** Meldet der App, dass das Overlay offen ist — sie sperrt damit
+      die Tastatur des waagrechten Tracks. */
+  onDetailToggle?: (offen: boolean) => void;
 }
 
 export function Station5Team({
   panelRef,
   isVertical = false,
   domId,
-  onContactClick,
+  sprache = "DE",
+  onDetailToggle,
 }: Props) {
-  /* ZWEI ZUSTÄNDE STATT EINEM
-     `schwebt` ist flüchtig und folgt dem Zeiger, `fixiert` bleibt
-     stehen. Wer eine Person anklickt, kann die Maus wegnehmen und
-     lesen; wer nur darüberfährt, verliert die Story wieder.
-     Vorrang hat der Zeiger — sonst müsste man erst abwählen, um
-     jemand anderen anzusehen. */
-  const [schwebt, setSchwebt] = useState<number | null>(null);
-  const [fixiert, setFixiert] = useState<number | null>(null);
-  const aktiv = schwebt ?? fixiert;
+  const [offenId, setOffenId] = useState<string | null>(null);
+  const kachelRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const rueckkehrRef = useRef<HTMLElement | null>(null);
 
-  const kachelRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  /* Ohne Ref läse `zeigen` beim schnellen Überstreichen einen
-     veralteten Wert und verzögerte auch das Umschalten. */
-  const aktivRef = useRef<number | null>(null);
-  aktivRef.current = aktiv;
-  const fixiertRef = useRef<number | null>(null);
-  fixiertRef.current = fixiert;
-  const uhr = useRef<number | null>(null);
+  const oeffnen = (p: Person) => {
+    rueckkehrRef.current = kachelRefs.current[p.id] ?? null;
+    setOffenId(p.id);
+    onDetailToggle?.(true);
+  };
+  const schliessen = () => {
+    setOffenId(null);
+    onDetailToggle?.(false);
+    /* HIER, nicht im Overlay: das Overlay wird beim Schliessen
+       unmountet — sein Effekt auf «offen → false» liefe nie. */
+    requestAnimationFrame(() => rueckkehrRef.current?.focus({ preventScroll: true }));
+  };
 
-  const stoppen = useCallback(() => {
-    if (uhr.current !== null) window.clearTimeout(uhr.current);
-    uhr.current = null;
-  }, []);
+  const offenPerson = PERSONEN.find((p) => p.id === offenId) ?? null;
 
-  /* Beim Überstreichen der Reihe soll nicht jede gestreifte Kachel
-     aufziehen — erst wer kurz stehen bleibt, öffnet. Ist schon eine
-     Story offen, wechselt sie ohne Verzögerung. */
-  const zeigen = useCallback(
-    (i: number) => {
-      stoppen();
-      if (aktivRef.current === null) {
-        uhr.current = window.setTimeout(() => {
-          uhr.current = null;
-          setSchwebt(i);
-        }, OEFFNEN_VERZUG);
-      } else {
-        setSchwebt(i);
-      }
-    },
-    [stoppen],
-  );
-
-  /* Kurzer Verzug, damit der Spalt zwischen zwei Kacheln die Story
-     nicht zum Flackern bringt: die nächste Kachel hebt ihn auf. */
-  const verbergen = useCallback(() => {
-    stoppen();
-    uhr.current = window.setTimeout(() => {
-      uhr.current = null;
-      setSchwebt(null);
-    }, SCHLIESSEN_VERZUG);
-  }, [stoppen]);
-
-  useEffect(() => stoppen, [stoppen]);
-
-  /* Schmal gibt es kein Verlassen des Zeigers — dort MUSS der zweite
-     Tipp beide Zustände räumen, sonst liesse sich eine Story nie
-     wieder schliessen. */
-  const waehlen = useCallback((i: number) => {
-    stoppen();
-    const zu = fixiertRef.current === i;
-    setFixiert(zu ? null : i);
-    setSchwebt(zu ? null : i);
-  }, [stoppen]);
-
-  const schliessen = useCallback(() => {
-    stoppen();
-    const zurueck = aktivRef.current;
-    setSchwebt(null);
-    setFixiert(null);
-    if (zurueck !== null) kachelRefs.current[zurueck]?.focus();
-  }, [stoppen]);
-
-  useEffect(() => {
-    if (aktiv === null) return;
-    const auf = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.stopPropagation();
-        schliessen();
-      }
-    };
-    document.addEventListener("keydown", auf);
-    return () => document.removeEventListener("keydown", auf);
-  }, [aktiv, schliessen]);
-
-  /* Titel auf Höhe des Titels der Nachbarstation — siehe
-     useTitelHoehe. Ohne Referenz bleibt es beim mittigen Titel. */
-  const { wurzelRef, oben: kopfOben } = useTitelHoehe(!isVertical);
-
-  /* Hin und zurück verschieden lang — siehe theme.css. */
-  const takt = (eigenschaft: string, auf: boolean) =>
-    `${eigenschaft} var(--tellian-t5-panel-ms${auf ? "" : "-zu"})` +
-    " var(--tellian-t5-panel-ease)";
-
-  /* Nur der Titel, ohne Zusatzzeile rechts — damit steht der Kopf
-     wie in den Stationen 1 bis 3. */
   const kopf = (
     <h2
       style={{
         margin: 0,
-        fontFamily: cormorant,
+        fontFamily: serif,
         fontSize: "var(--tellian-t5-heading-size)",
-        fontWeight: "var(--tellian-t5-heading-weight)" as unknown as number,
+        fontWeight: 400,
         lineHeight: "var(--tellian-t5-heading-leading)" as unknown as number,
         letterSpacing: "var(--tellian-t5-heading-tracking)",
         color: C.ink,
@@ -199,39 +203,11 @@ export function Station5Team({
     >
       {TITEL[0]}
       <br />
-      <em style={{ fontStyle: "italic", fontWeight: "inherit" }}>
-        {TITEL[1]}
-      </em>
+      <em style={{ fontStyle: "italic", fontWeight: "inherit" }}>{TITEL[1]}</em>
     </h2>
   );
 
-  /* DER AUSSCHNITT WIRD OBEN VERANKERT
-
-     Wo der Kopf im Bild sitzt, steckt in der Bildaufbereitung: jede
-     Quelle ist auf 0.96 beschnitten, Scheitel auf 7 % der
-     Ausschnitthöhe, Kopfhöhe auf 31.5 % — siehe
-     scripts/optimize-images.mjs. Daran ändert sich hier nichts.
-
-     WARUM DER ANKER TROTZDEM NÖTIG IST
-     Die Kachel hat keine feste Form. Über die Fensterbreiten gemessen
-     schwankt sie zwischen 0.80 und 1.03 — damit liess sich ein
-     Ausschnittverhältnis knapp darunter wählen. Über die Fenster-
-     HÖHEN gemessen reicht sie aber bis 1.75: bei 1200x560 misst die
-     Kachel 205x117, bei 1506x700 258x174. Die Reihe teilt sich die
-     Breite in fünf, die Höhe kommt aus der Bühne — auf niedrigen
-     Fenstern wird die Kachel zum Querformat.
-
-     Gegen 1.75 hilft kein Ausschnittverhältnis mehr: ein 1.75-Kasten,
-     der einen Kopf von 31.5 % seiner Höhe enthält, wäre breiter als
-     die Quelle. Der Ausschnitt müsste auf Kopf und Schultern
-     zusammenschrumpfen — ein anderes Bild.
-
-     Mit dem Anker oben schneidet cover immer NUR UNTEN weg. Der
-     Scheitel steht damit auf jeder Fensterform, von 7 % der Kachel-
-     höhe bei 0.96 bis 13 % bei 1.75. Das ist die Rolle, die cover
-     haben soll: es entscheidet nicht, WELCHER Ausschnitt gezeigt
-     wird — das steht im Bild —, sondern nur, an welcher Kante es
-     kürzt, wenn der Behälter seine Form ändert. */
+  /* TODO-FOTOS: bisherige Platzhalter-Porträts. */
   const portraet = (person: Person) =>
     person.bild ? (
       <ResponsiveImage
@@ -246,9 +222,8 @@ export function Station5Team({
       <span
         aria-hidden
         style={{
-          fontFamily: cormorant,
+          fontFamily: serif,
           fontSize: "var(--tellian-t5-initial-size)",
-          fontWeight: 300,
           letterSpacing: "0.06em",
           color: "var(--tellian-t5-placeholder-ink)",
         }}
@@ -257,119 +232,154 @@ export function Station5Team({
       </span>
     );
 
-  const panelInhalt = (person: Person) => (
-    <>
-      <span
-        style={{
-          display: "block",
-          fontFamily: cormorant,
-          fontSize: "var(--tellian-t5-full-name-size)",
-          fontWeight: 300,
-          lineHeight: 1.1,
-          color: "var(--tellian-t5-panel-ink)",
-        }}
-      >
-        {person.name}
-      </span>
-      <span
-        style={{
-          display: "block",
-          marginTop: "3px",
-          fontFamily: sans,
-          fontSize: "var(--tellian-t5-role-size)",
-          lineHeight: "var(--tellian-t5-role-leading)",
-          color: "var(--tellian-t5-panel-dim)",
-        }}
-      >
-        {person.rolle}
-      </span>
-      <span
-        style={{
-          display: "block",
-          marginTop: "10px",
-          fontFamily: sans,
-          fontSize: "var(--tellian-t5-story-size)",
-          lineHeight: "var(--tellian-t5-story-leading)",
-          color: "var(--tellian-t5-panel-dim)",
-        }}
-      >
-        {person.story ?? STORY_PLATZHALTER}
-      </span>
-      <span
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          marginTop: "12px",
-          fontFamily: sans,
-          fontSize: "var(--tellian-t5-link-size)",
-        }}
-      >
-        <button
-          type="button"
-          onClick={onContactClick}
-          className="tellian-t5-verweis"
+  /* Eine Karte. Mit Text: die GANZE Karte ist der Knopf, darunter
+     steht «Mehr erfahren». Ohne Text: kein Bedienelement. */
+  const karte = (person: Person, breit: boolean) => {
+    const hatText = person.id in TEXTE;
+    const innen = (
+      <>
+        <span
+          className="tellian-t5-bild"
           style={{
-            background: "transparent", border: "none", padding: 0,
-            cursor: "pointer", fontFamily: sans,
-            fontSize: "var(--tellian-t5-link-size)",
-            color: "var(--tellian-t5-panel-ink)",
+            display: "flex",
+            width: "100%",
+            ...(breit
+              ? { flex: 1, minHeight: 0 }
+              : { aspectRatio: "var(--tellian-t5-tile-ratio)" }),
+            overflow: "hidden",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "var(--tellian-t5-placeholder-bg)",
           }}
         >
-          Nachricht
-        </button>
-        <span aria-hidden style={{ color: "var(--tellian-t5-panel-dim)" }}>·</span>
-        <a
-          href={LINKEDIN}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="tellian-t5-verweis"
-          style={{ color: "var(--tellian-t5-panel-ink)", textDecoration: "none" }}
+          {portraet(person)}
+        </span>
+        <span
+          style={{
+            display: "block",
+            marginTop: "var(--tellian-t5-label-gap)",
+            height: "var(--tellian-t5-label-row)",
+            overflow: "hidden",
+          }}
         >
-          LinkedIn
-        </a>
-      </span>
-    </>
-  );
+          <span
+            style={{
+              display: "block",
+              fontFamily: sans,
+              fontSize: "var(--tellian-t5-name-size)",
+              lineHeight: "var(--tellian-t5-name-leading)" as unknown as number,
+              color: C.ink,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {person.name}
+          </span>
+          <span
+            style={{
+              display: "block",
+              marginTop: "3px",
+              fontFamily: sans,
+              fontSize: "var(--tellian-t5-role-size)",
+              lineHeight: "var(--tellian-t5-role-leading)",
+              color: C.accent,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {person.rolle}
+          </span>
+          {hatText && (
+            <span
+              className="tellian-t5-mehr"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                marginTop: "7px",
+                fontFamily: sans,
+                fontSize: "12px",
+                letterSpacing: "0.06em",
+                color: C.ink,
+              }}
+            >
+              {UI[sprache].mehr} <span aria-hidden>→</span>
+            </span>
+          )}
+        </span>
+      </>
+    );
+
+    if (!hatText) {
+      return (
+        <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%" }}>
+          {innen}
+        </div>
+      );
+    }
+    return (
+      <button
+        type="button"
+        ref={(el) => {
+          kachelRefs.current[person.id] = el;
+        }}
+        onClick={() => oeffnen(person)}
+        aria-haspopup="dialog"
+        aria-label={`${person.name}, ${person.rolle} — ${UI[sprache].mehr}`}
+        className="tellian-t5-kachel"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          height: "100%",
+          textAlign: "left",
+          background: "transparent",
+          border: "none",
+          padding: 0,
+          cursor: "pointer",
+        }}
+      >
+        {innen}
+      </button>
+    );
+  };
 
   const stil = (
     <style>{`
-      .tellian-t5-kachel:focus-visible,
-      .tellian-t5-verweis:focus-visible {
+      .tellian-t5-kachel { outline: none; }
+      .tellian-t5-kachel:focus-visible {
         outline: 2px solid var(--tellian-t5-focus);
         outline-offset: 3px;
       }
-      /* <picture> ist von Haus aus inline und nimmt die Grösse des
-         Bildes an — der Kasten blieb dadurch bei schmalen Streifen
-         zur Hälfte leer. Erst display:block dehnt es. */
+      .tellian-t5-kachel:hover .tellian-t5-mehr { text-decoration: underline; text-underline-offset: 4px; }
       .tellian-t5-bild picture { display: block; width: 100%; height: 100%; }
       .tellian-t5-bild img { width: 100%; height: 100%; object-fit: cover; }
-      .tellian-t5-verweis {
-        text-underline-offset: 4px;
-        /* Trefferfläche, ohne die Schrift zu ändern. */
-        display: inline-flex;
-        align-items: center;
-        min-height: var(--tellian-tippziel);
-        padding: 12px 0;
-        margin: -12px 0;
-      }
-      .tellian-t5-verweis:hover { text-decoration: underline; }
-      @media (prefers-reduced-motion: reduce) {
-        .tellian-t5-streifen, .tellian-t5-panel, .tellian-t5-name,
-        .tellian-t5-kachel img { transition: none !important; }
-      }
     `}</style>
   );
 
-  /* ── SCHMAL ──
-     Kein Aufziehen: zwei Spalten, und die Story klappt unter der
-     REIHE auf, nicht am Seitenende. */
-  if (isVertical) {
-    const reihen: Person[][] = [];
-    for (let i = 0; i < PERSONEN.length; i += 2) reihen.push(PERSONEN.slice(i, i + 2));
+  const detail = offenPerson && (
+    <TeamDetail
+      offen
+      name={offenPerson.name}
+      rolle={offenPerson.rolle}
+      bild={offenPerson.bild}
+      absaetze={TEXTE[offenPerson.id][sprache]}
+      sprache={sprache}
+      isMobile={isVertical}
+      onClose={schliessen}
+      returnFocusRef={rueckkehrRef}
+    />
+  );
 
+  /* ── SCHMAL: zwei Spalten ── */
+  if (isVertical) {
     return (
-      <section id={domId} style={{ backgroundColor: C.bg }}>
+      <section
+        id={domId}
+        style={{ backgroundColor: C.bg, scrollMarginTop: "var(--tellian-kopf-height)" }}
+      >
         <div
           style={{
             paddingTop: "var(--tellian-abschnitt-luft-schmal)",
@@ -384,125 +394,34 @@ export function Station5Team({
               marginTop: "clamp(28px, 4vh, 44px)",
               display: "grid",
               gridTemplateColumns: "repeat(var(--tellian-t5-cols-schmal), minmax(0, 1fr))",
-              gap: "clamp(12px, 3vw, 20px)",
+              gap: "clamp(16px, 3.6vw, 24px)",
             }}
           >
-            {reihen.map((reihe, r) => {
-              const inReihe = aktiv !== null && Math.floor(aktiv / 2) === r ? aktiv : null;
-              return (
-                <div key={r} style={{ display: "contents" }}>
-                  {reihe.map((person, s) => {
-                    const i = r * 2 + s;
-                    const gewaehlt = aktiv === i;
-                    return (
-                      <button
-                        key={person.name}
-                        ref={(el) => { kachelRefs.current[i] = el; }}
-                        type="button"
-                        onClick={() => waehlen(i)}
-                        aria-expanded={gewaehlt}
-                        aria-label={`${person.name}, ${person.rolle}`}
-                        className="tellian-t5-kachel"
-                        style={{
-                          display: "block", width: "100%", textAlign: "left",
-                          background: "transparent", border: "none", padding: 0,
-                          cursor: "pointer",
-                          opacity: aktiv !== null && !gewaehlt ? "var(--tellian-t5-dim)" : 1,
-                          transition: "opacity 220ms ease",
-                        }}
-                      >
-                        <span
-                          className="tellian-t5-bild"
-                          style={{
-                            display: "flex", width: "100%",
-                            aspectRatio: "var(--tellian-t5-tile-ratio)",
-                            overflow: "hidden", alignItems: "center",
-                            justifyContent: "center",
-                            backgroundColor: "var(--tellian-t5-placeholder-bg)",
-                          }}
-                        >
-                          {portraet(person)}
-                        </span>
-                        <span
-                          style={{
-                            display: "block", marginTop: "8px",
-                            height: "var(--tellian-t5-label-height-schmal)",
-                            overflow: "hidden",
-                          }}
-                        >
-                          <span
-                            style={{
-                              display: "block", fontFamily: sans,
-                              fontSize: "var(--tellian-t5-name-size-schmal)",
-                              lineHeight: "var(--tellian-t5-name-leading)" as unknown as number,
-                              color: C.ink,
-                            }}
-                          >
-                            {person.name}
-                          </span>
-                          <span
-                            style={{
-                              display: "block", marginTop: "3px", fontFamily: sans,
-                              fontSize: "var(--tellian-t5-role-size)",
-                              lineHeight: "var(--tellian-t5-role-leading)",
-                              color: C.accent,
-                            }}
-                          >
-                            {person.rolle}
-                          </span>
-                        </span>
-                      </button>
-                    );
-                  })}
-
-                  <div
-                    style={{
-                      gridColumn: "1 / -1",
-                      display: "grid",
-                      gridTemplateRows: inReihe !== null ? "1fr" : "0fr",
-                      transition:
-                        "grid-template-rows var(--tellian-t5-panel-ms) var(--tellian-t5-panel-ease)",
-                    }}
-                  >
-                    <div style={{ overflow: "hidden", minHeight: 0 }}>
-                      <div
-                        style={{
-                          backgroundColor: "var(--tellian-t5-panel-bg)",
-                          padding: "clamp(16px, 4vw, 24px)",
-                        }}
-                      >
-                        {panelInhalt(PERSONEN[inReihe ?? r * 2])}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {PERSONEN.map((person) => (
+              <div key={person.id}>{karte(person, false)}</div>
+            ))}
           </div>
         </div>
+        {detail}
         {stil}
       </section>
     );
   }
 
-  /* ── BREIT ── */
+  /* ── BREIT: Titelspalte + zwei Reihen à fünf Kacheln ── */
+  const { wurzelRef, oben: kopfOben } = useTitelHoehe(!isVertical);
+
   return (
     <div
       ref={(el) => {
-        wurzelRef.current = el;
         panelRef?.(el);
+        (wurzelRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
       }}
       className="flex-shrink-0 h-screen relative"
-      style={{
-        width: "var(--tellian-t5-section-width)",
-        backgroundColor: C.bg,
-      }}
+      style={{ width: "var(--tellian-t5-section-width)", backgroundColor: C.bg }}
     >
       <div
-        onMouseLeave={verbergen}
         style={{
-          /* Nur die TEXTBÜHNE weicht den beiden Bändern aus.
-             Flächen und Bilder laufen darunter durch. */
           position: "absolute",
           top: "var(--tellian-kopf-height)",
           bottom: "var(--tellian-station-height)",
@@ -510,16 +429,15 @@ export function Station5Team({
           right: 0,
           display: "flex",
           alignItems: "stretch",
-          paddingLeft: "var(--tellian-titel-links)",
-          paddingRight: "clamp(24px, 2.8vw, 48px)",
+          paddingLeft:
+            "calc(var(--tellian-rail-width) + clamp(28px, 3.4vw, 56px))",
+          paddingRight: "clamp(28px, 3.4vw, 56px)",
           paddingTop: "var(--tellian-s1-stage-pad)",
           paddingBottom: "var(--tellian-s1-stage-pad)",
           boxSizing: "border-box",
         }}
       >
-        {/* ══ Titelspalte ══
-            Nur Platzhalter für die Breite; der Titel selbst hängt
-            absolut auf der gemessenen Höhe der Nachbarstation. */}
+        {/* ══ Titelspalte ══ */}
         <div
           style={{
             flex: "0 0 var(--tellian-t5-title-col)",
@@ -531,9 +449,6 @@ export function Station5Team({
             style={{
               position: "absolute",
               left: 0,
-              /* Der Kasten der Station beginnt hinter dem oberen
-                 Innenabstand — die gemessene Höhe zählt aber ab der
-                 Stationsoberkante. */
               ...(kopfOben === null
                 ? { top: "50%", transform: "translateY(-50%)" }
                 : { top: `calc(${kopfOben}px - var(--tellian-s1-stage-pad))` }),
@@ -544,9 +459,7 @@ export function Station5Team({
           </div>
         </div>
 
-        {/* ══ Kachelreihen ══
-            Feste Breite: die Kacheln teilen sie zu fünft und behalten
-            damit genau ihre bisherige Grösse. */}
+        {/* ══ Kachelreihen ══ */}
         <div
           style={{
             flex: "0 0 var(--tellian-t5-row-w)",
@@ -556,161 +469,38 @@ export function Station5Team({
             justifyContent: "center",
           }}
         >
-        {[0, 1].map((reihe) => (
-          <ul
-            key={reihe}
-            style={{
-              listStyle: "none",
-              margin:
-                reihe === 0
-                  ? "0"
-                  : "var(--tellian-t5-row-gap) 0 0",
-              padding: 0,
-              display: "flex",
-              gap: "var(--tellian-t5-gap)",
-              height:
-                "calc(var(--tellian-t5-row-h) + var(--tellian-t5-label-row)" +
-                " + var(--tellian-t5-label-gap))",
-            }}
-          >
-            {PERSONEN.slice(reihe * 5, reihe * 5 + 5).map((person, s) => {
-              const i = reihe * 5 + s;
-              const gewaehlt = aktiv === i;
-              const gedimmt = aktiv !== null && !gewaehlt;
-              return (
+          {[0, 1].map((reihe) => (
+            <ul
+              key={reihe}
+              style={{
+                listStyle: "none",
+                margin: reihe === 0 ? "0" : "var(--tellian-t5-row-gap) 0 0",
+                padding: 0,
+                display: "flex",
+                gap: "var(--tellian-t5-gap)",
+                height:
+                  "calc(var(--tellian-t5-row-h) + var(--tellian-t5-label-row)" +
+                  " + var(--tellian-t5-label-gap))",
+              }}
+            >
+              {PERSONEN.slice(reihe * 5, reihe * 5 + 5).map((person) => (
                 <li
-                  key={person.name}
-                  className="tellian-t5-streifen"
-                  onMouseEnter={() => zeigen(i)}
-                  onMouseLeave={verbergen}
+                  key={person.id}
                   style={{
-                    /* Der offene Streifen wächst, die übrigen weichen.
-                       Über flex-grow statt über Breite: so bleibt die
-                       Summe exakt die Reihenbreite, ohne Rundungsreste. */
-                    flexGrow: gewaehlt
-                      ? ("var(--tellian-t5-grow)" as unknown as number)
-                      : 1,
-                    flexBasis: 0,
+                    flex: "1 1 0",
                     minWidth: 0,
                     display: "flex",
                     flexDirection: "column",
-                    transition: takt("flex-grow", gewaehlt),
                   }}
                 >
-                  <div
-                    style={{
-                      position: "relative",
-                      flex: 1,
-                      minHeight: 0,
-                      overflow: "hidden",
-                      backgroundColor: "var(--tellian-t5-placeholder-bg)",
-                      opacity: gedimmt ? "var(--tellian-t5-dim)" : 1,
-                      transition: "opacity 260ms ease",
-                    }}
-                  >
-                    <span
-                      aria-hidden
-                      className="tellian-t5-bild"
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        bottom: 0,
-                        left: 0,
-                        /* Beim Öffnen zieht sich das Bild auf die
-                           linke Hälfte zurück, statt unter dem Panel
-                           zu verschwinden — so bleibt die Person
-                           während des Lesens ganz zu sehen. */
-                        right: gewaehlt ? "var(--tellian-t5-panel-share)" : 0,
-                        overflow: "hidden",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        transition: takt("right", gewaehlt),
-                      }}
-                    >
-                      {portraet(person)}
-                    </span>
-
-                    <button
-                      ref={(el) => {
-                        kachelRefs.current[i] = el;
-                      }}
-                      type="button"
-                      onClick={() => waehlen(i)}
-                      onFocus={() => {
-                        stoppen();
-                        setSchwebt(i);
-                      }}
-                      onBlur={verbergen}
-                      aria-expanded={gewaehlt}
-                      aria-label={`${person.name}, ${person.rolle}`}
-                      className="tellian-t5-kachel"
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        width: "100%",
-                        height: "100%",
-                        background: "transparent",
-                        border: "none",
-                        padding: 0,
-                        cursor: "pointer",
-                      }}
-                    />
-
-                    <div
-                      className="tellian-t5-panel"
-                      aria-hidden={!gewaehlt}
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        bottom: 0,
-                        right: 0,
-                        width: "var(--tellian-t5-panel-share)",
-                        backgroundColor: "var(--tellian-t5-panel-bg)",
-                        padding: "var(--tellian-t5-panel-pad)",
-                        boxSizing: "border-box",
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        transform: gewaehlt ? "translateX(0)" : "translateX(101%)",
-                        visibility: gewaehlt ? "visible" : "hidden",
-                        transition:
-                          takt("transform", gewaehlt) +
-                          `, visibility var(--tellian-t5-panel-ms${gewaehlt ? "" : "-zu"})`,
-                      }}
-                    >
-                      {panelInhalt(person)}
-                    </div>
-                  </div>
-
-                  {/* Vollständiger Name — um die Personen geht es hier.
-                      Feste Höhe für zwei Zeilen: "Bryan Anthony
-                      Honegger" bricht auf schmalen Kacheln um, und
-                      ohne feste Höhe stünde die zweite Reihe versetzt. */}
-                  <span
-                    className="tellian-t5-name"
-                    style={{
-                      display: "block",
-                      height: "var(--tellian-t5-label-row)",
-                      marginTop: "var(--tellian-t5-label-gap)",
-                      fontFamily: sans,
-                      fontSize: "var(--tellian-t5-name-size)",
-                      lineHeight: "var(--tellian-t5-name-leading)",
-                      color: gewaehlt ? C.ink : C.accent,
-                      opacity: gedimmt ? 0.5 : 1,
-                      overflow: "hidden",
-                      transition: "color 220ms ease, opacity 220ms ease",
-                    }}
-                  >
-                    {person.name}
-                  </span>
+                  {karte(person, true)}
                 </li>
-              );
-            })}
-          </ul>
-        ))}
+              ))}
+            </ul>
+          ))}
         </div>
       </div>
+      {detail}
       {stil}
     </div>
   );

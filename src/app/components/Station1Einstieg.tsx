@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { C, cormorant, sans } from "../tokens";
+import { C, sans, serif } from "../tokens";
 import { SECTION_WIDTH } from "../sections";
 import { useSectionEntered } from "./SectionEntry";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
@@ -24,16 +24,48 @@ import type { ImageId } from "../../assets/generated";
    kein Layoutsprung, kein Loch.
    ═══════════════════════════════════════════════════════════ */
 
-const TITLE_LINES = ["Weiterdenken", "aus Erfahrung."] as const;
+/* ── INHALTE, WÖRTLICH AUS DEM REDESIGN-BRIEFING ──
+   Es gibt kein zentrales i18n-System: der DE/EN-Schalter in der
+   Kopfzeile ist ein useState in App.tsx, den bisher kein Inhalt las.
+   Diese Struktur hängt Station 1 an genau diesen Schalter. Wächst
+   die Mehrsprachigkeit über den Hero hinaus, gehört sie in ein
+   eigenes Modul — nicht in jede Station einzeln. */
+interface HeroInhalt {
+  /** Zwei Zeilen; die zweite steht kursiv, wie im bisherigen Satz. */
+  titel: readonly [string, string];
+  lead: readonly string[];
+}
 
-const LEAD = [
-  "Tellian Capital verwaltet Vermögen für Privatpersonen, Unternehmerfamilien und Stiftungen. Seit 1996, unabhängig und FINMA-lizenziert, von Zürich aus.",
-  "Was wir kaufen oder verkaufen, ergibt sich aus Daten und Modellen — nicht aus der Stimmung an den Märkten und nicht aus der Schlagzeile der Woche.",
-] as const;
+const INHALT: Readonly<Record<"DE" | "EN" | "FR", HeroInhalt>> = {
+  DE: {
+    titel: ["Weiterdenken", "mit Erfahrung"],
+    lead: [
+      "Tellian Capital AG begleitet Privatpersonen, Unternehmerfamilien und Stiftungen bei der langfristigen Entwicklung ihres Vermögens. Wir sind seit 1996 in Zürich verwurzelt, unabhängig und FINMA-lizenziert.",
+      "Wir verbinden 30 Jahre fundierte Markterfahrung mit einer zukunftsorientierten Ausrichtung. Wir stehen für eine moderne und transparente Vermögensverwaltung, die Tradition und neue Impulse nahtlos miteinander vereint.",
+    ],
+  },
+  EN: {
+    titel: ["Looking Ahead.", "Built on Experience."],
+    lead: [
+      "Tellian Capital AG provides independent wealth management for private clients, entrepreneurial families and foundations. With deep roots in Zurich since 1996, we are an independent, FINMA-licensed asset manager.",
+      "With 30 years of investment experience, we support our clients in preserving, developing and successfully positioning their wealth for the long term. Our approach combines proven investment principles with a forward-looking perspective on markets and opportunities. Personal service, transparency and sound decision-making are at the heart of everything we do.",
+    ],
+  },
+  /* TODO-FR: Übersetzung folgt — bis dahin steht der DE-Text als
+     Platzhalter, damit die Struktur den dritten Schlüssel schon
+     trägt und beim Nachliefern nur Text getauscht wird. */
+  FR: {
+    titel: ["Weiterdenken", "mit Erfahrung"],
+    lead: [
+      "Tellian Capital AG begleitet Privatpersonen, Unternehmerfamilien und Stiftungen bei der langfristigen Entwicklung ihres Vermögens. Wir sind seit 1996 in Zürich verwurzelt, unabhängig und FINMA-lizenziert.",
+      "Wir verbinden 30 Jahre fundierte Markterfahrung mit einer zukunftsorientierten Ausrichtung. Wir stehen für eine moderne und transparente Vermögensverwaltung, die Tradition und neue Impulse nahtlos miteinander vereint.",
+    ],
+  },
+};
 
 /* Staffelung des Eintritts. Zusammen unter 650ms, damit die Station
    steht, bevor jemand weiterscrollt. */
-const STEP = { title: 0, lead: 260, cta: 380, panel: 120 } as const;
+const STEP = { title: 0, lead: 260, panel: 120 } as const;
 const DURATION = 460;
 
 interface Props {
@@ -43,7 +75,8 @@ interface Props {
   /** Schmal: erst wenn der Ladebildschirm weg ist, läuft der
    *  Eintritt — sonst spielt er dahinter und ist vorbei. */
   bereit?: boolean;
-  onContactClick?: () => void;
+  /** Sprache aus dem Schalter der Kopfzeile. */
+  sprache?: "DE" | "EN";
   /**
    * Motiv für das Bildpanel. Fehlt es, bleibt die reservierte Fläche
    * stehen — die Station bleibt vollständig.
@@ -63,7 +96,7 @@ export function Station1Einstieg({
   panelRef,
   isVertical = false,
   bereit = true,
-  onContactClick,
+  sprache = "DE",
   imageId,
   imageAlt = "",
   bandImageId,
@@ -114,11 +147,15 @@ export function Station1Einstieg({
      anderem Titel, anderem Text, anderem Bild und anderer Schrift —
      das war kein Umbruch, sondern eine zweite Seite. */
 
+  const inhalt = INHALT[sprache];
+
   const titel = (
     <h1
       style={{
         margin: 0,
-        fontFamily: cormorant,
+        /* Lustria — Titelschrift der Marke. Die übrigen Stationen
+           bleiben bis zu ihrem Redesign bei Cormorant. */
+        fontFamily: serif,
         fontSize: "var(--tellian-s1-title-size)",
         fontWeight: "var(--tellian-s1-title-weight)" as unknown as number,
         lineHeight: "var(--tellian-s1-title-leading)" as unknown as number,
@@ -127,10 +164,10 @@ export function Station1Einstieg({
         ...enter(STEP.title, 24),
       }}
     >
-      {TITLE_LINES[0]}
+      {inhalt.titel[0]}
       <br />
       <em style={{ fontStyle: "italic", fontWeight: "inherit" }}>
-        {TITLE_LINES[1]}
+        {inhalt.titel[1]}
       </em>
     </h1>
   );
@@ -146,9 +183,9 @@ export function Station1Einstieg({
   const flieSStext = (schmal: boolean) => (
     <div
       style={{
-        /* Summe der beiden alten Abstände: dazwischen stand
-           die Haarlinie, der Rhythmus bleibt derselbe. */
-        marginTop: "calc(clamp(24px, 3.4vh, 44px) + clamp(20px, 2.8vh, 36px))",
+        /* Einfacher Abstand — die Haarlinie, deren Platz der doppelte
+           Wert freihielt, ist seit dem Redesign weg. */
+        marginTop: "clamp(24px, 3.4vh, 44px)",
         /* Schrift MUSS hier gesetzt sein: `ch` löst gegen die Schrift
            des Elements auf, an dem es steht. Ohne das rechnet der
            Container mit der geerbten Schrift und das Zeilenmass fällt
@@ -164,7 +201,7 @@ export function Station1Einstieg({
         ...enter(STEP.lead),
       }}
     >
-      {LEAD.map((text, i) => (
+      {inhalt.lead.map((text, i) => (
         <p
           key={i}
           style={{
@@ -173,12 +210,15 @@ export function Station1Einstieg({
             fontSize: "var(--tellian-s1-lead-size)",
             lineHeight: "var(--tellian-s1-lead-leading)" as unknown as number,
             color: C.accent,
-            /* Breit deckelt der Absatz sein Zeilenmass selbst, weil
-               die Spalte breiter werden kann als das Mass. Schmal
-               erzwingt es das Raster ohnehin — dort würde der Deckel
-               den Absatz nur schmaler stehen lassen als Haarlinie
-               und Knopf, und die drei liefen auseinander. */
-            maxWidth: schmal ? undefined : "var(--tellian-s1-lead-measure)",
+            /* KEIN eigener Deckel je Absatz mehr. Er stammte aus der
+               Zeit, in der die Rasterspalte breiter werden konnte als
+               das Zeilenmass. Heute deckelt das Raster selbst
+               (maxWidth = 2×Mass+Gap); einspaltig — unter rund 1430px
+               Fensterbreite — ist die Spalte 470 bis 590px breit,
+               also 63 bis 79 Zeichen. Der alte Deckel halbierte sie
+               dort auf 18em, der Text stapelte sich hoch und lief
+               oben in die Kopfzeile und unten in die Stationsleiste
+               (gemessen −28 bis −31px bei 1024 und 1280, EN). */
           }}
         >
           {text}
@@ -187,59 +227,11 @@ export function Station1Einstieg({
     </div>
   );
 
-  /* Knopf — erster Fokus der Station */
-  const knopf = (voll: boolean) => (
-    <div
-      style={{
-        marginTop: "clamp(28px, 4vh, 52px)",
-        /* Bündig mit Haarlinie und Standfirst — gleiche Schriftbasis
-           für das `em`, gleicher Deckel. */
-        ...(voll
-          ? {
-              fontSize: "var(--tellian-s1-lead-size)",
-              maxWidth:
-                "calc(var(--tellian-s1-lead-measure) * 2 + var(--tellian-s1-lead-gap))",
-            }
-          : null),
-        ...enter(STEP.cta, 14),
-      }}
-    >
-      <button
-        onClick={onContactClick}
-        style={{
-          /* Schmal über die volle Spaltenbreite — so hält es CtaButton
-             auf Telefon und Tablet auch. Ein kleiner, links hängender
-             Knopf lässt die Spalte darunter auslaufen. */
-          width: voll ? "100%" : undefined,
-          fontFamily: sans,
-          fontSize: "13px",
-          letterSpacing: "0.08em",
-          /* Mushroom gefüllt wie der Knopf in Station 6 und in
-             CtaButton — die Schrift bleibt dunkel, weil Mushroom auf
-             Archive White nur 1.9:1 trägt und als Schriftfarbe
-             unlesbar wäre. Gefüllt sind es 8.6:1. */
-          color: C.dark,
-          backgroundColor: C.button,
-          border: `1px solid ${C.button}`,
-          borderRadius: "2px",
-          padding: "13px 26px",
-          cursor: "pointer",
-          outline: "none",
-          transition: "background-color 220ms ease, border-color 220ms ease",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = C.buttonHover;
-          e.currentTarget.style.borderColor = C.buttonHover;
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = C.button;
-          e.currentTarget.style.borderColor = C.button;
-        }}
-      >
-        Gespräch vereinbaren
-      </button>
-    </div>
-  );
+  /* DER KNOPF IST WEG — REDESIGN.
+     "Gespräch vereinbaren" entfällt auf Station 1 ersatzlos; der Weg
+     zum Kontakt läuft über die Stationsleiste und Station 6. Der
+     Text existiert weiter in CtaButton und auf den Unterseiten —
+     dort ist er nicht Teil dieses Auftrags. */
 
   /* ══ Bildpanel — exakt 3:2 ══
      Das Panel wird NICHT im Browser beschnitten; der Ausschnitt kommt
@@ -247,7 +239,10 @@ export function Station1Einstieg({
      Motiv da ist, und bleibt stehen, wenn es fehlt. */
   const bildpanel = (breit: boolean) => {
     const motiv = breit ? imageId : (bandImageId ?? imageId);
-    const verhaeltnis = breit || !bandImageId ? "3 / 2" : "9 / 5";
+    /* Aus dem Token, nicht doppelt gepflegt — hier stand "3 / 2"
+       fest, während theme.css schon einen eigenen Wert führte. */
+    const verhaeltnis =
+      breit || !bandImageId ? "var(--tellian-s1-panel-ratio)" : "9 / 5";
     return (
       <div
         style={{
@@ -263,9 +258,9 @@ export function Station1Einstieg({
           <ResponsiveImage
             id={motiv}
             alt={imageAlt}
-            /* Breit misst das Panel rund ein Drittel der
-               Stationsbreite, schmal die volle Fensterbreite. */
-            sizes={breit ? "32vw" : "100vw"}
+            /* Breit misst das Panel gemessen 33 bis 35 % der
+               Fensterbreite, schmal die volle. */
+            sizes={breit ? "34vw" : "100vw"}
             priority
             className="w-full h-full"
             style={{ display: "block" }}
@@ -305,7 +300,6 @@ export function Station1Einstieg({
         >
           {titel}
           {flieSStext(true)}
-          {knopf(true)}
         </div>
       </section>
     );
@@ -343,7 +337,6 @@ export function Station1Einstieg({
         <div style={{ flex: "1 1 0", minWidth: 0 }}>
           {titel}
           {flieSStext(false)}
-          {knopf(false)}
         </div>
 
         {/* Die Panelbreite ist gedeckelt: rund ein Drittel der

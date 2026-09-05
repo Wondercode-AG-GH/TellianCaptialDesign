@@ -13,6 +13,7 @@ import { SECTION_WIDTH_LAST } from "../sections";
 import { MapOverlay } from "./Section6Kontakt";
 import { kontaktSenden, ZIEL_KONFIGURIERT } from "../kontaktZiel";
 import type { LegalPath } from "./LegalOverlay";
+import inBugWeiss from "../../assets/logo/InBug-White.png";
 
 /* ═══════════════════════════════════════════════════════════
    STATION 6 — KONTAKT
@@ -58,12 +59,32 @@ interface FussVerweis {
   text: string;
   href?: string;
   legal?: LegalPath;
+  /** Führt aus der Seite hinaus — neues Fenster, entkoppelt. */
+  extern?: boolean;
+  /** Markenzeichen vor dem Wort. Bisher nur LinkedIn. */
+  marke?: string;
+  /** Ersetzt den Namen für Screenreader, wenn "LinkedIn" allein zu
+      wenig sagt. */
+  vorlesen?: string;
 }
 
-/* Die FAQ wird nur verlinkt, nicht ausgeklappt. */
+/* Die FAQ wird nur verlinkt, nicht ausgeklappt.
+
+   LINKEDIN STAND HIER BISHER NICHT
+   Im mobilen Menü lag es längst, im Fussband auf Desktop nirgends —
+   dieselbe Firma, zwei verschiedene Antworten. Es steht jetzt bei
+   Solutions: beide führen aus der Seite hinaus, die drei danach sind
+   rechtliche Seiten. */
 const FUSS_RECHTS: readonly FussVerweis[] = [
   { text: "FAQ", href: "/faq" },
-  { text: "Solutions", href: "https://solutions.telliancapital.ch" },
+  { text: "Solutions", href: "https://solutions.telliancapital.ch", extern: true },
+  {
+    text: "LinkedIn",
+    href: "https://www.linkedin.com/company/tellian-capital",
+    extern: true,
+    marke: inBugWeiss,
+    vorlesen: "Tellian Capital auf LinkedIn",
+  },
   { text: "Datenschutz", legal: "/datenschutz" },
   { text: "Kundeninformation", legal: "/kundeninformation" },
   { text: "Impressum", legal: "/impressum" },
@@ -990,6 +1011,8 @@ export function Station6Kontakt({
             ) : (
               <a
                 href={v.href}
+                {...(v.extern ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                aria-label={v.vorlesen}
                 className="tellian-k6-still"
                 style={{
                   fontFamily: sans,
@@ -998,8 +1021,24 @@ export function Station6Kontakt({
                   textTransform: "uppercase",
                   color: "var(--tellian-k6-foot-color)",
                   textDecoration: "none",
+                  gap: v.marke ? "var(--tellian-k6-marke-gap)" : undefined,
                 }}
               >
+                {v.marke && (
+                  /* Das Wort steht daneben — das Zeichen würde sonst
+                     doppelt vorgelesen. */
+                  <img
+                    src={v.marke}
+                    alt=""
+                    aria-hidden
+                    style={{
+                      height: "var(--tellian-k6-marke-size)",
+                      width: "auto",
+                      display: "block",
+                      flexShrink: 0,
+                    }}
+                  />
+                )}
                 {v.text}
               </a>
             )}

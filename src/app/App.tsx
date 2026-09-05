@@ -5,6 +5,7 @@ import { useSubpageMode } from "./components/useSubpageMode";
 import { SubpageOverlay } from "./components/SubpageOverlay";
 import { UnterseiteAnlageprozess } from "./components/UnterseiteAnlageprozess";
 import { UnterseiteAdvisory } from "./components/UnterseiteAdvisory";
+import { UnterseiteMandat } from "./components/UnterseiteMandat";
 import logoHorizontal from "../assets/logo/Tellian__Imperial purple logo.svg";
 import { AnlagestrategienDetail } from "./components/AnlagestrategienDetail";
 import { PortfolioManagementDetail } from "./components/PortfolioManagementDetail";
@@ -45,7 +46,10 @@ import { useVerticalSectionIndex } from "./components/useVerticalSectionIndex";
    deckungsgleich (Leinwand 3034x1902, Motiv 2354px breit, Versatz
    320,607) —, nur die gelieferte Farbfassung ist eine andere.
    Eingefaerbt wird nichts. */
-import preloadLogo from "../assets/logo/Tellian__Silver Mist logo.svg";
+/* Vertikales Lockup (Monogramm oben, Wortzug darunter), Silver Mist
+   auf Imperial Purple. Leinwand auf das Motiv beschnitten, Inhalt
+   unverändert — siehe Kommentar in der Datei. */
+import preloadLogo from "../assets/logo/tellian-logo-vertikal-hell.svg";
 
 /* Tokens: C, serif, sans from ./tokens.ts; EASE from ../styles/motion.ts */
 
@@ -78,8 +82,13 @@ function PreloadScreen({ onComplete }: { onComplete: () => void }) {
         src={preloadLogo}
         alt="Tellian Capital"
         style={{
-          width: "clamp(560px, 80vw, 920px)",
-          height: "auto",
+          /* Hochformat (0.710): bemessen wird die HÖHE, nicht die
+             Breite — die alte Breitenregel galt dem horizontalen
+             Logo und ergäbe hier ein bildschirmfüllendes Monogramm.
+             Der Breitendeckel greift nur auf sehr schmalen Fenstern. */
+          height: "clamp(220px, 38vh, 380px)",
+          width: "auto",
+          maxWidth: "72vw",
           opacity: textVisible ? 1 : 0,
           transition: textVisible ? "opacity 0.6s ease-out" : "none",
           userSelect: "none",
@@ -1135,10 +1144,11 @@ export default function App() {
   const vvw = useSubpageMode("/vermoegensverwaltung");
   /* Advisory hängt an derselben Station wie Mandat — Station 3. */
   const adv = useSubpageMode("/advisory");
+  const man = useSubpageMode("/mandat");
   const ast = useSubpageMode("/anlagestrategien");
   const pm  = useSubpageMode("/portfolio-management");
   /* Detail mode is active when any subpage is open */
-  const isDetailMode = vvw.isDetail || ast.isDetail || pm.isDetail || adv.isDetail;
+  const isDetailMode = vvw.isDetail || ast.isDetail || pm.isDetail || adv.isDetail || man.isDetail;
 
   /* ── Horizontaler Scroll mit Sektions-Rastung (nur Desktop) ──
         `locked` sperrt Eingaben, solange ein Overlay offen ist oder das
@@ -1148,10 +1158,12 @@ export default function App() {
      selbst und dürfen nicht auf uns selbst zurückwirken. */
   const [initialSectionIndex] = useState(readInitialSectionIndex);
 
+  /* Personen-Detail der Teamstation: sperrt die Tastatur des Tracks. */
+  const [teamDetailOffen, setTeamDetailOffen] = useState(false);
   const { containerRef, panelRef: panelRefRoh, jumpToIndex, scrollDirection, activeIndex: horizontalIndex, visibleRange, debugRef } =
     useHorizontalScroll({
       disabled: isVertical,
-      locked: isDetailMode || !introComplete,
+      locked: isDetailMode || teamDetailOffen || !introComplete,
       initialIndex: initialSectionIndex,
     });
 
@@ -1319,9 +1331,11 @@ export default function App() {
       vvw.closeDetail();
       ast.closeDetail();
       pm.closeDetail();
+      adv.closeDetail();
+      man.closeDetail();
     }
     navigateToSection(SECTIONS.length - 1);
-  }, [isDetailMode, vvw, ast, pm, navigateToSection]);
+  }, [isDetailMode, vvw, ast, pm, adv, man, navigateToSection]);
 
   /* ═══════════════════════════════════════════════════════
      VERTICAL LAYOUT (Tablet + Mobile)
@@ -1366,28 +1380,40 @@ export default function App() {
         <Station1Einstieg
           isVertical
           bereit={introComplete}
-          imageId="opernhaus"
-          imageAlt="Opernhaus Zürich, Fassadenausschnitt"
-          onContactClick={navigateToContact}
+          sprache={sprache}
+          imageId="hero-tellian"
+          imageAlt="Opernhaus Zürich zur blauen Stunde"
         />
 
-        {/* ── WEALTH MANAGEMENT ── */}
-        <Station2WealthManagement isVertical onCtaClick={vvw.openDetail} />
-
-        {/* ── PORTFOLIO MANAGEMENT ── */}
+        {/* ── VERMÖGENSVERWALTUNG (dunkel) ──
+            KORREKTUR: mit Wealth Management getauscht. */}
         <StationPortfolioManagement
           isVertical
           domId="section-vermoegensverwaltung"
-          onMandat={ast.openDetail}
+          sprache={sprache}
+          onMandat={man.openDetail}
           onAdvisory={adv.openDetail}
         />
+
+        {/* ── WEALTH MANAGEMENT (hell, Überarbeitung folgt) ── */}
+        <Station2WealthManagement isVertical sprache={sprache} />
         <SubpageOverlay
           isOpen={adv.isDetail}
           onClose={adv.closeDetail}
           eyebrow=""
           headline={null}
         >
-          <UnterseiteAdvisory isMobile aktiv={adv.isDetail} onContactClick={navigateToContact} />
+          <UnterseiteAdvisory isMobile aktiv={adv.isDetail} sprache={sprache} onContactClick={navigateToContact} />
+        </SubpageOverlay>
+        {/* Unterseite /mandat — löst den Platzhalter ab, der auf die
+            Anlagestrategien-Seite zeigte. */}
+        <SubpageOverlay
+          isOpen={man.isDetail}
+          onClose={man.closeDetail}
+          eyebrow=""
+          headline={null}
+        >
+          <UnterseiteMandat isMobile aktiv={man.isDetail} sprache={sprache} onContactClick={navigateToContact} />
         </SubpageOverlay>
         {/* Unterseite /vermoegensverwaltung, schmale Fassung. */}
         <Section3Vermoegensverwaltung
@@ -1404,7 +1430,7 @@ export default function App() {
         <Station4Rad
           isVertical
           domId="section-anlagestrategien"
-          istAktiv={SECTIONS[activeIndex]?.key === "strategien"}
+          sprache={sprache}
         />
         {/* Unterseite /anlagestrategien, schmale Fassung. */}
         <Section4Anlagestrategien
@@ -1423,7 +1449,8 @@ export default function App() {
         <Station5Team
           isVertical
           domId="section-ueber-uns"
-          onContactClick={navigateToContact}
+          sprache={sprache}
+          onDetailToggle={setTeamDetailOffen}
         />
 
         {/* ── KONTAKT (mobile/tablet — 5-field form, MapOverlay trigger) ── */}
@@ -1495,37 +1522,46 @@ export default function App() {
         <SectionEnteredProvider value={entered[0]}>
           <Station1Einstieg
             panelRef={panelRef(0)}
-            onContactClick={navigateToContact}
-            imageId="opernhaus"
-            imageAlt="Opernhaus Zürich, Fassadenausschnitt"
+            sprache={sprache}
+            imageId="hero-tellian"
+            imageAlt="Opernhaus Zürich zur blauen Stunde"
           />
         </SectionEnteredProvider>
 
-        {/* CHAPTER 2 — WEALTH MANAGEMENT */}
+        {/* CHAPTER 2 — VERMÖGENSVERWALTUNG (dunkel)
+            KORREKTUR: mit Wealth Management getauscht; die
+            Unterseiten-Overlays wandern mit ihrer Station. */}
         <SectionEnteredProvider value={entered[1]}>
-          <Station2WealthManagement
-            panelRef={panelRef(1)}
-            onCtaClick={vvw.openDetail}
-          />
-        </SectionEnteredProvider>
-
-        {/* CHAPTER 3 — PORTFOLIO MANAGEMENT */}
-        <SectionEnteredProvider value={entered[2]}>
           <StationPortfolioManagement
-            panelRef={panelRef(2)}
-            onMandat={ast.openDetail}
+            panelRef={panelRef(1)}
+            sprache={sprache}
+            onMandat={man.openDetail}
             onAdvisory={adv.openDetail}
           />
-          {/* Unterseite /advisory — dieselbe Hülle wie schmal, damit
-              Kopfzeile, Rückweg und Verhalten überall gleich sind. */}
           <SubpageOverlay
             isOpen={adv.isDetail}
             onClose={adv.closeDetail}
             eyebrow=""
             headline={null}
           >
-            <UnterseiteAdvisory aktiv={adv.isDetail} onContactClick={navigateToContact} />
+            <UnterseiteAdvisory aktiv={adv.isDetail} sprache={sprache} onContactClick={navigateToContact} />
           </SubpageOverlay>
+          <SubpageOverlay
+            isOpen={man.isDetail}
+            onClose={man.closeDetail}
+            eyebrow=""
+            headline={null}
+          >
+            <UnterseiteMandat aktiv={man.isDetail} sprache={sprache} onContactClick={navigateToContact} />
+          </SubpageOverlay>
+        </SectionEnteredProvider>
+
+        {/* CHAPTER 3 — WEALTH MANAGEMENT (hell, Überarbeitung folgt) */}
+        <SectionEnteredProvider value={entered[2]}>
+          <Station2WealthManagement
+            panelRef={panelRef(2)}
+            sprache={sprache}
+          />
           {/* Die Station ist ersetzt; die Unterseite /vermoegensverwaltung
               liegt weiterhin in diesem Bauteil und wird von Station 2 aus
               verlinkt. Sie bleibt deshalb eingehängt — ohne Station. */}
@@ -1543,7 +1579,7 @@ export default function App() {
         <SectionEnteredProvider value={entered[3]}>
           <Station4Rad
             panelRef={panelRef(3)}
-            istAktiv={SECTIONS[activeIndex]?.key === "strategien"}
+            sprache={sprache}
           />
           {/* Die Station ist ersetzt; die Unterseite /anlagestrategien
               liegt weiterhin in diesem Bauteil und wird von der
@@ -1562,7 +1598,7 @@ export default function App() {
 
         {/* CHAPTER 5 — TEAM */}
         <SectionEnteredProvider value={entered[4]}>
-          <Station5Team onContactClick={navigateToContact} panelRef={panelRef(4)} />
+          <Station5Team panelRef={panelRef(4)} sprache={sprache} onDetailToggle={setTeamDetailOffen} />
         </SectionEnteredProvider>
 
         {/* CHAPTER 6 — KONTAKT (map rendered via overlay, no layout impact) */}

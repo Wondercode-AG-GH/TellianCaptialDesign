@@ -59,17 +59,27 @@ export const SECTIONS: readonly SectionDef[] = [
   {
     key: "hero", label: "Einstieg", labelKurz: "Einstieg", dunkel: false,
     domId: "section-hero",
-    imageIds: ["hero-zuerich"],
+    imageIds: ["hero-tellian"],
   },
   {
-    key: "philosophie", label: "Wealth Management", labelKurz: "Wealth", dunkel: true,
-    domId: "section-anlagephilosophie",
-    imageIds: ["sardona"],
-  },
-  {
-    key: "vermoegen", label: "Portfolio", labelKurz: "Portfolio", dunkel: false,
+    /* Redesign: «Portfolio Management» entfällt als Bezeichnung. Die
+       Leiste ist einsprachig — sie zeigt DE; ein EN-Umschalten der
+       Stationsnamen wäre ein Eingriff in die Navigation und liegt
+       ausserhalb des Auftrags.
+
+       KORREKTUR: Die Station steht jetzt an Position 02 und trägt die
+       DUNKLE Fläche — der Tausch mit Wealth Management hält das
+       alternierende Hell/Dunkel-Schema (01 hell … 06 dunkel). */
+    key: "vermoegen", label: "Vermögensverwaltung", labelKurz: "Vermögen", dunkel: true,
     domId: "section-vermoegensverwaltung",
     imageIds: [],
+  },
+  {
+    /* KORREKTUR: an Position 03 getauscht, jetzt HELLE Fläche.
+       Inhaltlich unverändert; die Überarbeitung folgt separat. */
+    key: "philosophie", label: "Wealth Management", labelKurz: "Wealth", dunkel: false,
+    domId: "section-anlagephilosophie",
+    imageIds: ["sardona"],
   },
   {
     key: "strategien", label: "Ihre Vorteile", labelKurz: "Vorteile", dunkel: true,
@@ -148,6 +158,7 @@ export const NEBEN_VERWEISE: readonly NebenVerweis[] = [
 export const SUBPAGE_SECTION_KEY: Readonly<Record<string, string>> = {
   "/vermoegensverwaltung": "vermoegen",
   "/advisory": "vermoegen",
+  "/mandat": "vermoegen",
   "/anlagestrategien": "strategien",
   "/portfolio-management": "strategien",
 };
