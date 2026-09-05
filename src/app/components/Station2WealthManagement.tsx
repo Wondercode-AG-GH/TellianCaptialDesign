@@ -218,11 +218,12 @@ export function Station2WealthManagement({
           <div
             style={{
               width: "100%",
-              /* P1.6: Zielhöhe 70–80 % der Stationshöhe. 0.91 =
-                 0.8 × (640/560): der Breitendeckel entspricht damit
-                 80 % Bühnenhöhe; meist begrenzt vorher die Zone. */
+              /* P1.6: Zielhöhe 70–80 % der Stationshöhe; P2.2:
+                 0.87 (≈ 0.76 × 640/560) statt 0.91, damit unter der
+                 fest reservierten Lesezone bei jeder Fenstergrösse
+                 min. 48px Luft zur Stationsleiste bleiben. */
               maxWidth:
-                "min(100%, calc((100vh - var(--tellian-kopf-height) - var(--tellian-station-height)) * 0.91))",
+                "min(100%, calc((100vh - var(--tellian-kopf-height) - var(--tellian-station-height)) * 0.87))",
             }}
           >
             <DreiecksBeziehung sprache={sprache} onMandat={onMandat} />

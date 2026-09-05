@@ -39,10 +39,13 @@ interface Inhalt {
   bank: string;
   /** Sie↔Tellian · Sie↔Depotbank · Tellian↔Depotbank */
   kanten: readonly [string, string, string];
-  /** Erklärtexte. Die Depotbank trägt KEINEN Text mehr: die Zeile
-      «Ihr Vermögen liegt bei ausgewählten Kooperationsbanken …»
-      stammte nicht aus dem Quelldokument und ist ersatzlos
-      gelöscht (Review 05.09, P1.1). */
+  /** Erklärtexte. TODO-HOVER-DEPOTBANK: die Depotbank trägt KEINEN
+      Text — der einzige Text der Git-History («Ihr Vermögen liegt
+      bei ausgewählten Kooperationsbanken …», ParteiDreieck bis
+      d16dfad) wurde vom Review 05.09 (P1.1) als erfunden ersatzlos
+      gelöscht und wird nicht wiederhergestellt. Bis ein Text aus
+      dem Quelldokument vorliegt, ist der Knoten PASSIV (Review
+      05.09 abends, P2.1: kein leeres Panel). */
   prosa: Readonly<Record<"sie" | "tellian", string>>;
 }
 
@@ -171,8 +174,32 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
     beschriftung: string,
   ) => {
     const istCta = id === "tellian";
+    /* TODO-HOVER-DEPOTBANK: ohne Quelltext kein Hover-Verhalten —
+       der Knoten ist reine Darstellung (P2.1). */
+    const istPassiv = id === "bank";
+    const kreisStil: React.CSSProperties = {
+      position: "absolute",
+      left: pz(zentrum.x, 640),
+      top: pz(zentrum.y, VH),
+      width: pz(2 * R, 640),
+      aspectRatio: "1",
+      transform: "translate(-50%, -50%)",
+      borderRadius: "50%",
+      backgroundColor: fuellung,
+      border: kontur ? `1.5px solid ${kontur}` : "none",
+      boxSizing: "border-box",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 0,
+    };
     return (
     <>
+      {istPassiv ? (
+        <div aria-hidden style={kreisStil}>
+          {kind}
+        </div>
+      ) : (
       <button
         type="button"
         onMouseEnter={() => setAktiv(id)}
@@ -187,34 +214,16 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           setAktiv(id);
         }}
         aria-label={
-          id === "bank"
-            ? beschriftung
-            : istCta
-              ? `${beschriftung} — ${inhalt.prosa[id].replace("\u00A0→", "")}`
-              : `${beschriftung} — ${inhalt.prosa[id]}`
+          istCta
+            ? `${beschriftung} — ${inhalt.prosa[id as "tellian"].replace("\u00A0→", "")}`
+            : `${beschriftung} — ${inhalt.prosa[id as "sie"]}`
         }
         className="tellian-dreieck-knoten"
-        style={{
-          position: "absolute",
-          left: pz(zentrum.x, 640),
-          top: pz(zentrum.y, VH),
-          width: pz(2 * R, 640),
-          aspectRatio: "1",
-          transform: "translate(-50%, -50%)",
-          borderRadius: "50%",
-          backgroundColor: fuellung,
-          border: kontur ? `1.5px solid ${kontur}` : "none",
-          boxSizing: "border-box",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 0,
-          cursor: "pointer",
-          font: "inherit",
-        }}
+        style={{ ...kreisStil, cursor: "pointer", font: "inherit" }}
       >
         {kind}
       </button>
+      )}
       <span
         style={{
           position: "absolute",
