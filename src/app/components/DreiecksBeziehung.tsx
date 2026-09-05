@@ -324,10 +324,13 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat }: Props) {
         inhalt.bank,
       )}
 
-      {/* Verbindungswörter — je mit der zugewandten Kante 20
-          Einheiten neben der Linienmitte, abgewandt vom Dreieck. */}
-      {wort({ x: m1.x - 20, y: m1.y }, inhalt.kanten[0], "rechts")}
-      {wort({ x: m2.x + 20, y: m2.y }, inhalt.kanten[1], "links")}
+      {/* Verbindungswörter — zentriert an einem Punkt mit festem
+          seitlichem Versatz von der Linienmitte, abgewandt vom
+          Dreieck. Kantengeankert liefen die englischen Wörter auf
+          dem Telefon rechts aus dem Bild (Schrift steht in festen
+          px, die Grafik skaliert). */}
+      {wort({ x: m1.x - 12, y: m1.y }, inhalt.kanten[0], "mitte")}
+      {wort({ x: m2.x + 12, y: m2.y }, inhalt.kanten[1], "mitte")}
       {wort(m3, inhalt.kanten[2], "mitte")}
     </div>
 
