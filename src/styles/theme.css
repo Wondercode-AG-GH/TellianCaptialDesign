@@ -428,41 +428,27 @@
      70vw, damit sie noch als volle Station liest, nach oben bei den
      94vw der übrigen. */
   --tellian-r4-pad-left: var(--tellian-station-pad-x);   /* P2 */
-  /* P3: ehrlich bemessen am BREITESTEN Element des Titelblocks
-     («Ihre Vorteile» kursiv in der Heading-Stufe, ~350px bei 1440) —
-     vorher stand die Spalte nur als Budgetzahl da und das Westlabel
-     des Rades lief unter den Titel. */
-  --tellian-r4-title-col: clamp(300px, 27vw, 400px);
-  --tellian-r4-mid-gap: clamp(32px, 3vw, 64px);
+  --tellian-r4-title-col: clamp(150px, 14vw, 210px);
+  --tellian-r4-mid-gap: clamp(36px, 4vw, 90px);
   --tellian-r4-edge: var(--tellian-station-pad-x);       /* P2 */
   --tellian-r4-block: calc(
     var(--tellian-r4-wheel)
     + 2 * (var(--tellian-r4-label-col) + var(--tellian-r4-label-gap))
   );
-  /* P3 (Review 05.09 abends): die Station läuft BREIT — Titel
-     links, Rad mittig, Erklärbehälter rechts NEBEN dem Rad. Die
-     Breite ergibt sich aus dem Inhalt (~136vw bei 1440), mindestens
-     130vw; der Snap greift am Stationsanfang, innen läuft der
-     Scroll frei (wie bei der Team-Station).
-
-     zone-links/-rechts sind die von Titel bzw. Behälter belegten
-     Randstreifen; das Rad zentriert sich im Feld dazwischen, damit
-     auf sehr breiten Schirmen die Restluft nicht rechts klumpt. */
-  --tellian-r4-seiten-gap: clamp(40px, 4vw, 80px);
-  --tellian-r4-zone-links: calc(
+  /* Waagrechte Mitte des Radblocks — Rad und Erklärbehälter hängen
+     beide daran, damit der Behälter unter dem Rad bleibt. */
+  --tellian-r4-block-center: calc(
     var(--tellian-r4-heading-left) + var(--tellian-r4-title-col)
-    + var(--tellian-r4-mid-gap)
+    + var(--tellian-r4-mid-gap) + var(--tellian-r4-block) / 2
   );
-  --tellian-r4-zone-rechts: calc(
-    var(--tellian-r4-edge) + var(--tellian-r4-box-width)
-    + var(--tellian-r4-seiten-gap)
-  );
-  --tellian-r4-section-width: max(
-    130vw,
+  --tellian-r4-section-width: clamp(
+    70vw,
     calc(
-      var(--tellian-r4-zone-links) + var(--tellian-r4-block)
-      + var(--tellian-r4-zone-rechts)
-    )
+      var(--tellian-r4-heading-left) + var(--tellian-r4-title-col)
+      + var(--tellian-r4-mid-gap) + var(--tellian-r4-block)
+      + var(--tellian-r4-edge)
+    ),
+    94vw
   );
   /* Deutlich grösser als die ersten 13px: die acht Begriffe sind der
      Inhalt des Rades und standen zu klein da. Die Ziffern noch eine
@@ -516,19 +502,22 @@
      dort müssen Beschriftungsband, Abstand und der Behälter noch
      hineinpassen. Oberhalb bleibt dadurch Luft — die kostet der
      Gleichstand mit den Nachbarn. */
-  /* P3: der Behälter steht rechts NEBEN dem Rad — unter dem Rad
-     muss nichts mehr Platz finden. Der Durchmesser hängt nur noch
-     an der Bühnenhöhe (minus Beschriftungsbänder und Bühnenluft);
-     bei 1440x900 läuft das Rad damit in den 656px-Deckel. */
+  /* P1: mit vier statt acht Punkten trägt jeder Punkt mehr Raum —
+     das Rad läuft ~15 % grösser (Deckel 520 → 600, Formel ×1.15).
+     Die Höhenreserve für Band und Behälter bleibt eingerechnet. */
+  /* P2.1: nochmals ~30 % grösser (Faktor 1.5, Deckel 680). Der
+     Versatz unten hält den fixen Kasten über der Leiste. */
   --tellian-r4-wheel: min(
     656px,
-    calc(100vh - var(--tellian-kopf-height) - var(--tellian-station-height)
-      - 2 * var(--tellian-s1-stage-pad)
-      - 2 * var(--tellian-r4-label-row))
+    calc(1.4 * 2 * ((100vh - var(--tellian-kopf-height) - var(--tellian-station-height)) / 2
+      - var(--tellian-s1-stage-pad)
+      - var(--tellian-r4-label-row)
+      - var(--tellian-r4-box-gap)
+      - var(--tellian-r4-box-h)))
   );
   /* Höchstbreite einer Beschriftung. Sie läuft vom Ankerpunkt nach
      aussen; der Kasten muss Anker plus Beschriftung tragen. */
-  --tellian-r4-label-col: clamp(150px, 10.8vw, 190px);
+  --tellian-r4-label-col: clamp(150px, 15vw, 230px);
   --tellian-r4-label-gap: clamp(16px, 1.6vw, 32px);
   /* Erklärbehälter unter dem Rad.
 
@@ -558,13 +547,35 @@
      über die Breite. Der Behälter ist dadurch breiter als das Rad;
      untergeordnet bleibt er über Höhe, Farbe und darüber, dass er
      nur beim Zeigen erscheint. */
-  /* P3: der Behälter steht rechts neben dem Rad und hat eine feste,
-     vom Rad entkoppelte Breite. Seine Höhe bemisst sich weiter am
-     längsten der vier gestapelten Texte — sie springt beim Wechsel
-     nicht, und weil er senkrecht zentriert hängt, verschiebt sie
-     auch nichts. Versatz- und Höhenformeln der Unterbau-Lösung
-     (mitte-versatz, box-h, box-gap) sind damit entfallen. */
-  --tellian-r4-box-width: clamp(340px, 28vw, 420px);
+  /* P1: die vier Redesign-Texte sind länger als die alten acht —
+     breiter gestellt, damit der längste (Transparenz, ~340 Zeichen)
+     in vier Zeilen bleibt statt in fünf. */
+  --tellian-r4-box-width: calc(var(--tellian-r4-wheel) + 180px);   /* P2.3: an den Kreisbereich gekoppelt */
+  /* Reservierte Höhe unter dem Rad — GERECHNET aus den Werten
+     darüber, nicht gesetzt. Eine feste Zahl war zu grosszügig und
+     kostete Raddurchmesser; ändert sich ein Schriftgrad, geht sie
+     jetzt von selbst mit.
+     Innenabstand · Ziffer · Titel · zwei Textzeilen · Abstände. */
+  /* P2.3: FIXE Boxhöhe, bemessen am längsten Text (Transparenz DE,
+     fünf Zeilen bei der an den Radbereich gekoppelten Breite). Die
+     Texte liegen ohnehin gestapelt im selben Rasterfeld — die Höhe
+     springt beim Wechsel nicht. */
+  --tellian-r4-box-h: calc(
+    2 * var(--tellian-r4-box-pad-y)
+    + 1.15 * var(--tellian-r4-title-size)
+    + 2 * var(--tellian-r4-body-leading) * var(--tellian-r4-body-size)
+    + 18px
+  );
+  /* Die ECHTE Boxhöhe (fünf Zeilen) steckt im Versatz, nicht in der
+     Formel — dort schrumpfte sie das Rad doppelt (P1-Lektion). */
+  /* P1: Der Radblock hängt 26px ÜBER der Stationsmitte. Die vier
+     Redesign-Texte sind bis zu vier Zeilen lang, die Höhenformel
+     reserviert aber bewusst nur zwei — sonst schrumpfte das Rad um
+     ein Viertel statt zu wachsen. Der Versatz gibt dem Behälter
+     unten exakt die zwei fehlenden Zeilen. Nachgemessen: Behälter
+     endet bei 900/800/768er Fenstern 1–10px über der Leiste. */
+  --tellian-r4-mitte-versatz: 104px;
+  --tellian-r4-box-gap: clamp(14px, 2vh, 26px);
 
   /* ── UNTERSEITE ANLAGEPROZESS ──
      Alles auf einen Blick: kein Scrollen, weder waagrecht noch
