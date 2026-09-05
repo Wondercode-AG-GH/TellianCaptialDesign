@@ -234,9 +234,8 @@ export function Station4Rad({
   const tabPunkt = aktiv;
 
   /* ── Erklärbehälter ──
-     Erscheint beim Zeigen auf einen Punkt und liegt ABSOLUT unter dem
-     Rad. Damit verschiebt er beim Auf- und Zugehen nichts: das Rad
-     bleibt auf der Stationsmitte stehen.
+     Liegt ABSOLUT rechts neben dem Rad (P3). Damit verschiebt er
+     beim Textwechsel nichts: das Rad bleibt in seinem Feld stehen.
 
      Alle acht Texte liegen im selben Rasterfeld übereinander, nur der
      gewählte ist sichtbar. Die Höhe bemisst sich dadurch am längsten
@@ -504,6 +503,9 @@ export function Station4Rad({
           style={{
             position: "absolute",
             left: "var(--tellian-r4-heading-left)",
+            /* P3: der Block bleibt in seiner Spalte — der englische
+               Untertitel lief sonst unter das Westlabel des Rades. */
+            maxWidth: "var(--tellian-r4-title-col)",
             ...(kopfOben === null
               ? { top: "50%", transform: "translateY(-50%)" }
               : { top: `${kopfOben}px` }),
@@ -522,8 +524,13 @@ export function Station4Rad({
           }}
           style={{
             position: "absolute",
-            left: "var(--tellian-r4-block-center)",
-            top: "calc(50% - var(--tellian-r4-mitte-versatz))",
+            /* P3: mittig im Feld zwischen Titelzone (links) und
+               Behälterzone (rechts) — auf sehr breiten Schirmen
+               verteilt sich die Restluft so um das Rad, statt
+               rechts zu klumpen. Kein Versatz mehr: unter dem Rad
+               steht nichts, der Block hängt an der Bühnenmitte. */
+            left: "calc(var(--tellian-r4-zone-links) + (100% - var(--tellian-r4-zone-links) - var(--tellian-r4-zone-rechts)) / 2)",
+            top: "50%",
             transform: "translate(-50%, -50%)",
             width: "var(--tellian-r4-block)",
             /* Bänder oben und unten für die beiden mittigen
@@ -712,13 +719,16 @@ export function Station4Rad({
           })}
         </div>
 
-        {/* ══ Erklärung ══ */}
+        {/* ══ Erklärung ══
+            P3: rechts NEBEN dem Rad, senkrecht an der Bühnenmitte.
+            Die gestapelten Texte halten die Höhe konstant; zentriert
+            verankert verschiebt ein Textwechsel nichts. */}
         <div
           style={{
             position: "absolute",
-            left: "var(--tellian-r4-block-center)",
-            transform: "translateX(-50%)",
-            top: "calc(50% - var(--tellian-r4-mitte-versatz) + var(--tellian-r4-wheel) / 2 + var(--tellian-r4-label-row) + var(--tellian-r4-box-gap))",
+            right: "var(--tellian-r4-edge)",
+            top: "50%",
+            transform: "translateY(-50%)",
             width: "var(--tellian-r4-box-width)",
             maxWidth: "100%",
           }}
