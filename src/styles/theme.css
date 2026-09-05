@@ -456,7 +456,7 @@
      gleichem Grad optisch zurückfällt. */
   --tellian-r4-label-size: clamp(14px, 1.06vw, 17px);
   --tellian-r4-numeral-size: clamp(15px, 1.16vw, 19px);
-  --tellian-r4-title-size: clamp(22px, 2vw, 30px);
+  --tellian-r4-title-size: clamp(18px, 1.6vw, 24px);   /* P2.3: eine Stufe kleiner */
   /* Mitlaufend, damit der längste Text (152 Zeichen) auch auf
      schmalen Fenstern in ZWEI Zeilen bleibt. Bei festen 14px waren
      es bei 1024px Fensterbreite gemessene drei. Untergrenze 12px. */
@@ -488,7 +488,7 @@
      der Radbreite vom Zentrum, also 0.03 ausserhalb des Radkastens.
      Mit 42px schnitt der Rahmen des Behälters gemessene 3–7px in
      die Zeile „Finanz-Boutique und Flexibilität". */
-  --tellian-r4-label-row: 58px;
+  --tellian-r4-label-row: 46px;   /* P2.2: Labels näher an den Ring */
   /* Gemessen und nicht geschätzt: Kopfzeile 15 + zwei Bänder à 54 +
      zwei Abstände à 26 + Behälter bis 250 + Sicherheit. Mit 336 lief
      es bei 1280×800 um 3px über die Leiste. */
@@ -505,9 +505,11 @@
   /* P1: mit vier statt acht Punkten trägt jeder Punkt mehr Raum —
      das Rad läuft ~15 % grösser (Deckel 520 → 600, Formel ×1.15).
      Die Höhenreserve für Band und Behälter bleibt eingerechnet. */
+  /* P2.1: nochmals ~30 % grösser (Faktor 1.5, Deckel 680). Der
+     Versatz unten hält den fixen Kasten über der Leiste. */
   --tellian-r4-wheel: min(
-    600px,
-    calc(1.15 * 2 * ((100vh - var(--tellian-kopf-height) - var(--tellian-station-height)) / 2
+    656px,
+    calc(1.4 * 2 * ((100vh - var(--tellian-kopf-height) - var(--tellian-station-height)) / 2
       - var(--tellian-s1-stage-pad)
       - var(--tellian-r4-label-row)
       - var(--tellian-r4-box-gap)
@@ -548,25 +550,31 @@
   /* P1: die vier Redesign-Texte sind länger als die alten acht —
      breiter gestellt, damit der längste (Transparenz, ~340 Zeichen)
      in vier Zeilen bleibt statt in fünf. */
-  --tellian-r4-box-width: clamp(560px, 58vw, 880px);
+  --tellian-r4-box-width: calc(var(--tellian-r4-wheel) + 180px);   /* P2.3: an den Kreisbereich gekoppelt */
   /* Reservierte Höhe unter dem Rad — GERECHNET aus den Werten
      darüber, nicht gesetzt. Eine feste Zahl war zu grosszügig und
      kostete Raddurchmesser; ändert sich ein Schriftgrad, geht sie
      jetzt von selbst mit.
      Innenabstand · Ziffer · Titel · zwei Textzeilen · Abstände. */
+  /* P2.3: FIXE Boxhöhe, bemessen am längsten Text (Transparenz DE,
+     fünf Zeilen bei der an den Radbereich gekoppelten Breite). Die
+     Texte liegen ohnehin gestapelt im selben Rasterfeld — die Höhe
+     springt beim Wechsel nicht. */
   --tellian-r4-box-h: calc(
     2 * var(--tellian-r4-box-pad-y)
     + 1.15 * var(--tellian-r4-title-size)
     + 2 * var(--tellian-r4-body-leading) * var(--tellian-r4-body-size)
     + 18px
   );
+  /* Die ECHTE Boxhöhe (fünf Zeilen) steckt im Versatz, nicht in der
+     Formel — dort schrumpfte sie das Rad doppelt (P1-Lektion). */
   /* P1: Der Radblock hängt 26px ÜBER der Stationsmitte. Die vier
      Redesign-Texte sind bis zu vier Zeilen lang, die Höhenformel
      reserviert aber bewusst nur zwei — sonst schrumpfte das Rad um
      ein Viertel statt zu wachsen. Der Versatz gibt dem Behälter
      unten exakt die zwei fehlenden Zeilen. Nachgemessen: Behälter
      endet bei 900/800/768er Fenstern 1–10px über der Leiste. */
-  --tellian-r4-mitte-versatz: 30px;
+  --tellian-r4-mitte-versatz: 104px;
   --tellian-r4-box-gap: clamp(14px, 2vh, 26px);
 
   /* ── UNTERSEITE ANLAGEPROZESS ──

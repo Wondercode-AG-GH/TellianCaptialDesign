@@ -248,8 +248,10 @@ export function Station4Rad({
         width: "var(--tellian-r4-box-width)",
         maxWidth: "100%",
         backgroundColor: "var(--tellian-r4-box-bg)",
-        border: "1px solid var(--tellian-r4-box-line)",
-        borderRadius: "var(--tellian-r4-box-radius)",
+        /* P2.3: eckig, 1px-Hairline im Mushroom-Ton — das
+           Formenvokabular der Seite, keine weiche Rundung. */
+        border: "1px solid rgba(184, 174, 163, 0.35)",
+        borderRadius: 0,
         padding: "var(--tellian-r4-box-pad-y) var(--tellian-r4-box-pad-x)",
         boxSizing: "border-box",
         display: "grid",
@@ -438,7 +440,7 @@ export function Station4Rad({
      45° weit davon entfernt — die Abstände schwankten sichtbar. Auf
      gemeinsamem Radius liegen alle acht Ankerpunkte auf einem Kreis;
      der Text läuft von dort nach aussen und bleibt waagrecht. */
-  const ANKER = 0.53;   /* Anteil der Radbreite, gemessen vom Zentrum */
+  const ANKER = 0.505;   /* Anteil der Radbreite, gemessen vom Zentrum */
 
   const platz = (i: number) => {
     const g = winkel(i);
