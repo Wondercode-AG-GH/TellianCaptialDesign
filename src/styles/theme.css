@@ -736,7 +736,9 @@
   /* ── UNTERSEITE ADVISORY ──
      Dieselben Masse wie die Unterseite Anlageprozess, damit die
      beiden als Paar lesen. Die Seite passt auf einen Bildschirm. */
-  --tellian-adv-title-size: clamp(34px, 3.6vw, 54px);
+  /* P3: kompakter, damit Titel, Intro und CTA bei 1440×900 ohne
+     Scrollen stehen. */
+  --tellian-adv-title-size: clamp(28px, 2.9vw, 44px);
   --tellian-adv-title-leading: 1.06;
   --tellian-adv-lead-size: 15px;
   --tellian-adv-lead-leading: 1.68;

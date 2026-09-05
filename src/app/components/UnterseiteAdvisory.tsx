@@ -250,9 +250,8 @@ export function UnterseiteAdvisory({
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: isMobile
-          ? "1fr"
-          : "repeat(auto-fit, minmax(min(var(--tellian-adv-block-measure), 100%), 1fr))",
+        /* P3: zwei gleichwertige Spalten statt gestapelt. */
+        gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
         gap: "clamp(24px, 3vw, 56px)",
         fontFamily: sans,
         fontSize: "var(--tellian-adv-lead-size)",
@@ -408,17 +407,22 @@ export function UnterseiteAdvisory({
         minHeight: 0,
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
+        /* P3: oben beginnen — zentriert schob der Stapel den CTA
+           unter die Falz. */
+        justifyContent: "flex-start",
         paddingLeft: "var(--tellian-adv-pad-x)",
         paddingRight: "var(--tellian-adv-pad-x)",
         paddingTop: "clamp(24px, 4vh, 56px)",
         paddingBottom: "clamp(24px, 4vh, 56px)",
         boxSizing: "border-box",
-        gap: "clamp(24px, 4vh, 52px)",
+        gap: "clamp(18px, 3vh, 36px)",
       }}
     >
       {titel}
       {lead}
+      {/* P3: derselbe Knopf zusätzlich beim Intro — oberhalb der
+          Falz; der bestehende am Seitenende bleibt. */}
+      {knopf}
 
       <ol
         style={{
@@ -427,6 +431,7 @@ export function UnterseiteAdvisory({
           padding: 0,
           display: "grid",
           gridTemplateColumns: `repeat(${SCHRITTE.length}, minmax(0, 1fr))`,
+          gridTemplateRows: "auto auto auto",
           columnGap: "var(--tellian-adv-col-gap)",
           position: "relative",
           maxWidth: "var(--tellian-adv-weg-max)",
@@ -455,20 +460,42 @@ export function UnterseiteAdvisory({
           }}
         />
 
+        {/* P3: Ziffer, Titel und Zeile sind DIREKTE Rasterkinder in
+            drei gemeinsamen Zeilen — Titel und Textanfänge fluchten
+            dadurch zeilengenau über alle Spalten, auch wenn ein
+            Titel umbricht. */}
         {SCHRITTE.map((s, i) => (
-          <li key={s.titel} style={{ position: "relative", ...stufe(i) }}>
+          <li key={s.titel} style={{ display: "contents" }}>
             <span
               style={{
+                gridColumn: i + 1,
+                gridRow: 1,
+                position: "relative",
                 ...zifferStil,
                 paddingRight: "var(--tellian-adv-num-gap)",
+                ...stufe(i),
               }}
             >
               {ziffer(i)}
             </span>
-            <span style={{ display: "block", marginTop: "clamp(14px, 2.2vh, 26px)" }}>
+            <span
+              style={{
+                gridColumn: i + 1,
+                gridRow: 2,
+                paddingTop: "clamp(14px, 2.2vh, 26px)",
+                ...stufe(i),
+              }}
+            >
               {schrittTitel(s.titel)}
             </span>
-            <span style={{ display: "block", marginTop: "clamp(8px, 1.2vh, 14px)" }}>
+            <span
+              style={{
+                gridColumn: i + 1,
+                gridRow: 3,
+                paddingTop: "clamp(8px, 1.2vh, 14px)",
+                ...stufe(i),
+              }}
+            >
               {schrittZeile(s.zeile)}
             </span>
           </li>
