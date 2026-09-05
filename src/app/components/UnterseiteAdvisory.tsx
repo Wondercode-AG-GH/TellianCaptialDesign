@@ -399,31 +399,44 @@ export function UnterseiteAdvisory({
     );
   }
 
-  /* ── BREIT ── */
+  /* ── BREIT ──
+     P4: dieselbe Dramaturgie wie die Mandat-Seite — Szene 1 füllt
+     den ersten Viewport (Titel, Intro, CTA, ruhig zentriert),
+     darunter scrollen die drei Schritte, die Spalten und der
+     abschliessende CTA im Blockrhythmus des Spacing-Systems. */
   return (
     <div
       style={{
-        flex: 1,
-        minHeight: 0,
-        display: "flex",
-        flexDirection: "column",
-        /* P3: oben beginnen — zentriert schob der Stapel den CTA
-           unter die Falz. */
-        justifyContent: "flex-start",
         paddingLeft: "var(--tellian-adv-pad-x)",
         paddingRight: "var(--tellian-adv-pad-x)",
-        paddingTop: "clamp(24px, 4vh, 56px)",
-        paddingBottom: "clamp(24px, 4vh, 56px)",
         boxSizing: "border-box",
-        gap: "clamp(18px, 3vh, 36px)",
       }}
     >
-      {titel}
-      {lead}
-      {/* P3: derselbe Knopf zusätzlich beim Intro — oberhalb der
-          Falz; der bestehende am Seitenende bleibt. */}
-      {knopf}
+      <section
+        style={{
+          minHeight: "calc(100vh - 56px)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          gap: "var(--tellian-abstand-titel)",
+          paddingTop: "clamp(24px, 4vh, 56px)",
+          paddingBottom: "clamp(24px, 4vh, 56px)",
+          boxSizing: "border-box",
+        }}
+      >
+        {titel}
+        {lead}
+        {knopf}
+      </section>
 
+      <section
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--tellian-abstand-block)",
+          paddingBottom: "clamp(64px, 8vh, 96px)",
+        }}
+      >
       <ol
         style={{
           listStyle: "none",
@@ -504,6 +517,7 @@ export function UnterseiteAdvisory({
 
       {bloecke}
       {knopf}
+      </section>
       {stil}
     </div>
   );

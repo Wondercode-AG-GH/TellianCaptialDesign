@@ -743,7 +743,11 @@
      beiden als Paar lesen. Die Seite passt auf einen Bildschirm. */
   /* P3: kompakter, damit Titel, Intro und CTA bei 1440×900 ohne
      Scrollen stehen. */
-  --tellian-adv-title-size: clamp(28px, 2.9vw, 44px);
+  /* P4: der Falz-Zwang ist weg — Szene 1 füllt den ersten Viewport
+     allein mit Titel, Intro und CTA. Der Titel darf wieder in der
+     grossen Stufe stehen (er war fürs Über-die-Falz-Pressen auf
+     28…44 geschrumpft). */
+  --tellian-adv-title-size: clamp(34px, 3.4vw, 52px);
   --tellian-adv-title-leading: 1.06;
   --tellian-adv-lead-size: 15px;
   --tellian-adv-lead-leading: 1.68;
