@@ -1431,6 +1431,7 @@ export default function App() {
           isVertical
           domId="section-anlagestrategien"
           sprache={sprache}
+          istAktiv={SECTIONS[activeIndex]?.key === "strategien"}
         />
         {/* Unterseite /anlagestrategien, schmale Fassung. */}
         <Section4Anlagestrategien
@@ -1580,6 +1581,7 @@ export default function App() {
           <Station4Rad
             panelRef={panelRef(3)}
             sprache={sprache}
+            istAktiv={SECTIONS[activeIndex]?.key === "strategien"}
           />
           {/* Die Station ist ersetzt; die Unterseite /anlagestrategien
               liegt weiterhin in diesem Bauteil und wird von der

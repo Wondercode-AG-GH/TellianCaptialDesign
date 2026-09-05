@@ -462,7 +462,7 @@
      es bei 1024px Fensterbreite gemessene drei. Untergrenze 12px. */
   --tellian-r4-body-size: clamp(12px, 0.98vw, 14px);
   --tellian-r4-body-leading: 1.65;
-  --tellian-r4-body-measure: 46em;
+  --tellian-r4-body-measure: 60em;
 
   /* Ring. Die Segmente wachsen bei Auswahl in der STÄRKE, nicht nur
      in der Farbe — eine Farbänderung allein trägt auf dunklem Grund
@@ -502,9 +502,12 @@
      dort müssen Beschriftungsband, Abstand und der Behälter noch
      hineinpassen. Oberhalb bleibt dadurch Luft — die kostet der
      Gleichstand mit den Nachbarn. */
+  /* P1: mit vier statt acht Punkten trägt jeder Punkt mehr Raum —
+     das Rad läuft ~15 % grösser (Deckel 520 → 600, Formel ×1.15).
+     Die Höhenreserve für Band und Behälter bleibt eingerechnet. */
   --tellian-r4-wheel: min(
-    520px,
-    calc(2 * ((100vh - var(--tellian-kopf-height) - var(--tellian-station-height)) / 2
+    600px,
+    calc(1.15 * 2 * ((100vh - var(--tellian-kopf-height) - var(--tellian-station-height)) / 2
       - var(--tellian-s1-stage-pad)
       - var(--tellian-r4-label-row)
       - var(--tellian-r4-box-gap)
@@ -542,7 +545,10 @@
      über die Breite. Der Behälter ist dadurch breiter als das Rad;
      untergeordnet bleibt er über Höhe, Farbe und darüber, dass er
      nur beim Zeigen erscheint. */
-  --tellian-r4-box-width: clamp(560px, 46vw, 700px);
+  /* P1: die vier Redesign-Texte sind länger als die alten acht —
+     breiter gestellt, damit der längste (Transparenz, ~340 Zeichen)
+     in vier Zeilen bleibt statt in fünf. */
+  --tellian-r4-box-width: clamp(560px, 58vw, 880px);
   /* Reservierte Höhe unter dem Rad — GERECHNET aus den Werten
      darüber, nicht gesetzt. Eine feste Zahl war zu grosszügig und
      kostete Raddurchmesser; ändert sich ein Schriftgrad, geht sie
@@ -554,6 +560,13 @@
     + 2 * var(--tellian-r4-body-leading) * var(--tellian-r4-body-size)
     + 18px
   );
+  /* P1: Der Radblock hängt 26px ÜBER der Stationsmitte. Die vier
+     Redesign-Texte sind bis zu vier Zeilen lang, die Höhenformel
+     reserviert aber bewusst nur zwei — sonst schrumpfte das Rad um
+     ein Viertel statt zu wachsen. Der Versatz gibt dem Behälter
+     unten exakt die zwei fehlenden Zeilen. Nachgemessen: Behälter
+     endet bei 900/800/768er Fenstern 1–10px über der Leiste. */
+  --tellian-r4-mitte-versatz: 30px;
   --tellian-r4-box-gap: clamp(14px, 2vh, 26px);
 
   /* ── UNTERSEITE ANLAGEPROZESS ──
