@@ -108,37 +108,53 @@ export function TeamDetail({
 
   if (!offen) return null;
 
+  /* Runder Glas-Knopf statt des beschrifteten Kastens: über dem
+     grossen Porträt (mobil) ein dunkler Scrim mit Weichzeichner —
+     lesbar auf jedem Bild; über der hellen Textspalte (breit) die
+     helle Ghost-Fassung. Die Beschriftung wandert ins aria-label,
+     das Zeichen dreht sich beim Zeigen. Escape und Rückweg über den
+     Hintergrund bleiben. */
   const schliessenKnopf = (
     <button
       ref={schliessenRef}
       type="button"
       onClick={onClose}
+      aria-label={UI[sprache].schliessen}
+      title={UI[sprache].schliessen}
       className="tellian-team-schliessen"
       style={{
         position: "absolute",
-        top: isMobile ? "12px" : "18px",
-        right: isMobile ? "12px" : "22px",
+        top: isMobile ? "calc(12px + env(safe-area-inset-top, 0px))" : "20px",
+        right: isMobile ? "12px" : "20px",
         zIndex: 2,
+        width: "44px",
+        height: "44px",
         display: "inline-flex",
         alignItems: "center",
-        gap: "8px",
-        fontFamily: sans,
-        fontSize: "13px",
-        letterSpacing: "0.1em",
-        textTransform: "uppercase",
-        color: C.ink,
-        backgroundColor: C.bg,
-        border: `1px solid ${C.line}`,
-        borderRadius: 0,
-        padding: "10px 16px",
-        minHeight: "var(--tellian-tippziel)",
+        justifyContent: "center",
+        padding: 0,
+        borderRadius: "50%",
         cursor: "pointer",
+        ...(isMobile
+          ? {
+              color: "#F9F9F7",
+              backgroundColor: "rgba(26, 23, 32, 0.44)",
+              border: "1px solid rgba(249, 249, 247, 0.30)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+            }
+          : {
+              color: C.ink,
+              backgroundColor: "rgba(249, 249, 247, 0.85)",
+              border: `1px solid ${C.line}`,
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+            }),
       }}
     >
-      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden focusable="false">
+      <svg width="16" height="16" viewBox="0 0 14 14" aria-hidden focusable="false">
         <path d="M1.5 1.5 12.5 12.5 M12.5 1.5 1.5 12.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
       </svg>
-      {UI[sprache].schliessen}
     </button>
   );
 
@@ -161,7 +177,7 @@ export function TeamDetail({
         style={{
           margin: 0,
           /* Platz für den Schliessen-Knopf oben rechts. */
-          paddingRight: isMobile ? 0 : "140px",
+          paddingRight: isMobile ? 0 : "72px",
           fontFamily: serif,
           fontSize: "clamp(28px, 2.8vw, 42px)",
           fontWeight: 400,
@@ -277,10 +293,23 @@ export function TeamDetail({
       </div>
 
       <style>{`
-        .tellian-team-schliessen:hover { border-color: ${C.accent}; }
+        .tellian-team-schliessen {
+          transition: border-color 200ms ease, background-color 200ms ease,
+            transform 200ms ease;
+        }
+        .tellian-team-schliessen svg {
+          transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .tellian-team-schliessen:hover { border-color: ${C.accent}; transform: scale(1.06); }
+        .tellian-team-schliessen:hover svg { transform: rotate(90deg); }
+        .tellian-team-schliessen:active { transform: scale(0.96); }
         .tellian-team-schliessen:focus-visible {
           outline: 2px solid var(--tellian-muted);
           outline-offset: 3px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .tellian-team-schliessen, .tellian-team-schliessen svg { transition: none; }
+          .tellian-team-schliessen:hover svg { transform: none; }
         }
       `}</style>
     </div>,
