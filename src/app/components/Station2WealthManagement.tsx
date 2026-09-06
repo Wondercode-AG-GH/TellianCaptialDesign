@@ -27,7 +27,7 @@ interface StationInhalt {
 
 const INHALT: Readonly<Record<"DE" | "EN" | "FR", StationInhalt>> = {
   DE: {
-    titel: ["Ihr Vermögen bleibt", "auf Ihrem Konto."],
+    titel: ["Bewährte", "Geschäftsbeziehungen"],
     absaetze: [
       "Tellian Capital ist Partner und Bindeglied zwischen Ihnen und den Depotbanken. Wir setzen die gemeinsam definierte Anlagestrategie um, steuern Ihr Portfolio aktiv und vertreten Ihre Interessen gegenüber den Depotbanken. Ihr Vermögen bleibt dabei jederzeit in Ihrem Eigentum.",
       "Unsere Zusammenarbeit mit ausgewählten Depotbanken ermöglicht vorteilhafte Konditionen und den Zugang zu ergänzenden Bankdienstleistungen. Die Verwahrung der Vermögenswerte erfolgt bei der jeweiligen Bank. Bei Bedarf kann Ihr Vermögen auf mehrere Institute und Standorte verteilt werden.",
@@ -35,11 +35,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", StationInhalt>> = {
     ],
   },
   EN: {
-    /* TODO-EN: Für den H1 existiert keine englische Fassung —
-       das Briefing verweist auf eine «bestehende EN-Fassung», im
-       Bestand gab es aber nur die deutsche. Bis zur Lieferung
-       steht der DE-Titel. */
-    titel: ["Ihr Vermögen bleibt", "auf Ihrem Konto."],
+    titel: ["Established", "Banking Relationships"],
     absaetze: [
       "Tellian Capital acts as your partner and liaison with the custodian banks. We implement the investment strategy defined together with you, actively manage your portfolio and represent your interests in dealings with the custodian banks. Your assets remain in your ownership at all times.",
       "Our relationships with selected custodian banks provide access to preferential terms and additional banking services. Your assets are held with the respective custodian bank and, where appropriate, can be diversified across multiple institutions and locations.",
@@ -48,7 +44,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", StationInhalt>> = {
   },
   /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
   FR: {
-    titel: ["Ihr Vermögen bleibt", "auf Ihrem Konto."],
+    titel: ["Bewährte", "Geschäftsbeziehungen"],
     absaetze: [
       "Tellian Capital ist Partner und Bindeglied zwischen Ihnen und den Depotbanken. Wir setzen die gemeinsam definierte Anlagestrategie um, steuern Ihr Portfolio aktiv und vertreten Ihre Interessen gegenüber den Depotbanken. Ihr Vermögen bleibt dabei jederzeit in Ihrem Eigentum.",
       "Unsere Zusammenarbeit mit ausgewählten Depotbanken ermöglicht vorteilhafte Konditionen und den Zugang zu ergänzenden Bankdienstleistungen. Die Verwahrung der Vermögenswerte erfolgt bei der jeweiligen Bank. Bei Bedarf kann Ihr Vermögen auf mehrere Institute und Standorte verteilt werden.",
