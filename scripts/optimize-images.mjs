@@ -101,6 +101,24 @@ const SOURCES = [
     publicAsset: true,
   },
   {
+    id: "hero-solutions",
+    src: "src/redesign/Tellian Capital Solutions Hero Image.jpg",
+    /* SOLUTIONS S1 (Zuerich/Limmat). Quelle 1388x755 (~1.84:1),
+       GANZES BILD — die Leiter endet an der Quellbreite, hochskaliert
+       wird nicht. 1.84 = 46/25: naechstes ganzzahlig darstellbares
+       Verhaeltnis zur Quelle (1.8384), kostet <0.1% Hoehe.
+       TODO-BILD-TONUNG: finale dunkle Tonung folgt von der
+       Brand-Designerin; bis dahin unveraendert, KEINE CSS-Filter im
+       Produktivcode. */
+    crop: {
+      left: 0,
+      top: 0,
+      width: 0.999,
+      ratio: 1.84,
+    },
+    widths: { avif: [432, 768, 1080, 1386], webp: [432, 768, 1080], jpg: [432, 768, 1080] },
+  },
+  {
     id: "opernhaus",
     src: "src/assets/opernhaus3-1.jpeg",
     /* GANZES BILD.
