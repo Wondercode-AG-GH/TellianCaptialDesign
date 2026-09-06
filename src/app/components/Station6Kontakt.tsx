@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { cormorant, sans } from "../tokens";
+import { Aufgang, Kapitelmarke } from "./MobilSektion";
 import { SECTION_WIDTH_LAST } from "../sections";
 import { MapOverlay } from "./Section6Kontakt";
 import { kontaktSenden, ZIEL_KONFIGURIERT } from "../kontaktZiel";
@@ -1142,7 +1143,10 @@ export function Station6Kontakt({
             flexDirection: "column",
           }}
         >
-          {titel}
+          <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
+            <Kapitelmarke nr="06" name="Kontakt" hell />
+          </div>
+          <Aufgang>{titel}</Aufgang>
           {lead(false)}
 
           <div

@@ -3,6 +3,7 @@ import { SECTION_WIDTH } from "../sections";
 import { useSectionEntered } from "./SectionEntry";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 import { DreiecksBeziehung } from "./DreiecksBeziehung";
+import { Aufgang, Kapitelmarke } from "./MobilSektion";
 
 /* ═══════════════════════════════════════════════════════════
    STATION 03 — DREIECKSBEZIEHUNG (hell)
@@ -153,9 +154,12 @@ export function Station2WealthManagement({
             gap: "clamp(24px, 3.6vh, 40px)",
           }}
         >
-          {titel}
-          {absaetze}
-          <DreiecksBeziehung sprache={sprache} onMandat={onMandat} kompakt />
+          <Kapitelmarke nr="03" name="Wealth Management" />
+          <Aufgang>{titel}</Aufgang>
+          <Aufgang stufe={1}>{absaetze}</Aufgang>
+          <Aufgang stufe={1}>
+            <DreiecksBeziehung sprache={sprache} onMandat={onMandat} kompakt />
+          </Aufgang>
         </div>
       </section>
     );

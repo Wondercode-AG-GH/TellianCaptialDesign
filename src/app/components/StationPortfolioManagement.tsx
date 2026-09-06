@@ -1,4 +1,5 @@
 import { C, sans, serif } from "../tokens";
+import { Aufgang, Kapitelmarke } from "./MobilSektion";
 import { SECTION_WIDTH } from "../sections";
 import { useSectionEntered } from "./SectionEntry";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
@@ -185,8 +186,9 @@ export function StationPortfolioManagement({
             alignItems: "flex-start",
           }}
         >
-          {titel}
-          {textzone}
+          <Kapitelmarke nr="02" name="Vermögensverwaltung" hell />
+          <Aufgang>{titel}</Aufgang>
+          <Aufgang stufe={1}>{textzone}</Aufgang>
           <ProzessGabelung
             gestapelt
             aufDunkel

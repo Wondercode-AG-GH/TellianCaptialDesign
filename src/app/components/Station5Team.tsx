@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 
 import { C, sans, serif } from "../tokens";
+import { Aufgang, Kapitelmarke } from "./MobilSektion";
 import { useTitelHoehe } from "./useTitelHoehe";
 import { ResponsiveImage } from "./ResponsiveImage";
 import { TeamDetail } from "./TeamDetail";
@@ -261,8 +262,12 @@ export function Station5Team({
           style={{
             display: "block",
             marginTop: "var(--tellian-t5-label-gap)",
-            height: "var(--tellian-t5-label-row)",
-            overflow: "hidden",
+            /* Nur das breite Band braucht die feste Zeilenhöhe für
+               die Kachelflucht; schmal dürfen Name und Rolle
+               umbrechen — abgeschnittene Namen sind keine Option. */
+            ...(breit
+              ? { height: "var(--tellian-t5-label-row)", overflow: "hidden" }
+              : {}),
           }}
         >
           <span
@@ -272,9 +277,9 @@ export function Station5Team({
               fontSize: "var(--tellian-t5-name-size)",
               lineHeight: "var(--tellian-t5-name-leading)" as unknown as number,
               color: C.ink,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
+              ...(breit
+                ? { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
+                : {}),
             }}
           >
             {person.name}
@@ -288,9 +293,9 @@ export function Station5Team({
                 fontSize: "var(--tellian-t5-role-size)",
                 lineHeight: "var(--tellian-t5-role-leading)",
                 color: C.accent,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
+                ...(breit
+                  ? { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
+                  : {}),
               }}
             >
               {person.rolle}
@@ -393,17 +398,23 @@ export function Station5Team({
             paddingRight: "clamp(20px, 6vw, 48px)",
           }}
         >
-          {kopf}
+          <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
+            <Kapitelmarke nr="05" name="Team" />
+          </div>
+          <Aufgang>{kopf}</Aufgang>
           <div
             style={{
               marginTop: "clamp(28px, 4vh, 44px)",
               display: "grid",
               gridTemplateColumns: "repeat(var(--tellian-t5-cols-schmal), minmax(0, 1fr))",
-              gap: "clamp(16px, 3.6vw, 24px)",
+              /* Mehr senkrechte als waagrechte Luft: die Beschriftung
+                 gehört zu IHRER Kachel, nicht zur nächsten Reihe. */
+              columnGap: "clamp(16px, 3.6vw, 24px)",
+              rowGap: "clamp(28px, 4.5vh, 40px)",
             }}
           >
-            {PERSONEN.map((person) => (
-              <div key={person.id}>{karte(person, false)}</div>
+            {PERSONEN.map((person, i) => (
+              <Aufgang key={person.id} stufe={i % 2}>{karte(person, false)}</Aufgang>
             ))}
           </div>
         </div>

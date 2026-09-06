@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { C, cormorant, sans, serif } from "../tokens";
+import { Aufgang, Kapitelmarke } from "./MobilSektion";
 import { useSectionEntered } from "./SectionEntry";
 import { useTitelHoehe } from "./useTitelHoehe";
 
@@ -371,7 +372,10 @@ export function Station4Rad({
           paddingRight: "clamp(20px, 6vw, 48px)",
         }}
       >
-        {kopf}
+        <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
+          <Kapitelmarke nr="04" name="Ihre Vorteile" hell />
+        </div>
+        <Aufgang>{kopf}</Aufgang>
 
         <ol
           style={{
@@ -380,11 +384,17 @@ export function Station4Rad({
             padding: 0,
             display: "flex",
             flexDirection: "column",
-            gap: "clamp(22px, 3vh, 34px)",
+            gap: "clamp(26px, 3.6vh, 40px)",
           }}
         >
           {PUNKTE.map((p, i) => (
-            <li key={p.titel}>
+            <li
+              key={p.titel}
+              style={{
+                borderTop: i === 0 ? "none" : "1px solid rgba(249, 249, 247, 0.14)",
+                paddingTop: i === 0 ? 0 : "clamp(26px, 3.6vh, 40px)",
+              }}
+            >
               <span
                 style={{
                   display: "block",

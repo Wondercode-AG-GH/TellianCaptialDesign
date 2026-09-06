@@ -906,7 +906,9 @@
   --tellian-kopf-logo-h: 35px;   /* P5: +33 % (26 → 35) */
   /* 11px ist die Untergrenze im Band; die Sprachwahl darf sie nutzen,
      das Kundenportal steht als Hauptsache eine Stufe darüber. */
-  --tellian-kopf-size: 11px;
+  /* 12px statt 11: die Untergrenze der Seite gilt auch für die
+     Kopfzeile — Zielgruppe 65+, und DE/EN ist ein Tippziel. */
+  --tellian-kopf-size: 12px;
   --tellian-kopf-portal-size: 12px;
   --tellian-kopf-tracking: 0.14em;
   --tellian-kopf-gap: clamp(14px, 1.6vw, 28px);
@@ -1024,7 +1026,9 @@
      135 bis 235px auf einem 390er Telefon, bei 5px zwischen den
      letzten beiden. Ein Wert für alle macht den Rhythmus gleichmässig
      und halbiert ihn ungefähr. */
-  --tellian-abschnitt-luft-schmal: clamp(36px, 5.5vh, 60px);
+  /* Mobil-Überarbeitung: Kapitelanfänge brauchen Bühne — 36…60
+     las sich als Fliesstext-Abstand, nicht als Stationswechsel. */
+  --tellian-abschnitt-luft-schmal: clamp(64px, 9vh, 96px);
   /* Nutzbare Höhe der Bühne. Die Panelbreite wird daraus abgeleitet,
      damit das Format 3:2 auch auf flachen Fenstern exakt bleibt,
      statt beschnitten oder gestaucht zu werden. */
@@ -1265,4 +1269,14 @@
    von der Voreinstellung überschrieben. */
 @media (max-width: 1400px) {
   :root { --tellian-t5-panel-share: 100%; }
+}
+
+/* ── Mobil: Titelgrad Station 03 ──
+   «Geschäftsbeziehungen» misst bei 36px rund 400px — mehr als die
+   ganze Telefonbreite. Unterhalb der Breitschwelle eine Stufe
+   kleiner; die Silbentrennung im h2 bleibt als Netz. */
+@media (max-width: 1023px) {
+  :root {
+    --tellian-s2-title-size: clamp(30px, 8.2vw, 44px);
+  }
 }

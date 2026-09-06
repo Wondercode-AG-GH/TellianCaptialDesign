@@ -174,6 +174,11 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
     beschriftung: string,
   ) => {
     const istCta = id === "tellian";
+    /* Kompakt gibt es kein Zeigen: alle Erklärtexte stehen statisch
+       unter der Grafik (Zielgruppe 65+ — alles ohne Interaktion
+       sichtbar). Nur «T» bleibt Schaltfläche und führt direkt zur
+       Mandat-Unterseite. */
+    const istPassiv = kompakt && !istCta;
     const kreisStil: React.CSSProperties = {
       position: "absolute",
       left: pz(zentrum.x, 640),
@@ -192,13 +197,22 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
     };
     return (
     <>
+      {istPassiv ? (
+        <div aria-hidden style={kreisStil}>
+          {kind}
+        </div>
+      ) : (
       <button
         type="button"
-        onMouseEnter={() => setAktiv(id)}
-        onMouseLeave={() => setAktiv((a) => (a === id ? null : a))}
-        onFocus={() => setAktiv(id)}
-        onBlur={() => setAktiv((a) => (a === id ? null : a))}
+        onMouseEnter={kompakt ? undefined : () => setAktiv(id)}
+        onMouseLeave={kompakt ? undefined : () => setAktiv((a) => (a === id ? null : a))}
+        onFocus={kompakt ? undefined : () => setAktiv(id)}
+        onBlur={kompakt ? undefined : () => setAktiv((a) => (a === id ? null : a))}
         onClick={() => {
+          if (kompakt) {
+            onMandat?.();
+            return;
+          }
           if (istCta && aktiv === id) {
             onMandat?.();
             return;
@@ -215,6 +229,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
       >
         {kind}
       </button>
+      )}
       <span
         style={{
           position: "absolute",
@@ -359,9 +374,75 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
       {wort(m3, inhalt.kanten[2], kompakt ? "mitte" : "oben")}
     </div>
 
-    {/* ── P7: Lesezone — EIN Platz für alle drei Erklärtexte.
-        Feste Höhe über das unsichtbare Stapeln aller Texte, damit
-        beim Zeigen nichts springt. aria-live liest den Wechsel vor. */}
+    {/* ── Lesezone.
+        BREIT: EIN Platz für alle drei Erklärtexte, feste Höhe über
+        das unsichtbare Stapeln — beim Zeigen springt nichts,
+        aria-live liest den Wechsel vor.
+        KOMPAKT: kein Zeigen, keine Reserve — alle drei Texte stehen
+        STATISCH untereinander, mit dem Knotennamen als Absender.
+        Der Tellian-Eintrag ist der Verweis zur Mandat-Seite. */}
+    {kompakt ? (
+      <div
+        style={{
+          marginTop: "22px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "18px",
+        }}
+      >
+        {(["sie", "bank"] as const).map((id) => (
+          <p
+            key={id}
+            lang={sprache === "EN" ? "en" : "de"}
+            style={{ margin: 0 }}
+          >
+            <span
+              style={{
+                display: "block",
+                marginBottom: "4px",
+                fontFamily: sans,
+                fontSize: "12px",
+                letterSpacing: "0.16em",
+                textTransform: "uppercase",
+                color: C.stone,
+              }}
+            >
+              {inhalt[id]}
+            </span>
+            <span
+              style={{
+                fontFamily: sans,
+                fontSize: "14px",
+                lineHeight: 1.65,
+                color: C.accent,
+              }}
+            >
+              {inhalt.prosa[id]}
+            </span>
+          </p>
+        ))}
+        <button
+          type="button"
+          onClick={() => onMandat?.()}
+          className="tellian-dreieck-mandat"
+          style={{
+            alignSelf: "flex-start",
+            margin: 0,
+            padding: "10px 0",
+            background: "transparent",
+            border: "none",
+            borderBottom: `1px solid ${C.purple}`,
+            fontFamily: sans,
+            fontSize: "13px",
+            letterSpacing: "0.08em",
+            color: C.ink,
+            cursor: "pointer",
+          }}
+        >
+          {inhalt.prosa.tellian}
+        </button>
+      </div>
+    ) : (
     <div
       aria-live="polite"
       style={{ position: "relative", marginTop: "10px", display: "grid" }}
@@ -388,6 +469,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         </p>
       ))}
     </div>
+    )}
 
     <style>{`
       .tellian-dreieck-knoten { outline: none; }
