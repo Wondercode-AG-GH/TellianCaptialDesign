@@ -39,14 +39,11 @@ interface Inhalt {
   bank: string;
   /** Sie↔Tellian · Sie↔Depotbank · Tellian↔Depotbank */
   kanten: readonly [string, string, string];
-  /** Erklärtexte. TODO-HOVER-DEPOTBANK: die Depotbank trägt KEINEN
-      Text — der einzige Text der Git-History («Ihr Vermögen liegt
-      bei ausgewählten Kooperationsbanken …», ParteiDreieck bis
-      d16dfad) wurde vom Review 05.09 (P1.1) als erfunden ersatzlos
-      gelöscht und wird nicht wiederhergestellt. Bis ein Text aus
-      dem Quelldokument vorliegt, ist der Knoten PASSIV (Review
-      05.09 abends, P2.1: kein leeres Panel). */
-  prosa: Readonly<Record<"sie" | "tellian", string>>;
+  /** Erklärtexte. Die Kooperationsbanken-Zeile war am 05.09 (P1.1)
+      als nicht belegt gelöscht — am 06.09 hat der Kunde sie
+      ausdrücklich geliefert; sie gilt damit als final. EN ist die
+      historische Fassung aus derselben früheren Grafik. */
+  prosa: Readonly<Record<"sie" | "tellian" | "bank", string>>;
 }
 
 const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
@@ -62,6 +59,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
     prosa: {
       sie: "Sie haben einen persönlichen Ansprechpartner und jederzeit vollständige Transparenz. Ihr Portfolio wird laufend überwacht, und Sie werden regelmässig darüber informiert.",
       tellian: "Unsere Leistungen für Sie\u00A0→",
+      bank: "Ihr Vermögen liegt bei ausgewählten Kooperationsbanken in der Schweiz und in Liechtenstein — zu besten Konditionen.",
     },
   },
   EN: {
@@ -78,6 +76,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
     prosa: {
       sie: "You have a personal point of contact and full transparency at all times. Your portfolio is continuously monitored, and you are kept regularly informed.",
       tellian: "Our services for you\u00A0→",
+      bank: "Your assets are held at selected partner banks in Switzerland and Liechtenstein — on the best terms.",
     },
   },
   /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
@@ -93,6 +92,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
     prosa: {
       sie: "Sie haben einen persönlichen Ansprechpartner und jederzeit vollständige Transparenz. Ihr Portfolio wird laufend überwacht, und Sie werden regelmässig darüber informiert.",
       tellian: "Unsere Leistungen für Sie\u00A0→",
+      bank: "Ihr Vermögen liegt bei ausgewählten Kooperationsbanken in der Schweiz und in Liechtenstein — zu besten Konditionen.",
     },
   },
 };
@@ -174,9 +174,6 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
     beschriftung: string,
   ) => {
     const istCta = id === "tellian";
-    /* TODO-HOVER-DEPOTBANK: ohne Quelltext kein Hover-Verhalten —
-       der Knoten ist reine Darstellung (P2.1). */
-    const istPassiv = id === "bank";
     const kreisStil: React.CSSProperties = {
       position: "absolute",
       left: pz(zentrum.x, 640),
@@ -195,11 +192,6 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
     };
     return (
     <>
-      {istPassiv ? (
-        <div aria-hidden style={kreisStil}>
-          {kind}
-        </div>
-      ) : (
       <button
         type="button"
         onMouseEnter={() => setAktiv(id)}
@@ -215,15 +207,14 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         }}
         aria-label={
           istCta
-            ? `${beschriftung} — ${inhalt.prosa[id as "tellian"].replace("\u00A0→", "")}`
-            : `${beschriftung} — ${inhalt.prosa[id as "sie"]}`
+            ? `${beschriftung} — ${inhalt.prosa[id].replace("\u00A0→", "")}`
+            : `${beschriftung} — ${inhalt.prosa[id]}`
         }
         className="tellian-dreieck-knoten"
         style={{ ...kreisStil, cursor: "pointer", font: "inherit" }}
       >
         {kind}
       </button>
-      )}
       <span
         style={{
           position: "absolute",
@@ -375,7 +366,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
       aria-live="polite"
       style={{ position: "relative", marginTop: "10px", display: "grid" }}
     >
-      {(["sie", "tellian"] as const).map((id) => (
+      {(["sie", "tellian", "bank"] as const).map((id) => (
         <p
           key={id}
           lang={sprache === "EN" ? "en" : "de"}
