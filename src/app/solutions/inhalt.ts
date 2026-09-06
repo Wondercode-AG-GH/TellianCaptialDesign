@@ -142,13 +142,15 @@ export const SOLUTIONS_INHALT: Readonly<Record<SolutionsSprache, SolutionsInhalt
 };
 
 /* UI-LABEL-REVIEW: Microcopy der Stationsleiste — zur Freigabe
-   markiert (Briefing 06.09). */
+   markiert (Briefing 06.09). Korrektur 06.09: «Was wir tun» und
+   «Vorgehen» sind EINE Station — die Leiste führt drei Einträge,
+   der Weg steht innerhalb der Station. */
 export const SOLUTIONS_LEISTE: Readonly<
-  Record<SolutionsSprache, readonly [string, string, string, string]>
+  Record<SolutionsSprache, readonly [string, string, string]>
 > = {
-  DE: ["Einstieg", "Was wir tun", "Vorgehen", "Kontakt"],
-  EN: ["Introduction", "What we do", "Approach", "Contact"],
-  FR: ["Introduction", "Ce que nous faisons", "Approche", "Contact"],
+  DE: ["Einstieg", "Was wir tun", "Kontakt"],
+  EN: ["Introduction", "What we do", "Contact"],
+  FR: ["Introduction", "Ce que nous faisons", "Contact"],
 };
 
 /* Referenzstabile Registry für die Scroll-Engine und die Band-
@@ -169,14 +171,6 @@ export const SOLUTIONS_SEKTIONEN: readonly SectionDef[] = [
     labelKurz: "Was wir tun",
     dunkel: true,
     domId: "solutions-was-wir-tun",
-    imageIds: [],
-  },
-  {
-    key: "vorgehen",
-    label: "Vorgehen",
-    labelKurz: "Vorgehen",
-    dunkel: false,
-    domId: "solutions-vorgehen",
     imageIds: [],
   },
   {

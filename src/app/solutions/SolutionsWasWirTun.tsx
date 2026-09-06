@@ -3,12 +3,15 @@ import { Aufgang, Kapitelmarke } from "../components/MobilSektion";
 import { SOLUTIONS_INHALT, SOLUTIONS_LEISTE } from "./inhalt";
 
 /* ═══════════════════════════════════════════════════════════
-   SOLUTIONS S2 — WAS WIR TUN (dunkel)
+   SOLUTIONS S2 — WAS WIR TUN + VORGEHEN (dunkel, kombiniert)
 
-   Typografischer Statement-Block: Kicker in Mushroom, Statement in
-   Lustria, Absatz, Credo in editorialer Kursive (Archive White).
-   Links ausgerichtet in der Textzone, als Gruppe vertikal zentriert
-   (G1); Fläche und Verlauf wie die dunklen Stationen der Hauptseite.
+   Korrektur 06.09: beide Blöcke in EINER Station. Das Raster der
+   Seite bleibt G1 — links Text, rechts Darstellung: links der
+   Statement-Block (Kicker Mushroom, Statement Lustria, Absatz,
+   Credo in editorialer Kursive), rechts der nummerierte Weg als
+   gestapelte Spalte — Lustria-Ziffern in Mushroom, Haarlinien
+   zwischen den Schritten, Texte in den hellen Tönen der dunklen
+   Stationen. Beide Gruppen vertikal zentriert.
    ═══════════════════════════════════════════════════════════ */
 
 interface Props {
@@ -19,9 +22,12 @@ interface Props {
 
 const ARCHIVE_WHITE = "#F4F4F0";
 const MUSHROOM = "#B8AEA3";
+const SILBER = "rgba(249, 249, 247, 0.78)";
+const HAARLINIE = "rgba(249, 249, 247, 0.16)";
 
 export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Props) {
   const inhalt = SOLUTIONS_INHALT[sprache].wasWirTun;
+  const schritte = SOLUTIONS_INHALT[sprache].vorgehen.schritte;
 
   const kicker = (
     <p
@@ -42,9 +48,9 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
     <h2
       style={{
         margin: "clamp(18px, 2.4vh, 28px) 0 0",
-        maxWidth: "18em",
+        maxWidth: "14em",
         fontFamily: serif,
-        fontSize: "clamp(32px, 3.6vw, 56px)",
+        fontSize: "clamp(30px, 3vw, 48px)",
         fontWeight: 400,
         lineHeight: 1.12,
         letterSpacing: "-0.01em",
@@ -60,11 +66,11 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
       lang={sprache === "EN" ? "en" : "de"}
       style={{
         margin: "clamp(24px, 3.2vh, 40px) 0 0",
-        maxWidth: "52ch",
+        maxWidth: "46ch",
         fontFamily: sans,
         fontSize: "16px",
         lineHeight: "var(--tellian-lauf-lh, 1.75)",
-        color: "rgba(249, 249, 247, 0.78)",
+        color: SILBER,
       }}
     >
       {inhalt.absatz}
@@ -77,13 +83,83 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
         margin: "clamp(28px, 3.8vh, 48px) 0 0",
         fontFamily: cormorant,
         fontStyle: "italic",
-        fontSize: "clamp(19px, 1.8vw, 26px)",
+        fontSize: "clamp(19px, 1.8vw, 24px)",
         lineHeight: 1.4,
         color: ARCHIVE_WHITE,
       }}
     >
       {inhalt.credo}
     </p>
+  );
+
+  /* Der Weg — gestapelt, mit Haarlinien im dunklen Vokabular. */
+  const weg = (mitAufgang: boolean) => (
+    <ol
+      style={{
+        listStyle: "none",
+        margin: 0,
+        padding: 0,
+        display: "flex",
+        flexDirection: "column",
+        gap: "clamp(22px, 3.2vh, 36px)",
+      }}
+    >
+      {schritte.map((s, i) => {
+        const eintrag = (
+          <>
+            <span
+              style={{
+                display: "block",
+                fontFamily: serif,
+                fontSize: "clamp(18px, 1.5vw, 22px)",
+                fontWeight: 300,
+                lineHeight: 1,
+                letterSpacing: "0.04em",
+                color: MUSHROOM,
+              }}
+            >
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span
+              style={{
+                display: "block",
+                marginTop: "10px",
+                fontFamily: serif,
+                fontSize: "clamp(20px, 1.7vw, 26px)",
+                lineHeight: 1.15,
+                color: ARCHIVE_WHITE,
+              }}
+            >
+              {s.titel}
+            </span>
+            <span
+              style={{
+                display: "block",
+                marginTop: "8px",
+                maxWidth: "52ch",
+                fontFamily: sans,
+                fontSize: "var(--tellian-adv-step-text-size)",
+                lineHeight: 1.55,
+                color: SILBER,
+              }}
+            >
+              {s.zeile}
+            </span>
+          </>
+        );
+        return (
+          <li
+            key={s.titel}
+            style={{
+              borderTop: i === 0 ? "none" : `1px solid ${HAARLINIE}`,
+              paddingTop: i === 0 ? 0 : "clamp(22px, 3.2vh, 36px)",
+            }}
+          >
+            {mitAufgang ? <Aufgang stufe={i + 1}>{eintrag}</Aufgang> : eintrag}
+          </li>
+        );
+      })}
+    </ol>
   );
 
   if (isVertical) {
@@ -113,6 +189,7 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
             {absatz}
             {credo}
           </Aufgang>
+          <div style={{ marginTop: "clamp(40px, 6vh, 64px)" }}>{weg(true)}</div>
         </div>
       </section>
     );
@@ -139,17 +216,23 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
           paddingBottom: "var(--tellian-s1-stage-pad)",
           paddingLeft: "calc(var(--tellian-rail-width) + var(--tellian-station-pad-x))",
           paddingRight: "var(--tellian-station-pad-x)",
-          display: "flex",
+          display: "grid",
+          gridTemplateColumns: "5fr 6fr",
+          columnGap: "clamp(48px, 6vw, 112px)",
           alignItems: "center",
           boxSizing: "border-box",
         }}
       >
+        {/* ══ Links: Statement-Block ══ */}
         <div style={{ minWidth: 0 }}>
           {kicker}
           {statement}
           {absatz}
           {credo}
         </div>
+
+        {/* ══ Rechts: der Weg, vertikal zentriert ══ */}
+        <div style={{ minWidth: 0 }}>{weg(false)}</div>
       </div>
     </div>
   );

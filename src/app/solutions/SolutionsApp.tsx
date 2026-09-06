@@ -14,7 +14,6 @@ import { useBandZonen } from "../components/useBandTon";
 import { SOLUTIONS_SEKTIONEN, solutionsLeisteSektionen } from "./inhalt";
 import { SolutionsEinstieg } from "./SolutionsEinstieg";
 import { SolutionsWasWirTun } from "./SolutionsWasWirTun";
-import { SolutionsVorgehen } from "./SolutionsVorgehen";
 
 /* ═══════════════════════════════════════════════════════════
    TELLIAN CAPITAL SOLUTIONS — zweite Stationen-Erfahrung
@@ -132,7 +131,6 @@ export function SolutionsApp() {
 
         <SolutionsEinstieg isVertical sprache={sprache} />
         <SolutionsWasWirTun isVertical sprache={sprache} />
-        <SolutionsVorgehen isVertical sprache={sprache} />
         {/* TODO-SOLUTIONS-FIRMA: der Kontaktblock zeigt Firmenname
             und Absender der HAUPTSEITE — die Bestätigung des Namens
             für den Solutions-Kontaktblock steht aus. */}
@@ -140,11 +138,11 @@ export function SolutionsApp() {
           isVertical
           domId="solutions-kontakt"
           onOpenLegal={legal.open}
-          markeNr="04"
-          markeName={leisteSektionen[3].label}
+          markeNr="03"
+          markeName={leisteSektionen[2].label}
         />
 
-        <LoginOverlay open={loginOpen} onClose={() => setLoginOpen(false)} onSupportClick={() => navigateToSection(3)} />
+        <LoginOverlay open={loginOpen} onClose={() => setLoginOpen(false)} onSupportClick={() => navigateToSection(2)} />
         <LegalPage activePath={legal.activePath} onClose={legal.close} />
       </div>
     );
@@ -168,15 +166,12 @@ export function SolutionsApp() {
         <SectionEnteredProvider value={entered[1]}>
           <SolutionsWasWirTun panelRef={panelRef(1)} sprache={sprache} />
         </SectionEnteredProvider>
-        <SectionEnteredProvider value={entered[2]}>
-          <SolutionsVorgehen panelRef={panelRef(2)} sprache={sprache} />
-        </SectionEnteredProvider>
         {/* TODO-SOLUTIONS-FIRMA: der Kontaktblock zeigt Firmenname
             und Absender der HAUPTSEITE — die Bestätigung des Namens
             für den Solutions-Kontaktblock steht aus. KEIN eigener
             Name erfunden. */}
-        <SectionEnteredProvider value={entered[3]}>
-          <Station6Kontakt panelRef={panelRef(3)} domId="solutions-kontakt" onOpenLegal={legal.open} />
+        <SectionEnteredProvider value={entered[2]}>
+          <Station6Kontakt panelRef={panelRef(2)} domId="solutions-kontakt" onOpenLegal={legal.open} />
         </SectionEnteredProvider>
       </div>
 
@@ -188,7 +183,7 @@ export function SolutionsApp() {
         sektionen={leisteSektionen}
       />
 
-      <LoginOverlay open={loginOpen} onClose={() => setLoginOpen(false)} onSupportClick={() => navigateToSection(3)} />
+      <LoginOverlay open={loginOpen} onClose={() => setLoginOpen(false)} onSupportClick={() => navigateToSection(2)} />
       <LegalPage activePath={legal.activePath} onClose={legal.close} />
     </div>
   );
