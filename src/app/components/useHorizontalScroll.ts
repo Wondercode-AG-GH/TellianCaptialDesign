@@ -1,6 +1,6 @@
 import { useRef, useEffect, useLayoutEffect, useCallback, useState } from "react";
 
-import { SECTIONS, SECTION_COUNT } from "../sections";
+import { SECTIONS, type SectionDef } from "../sections";
 import { EASE } from "../../styles/motion";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
@@ -225,6 +225,9 @@ function createDebugInfo(): ScrollDebugInfo {
 interface UseHorizontalScrollOptions {
   /** When true the hook becomes a no-op (vertical mode) */
   disabled?: boolean;
+  /** Eigene Stationenliste (Solutions). Ohne Angabe: die Registry
+      der Hauptseite. Muss referenzstabil sein. */
+  sektionen?: readonly SectionDef[];
   /**
    * Sperrt jede Eingabe, ohne den Hook abzubauen. Für offene Overlays
    * und die Intro-Phase: der Wheel-Handler ist dort schon durch
@@ -242,7 +245,13 @@ interface UseHorizontalScrollOptions {
 export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   const disabled = opts?.disabled ?? false;
   const locked = opts?.locked ?? false;
-  const initialIndex = Math.max(0, Math.min(SECTION_COUNT - 1, opts?.initialIndex ?? 0));
+  /* Solutions: dieselbe Engine faehrt eine zweite Stationenliste.
+     Ohne Angabe gilt die Registry der Hauptseite — Verhalten dort
+     unveraendert. Die Liste muss referenzstabil sein (Modul-
+     konstante), sie haengt in Mess-Effekten. */
+  const sektionen = opts?.sektionen ?? SECTIONS;
+  const anzahl = sektionen.length;
+  const initialIndex = Math.max(0, Math.min(anzahl - 1, opts?.initialIndex ?? 0));
   const reducedMotion = usePrefersReducedMotion();
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -292,7 +301,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 
   const panelSettersRef = useRef<Array<(el: HTMLDivElement | null) => void> | null>(null);
   if (!panelSettersRef.current) {
-    panelSettersRef.current = SECTIONS.map(
+    panelSettersRef.current = sektionen.map(
       (_, i) => (el: HTMLDivElement | null) => {
         panelsRef.current[i] = el;
       }
@@ -318,7 +327,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       `${(peakLagRef.current * LAYER_OVERSCAN_MARGIN).toFixed(2)}px`
     );
 
-    measuredRef.current = SECTIONS.map((_, i) => {
+    measuredRef.current = sektionen.map((_, i) => {
       const el = panelsRef.current[i];
       const offset = el?.offsetLeft ?? 0;
       const width = el?.offsetWidth ?? 0;
@@ -502,7 +511,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       const sections = measuredRef.current;
       if (!sections.length) return;
 
-      const index = Math.max(0, Math.min(SECTION_COUNT - 1, next));
+      const index = Math.max(0, Math.min(anzahl - 1, next));
       const to = clamp(sections[index].snap);
 
       cancelAnimationFrame(glideRef.current);
@@ -730,7 +739,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       if (isTypingTarget(e.target)) return;
 
       if (e.key === "Home") { e.preventDefault(); jumpToIndex(0); return; }
-      if (e.key === "End") { e.preventDefault(); jumpToIndex(SECTION_COUNT - 1); return; }
+      if (e.key === "End") { e.preventDefault(); jumpToIndex(anzahl - 1); return; }
 
       const stepPx = (containerRef.current?.clientWidth ?? 0) * KEY_STEP_FRACTION;
       let step = 0;

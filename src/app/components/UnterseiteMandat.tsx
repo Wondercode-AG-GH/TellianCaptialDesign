@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { C, cormorant, sans, serif } from "../tokens";
+import { SchritteRaster } from "./SchritteRaster";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
 /* ═══════════════════════════════════════════════════════════
@@ -471,83 +472,14 @@ export function UnterseiteMandat({
       >
       {zwischentitel}
 
-      <ol
-        style={{
-          listStyle: "none",
-          margin: 0,
-          padding: 0,
-          display: "grid",
-          gridTemplateColumns: `repeat(${SCHRITTE.length}, minmax(0, 1fr))`,
-          gridTemplateRows: "auto auto auto",
-          columnGap: "var(--tellian-adv-col-gap)",
-          position: "relative",
-          /* Fünf Spalten brauchen mehr Lauf als die drei der
-             Advisory-Seite — sonst werden die Titel schmaler als
-             ihre Wörter. */
-          maxWidth: "var(--tellian-mandat-weg-max)",
-        }}
-      >
-        {/* Haarlinie von der Mitte der ersten bis zur Mitte der
-            letzten Spalte. Bei fünf gleichen Spalten ist eine halbe
-            Spaltenbreite (100 % − 4 Zwischenräume) / 10. */}
-        <span
-          aria-hidden
-          style={{
-            position: "absolute",
-            left: "calc((100% - 4 * var(--tellian-adv-col-gap)) / 10)",
-            right: "calc((100% - 4 * var(--tellian-adv-col-gap)) / 10)",
-            top: "calc(var(--tellian-adv-num-size) / 2)",
-            height: "1px",
-            backgroundColor: "var(--tellian-adv-line)",
-            transformOrigin: "left center",
-            transform: gezeigt ? "scaleX(1)" : "scaleX(0)",
-            transition: reducedMotion
-              ? "none"
-              : `transform ${LINIE_MS}ms cubic-bezier(0.22,0.61,0.36,1) ${VORLAUF_MS}ms`,
-          }}
-        />
-
-        {/* P3: Ziffer, Titel und Zeile sind DIREKTE Rasterkinder in
-            drei gemeinsamen Zeilen — Titel und Textanfänge fluchten
-            dadurch zeilengenau über alle Spalten, auch wenn ein
-            Titel umbricht. */}
-        {SCHRITTE.map((s, i) => (
-          <li key={s.titel} style={{ display: "contents" }}>
-            <span
-              style={{
-                gridColumn: i + 1,
-                gridRow: 1,
-                position: "relative",
-                ...zifferStil,
-                paddingRight: "var(--tellian-adv-num-gap)",
-                ...stufe(i),
-              }}
-            >
-              {ziffer(i)}
-            </span>
-            <span
-              style={{
-                gridColumn: i + 1,
-                gridRow: 2,
-                paddingTop: "clamp(14px, 2.2vh, 26px)",
-                ...stufe(i),
-              }}
-            >
-              {schrittTitel(s.titel)}
-            </span>
-            <span
-              style={{
-                gridColumn: i + 1,
-                gridRow: 3,
-                paddingTop: "clamp(8px, 1.2vh, 14px)",
-                ...stufe(i),
-              }}
-            >
-              {schrittZeile(s.zeile)}
-            </span>
-          </li>
-        ))}
-      </ol>
+      {/* Der nummerierte Weg — geteiltes Raster (SchritteRaster),
+          zeilengenau wie zuvor inline. */}
+      <SchritteRaster
+        schritte={SCHRITTE}
+        gezeigt={gezeigt}
+        reducedMotion={reducedMotion}
+        maxWidth="var(--tellian-mandat-weg-max)"
+      />
 
       {bloecke}
       {knopf}

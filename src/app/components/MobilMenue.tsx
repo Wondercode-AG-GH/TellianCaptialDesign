@@ -28,6 +28,8 @@ interface Props {
   activeIndex: number;
   onNavigate: (index: number) => void;
   onOpenLegal?: (path: LegalPath) => void;
+  /** Eigene Einträge (Solutions); ohne Angabe die Hauptseite. */
+  sektionen?: readonly SectionDef[];
 }
 
 export function MobilMenue({
@@ -36,6 +38,7 @@ export function MobilMenue({
   activeIndex,
   onNavigate,
   onOpenLegal,
+  sektionen = SECTIONS,
 }: Props) {
   const panelRef = useRef<HTMLDivElement | null>(null);
 
@@ -182,7 +185,7 @@ export function MobilMenue({
           flexDirection: "column",
         }}
       >
-        {SECTIONS.map((s, i) => {
+        {sektionen.map((s, i) => {
           const aktiv = activeIndex === i;
           return (
             <button

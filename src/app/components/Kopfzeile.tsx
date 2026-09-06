@@ -64,6 +64,11 @@ interface Props {
   isVertical?: boolean;
   menueOffen?: boolean;
   onMenue?: () => void;
+  /** Solutions: Zusatz «SOLUTIONS» in Mushroom neben dem Lockup;
+      das Logo führt dann zur Hauptseite (logoHref/eigenes Label). */
+  zusatz?: string;
+  logoHref?: string;
+  logoLabel?: string;
 }
 
 /* Schlosszeichen. Rein dekorativ — der Knopf trägt seinen Namen
@@ -94,6 +99,9 @@ export function Kopfzeile({
   isVertical = false,
   menueOffen = false,
   onMenue,
+  zusatz,
+  logoHref,
+  logoLabel,
 }: Props) {
   /* ── DECKENDE FLÄCHE, NUR IM SCHMALEN ZWEIG ──
      Dort scrollt die Seite senkrecht unter der festen Kopfzeile
@@ -170,13 +178,13 @@ export function Kopfzeile({
     return (
       <>
         <a
-          href={`#${SECTIONS[0].key}`}
+          href={logoHref ?? `#${SECTIONS[0].key}`}
           onClick={(e) => {
             e.preventDefault();
             if (griff) onLogo();
           }}
           className="tellian-kopf-ziel tellian-kopf-logo"
-          aria-label={`Tellian Capital — zurück zu ${SECTIONS[0].label}`}
+          aria-label={logoLabel ?? `Tellian Capital — zurück zu ${SECTIONS[0].label}`}
           aria-hidden={!griff}
           tabIndex={griff ? undefined : -1}
           style={{ display: "flex", alignItems: "center", flexShrink: 0 }}
@@ -219,6 +227,25 @@ export function Kopfzeile({
               />
             )}
           </span>
+          {/* Solutions-Zusatz: Mushroom liest auf hellen wie dunklen
+              Flächen — eine Fassung für alle Schichten. */}
+          {zusatz && (
+            <span
+              className="tellian-kopf-zusatz"
+              style={{
+                marginLeft: "10px",
+                fontFamily: "inherit",
+                fontSize: "var(--tellian-kopf-size)",
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+                color: "#B8AEA3",
+                whiteSpace: "nowrap",
+                transform: "translateY(1px)",
+              }}
+            >
+              {zusatz}
+            </span>
+          )}
         </a>
 
         <div

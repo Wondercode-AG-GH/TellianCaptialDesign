@@ -682,6 +682,10 @@ interface Props {
   isVertical?: boolean;
   domId?: string;
   onOpenLegal?: (path: LegalPath) => void;
+  /** Kapitelmarke des schmalen Zweigs — Solutions führt die Station
+      als «04 Kontakt/Contact», die Hauptseite als «06 Kontakt». */
+  markeNr?: string;
+  markeName?: string;
 }
 
 export function Station6Kontakt({
@@ -689,6 +693,8 @@ export function Station6Kontakt({
   isVertical = false,
   domId,
   onOpenLegal,
+  markeNr = "06",
+  markeName = "Kontakt",
 }: Props) {
   const [karteOffen, setKarteOffen] = useState(false);
   const karteBtn = useRef<HTMLButtonElement | null>(null);
@@ -1144,7 +1150,7 @@ export function Station6Kontakt({
           }}
         >
           <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
-            <Kapitelmarke nr="06" name="Kontakt" hell />
+            <Kapitelmarke nr={markeNr} name={markeName} hell />
           </div>
           <Aufgang>{titel}</Aufgang>
           {lead(false)}

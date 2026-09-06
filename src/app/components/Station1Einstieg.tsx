@@ -92,6 +92,51 @@ interface Props {
   bandImageId?: ImageId;
 }
 
+/* ── Randloses Bildpanel des Heros — GETEILT ──
+   Solutions (S1) verwendet exakt diese Behandlung: Platzhalterton,
+   randlose Fläche, responsive Quelle mit denselben sizes-Werten.
+   Herausgelöst aus dem internen bildpanel(); Verhalten der
+   Hauptseite unverändert. */
+export function HeroBildPanel({
+  imageId,
+  alt,
+  breit,
+  verhaeltnis = "var(--tellian-s1-panel-ratio)",
+  style,
+}: {
+  imageId: ImageId | null | undefined;
+  alt: string;
+  breit: boolean;
+  verhaeltnis?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <div
+      style={{
+        width: "100%",
+        aspectRatio: verhaeltnis,
+        maxHeight: breit ? "100%" : undefined,
+        backgroundColor: "var(--tellian-s1-panel-placeholder)",
+        overflow: "hidden",
+        ...style,
+      }}
+    >
+      {imageId && (
+        <ResponsiveImage
+          id={imageId}
+          alt={alt}
+          /* Breit misst das Panel gemessen 33 bis 35 % der
+             Fensterbreite, schmal die volle. */
+          sizes={breit ? "34vw" : "100vw"}
+          priority
+          className="w-full h-full"
+          style={{ display: "block" }}
+        />
+      )}
+    </div>
+  );
+}
+
 export function Station1Einstieg({
   panelRef,
   isVertical = false,
@@ -244,29 +289,13 @@ export function Station1Einstieg({
     const verhaeltnis =
       breit || !bandImageId ? "var(--tellian-s1-panel-ratio)" : "9 / 5";
     return (
-      <div
-        style={{
-          width: "100%",
-          aspectRatio: verhaeltnis,
-          maxHeight: breit ? "100%" : undefined,
-          backgroundColor: "var(--tellian-s1-panel-placeholder)",
-          overflow: "hidden",
-          ...enter(STEP.panel, 20),
-        }}
-      >
-        {motiv && (
-          <ResponsiveImage
-            id={motiv}
-            alt={imageAlt}
-            /* Breit misst das Panel gemessen 33 bis 35 % der
-               Fensterbreite, schmal die volle. */
-            sizes={breit ? "34vw" : "100vw"}
-            priority
-            className="w-full h-full"
-            style={{ display: "block" }}
-          />
-        )}
-      </div>
+      <HeroBildPanel
+        imageId={motiv}
+        alt={imageAlt}
+        breit={breit}
+        verhaeltnis={verhaeltnis}
+        style={enter(STEP.panel, 20)}
+      />
     );
   };
 

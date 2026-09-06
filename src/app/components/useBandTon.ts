@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { SECTIONS } from "../sections";
+import { SECTIONS, type SectionDef } from "../sections";
 
 /* ═══════════════════════════════════════════════════════════
    TON DER BEIDEN BÄNDER
@@ -44,16 +44,20 @@ const FEDER = 1.5;
  * Sichtbare Stationsbereiche im Fenster, links nach rechts.
  * Im schmalen Zweig eine einzige Zone — dort gibt es keinen Track.
  */
-export function useBandZonen(aktiv: boolean, activeIndex: number): Zone[] {
+export function useBandZonen(
+  aktiv: boolean,
+  activeIndex: number,
+  sektionen: readonly SectionDef[] = SECTIONS,
+): Zone[] {
   const [zonen, setZonen] = useState<Zone[]>(() => [
-    { von: 0, bis: 10000, dunkel: SECTIONS[0]?.dunkel ?? false },
+    { von: 0, bis: 10000, dunkel: sektionen[0]?.dunkel ?? false },
   ]);
   const letzte = useRef("");
 
   useEffect(() => {
     if (!aktiv) {
       const z = [
-        { von: 0, bis: 10000, dunkel: SECTIONS[activeIndex]?.dunkel ?? false },
+        { von: 0, bis: 10000, dunkel: sektionen[activeIndex]?.dunkel ?? false },
       ];
       letzte.current = JSON.stringify(z);
       setZonen(z);
@@ -69,7 +73,7 @@ export function useBandZonen(aktiv: boolean, activeIndex: number): Zone[] {
 
       const roh: Zone[] = [];
       panels.forEach((el) => {
-        const s = SECTIONS[Number(el.dataset.tellianStation)];
+        const s = sektionen[Number(el.dataset.tellianStation)];
         if (!s) return;
         const r = el.getBoundingClientRect();
         const von = Math.max(0, r.left);

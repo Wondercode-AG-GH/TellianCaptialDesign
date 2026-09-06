@@ -1,7 +1,7 @@
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
 
 import { sans } from "../tokens";
-import { SECTIONS, sectionOrdinal } from "../sections";
+import { SECTIONS, sectionOrdinal, type SectionDef } from "../sections";
 import { EASE } from "../../styles/motion";
 import { SCROLL_TUNING } from "./useHorizontalScroll";
 import { zonenMaske, hatZone, type Zone } from "./useBandTon";
@@ -22,9 +22,12 @@ interface DotNavigationProps {
   onNavigate: (index: number) => void;
   /** Sichtbare Stationsbereiche — siehe useBandZonen. */
   zonen: Zone[];
+  /** Eigene Einträge (Solutions). Ohne Angabe: Registry der
+      Hauptseite — Optik und Verhalten identisch. */
+  sektionen?: readonly SectionDef[];
 }
 
-export function DotNavigation({ activeIndex, onNavigate, zonen }: DotNavigationProps) {
+export function DotNavigation({ activeIndex, onNavigate, zonen, sektionen = SECTIONS }: DotNavigationProps) {
   /* KURZNAMEN STATT KLEINERER SCHRIFT
      Die Untergrenze von 12px gilt auch hier. Wird die Leiste zu eng,
      werden die Namen gekürzt — gemessen wird der tatsächliche
@@ -67,7 +70,7 @@ export function DotNavigation({ activeIndex, onNavigate, zonen }: DotNavigationP
     const pruefen = () => {
       const nav = navRef.current;
       const knoepfe = buttonsRef.current.filter(Boolean) as HTMLButtonElement[];
-      if (!nav || knoepfe.length !== SECTIONS.length) return;
+      if (!nav || knoepfe.length !== sektionen.length) return;
       const stil = getComputedStyle(nav);
       const platz =
         nav.clientWidth -
@@ -123,7 +126,7 @@ export function DotNavigation({ activeIndex, onNavigate, zonen }: DotNavigationP
         ? "var(--tellian-band-dim-dunkel)"
         : "var(--tellian-station-inactive)";
 
-    return SECTIONS.map((section, i) => {
+    return sektionen.map((section, i) => {
       const isActive = activeIndex === i;
       return (
         <button

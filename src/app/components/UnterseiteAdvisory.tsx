@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { C, cormorant, sans, serif } from "../tokens";
+import { SchritteRaster } from "./SchritteRaster";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
 /* ═══════════════════════════════════════════════════════════
@@ -437,83 +438,14 @@ export function UnterseiteAdvisory({
           paddingBottom: "clamp(64px, 8vh, 96px)",
         }}
       >
-      <ol
-        style={{
-          listStyle: "none",
-          margin: 0,
-          padding: 0,
-          display: "grid",
-          gridTemplateColumns: `repeat(${SCHRITTE.length}, minmax(0, 1fr))`,
-          gridTemplateRows: "auto auto auto",
-          columnGap: "var(--tellian-adv-col-gap)",
-          position: "relative",
-          maxWidth: "var(--tellian-adv-weg-max)",
-        }}
-      >
-        {/* Die durchgehende Haarlinie auf halber Zifferhöhe. Sie
-            beginnt in der MITTE der ersten und endet in der Mitte der
-            letzten Spalte — über die volle Rasterbreite ragte sie
-            links vor 01 und rechts nach 03 ins Leere. Bei drei
-            gleichen Spalten ist eine halbe Spaltenbreite
-            (100 % − 2 Zwischenräume) / 6. */}
-        <span
-          aria-hidden
-          style={{
-            position: "absolute",
-            left: "calc((100% - 2 * var(--tellian-adv-col-gap)) / 6)",
-            right: "calc((100% - 2 * var(--tellian-adv-col-gap)) / 6)",
-            top: "calc(var(--tellian-adv-num-size) / 2)",
-            height: "1px",
-            backgroundColor: "var(--tellian-adv-line)",
-            transformOrigin: "left center",
-            transform: gezeigt ? "scaleX(1)" : "scaleX(0)",
-            transition: reducedMotion
-              ? "none"
-              : `transform ${LINIE_MS}ms cubic-bezier(0.22,0.61,0.36,1) ${VORLAUF_MS}ms`,
-          }}
-        />
-
-        {/* P3: Ziffer, Titel und Zeile sind DIREKTE Rasterkinder in
-            drei gemeinsamen Zeilen — Titel und Textanfänge fluchten
-            dadurch zeilengenau über alle Spalten, auch wenn ein
-            Titel umbricht. */}
-        {SCHRITTE.map((s, i) => (
-          <li key={s.titel} style={{ display: "contents" }}>
-            <span
-              style={{
-                gridColumn: i + 1,
-                gridRow: 1,
-                position: "relative",
-                ...zifferStil,
-                paddingRight: "var(--tellian-adv-num-gap)",
-                ...stufe(i),
-              }}
-            >
-              {ziffer(i)}
-            </span>
-            <span
-              style={{
-                gridColumn: i + 1,
-                gridRow: 2,
-                paddingTop: "clamp(14px, 2.2vh, 26px)",
-                ...stufe(i),
-              }}
-            >
-              {schrittTitel(s.titel)}
-            </span>
-            <span
-              style={{
-                gridColumn: i + 1,
-                gridRow: 3,
-                paddingTop: "clamp(8px, 1.2vh, 14px)",
-                ...stufe(i),
-              }}
-            >
-              {schrittZeile(s.zeile)}
-            </span>
-          </li>
-        ))}
-      </ol>
+      {/* Der nummerierte Weg — geteiltes Raster (SchritteRaster),
+          zeilengenau wie zuvor inline. */}
+      <SchritteRaster
+        schritte={SCHRITTE}
+        gezeigt={gezeigt}
+        reducedMotion={reducedMotion}
+        maxWidth="var(--tellian-adv-weg-max)"
+      />
 
       {bloecke}
       {knopf}
