@@ -131,6 +131,12 @@ export function SolutionsApp() {
           : "Tellian Capital — zurück zur Hauptseite"
       }
       sprachen={["DE", "EN", "FR"]}
+      /* KONTRAST-SONDERFALL (A2): das Solutions-Panorama ist bis zur
+         finalen Tonung ein helles Tagesbild — Portal-Scrim
+         verstärkt, Schrift mit dezentem Schatten (WCAG AA am
+         echten Bild geprüft). */
+      bildScrim="rgba(40, 31, 51, 0.4)"
+      bildSchatten
       /* UI-LABEL-REVIEW: «Portail Client» für den Kundenportal-
          Knopf im Solutions-Kontext (FR ohne Quelle). */
       portalLabel={sprache === "FR" ? "Portail Client" : "Kundenportal"}
@@ -158,7 +164,7 @@ export function SolutionsApp() {
           nebenVerweise={NEBEN_VERWEISE.filter((v) => v.text !== "Solutions")}
         />
 
-        <SolutionsEinstieg isVertical sprache={sprache} />
+        <SolutionsEinstieg isVertical bereit={introComplete} sprache={sprache} />
         <SolutionsWasWirTun isVertical sprache={sprache} />
         <Station5Team
           isVertical

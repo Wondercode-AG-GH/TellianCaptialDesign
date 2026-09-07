@@ -1,4 +1,3 @@
-import { ResponsiveImage } from "./ResponsiveImage";
 import { HeroEditorial } from "./HeroEditorial";
 import type { ImageId } from "../../assets/generated";
 
@@ -73,51 +72,6 @@ interface Props {
    * Zweig das hohe Motiv.
    */
   bandImageId?: ImageId;
-}
-
-/* ── Randloses Bildpanel des Heros — GETEILT ──
-   Solutions (S1) verwendet exakt diese Behandlung: Platzhalterton,
-   randlose Fläche, responsive Quelle mit denselben sizes-Werten.
-   Herausgelöst aus dem internen bildpanel(); Verhalten der
-   Hauptseite unverändert. */
-export function HeroBildPanel({
-  imageId,
-  alt,
-  breit,
-  verhaeltnis = "var(--tellian-s1-panel-ratio)",
-  style,
-}: {
-  imageId: ImageId | null | undefined;
-  alt: string;
-  breit: boolean;
-  verhaeltnis?: string;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <div
-      style={{
-        width: "100%",
-        aspectRatio: verhaeltnis,
-        maxHeight: breit ? "100%" : undefined,
-        backgroundColor: "var(--tellian-s1-panel-placeholder)",
-        overflow: "hidden",
-        ...style,
-      }}
-    >
-      {imageId && (
-        <ResponsiveImage
-          id={imageId}
-          alt={alt}
-          /* Breit misst das Panel gemessen 33 bis 35 % der
-             Fensterbreite, schmal die volle. */
-          sizes={breit ? "34vw" : "100vw"}
-          priority
-          className="w-full h-full"
-          style={{ display: "block" }}
-        />
-      )}
-    </div>
-  );
 }
 
 export function Station1Einstieg({

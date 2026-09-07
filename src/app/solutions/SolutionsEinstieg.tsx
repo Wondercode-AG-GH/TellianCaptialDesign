@@ -1,180 +1,48 @@
-import { C, sans, serif } from "../tokens";
-import { HeroBildPanel } from "../components/Station1Einstieg";
-import { Aufgang, Kapitelmarke } from "../components/MobilSektion";
+import { HeroEditorial } from "../components/HeroEditorial";
 import { SOLUTIONS_INHALT, SOLUTIONS_LEISTE } from "./inhalt";
 
 /* ═══════════════════════════════════════════════════════════
-   SOLUTIONS S1 — EINSTIEG (hell)
+   SOLUTIONS S1 — EINSTIEG (Editorial A2, hell)
 
-   Layout wie Station 01 der Hauptseite: links die Textgruppe
-   vertikal zentriert, rechts das Solutions-Bild als randloses
-   Panel — GETEILTE Komponente HeroBildPanel, identische Behandlung
-   (Platzhalterton, sizes, priority).
+   Dünner Träger um die GETEILTE HeroEditorial-Komponente (siehe
+   dort): Eyebrow «TELLIAN CAPITAL SOLUTIONS», Titel einzeilig ohne
+   Kursivzeile, Hairline, Fliesstext einspaltig; rechts das Zürich-
+   Panorama mit Fokus auf Skyline/Kirchtürmen — der Beschnitt des
+   Panoramas zum Hochformat-Panel ist gewollt.
 
    TODO-BILD-TONUNG: die finale dunkle Tonung des Bilds folgt von
    der Brand-Designerin; bis dahin läuft die Quelle unverändert,
-   KEINE CSS-Filter-Tonung im Produktivcode.
+   KEINE CSS-Filter-Tonung im Produktivcode. Bis dahin liegt die
+   On-Image-Schicht der Bänder auf hellem Tageshimmel — die
+   Kopfzeile erhält deshalb von SolutionsApp den stärkeren
+   Portal-Scrim und den Textschatten (Kontrast-Sonderfall).
    ═══════════════════════════════════════════════════════════ */
 
 interface Props {
   panelRef?: (el: HTMLDivElement | null) => void;
   isVertical?: boolean;
+  bereit?: boolean;
   sprache: "DE" | "EN" | "FR";
 }
 
-/* Das Solutions-Motiv ist 46:25 (~1.84) — das Panel übernimmt das
-   Quellverhältnis, damit «unverändert einsetzen» auch fürs Layout
-   gilt; Behandlung und Breitenlogik bleiben die des Haupt-Heros. */
-const VERHAELTNIS = "46 / 25";
-
-export function SolutionsEinstieg({ panelRef, isVertical = false, sprache }: Props) {
+export function SolutionsEinstieg({ panelRef, isVertical = false, bereit = true, sprache }: Props) {
   const inhalt = SOLUTIONS_INHALT[sprache].einstieg;
 
-  const eyebrow = (
-    <p
-      style={{
-        margin: 0,
-        fontFamily: sans,
-        fontSize: "12px",
-        letterSpacing: "0.22em",
-        textTransform: "uppercase",
-        /* G2: Kicker auf heller Station in Imperial. */
-        color: C.purple,
-      }}
-    >
-      {inhalt.eyebrow}
-    </p>
-  );
-
-  const titel = (
-    <h1
-      style={{
-        margin: "18px 0 0",
-        fontFamily: serif,
-        fontSize: "var(--tellian-s1-title-size)",
-        fontWeight: "var(--tellian-s1-title-weight)" as unknown as number,
-        lineHeight: "var(--tellian-s1-title-leading)" as unknown as number,
-        letterSpacing: "var(--tellian-s1-title-tracking)",
-        color: C.ink,
-      }}
-    >
-      {inhalt.titel}
-    </h1>
-  );
-
-  /* Hairline unter dem Titel — Mushroom, 40 % (Briefing S1). */
-  const linie = (
-    <span
-      aria-hidden
-      style={{
-        display: "block",
-        marginTop: "clamp(20px, 2.6vh, 32px)",
-        width: "100%",
-        maxWidth: "38em",
-        height: "1px",
-        backgroundColor: "rgba(184, 174, 163, 0.4)",
-      }}
-    />
-  );
-
-  const text = (
-    <p
-      lang={sprache === "EN" ? "en" : sprache === "FR" ? "fr" : "de"}
-      style={{
-        margin: "clamp(20px, 2.6vh, 32px) 0 0",
-        maxWidth: "52ch",
-        fontFamily: sans,
-        fontSize: "var(--tellian-s2-body-size, 16px)",
-        lineHeight: "var(--tellian-lauf-lh, 1.75)",
-        color: C.accent,
-      }}
-    >
-      {inhalt.text}
-    </p>
-  );
-
-  if (isVertical) {
-    return (
-      <section id="solutions-einstieg" style={{ backgroundColor: C.bg }}>
-        <div style={{ paddingTop: "var(--tellian-kopfzeile-schmal)" }}>
-          <HeroBildPanel
-            imageId="hero-solutions"
-            alt="Zürich an der Limmat"
-            breit={false}
-            verhaeltnis={VERHAELTNIS}
-          />
-        </div>
-        <div
-          style={{
-            paddingTop: "var(--tellian-abschnitt-luft-schmal)",
-            paddingBottom: "var(--tellian-abschnitt-luft-schmal)",
-            paddingLeft: "clamp(20px, 6vw, 48px)",
-            paddingRight: "clamp(20px, 6vw, 48px)",
-          }}
-        >
-          <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
-            <Kapitelmarke nr="01" name={SOLUTIONS_LEISTE[sprache][0]} />
-          </div>
-          <Aufgang>
-            {eyebrow}
-            {titel}
-            {linie}
-            {text}
-          </Aufgang>
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <div
-      ref={panelRef}
-      className="flex-shrink-0 h-screen relative"
-      style={{ width: "100vw", backgroundColor: C.bg }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          top: "var(--tellian-kopf-height)",
-          bottom: "var(--tellian-station-height)",
-          left: 0,
-          right: 0,
-          paddingTop: "var(--tellian-s1-stage-pad)",
-          paddingBottom: "var(--tellian-s1-stage-pad)",
-          paddingLeft: "calc(var(--tellian-rail-width) + var(--tellian-station-pad-x))",
-          paddingRight: "var(--tellian-station-pad-x)",
-          display: "flex",
-          alignItems: "center",
-          gap: "clamp(32px, 5vw, 96px)",
-          boxSizing: "border-box",
-        }}
-      >
-        {/* ══ Textgruppe, vertikal zentriert (G1) ══ */}
-        <div style={{ flex: "1 1 0", minWidth: 0 }}>
-          {eyebrow}
-          {titel}
-          {linie}
-          {text}
-        </div>
-
-        {/* ══ Randloses Bildpanel — geteilte Hero-Behandlung ══ */}
-        <div
-          style={{
-            flex: "0 0 min(46vw, calc(var(--tellian-s1-stage-height) * 1.84))",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            minWidth: 0,
-          }}
-        >
-          <HeroBildPanel
-            imageId="hero-solutions"
-            alt="Zürich an der Limmat"
-            breit
-            verhaeltnis={VERHAELTNIS}
-          />
-        </div>
-      </div>
-    </div>
+    <HeroEditorial
+      eyebrow={inhalt.eyebrow}
+      titel={inhalt.titel}
+      absaetze={[inhalt.text]}
+      imageId="hero-solutions"
+      imageAlt="Zürich an der Limmat"
+      /* Fokus Skyline/Kirchtürme. */
+      fokus="center 52%"
+      lang={sprache === "EN" ? "en" : sprache === "FR" ? "fr" : "de"}
+      isVertical={isVertical}
+      bereit={bereit}
+      panelRef={panelRef}
+      domId="solutions-einstieg"
+      marke={{ nr: "01", name: SOLUTIONS_LEISTE[sprache][0] }}
+    />
   );
 }
