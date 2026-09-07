@@ -129,7 +129,10 @@ export function HeroEditorial({
       style={{
         margin: 0,
         fontFamily: serif,
-        fontSize: "clamp(54px, 4.9vw, 80px)",
+        /* Der A2-Grad gilt dem Desktop; auf dem Telefon wären 54px
+           Minimum breiter als die Spalte («Weiterdenken» ~370px bei
+           335px Platz) — dort eine eigene, kleinere Treppe. */
+        fontSize: isVertical ? "clamp(38px, 10.8vw, 54px)" : "clamp(54px, 4.9vw, 80px)",
         fontWeight: 400,
         lineHeight: 1.05,
         letterSpacing: "-0.015em",
