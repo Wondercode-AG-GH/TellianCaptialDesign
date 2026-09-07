@@ -457,6 +457,13 @@ export function Kopfzeile({
           .tellian-kopf-wortmarke { display: none; }
           .tellian-kopf-monogramm { display: block; }
         }
+        /* Dieselbe Platzregel wie bei der Wortmarke: reicht die
+           Breite nicht, geht der SOLUTIONS-Zusatz — nicht das
+           Kundenportal und nicht der Menüknopf. Gemessen braucht
+           die volle Zeile mit Zusatz ~560px. */
+        @media (max-width: 559px) {
+          .tellian-kopf-zusatz { display: none; }
+        }
         .tellian-kopf-ziel:focus-visible {
           outline: 2px solid var(--tellian-muted);
           outline-offset: 3px;

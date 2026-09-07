@@ -30,6 +30,9 @@ interface Props {
   onOpenLegal?: (path: LegalPath) => void;
   /** Eigene Einträge (Solutions); ohne Angabe die Hauptseite. */
   sektionen?: readonly SectionDef[];
+  /** Eigene Nebenverweise (Solutions blendet den Verweis auf sich
+      selbst aus); ohne Angabe die der Hauptseite. */
+  nebenVerweise?: typeof NEBEN_VERWEISE;
 }
 
 export function MobilMenue({
@@ -39,6 +42,7 @@ export function MobilMenue({
   onNavigate,
   onOpenLegal,
   sektionen = SECTIONS,
+  nebenVerweise = NEBEN_VERWEISE,
 }: Props) {
   const panelRef = useRef<HTMLDivElement | null>(null);
 
@@ -244,7 +248,7 @@ export function MobilMenue({
             columnGap: "16px",
           }}
         >
-          {NEBEN_VERWEISE.map((v) =>
+          {nebenVerweise.map((v) =>
             v.legal ? (
               <button
                 key={v.text}

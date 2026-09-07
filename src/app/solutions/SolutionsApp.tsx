@@ -14,6 +14,7 @@ import { useHorizontalScroll } from "../components/useHorizontalScroll";
 import { useVerticalSectionIndex } from "../components/useVerticalSectionIndex";
 import { useBandZonen } from "../components/useBandTon";
 import { SOLUTIONS_SEKTIONEN, solutionsLeisteSektionen } from "./inhalt";
+import { NEBEN_VERWEISE } from "../sections";
 import { SolutionsEinstieg } from "./SolutionsEinstieg";
 import { SolutionsWasWirTun } from "./SolutionsWasWirTun";
 
@@ -136,6 +137,9 @@ export function SolutionsApp() {
           onNavigate={navigateToSection}
           onOpenLegal={legal.open}
           sektionen={leisteSektionen}
+          /* Der Verweis «Solutions» zeigte auf diese Seite selbst
+             (alte Subdomain) — im eigenen Menü ausgeblendet. */
+          nebenVerweise={NEBEN_VERWEISE.filter((v) => v.text !== "Solutions")}
         />
 
         <SolutionsEinstieg isVertical sprache={sprache} />
