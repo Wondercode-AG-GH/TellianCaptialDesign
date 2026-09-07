@@ -4,6 +4,7 @@ import { Kopfzeile } from "../components/Kopfzeile";
 import { DotNavigation } from "../components/DotNavigation";
 import { MobilMenue } from "../components/MobilMenue";
 import { LoginOverlay } from "../components/LoginOverlay";
+import { PreloadScreen } from "../components/PreloadScreen";
 import { LegalPage, useLegalRoute } from "../components/LegalPage";
 import { SectionEnteredProvider } from "../components/SectionEntry";
 import { Station5Team } from "../components/Station5Team";
@@ -33,6 +34,9 @@ export function SolutionsApp() {
   const [sprache, setSprache] = useState<"DE" | "EN">("DE");
   const [loginOpen, setLoginOpen] = useState(false);
   const [menueOffen, setMenueOffen] = useState(false);
+  /* Dieselbe Lade-Animation wie die Hauptseite; bis sie ausläuft,
+     ist der Filmstrip gesperrt. */
+  const [introComplete, setIntroComplete] = useState(false);
   /* VOR dem Scroll-Hook deklariert (TDZ) — offenes Teamporträt
      sperrt den Filmstrip, wie auf der Hauptseite. */
   const [teamDetailOffen, setTeamDetailOffen] = useState(false);
@@ -46,7 +50,7 @@ export function SolutionsApp() {
     visibleRange,
   } = useHorizontalScroll({
     disabled: isVertical,
-    locked: loginOpen || menueOffen || teamDetailOffen || !!legal.activePath,
+    locked: loginOpen || menueOffen || teamDetailOffen || !introComplete || !!legal.activePath,
     sektionen: SOLUTIONS_SEKTIONEN,
   });
 
@@ -123,6 +127,7 @@ export function SolutionsApp() {
   if (isVertical) {
     return (
       <div style={{ backgroundColor: "var(--tellian-bg)" }}>
+        {!introComplete && <PreloadScreen onComplete={() => setIntroComplete(true)} />}
         {kopf}
         <MobilMenue
           offen={menueOffen}
@@ -164,6 +169,7 @@ export function SolutionsApp() {
   /* ── BREIT: der Filmstrip ── */
   return (
     <div style={{ backgroundColor: "var(--tellian-bg)" }}>
+      {!introComplete && <PreloadScreen onComplete={() => setIntroComplete(true)} />}
       <div
         ref={containerRef}
         className="flex h-screen overflow-x-scroll overflow-y-hidden"
