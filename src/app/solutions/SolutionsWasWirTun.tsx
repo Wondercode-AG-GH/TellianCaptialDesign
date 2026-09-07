@@ -17,7 +17,7 @@ import { SOLUTIONS_INHALT, SOLUTIONS_LEISTE } from "./inhalt";
 interface Props {
   panelRef?: (el: HTMLDivElement | null) => void;
   isVertical?: boolean;
-  sprache: "DE" | "EN";
+  sprache: "DE" | "EN" | "FR";
 }
 
 const ARCHIVE_WHITE = "#F4F4F0";
@@ -63,7 +63,7 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
 
   const absatz = (
     <p
-      lang={sprache === "EN" ? "en" : "de"}
+      lang={sprache === "EN" ? "en" : sprache === "FR" ? "fr" : "de"}
       style={{
         margin: "clamp(24px, 3.2vh, 40px) 0 0",
         maxWidth: "46ch",

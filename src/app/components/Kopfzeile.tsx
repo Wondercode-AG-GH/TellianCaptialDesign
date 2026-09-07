@@ -47,8 +47,13 @@ import monoHell from "../../assets/logo/tellian-monogramm-hell.svg";
    vorher aus wie die Sprachwahl, ein Schalter, den man einmal benutzt.
    ═══════════════════════════════════════════════════════════ */
 
-const SPRACHEN = ["DE", "EN"] as const;
-export type Sprache = (typeof SPRACHEN)[number];
+/* Der TYP kennt alle drei Sprachen; der sichtbare UMFANG des
+   Toggles ist pro Seitenkontext konfiguriert (Prop `sprachen`) —
+   die Hauptseite bleibt bei DE/EN, Solutions zeigt DE/EN/FR.
+   Eine Komponente, kein Fork. */
+const ALLE_SPRACHEN = ["DE", "EN", "FR"] as const;
+export type Sprache = (typeof ALLE_SPRACHEN)[number];
+const SPRACHEN_STANDARD = ["DE", "EN"] as const satisfies readonly Sprache[];
 
 type Schicht = "hell" | "dunkel" | "griff";
 
@@ -69,6 +74,11 @@ interface Props {
   zusatz?: string;
   logoHref?: string;
   logoLabel?: string;
+  /** Sichtbarer Sprachumfang des Toggles. Standard DE/EN. */
+  sprachen?: readonly Sprache[];
+  /** Beschriftung des Portal-Felds (Solutions FR: «Portail Client»,
+      UI-LABEL-REVIEW). Standard: «Kundenportal». */
+  portalLabel?: string;
 }
 
 /* Schlosszeichen. Rein dekorativ — der Knopf trägt seinen Namen
@@ -102,6 +112,8 @@ export function Kopfzeile({
   zusatz,
   logoHref,
   logoLabel,
+  sprachen = SPRACHEN_STANDARD,
+  portalLabel = "Kundenportal",
 }: Props) {
   /* ── DECKENDE FLÄCHE, NUR IM SCHMALEN ZWEIG ──
      Dort scrollt die Seite senkrecht unter der festen Kopfzeile
@@ -265,7 +277,7 @@ export function Kopfzeile({
             aria-hidden={!griff}
             style={{ display: "flex", alignItems: "center", gap: "6px" }}
           >
-            {SPRACHEN.map((s, i) => (
+            {sprachen.map((s, i) => (
               <span key={s} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 {i > 0 && (
                   <span aria-hidden style={{ ...klein, color: dim, cursor: "default" }}>
@@ -332,7 +344,7 @@ export function Kopfzeile({
             }}
           >
             <Schloss />
-            Kundenportal
+            {portalLabel}
           </button>
 
           {isVertical && onMenue && (

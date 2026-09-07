@@ -106,17 +106,21 @@ export const SOLUTIONS_INHALT: Readonly<Record<SolutionsSprache, SolutionsInhalt
       ],
     },
   },
+  /* Apostrophe der Quelle (gerade ' und ´) typografisch als ’
+     gesetzt — Wortlaut unverändert (Briefing 07.09). Quelltreu
+     bleibt auch «correspondant» in Schritt 02: QUELLE-FR-GRAMMATIK,
+     nicht korrigieren. */
   FR: {
     einstieg: {
       eyebrow: "TELLIAN CAPITAL SOLUTIONS",
       titel: "Nous sourçons des opportunités, pas des produits.",
-      text: "Indépendants par nature, nous proposons aux banques privées, family offices et gérants de fortune indépendants en Suisse des solutions d'investissement sur les actions, les matières premières, les taux, le crédit, le change et les fonds.",
+      text: "Indépendants par nature, nous proposons aux banques privées, family offices et gérants de fortune indépendants en Suisse des solutions d’investissement sur les actions, les matières premières, les taux, le crédit, le change et les fonds.",
     },
     wasWirTun: {
       kicker: "CE QUE NOUS FAISONS.",
-      statement: "Aucun emetteur n´est le meilleur en tout, en permanence.",
+      statement: "Aucun emetteur n’est le meilleur en tout, en permanence.",
       absatz:
-        "Les appétits évoluent, les books de trading tournent et des opportunités tactiques peuvent apparaître partout sur le marché. À travers un réseau mondial de banques d'investissement, Tellian Capital Solutions suit ce mouvement permanent et en ouvre la porte à ses clients.",
+        "Les appétits évoluent, les books de trading tournent et des opportunités tactiques peuvent apparaître partout sur le marché. À travers un réseau mondial de banques d’investissement, Tellian Capital Solutions suit ce mouvement permanent et en ouvre la porte à ses clients.",
       credo: "La bonne opportunité. Le bon émetteur. Le bon timing.",
     },
     vorgehen: {
@@ -124,17 +128,17 @@ export const SOLUTIONS_INHALT: Readonly<Record<SolutionsSprache, SolutionsInhalt
         {
           titel: "Conception",
           zeile:
-            "Nous partons de la vision d'investissement du client et de l'état du marché, puis déterminons la mise en œuvre appropriée. Rien ne sort d'un catalogue.",
+            "Nous partons de la vision d’investissement du client et de l’état du marché, puis déterminons la mise en œuvre appropriée. Rien ne sort d’un catalogue.",
         },
         {
           titel: "Sourcing",
           zeile:
-            "Pour chaque solution, nous sollicitons les banques d'investissement dont l'expertise et le positionnement du moment correspondant au mandat, et confions la structure à la banque la mieux placée pour la délivrer.",
+            "Pour chaque solution, nous sollicitons les banques d’investissement dont l’expertise et le positionnement du moment correspondant au mandat, et confions la structure à la banque la mieux placée pour la délivrer.",
         },
         {
           titel: "Suivi",
           zeile:
-            "Une solution d'investissement ne s'arrête pas à l'émission. Nous suivons les structures, les prix et les canaux d'exécution jusqu'à l'échéance, et réévaluons à mesure que les conditions et les appétits évoluent.",
+            "Une solution d’investissement ne s’arrête pas à l’émission. Nous suivons les structures, les prix et les canaux d’exécution jusqu’à l’échéance, et réévaluons à mesure que les conditions et les appétits évoluent.",
         },
       ],
     },
@@ -194,7 +198,7 @@ export const SOLUTIONS_SEKTIONEN: readonly SectionDef[] = [
 ];
 
 /** Sprachaufgelöste Liste für Stationsleiste und mobiles Menü. */
-export function solutionsLeisteSektionen(sprache: "DE" | "EN"): readonly SectionDef[] {
+export function solutionsLeisteSektionen(sprache: SolutionsSprache): readonly SectionDef[] {
   const labels = SOLUTIONS_LEISTE[sprache];
   return SOLUTIONS_SEKTIONEN.map((s, i) => ({
     ...s,

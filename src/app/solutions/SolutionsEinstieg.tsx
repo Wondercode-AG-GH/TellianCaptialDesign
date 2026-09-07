@@ -19,7 +19,7 @@ import { SOLUTIONS_INHALT, SOLUTIONS_LEISTE } from "./inhalt";
 interface Props {
   panelRef?: (el: HTMLDivElement | null) => void;
   isVertical?: boolean;
-  sprache: "DE" | "EN";
+  sprache: "DE" | "EN" | "FR";
 }
 
 /* Das Solutions-Motiv ist 46:25 (~1.84) — das Panel übernimmt das
@@ -79,7 +79,7 @@ export function SolutionsEinstieg({ panelRef, isVertical = false, sprache }: Pro
 
   const text = (
     <p
-      lang={sprache === "EN" ? "en" : "de"}
+      lang={sprache === "EN" ? "en" : sprache === "FR" ? "fr" : "de"}
       style={{
         margin: "clamp(20px, 2.6vh, 32px) 0 0",
         maxWidth: "52ch",

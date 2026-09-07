@@ -32,7 +32,12 @@ import { SolutionsWasWirTun } from "./SolutionsWasWirTun";
 
 export function SolutionsApp() {
   const { isVertical } = useBreakpoint();
-  const [sprache, setSprache] = useState<"DE" | "EN">("DE");
+  /* Solutions ist vollständig dreisprachig; der Toggle zeigt hier
+     DE/EN/FR (Hauptseite unverändert DE/EN). FALLBACK: der Rückweg
+     zur Hauptseite ist eine volle Navigation (location.href) — die
+     Haupt-App startet frisch mit DE. FR kann dort nie ankommen,
+     ein Mischzustand mit Platzhaltern ist ausgeschlossen. */
+  const [sprache, setSprache] = useState<"DE" | "EN" | "FR">("DE");
   const [loginOpen, setLoginOpen] = useState(false);
   const [menueOffen, setMenueOffen] = useState(false);
   /* Dieselbe Lade-Animation wie die Hauptseite; bis sie ausläuft,
@@ -117,7 +122,18 @@ export function SolutionsApp() {
       onLogo={zurHauptseite}
       zusatz="Solutions"
       logoHref="/"
-      logoLabel="Tellian Capital — zurück zur Hauptseite"
+      /* UI-LABEL-REVIEW: FR-Microcopy des Rückwegs (der Rückweg ist
+         das Logo, kein Text-Link — das Label spricht der Screen-
+         reader). */
+      logoLabel={
+        sprache === "FR"
+          ? "Tellian Capital — retour au site principal"
+          : "Tellian Capital — zurück zur Hauptseite"
+      }
+      sprachen={["DE", "EN", "FR"]}
+      /* UI-LABEL-REVIEW: «Portail Client» für den Kundenportal-
+         Knopf im Solutions-Kontext (FR ohne Quelle). */
+      portalLabel={sprache === "FR" ? "Portail Client" : "Kundenportal"}
       isVertical={isVertical}
       menueOffen={menueOffen}
       onMenue={() => setMenueOffen((o) => !o)}
@@ -158,6 +174,7 @@ export function SolutionsApp() {
             für den Solutions-Kontaktblock steht aus. */}
         <Station6Kontakt
           isVertical
+          sprache={sprache}
           domId="solutions-kontakt"
           onOpenLegal={legal.open}
           markeNr="04"
@@ -203,7 +220,7 @@ export function SolutionsApp() {
           />
         </SectionEnteredProvider>
         <SectionEnteredProvider value={entered[3]}>
-          <Station6Kontakt panelRef={panelRef(3)} domId="solutions-kontakt" onOpenLegal={legal.open} />
+          <Station6Kontakt panelRef={panelRef(3)} sprache={sprache} domId="solutions-kontakt" onOpenLegal={legal.open} />
         </SectionEnteredProvider>
       </div>
 

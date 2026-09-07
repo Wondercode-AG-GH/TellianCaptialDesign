@@ -161,7 +161,7 @@ interface Props {
   panelRef?: (el: HTMLDivElement | null) => void;
   isVertical?: boolean;
   domId?: string;
-  sprache?: "DE" | "EN";
+  sprache?: "DE" | "EN" | "FR";
   /** Meldet der App, dass das Overlay offen ist — sie sperrt damit
       die Tastatur des waagrechten Tracks. */
   onDetailToggle?: (offen: boolean) => void;

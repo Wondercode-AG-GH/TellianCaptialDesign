@@ -34,7 +34,7 @@ interface Props {
   bild?: ImageId;
   /** Absätze — Struktur exakt wie geliefert (2 bzw. 3). */
   absaetze: readonly string[];
-  sprache?: "DE" | "EN";
+  sprache?: "DE" | "EN" | "FR";
   isMobile?: boolean;
   onClose: () => void;
   returnFocusRef?: React.RefObject<HTMLElement | null>;

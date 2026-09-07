@@ -107,6 +107,68 @@ type Fehlerliste = Partial<Record<Feldname, string>>;
 
 const LEER: Felder = { name: "", email: "", telefon: "", nachricht: "" };
 
+/* ── Formular-Microcopy je Sprache ──
+   DE ist der bestehende Wortlaut, unverändert; EN zeigt wie bisher
+   die DE-Fassung (es gibt keine EN-Quelle — unangetastet). FR sind
+   fachlich neutrale Standardübersetzungen für den Solutions-
+   Kontext; JEDER FR-String: UI-LABEL-REVIEW (Freigabe durch
+   Tellian ausstehend). Die Hauptseite lädt FR nie. */
+interface FormTexte {
+  feldName: string;
+  feldMail: string;
+  feldTelefon: string;
+  feldNachricht: string;
+  optionalWort: string;
+  zustimmung: string;
+  senden: string;
+  sendet: string;
+  fehlerName: string;
+  fehlerMailLeer: string;
+  fehlerMailAt: string;
+  fehlerMailDomain: string;
+  fehlerTelefon: string;
+  fehlerNachricht: string;
+}
+
+const FORM_DE: FormTexte = {
+  feldName: "Name",
+  feldMail: "E-Mail",
+  feldTelefon: "Telefon",
+  feldNachricht: "Ihre Nachricht",
+  optionalWort: "— optional",
+  zustimmung: "Mit dem Absenden stimmen Sie unseren Datenschutzbestimmungen zu.",
+  senden: "Anfrage senden",
+  sendet: "Wird gesendet …",
+  fehlerName: "Bitte tragen Sie Ihren Namen ein.",
+  fehlerMailLeer: "Bitte tragen Sie Ihre E-Mail-Adresse ein, damit wir antworten können.",
+  fehlerMailAt: "Es fehlt noch das @, zum Beispiel name@beispiel.ch",
+  fehlerMailDomain: "Nach dem @ fehlt noch die Domain, zum Beispiel beispiel.ch",
+  fehlerTelefon: "Die Nummer scheint unvollständig. Sie können das Feld auch leer lassen.",
+  fehlerNachricht: "Bitte schreiben Sie uns kurz, worum es geht.",
+};
+
+const FORM_TEXTE: Readonly<Record<"DE" | "EN" | "FR", FormTexte>> = {
+  DE: FORM_DE,
+  EN: FORM_DE,
+  FR: {
+    /* UI-LABEL-REVIEW (alle Einträge dieses Blocks) */
+    feldName: "Nom",
+    feldMail: "E-mail",
+    feldTelefon: "Téléphone",
+    feldNachricht: "Votre message",
+    optionalWort: "— facultatif",
+    zustimmung: "En envoyant le formulaire, vous acceptez notre déclaration de protection des données.",
+    senden: "Envoyer la demande",
+    sendet: "Envoi en cours …",
+    fehlerName: "Veuillez indiquer votre nom.",
+    fehlerMailLeer: "Veuillez indiquer votre adresse e-mail afin que nous puissions vous répondre.",
+    fehlerMailAt: "Il manque le @, par exemple nom@exemple.ch",
+    fehlerMailDomain: "Après le @, il manque le domaine, par exemple exemple.ch",
+    fehlerTelefon: "Le numéro semble incomplet. Vous pouvez aussi laisser ce champ vide.",
+    fehlerNachricht: "Veuillez nous écrire brièvement de quoi il s’agit.",
+  },
+};
+
 const MAIL_VOLLSTAENDIG = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /* Trennzeichen, die in geschriebenen Nummern üblich sind. */
 const TEL_TRENNER = /[\s.\-/()]/g;
@@ -114,40 +176,38 @@ const TEL_TRENNER = /[\s.\-/()]/g;
 const TEL_KERN = /^(?:\+|00)?\d{7,15}$/;
 
 /** Meldung für ein Feld, oder undefined wenn es stimmt. */
-function pruefeFeld(k: Feldname, f: Felder): string | undefined {
+function pruefeFeld(k: Feldname, f: Felder, t: FormTexte): string | undefined {
   const v = f[k].trim();
 
   if (k === "name") {
-    if (!v) return "Bitte tragen Sie Ihren Namen ein.";
+    if (!v) return t.fehlerName;
     return undefined;
   }
 
   if (k === "email") {
-    if (!v) return "Bitte tragen Sie Ihre E-Mail-Adresse ein, damit wir antworten können.";
-    if (!v.includes("@")) return "Es fehlt noch das @, zum Beispiel name@beispiel.ch";
-    if (!MAIL_VOLLSTAENDIG.test(v))
-      return "Nach dem @ fehlt noch die Domain, zum Beispiel beispiel.ch";
+    if (!v) return t.fehlerMailLeer;
+    if (!v.includes("@")) return t.fehlerMailAt;
+    if (!MAIL_VOLLSTAENDIG.test(v)) return t.fehlerMailDomain;
     return undefined;
   }
 
   if (k === "telefon") {
     /* Leer ist immer gültig. */
     if (!v) return undefined;
-    if (!TEL_KERN.test(v.replace(TEL_TRENNER, "")))
-      return "Die Nummer scheint unvollständig. Sie können das Feld auch leer lassen.";
+    if (!TEL_KERN.test(v.replace(TEL_TRENNER, ""))) return t.fehlerTelefon;
     return undefined;
   }
 
-  if (!v) return "Bitte schreiben Sie uns kurz, worum es geht.";
+  if (!v) return t.fehlerNachricht;
   return undefined;
 }
 
 const REIHENFOLGE: readonly Feldname[] = ["name", "email", "telefon", "nachricht"];
 
-function pruefeAlles(f: Felder): Fehlerliste {
+function pruefeAlles(f: Felder, t: FormTexte): Fehlerliste {
   const raus: Fehlerliste = {};
   for (const k of REIHENFOLGE) {
-    const m = pruefeFeld(k, f);
+    const m = pruefeFeld(k, f, t);
     if (m) raus[k] = m;
   }
   return raus;
@@ -188,6 +248,7 @@ interface FeldProps {
   beschriftung: string;
   /** Wird als "— optional" hinter die Beschriftung gesetzt. */
   optional?: boolean;
+  optionalWort?: string;
   wert: string;
   onWert: (v: string) => void;
   onVerlassen: () => void;
@@ -204,6 +265,7 @@ function KontaktFeld({
   name,
   beschriftung,
   optional = false,
+  optionalWort = "— optional",
   wert,
   onWert,
   onVerlassen,
@@ -269,7 +331,7 @@ function KontaktFeld({
           /* KEINE STERNCHEN.
              Gekennzeichnet wird nur, was weggelassen werden darf —
              das ist die kürzere und die freundlichere Liste. */
-          <span style={{ color: "var(--tellian-k6-dim)" }}> — optional</span>
+          <span style={{ color: "var(--tellian-k6-dim)" }}> {optionalWort}</span>
         )}
       </label>
 
@@ -322,7 +384,14 @@ type Zustand = "bereit" | "sendet" | "fertig" | "fehler";
    Hürde, an der ältere Nutzer am häufigsten aufgeben. */
 const MENSCHENZEIT_MS = 3000;
 
-function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
+function Formular({
+  gestapelt = false,
+  sprache = "DE",
+}: {
+  gestapelt?: boolean;
+  sprache?: "DE" | "EN" | "FR";
+}) {
+  const t = FORM_TEXTE[sprache];
   const [felder, setFelder] = useState<Felder>(LEER);
   const [fehler, setFehler] = useState<Fehlerliste>({});
   const [zustand, setZustand] = useState<Zustand>("bereit");
@@ -360,7 +429,7 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
       /* Ist das Feld einmal im Fehler, wird ab jetzt bei JEDER
          Eingabe neu geprüft — die Meldung soll verschwinden, sobald
          es stimmt, nicht erst beim Verlassen. */
-      setFehler((f) => (f[k] ? { ...f, [k]: pruefeFeld(k, neu) } : f));
+      setFehler((f) => (f[k] ? { ...f, [k]: pruefeFeld(k, neu, t) } : f));
       return neu;
     });
   };
@@ -368,7 +437,7 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
   /* Geprüft wird beim VERLASSEN, nicht beim Tippen. Wer mitten im
      Wort gerügt wird, tippt gegen die Meldung an. */
   const verlassen = (k: Feldname) => () => {
-    setFehler((alt) => ({ ...alt, [k]: pruefeFeld(k, felder) }));
+    setFehler((alt) => ({ ...alt, [k]: pruefeFeld(k, felder, t) }));
   };
 
   const absenden = useCallback(
@@ -382,7 +451,7 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
         honigtopf.trim().length > 0 ||
         Date.now() - aufgebaut.current < MENSCHENZEIT_MS;
 
-      const gefunden = pruefeAlles(felder);
+      const gefunden = pruefeAlles(felder, t);
       setFehler(gefunden);
       if (Object.keys(gefunden).length) {
         /* Der Knopf ist nie gesperrt: man darf drücken und erfährt
@@ -412,7 +481,10 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
         setZustand("fehler");
       }
     },
-    [felder, honigtopf],
+    /* t gehört in die Abhängigkeiten: nach einem Sprachwechsel
+       müssen die Meldungen in der NEUEN Sprache geprüft werden —
+       ohne t prüfte der Handler mit der Tabelle des ersten Renders. */
+    [felder, honigtopf, t],
   );
 
   /* Die Erfolgsmeldung ERSETZT das Formular an Ort und Stelle. Ein
@@ -518,7 +590,7 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
       <div style={paar}>
         <KontaktFeld
           name="name"
-          beschriftung="Name"
+          beschriftung={t.feldName}
           wert={felder.name}
           onWert={setzen("name")}
           onVerlassen={verlassen("name")}
@@ -528,7 +600,7 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
         />
         <KontaktFeld
           name="email"
-          beschriftung="E-Mail"
+          beschriftung={t.feldMail}
           type="email"
           wert={felder.email}
           onWert={setzen("email")}
@@ -542,8 +614,9 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
 
       <KontaktFeld
         name="telefon"
-        beschriftung="Telefon"
+        beschriftung={t.feldTelefon}
         optional
+        optionalWort={t.optionalWort}
         type="tel"
         wert={felder.telefon}
         onWert={setzen("telefon")}
@@ -555,7 +628,7 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
 
       <KontaktFeld
         name="nachricht"
-        beschriftung="Ihre Nachricht"
+        beschriftung={t.feldNachricht}
         mehrzeilig
         zeilen={5}
         wert={felder.nachricht}
@@ -575,7 +648,7 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
           color: "var(--tellian-k6-dim)",
         }}
       >
-        Mit dem Absenden stimmen Sie unseren Datenschutzbestimmungen zu.
+        {t.zustimmung}
       </p>
 
       {zustand === "fehler" && (
@@ -662,11 +735,11 @@ function Formular({ gestapelt = false }: { gestapelt?: boolean }) {
         {sendet ? (
           <>
             <span aria-hidden className="tellian-k6-kreisel" />
-            Wird gesendet …
+            {t.sendet}
           </>
         ) : (
           <>
-            Anfrage senden
+            {t.senden}
             <span aria-hidden>→</span>
           </>
         )}
@@ -686,6 +759,10 @@ interface Props {
       als «04 Kontakt/Contact», die Hauptseite als «06 Kontakt». */
   markeNr?: string;
   markeName?: string;
+  /** Sprache fürs FORMULAR (Solutions ist dreisprachig). DE/EN
+      rendern den bestehenden Wortlaut unverändert; die Hauptseite
+      übergibt nichts und bleibt beim Standard DE. */
+  sprache?: "DE" | "EN" | "FR";
 }
 
 export function Station6Kontakt({
@@ -695,6 +772,7 @@ export function Station6Kontakt({
   onOpenLegal,
   markeNr = "06",
   markeName = "Kontakt",
+  sprache = "DE",
 }: Props) {
   const [karteOffen, setKarteOffen] = useState(false);
   const karteBtn = useRef<HTMLButtonElement | null>(null);
@@ -1170,7 +1248,7 @@ export function Station6Kontakt({
           <div style={{ marginTop: "clamp(30px, 4vh, 46px)" }}>{trennzeile}</div>
 
           <div style={{ marginTop: "clamp(22px, 3vh, 32px)" }}>
-            <Formular gestapelt />
+            <Formular gestapelt sprache={sprache} />
           </div>
 
           <div style={{ marginTop: "clamp(30px, 4vh, 46px)" }}>{firma}</div>
@@ -1256,7 +1334,7 @@ export function Station6Kontakt({
 
             {/* ══ Formular — ohne Rahmen und ohne eigene Fläche ══ */}
             <div style={{ flex: "0 0 clamp(380px, 38%, 560px)" }}>
-              <Formular />
+              <Formular sprache={sprache} />
             </div>
           </div>
         </div>
