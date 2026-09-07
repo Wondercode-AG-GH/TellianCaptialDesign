@@ -146,11 +146,11 @@ export const SOLUTIONS_INHALT: Readonly<Record<SolutionsSprache, SolutionsInhalt
    «Vorgehen» sind EINE Station — die Leiste führt drei Einträge,
    der Weg steht innerhalb der Station. */
 export const SOLUTIONS_LEISTE: Readonly<
-  Record<SolutionsSprache, readonly [string, string, string]>
+  Record<SolutionsSprache, readonly [string, string, string, string]>
 > = {
-  DE: ["Einstieg", "Was wir tun", "Kontakt"],
-  EN: ["Introduction", "What we do", "Contact"],
-  FR: ["Introduction", "Ce que nous faisons", "Contact"],
+  DE: ["Einstieg", "Was wir tun", "Team", "Kontakt"],
+  EN: ["Introduction", "What we do", "Team", "Contact"],
+  FR: ["Introduction", "Ce que nous faisons", "Team", "Contact"],
 };
 
 /* Referenzstabile Registry für die Scroll-Engine und die Band-
@@ -172,6 +172,16 @@ export const SOLUTIONS_SEKTIONEN: readonly SectionDef[] = [
     dunkel: true,
     domId: "solutions-was-wir-tun",
     imageIds: [],
+  },
+  {
+    /* Team (Olivier, Thibaut) — helle Station wie auf der
+       Hauptseite; der Rhythmus läuft wieder hell·dunkel·hell·dunkel. */
+    key: "team",
+    label: "Team",
+    labelKurz: "Team",
+    dunkel: false,
+    domId: "solutions-team",
+    imageIds: ["olivier-bill"],
   },
   {
     key: "kontakt",

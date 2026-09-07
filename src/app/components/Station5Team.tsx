@@ -165,6 +165,12 @@ interface Props {
   /** Meldet der App, dass das Overlay offen ist — sie sperrt damit
       die Tastatur des waagrechten Tracks. */
   onDetailToggle?: (offen: boolean) => void;
+  /** Solutions: Teilmenge der Personen (IDs, Reihenfolge zählt).
+      Ohne Angabe das ganze Team — Verhalten der Hauptseite. */
+  personenIds?: readonly string[];
+  /** Kapitelmarke des schmalen Zweigs (Solutions: «03»/Leiste-Label). */
+  markeNr?: string;
+  markeName?: string;
 }
 
 export function Station5Team({
@@ -173,7 +179,17 @@ export function Station5Team({
   domId,
   sprache = "DE",
   onDetailToggle,
+  personenIds,
+  markeNr = "05",
+  markeName = "Team",
 }: Props) {
+  /* Teilmenge in der Reihenfolge der IDs (Solutions führt Olivier
+     und Thibaut); ohne Angabe das ganze Team. */
+  const LEUTE = personenIds
+    ? (personenIds
+        .map((id) => PERSONEN.find((p) => p.id === id))
+        .filter(Boolean) as Person[])
+    : PERSONEN;
   const [offenId, setOffenId] = useState<string | null>(null);
   const kachelRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const rueckkehrRef = useRef<HTMLElement | null>(null);
@@ -399,7 +415,7 @@ export function Station5Team({
           }}
         >
           <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
-            <Kapitelmarke nr="05" name="Team" />
+            <Kapitelmarke nr={markeNr} name={markeName} />
           </div>
           <Aufgang>{kopf}</Aufgang>
           <div
@@ -413,7 +429,7 @@ export function Station5Team({
               rowGap: "clamp(28px, 4.5vh, 40px)",
             }}
           >
-            {PERSONEN.map((person, i) => (
+            {LEUTE.map((person, i) => (
               <Aufgang key={person.id} stufe={i % 2}>{karte(person, false)}</Aufgang>
             ))}
           </div>
@@ -434,7 +450,10 @@ export function Station5Team({
         (wurzelRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
       }}
       className="flex-shrink-0 h-screen relative"
-      style={{ width: "var(--tellian-t5-section-width)", backgroundColor: C.bg }}
+      style={{
+        width: personenIds ? "100vw" : "var(--tellian-t5-section-width)",
+        backgroundColor: C.bg,
+      }}
     >
       <div
         style={{
@@ -478,14 +497,17 @@ export function Station5Team({
         {/* ══ Kachelreihen ══ */}
         <div
           style={{
-            flex: "0 0 var(--tellian-t5-row-w)",
+            /* Teilmenge (Solutions): die Reihe misst sich an ihren
+               Kacheln — die inhaltsbreite Fünferreihe der Hauptseite
+               wäre breiter als die 100vw-Station. */
+            flex: personenIds ? "1 1 auto" : "0 0 var(--tellian-t5-row-w)",
             minWidth: 0,
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
           }}
         >
-          {[0, 1].map((reihe) => (
+          {(LEUTE.length > 5 ? [0, 1] : [0]).map((reihe) => (
             <ul
               key={reihe}
               style={{
@@ -499,11 +521,15 @@ export function Station5Team({
                   " + var(--tellian-t5-label-gap))",
               }}
             >
-              {PERSONEN.slice(reihe * 5, reihe * 5 + 5).map((person) => (
+              {LEUTE.slice(reihe * 5, reihe * 5 + 5).map((person) => (
                 <li
                   key={person.id}
                   style={{
-                    flex: "1 1 0",
+                    /* Teilmenge: feste Kachelbreite statt Fünftelung —
+                       zwei Kacheln würden sonst die halbe Reihe füllen. */
+                    flex: personenIds
+                      ? "0 0 clamp(240px, 21vw, 320px)"
+                      : "1 1 0",
                     minWidth: 0,
                     display: "flex",
                     flexDirection: "column",

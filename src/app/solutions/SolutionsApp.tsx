@@ -6,6 +6,7 @@ import { MobilMenue } from "../components/MobilMenue";
 import { LoginOverlay } from "../components/LoginOverlay";
 import { LegalPage, useLegalRoute } from "../components/LegalPage";
 import { SectionEnteredProvider } from "../components/SectionEntry";
+import { Station5Team } from "../components/Station5Team";
 import { Station6Kontakt } from "../components/Station6Kontakt";
 import { useBreakpoint } from "../components/useBreakpoint";
 import { useHorizontalScroll } from "../components/useHorizontalScroll";
@@ -32,6 +33,9 @@ export function SolutionsApp() {
   const [sprache, setSprache] = useState<"DE" | "EN">("DE");
   const [loginOpen, setLoginOpen] = useState(false);
   const [menueOffen, setMenueOffen] = useState(false);
+  /* VOR dem Scroll-Hook deklariert (TDZ) — offenes Teamporträt
+     sperrt den Filmstrip, wie auf der Hauptseite. */
+  const [teamDetailOffen, setTeamDetailOffen] = useState(false);
   const legal = useLegalRoute();
 
   const {
@@ -42,7 +46,7 @@ export function SolutionsApp() {
     visibleRange,
   } = useHorizontalScroll({
     disabled: isVertical,
-    locked: loginOpen || menueOffen || !!legal.activePath,
+    locked: loginOpen || menueOffen || teamDetailOffen || !!legal.activePath,
     sektionen: SOLUTIONS_SEKTIONEN,
   });
 
@@ -131,6 +135,15 @@ export function SolutionsApp() {
 
         <SolutionsEinstieg isVertical sprache={sprache} />
         <SolutionsWasWirTun isVertical sprache={sprache} />
+        <Station5Team
+          isVertical
+          domId="solutions-team"
+          sprache={sprache}
+          onDetailToggle={setTeamDetailOffen}
+          personenIds={["olivier", "thibaut"]}
+          markeNr="03"
+          markeName={leisteSektionen[2].label}
+        />
         {/* TODO-SOLUTIONS-FIRMA: der Kontaktblock zeigt Firmenname
             und Absender der HAUPTSEITE — die Bestätigung des Namens
             für den Solutions-Kontaktblock steht aus. */}
@@ -138,11 +151,11 @@ export function SolutionsApp() {
           isVertical
           domId="solutions-kontakt"
           onOpenLegal={legal.open}
-          markeNr="03"
-          markeName={leisteSektionen[2].label}
+          markeNr="04"
+          markeName={leisteSektionen[3].label}
         />
 
-        <LoginOverlay open={loginOpen} onClose={() => setLoginOpen(false)} onSupportClick={() => navigateToSection(2)} />
+        <LoginOverlay open={loginOpen} onClose={() => setLoginOpen(false)} onSupportClick={() => navigateToSection(3)} />
         <LegalPage activePath={legal.activePath} onClose={legal.close} />
       </div>
     );
@@ -171,7 +184,16 @@ export function SolutionsApp() {
             für den Solutions-Kontaktblock steht aus. KEIN eigener
             Name erfunden. */}
         <SectionEnteredProvider value={entered[2]}>
-          <Station6Kontakt panelRef={panelRef(2)} domId="solutions-kontakt" onOpenLegal={legal.open} />
+          <Station5Team
+            panelRef={panelRef(2)}
+            domId="solutions-team"
+            sprache={sprache}
+            onDetailToggle={setTeamDetailOffen}
+            personenIds={["olivier", "thibaut"]}
+          />
+        </SectionEnteredProvider>
+        <SectionEnteredProvider value={entered[3]}>
+          <Station6Kontakt panelRef={panelRef(3)} domId="solutions-kontakt" onOpenLegal={legal.open} />
         </SectionEnteredProvider>
       </div>
 
@@ -183,7 +205,7 @@ export function SolutionsApp() {
         sektionen={leisteSektionen}
       />
 
-      <LoginOverlay open={loginOpen} onClose={() => setLoginOpen(false)} onSupportClick={() => navigateToSection(2)} />
+      <LoginOverlay open={loginOpen} onClose={() => setLoginOpen(false)} onSupportClick={() => navigateToSection(3)} />
       <LegalPage activePath={legal.activePath} onClose={legal.close} />
     </div>
   );
