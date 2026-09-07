@@ -35,7 +35,16 @@ export interface Zone {
   von: number;
   bis: number;
   dunkel: boolean;
+  /** ON-IMAGE (Editorial-A2-Hero): der Bereich liegt über einem
+      Foto. Schrift wie auf dunklem Grund, aber die Bänder dürfen
+      zusätzlich stützen (Portal-Scrim, Textschatten). Markiert wird
+      per data-tellian-bildzone am Bildpanel — die Zone wandert
+      dadurch mit dem Track und mit jedem Resize. */
+  bild?: boolean;
 }
+
+/** Sichtbare Schicht eines Bandes. */
+export type BandSchicht = "hell" | "dunkel" | "bild";
 
 /** Weiche Kante der Maske, damit die Grenze nicht als Treppe liest. */
 const FEDER = 1.5;
@@ -84,12 +93,46 @@ export function useBandZonen(
       if (!roh.length) return;
       roh.sort((a, b) => a.von - b.von);
 
+      /* Bildzonen herausschneiden: ein markiertes Bildpanel
+         überschreibt den Stationston in seinem Bereich. */
+      const bilder: Zone[] = [];
+      document
+        .querySelectorAll<HTMLElement>("[data-tellian-bildzone]")
+        .forEach((el) => {
+          const r = el.getBoundingClientRect();
+          const von = Math.max(0, r.left);
+          const bis = Math.min(breite, r.right);
+          if (bis - von > 0.5) bilder.push({ von, bis, dunkel: true, bild: true });
+        });
+      if (bilder.length) {
+        bilder.sort((a, b) => a.von - b.von);
+        const geschnitten: Zone[] = [];
+        for (const z of roh) {
+          let teile: Zone[] = [z];
+          for (const b of bilder) {
+            teile = teile.flatMap((t) => {
+              if (b.bis <= t.von || b.von >= t.bis) return [t];
+              const raus: Zone[] = [];
+              if (b.von > t.von) raus.push({ ...t, bis: b.von });
+              if (b.bis < t.bis) raus.push({ ...t, von: b.bis });
+              return raus;
+            });
+          }
+          geschnitten.push(...teile.filter((t) => t.bis - t.von > 0.5));
+        }
+        geschnitten.push(...bilder);
+        roh.length = 0;
+        roh.push(...geschnitten);
+        roh.sort((a, b) => a.von - b.von);
+      }
+
       /* Nachbarn gleicher Farbe zusammenfassen — sonst entstünde in
          der Maske eine Naht zwischen zwei gleichfarbigen Stationen. */
       const zus: Zone[] = [];
       for (const z of roh) {
         const v = zus[zus.length - 1];
-        if (v && v.dunkel === z.dunkel && z.von - v.bis < 1.5) v.bis = z.bis;
+        if (v && v.dunkel === z.dunkel && !!v.bild === !!z.bild && z.von - v.bis < 1.5)
+          v.bis = z.bis;
         else zus.push({ ...z });
       }
       /* Ränder aufziehen, damit ein Rundungsrest am Fensterrand keine
@@ -98,7 +141,7 @@ export function useBandZonen(
       zus[zus.length - 1].bis = breite;
 
       const schluessel = zus
-        .map((z) => `${Math.round(z.von)}:${Math.round(z.bis)}:${z.dunkel ? 1 : 0}`)
+        .map((z) => `${Math.round(z.von)}:${Math.round(z.bis)}:${z.dunkel ? 1 : 0}:${z.bild ? 1 : 0}`)
         .join("|");
       if (schluessel !== letzte.current) {
         letzte.current = schluessel;
@@ -121,15 +164,21 @@ export function useBandZonen(
   return zonen;
 }
 
+function passt(z: Zone, schicht: BandSchicht): boolean {
+  if (schicht === "bild") return !!z.bild;
+  if (schicht === "dunkel") return z.dunkel && !z.bild;
+  return !z.dunkel;
+}
+
 /**
- * Maske für eine der beiden Schichten: sichtbar dort, wo der Grund
- * die gewünschte Färbung hat.
+ * Maske für eine der Schichten: sichtbar dort, wo der Grund die
+ * gewünschte Färbung hat. Drei Schichten seit dem A2-Hero: hell,
+ * dunkel und ON-IMAGE (bild).
  */
-export function zonenMaske(zonen: Zone[], dunkel: boolean): string {
+export function zonenMaske(zonen: Zone[], schicht: BandSchicht): string {
   const stopps: string[] = [];
   for (const z of zonen) {
-    const an = z.dunkel === dunkel;
-    const farbe = an ? "#000" : "transparent";
+    const farbe = passt(z, schicht) ? "#000" : "transparent";
     stopps.push(`${farbe} ${z.von.toFixed(1)}px`);
     stopps.push(`${farbe} ${Math.max(z.von, z.bis - FEDER).toFixed(1)}px`);
   }
@@ -137,6 +186,6 @@ export function zonenMaske(zonen: Zone[], dunkel: boolean): string {
 }
 
 /** Trägt eine der Zonen überhaupt diese Färbung? */
-export function hatZone(zonen: Zone[], dunkel: boolean): boolean {
-  return zonen.some((z) => z.dunkel === dunkel && z.bis - z.von > 0.5);
+export function hatZone(zonen: Zone[], schicht: BandSchicht): boolean {
+  return zonen.some((z) => passt(z, schicht) && z.bis - z.von > 0.5);
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { sans } from "../tokens";
 import { SECTIONS } from "../sections";
-import { zonenMaske, hatZone, type Zone } from "./useBandTon";
+import { zonenMaske, hatZone, type Zone, type BandSchicht } from "./useBandTon";
 import logoDunkel from "../../assets/logo/tellian-logo-dunkel.svg";
 import logoHell from "../../assets/logo/tellian-logo-hell.svg";
 import monoDunkel from "../../assets/logo/tellian-monogramm-dunkel.svg";
@@ -55,7 +55,7 @@ const ALLE_SPRACHEN = ["DE", "EN", "FR"] as const;
 export type Sprache = (typeof ALLE_SPRACHEN)[number];
 const SPRACHEN_STANDARD = ["DE", "EN"] as const satisfies readonly Sprache[];
 
-type Schicht = "hell" | "dunkel" | "griff";
+type Schicht = "hell" | "dunkel" | "bild" | "griff";
 
 interface Props {
   /** Sichtbare Stationsbereiche — siehe useBandZonen. */
@@ -76,6 +76,12 @@ interface Props {
   logoLabel?: string;
   /** Sichtbarer Sprachumfang des Toggles. Standard DE/EN. */
   sprachen?: readonly Sprache[];
+  /** ON-IMAGE (A2-Hero): Hinterlegung des Portalfelds über dem
+      Foto. Solutions verstärkt sie fürs helle Tagespanorama. */
+  bildScrim?: string;
+  /** ON-IMAGE: dezenter Schatten unter der Schrift — nur nötig,
+      wenn das Foto hell ist (Solutions bis zur finalen Tonung). */
+  bildSchatten?: boolean;
   /** Beschriftung des Portal-Felds (Solutions FR: «Portail Client»,
       UI-LABEL-REVIEW). Standard: «Kundenportal». */
   portalLabel?: string;
@@ -114,6 +120,8 @@ export function Kopfzeile({
   logoLabel,
   sprachen = SPRACHEN_STANDARD,
   portalLabel = "Kundenportal",
+  bildScrim = "rgba(40, 31, 51, 0.28)",
+  bildSchatten = false,
 }: Props) {
   /* ── DECKENDE FLÄCHE, NUR IM SCHMALEN ZWEIG ──
      Dort scrollt die Seite senkrecht unter der festen Kopfzeile
@@ -141,7 +149,9 @@ export function Kopfzeile({
 
   const inhalt = (schicht: Schicht) => {
     const griff = schicht === "griff";
-    const aufDunkel = schicht === "dunkel";
+    /* Die Bildschicht schreibt wie die dunkle (Archive White) —
+       zusätzlich stützt sie das Portalfeld mit einem Scrim. */
+    const aufDunkel = schicht === "dunkel" || schicht === "bild";
     const ink = griff
       ? "transparent"
       : aufDunkel
@@ -330,7 +340,11 @@ export function Kopfzeile({
               textTransform: "uppercase",
               lineHeight: 1,
               color: portalAn ? portalInkGefuellt : ink,
-              backgroundColor: portalAn ? portalFuellung : "transparent",
+              backgroundColor: portalAn
+                ? portalFuellung
+                : schicht === "bild"
+                  ? bildScrim
+                  : "transparent",
               border: `1px solid ${portalAn ? portalFuellung : portalLinie}`,
               borderRadius: 0,
               height: "var(--tellian-kopf-portal-h)",
@@ -396,7 +410,7 @@ export function Kopfzeile({
 
   const schichtStil = (schicht: Schicht): React.CSSProperties => {
     const maske =
-      schicht === "griff" ? undefined : zonenMaske(zonen, schicht === "dunkel");
+      schicht === "griff" ? undefined : zonenMaske(zonen, schicht as BandSchicht);
     return {
       position: "absolute",
       inset: 0,
@@ -408,6 +422,11 @@ export function Kopfzeile({
       justifyContent: "space-between",
       gap: "var(--tellian-kopf-gap)",
       pointerEvents: schicht === "griff" ? "auto" : "none",
+      /* ON-IMAGE auf hellem Foto: ein Hauch Schatten unter der
+         Schrift — Solutions bis zur finalen Tonung des Panoramas. */
+      ...(schicht === "bild" && bildSchatten
+        ? { textShadow: "0 1px 10px rgba(40, 31, 51, 0.45)" }
+        : null),
       ...(maske ? { WebkitMaskImage: maske, maskImage: maske } : null),
     };
   };
@@ -434,8 +453,8 @@ export function Kopfzeile({
           an; die beiden Farbschichten sind reine Malerei. Wer
           querySelectorAll("button")[n] schreibt, trifft mit hoher
           Wahrscheinlichkeit eine tote Kopie. */}
-      {(["hell", "dunkel"] as const).map((schicht) =>
-        hatZone(zonen, schicht === "dunkel") ? (
+      {(["hell", "dunkel", "bild"] as const).map((schicht) =>
+        hatZone(zonen, schicht) ? (
           <div key={schicht} aria-hidden style={schichtStil(schicht)}>
             {inhalt(schicht)}
           </div>

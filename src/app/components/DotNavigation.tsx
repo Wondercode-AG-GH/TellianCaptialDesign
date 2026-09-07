@@ -4,7 +4,7 @@ import { sans } from "../tokens";
 import { SECTIONS, sectionOrdinal, type SectionDef } from "../sections";
 import { EASE } from "../../styles/motion";
 import { SCROLL_TUNING } from "./useHorizontalScroll";
-import { zonenMaske, hatZone, type Zone } from "./useBandTon";
+import { zonenMaske, hatZone, type Zone, type BandSchicht } from "./useBandTon";
 
 /** Masse der gleitenden Markierung. */
 const MARKER_W = 12;
@@ -105,11 +105,11 @@ export function DotNavigation({ activeIndex, onNavigate, zonen, sektionen = SECT
      Ein einzelner Ton fürs ganze Band wäre an der Farbgrenze — die
      ständig irgendwo durch die Leiste läuft — auf einer Seite
      zwangsläufig falsch. */
-  type Schicht = "hell" | "dunkel" | "griff";
+  type Schicht = "hell" | "dunkel" | "bild" | "griff";
 
   const reihe = (schicht: Schicht) => {
     const griff = schicht === "griff";
-    const aufDunkel = schicht === "dunkel";
+    const aufDunkel = schicht === "dunkel" || schicht === "bild";
     const ziffer = griff
       ? "transparent"
       : aufDunkel
@@ -187,7 +187,7 @@ export function DotNavigation({ activeIndex, onNavigate, zonen, sektionen = SECT
 
   const schichtStil = (schicht: Schicht): React.CSSProperties => {
     const maske =
-      schicht === "griff" ? undefined : zonenMaske(zonen, schicht === "dunkel");
+      schicht === "griff" ? undefined : zonenMaske(zonen, schicht as BandSchicht);
     return {
       position: "absolute",
       inset: 0,
@@ -226,8 +226,8 @@ export function DotNavigation({ activeIndex, onNavigate, zonen, sektionen = SECT
           an; die beiden Farbschichten sind reine Malerei. Wer
           querySelectorAll("button")[n] schreibt, trifft mit hoher
           Wahrscheinlichkeit eine tote Kopie. */}
-      {(["hell", "dunkel"] as const).map((schicht) =>
-        hatZone(zonen, schicht === "dunkel") ? (
+      {(["hell", "dunkel", "bild"] as const).map((schicht) =>
+        hatZone(zonen, schicht) ? (
           <div key={schicht} aria-hidden style={schichtStil(schicht)}>
             {reihe(schicht)}
           </div>
