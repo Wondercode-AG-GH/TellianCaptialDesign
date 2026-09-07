@@ -1066,11 +1066,20 @@
   }
 }
 
-@media (max-width: 359px) {
+/* Drei Spracheinträge (Solutions: DE/EN/FR) trieben den Menüknopf
+   bei 375px rund 18px hinaus — unter 420px gelten die kompakten
+   Abstände schon, nicht erst unter 360. */
+@media (max-width: 419px) {
   :root {
     --tellian-kopf-pad-x: 14px;
     --tellian-kopf-gruppe-gap: 9px;
     --tellian-kopf-portal-pad-x: 9px;
+    --tellian-kopf-gap: 12px;
+  }
+}
+
+@media (max-width: 359px) {
+  :root {
     /* P5: das +33 %-Logo (35px) trieb das Band bei 320px wieder
        hinaus; hier gilt die alte Höhe. */
     --tellian-kopf-logo-h: 26px;
