@@ -30,22 +30,29 @@ interface Person {
   name: string;
   rolle: string;
   bild?: ImageId;
-  /** Persönliches LinkedIn-Profil. Das Icon erscheint NUR, wenn
-      hier eine Adresse steht — ein Verweis ins Leere oder auf ein
-      fremdes Profil wäre schlimmer als kein Verweis. Die Adressen
-      sind von Tellian zu liefern (TODO-LINKEDIN-<NAME>). */
+  /** Persönliches LinkedIn-Profil. Fehlt es, führt das Icon
+      übergangsweise auf die Firmenseite (TODO-LINKEDIN). */
   linkedin?: string;
 }
 
-/* TODO-LINKEDIN: für KEINE Person liegt eine Profiladresse vor —
-   das Feld bleibt bei allen leer, bis Tellian sie liefert. Die
-   Firmenseite ist kein Ersatz: der Verweis soll laut Auftrag auf
-   das persönliche Profil führen. */
+/* TODO-LINKEDIN: für KEINE Person liegt bisher eine persönliche
+   Profiladresse vor. Die Icons stehen trotzdem (Auftrag 09.09) und
+   führen so lange auf die Firmenseite; sobald hier eine Adresse
+   eingetragen wird, gilt sie für diese Person — sonst ist nichts
+   zu tun. */
+/* Übergangsziel, solange die persönlichen Profile fehlen: die
+   Firmenseite. Sie ist belegt (sections.ts, Fussband) und führt
+   niemanden auf ein fremdes Profil. Sobald eine Person ihre eigene
+   Adresse trägt, gilt diese. */
+const LINKEDIN_FIRMA = "https://www.linkedin.com/company/tellian-capital";
+
 /* LinkedIn-Glyph als Vektor: das vorhandene Asset ist ein weisses
-   PNG und trägt auf der hellen Kachel nicht. */
+   PNG und trägt auf der hellen Kachel nicht. Die Grösse hängt an
+   der Namenszeile (1.2em) — das Zeichen wächst und schrumpft mit
+   der Beschriftung, nicht mit der Kachel. */
 function LinkedInGlyph({ farbe }: { farbe: string }) {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden focusable="false">
+    <svg width="1.2em" height="1.2em" viewBox="0 0 24 24" aria-hidden focusable="false">
       <path
         fill={farbe}
         d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29ZM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13Zm1.78 13.02H3.55V9h3.57v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0Z"
@@ -371,9 +378,9 @@ export function Station5Team({
        wäre ungültiges Markup und für Tastatur und Screenreader
        zweideutig. Absolut in der Beschriftungszone unten rechts —
        die Namen stehen links, es gibt keine Kollision. */
-    const linkedin = person.linkedin ? (
+    const linkedin = (
       <a
-        href={person.linkedin}
+        href={person.linkedin ?? LINKEDIN_FIRMA}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`${person.name} auf LinkedIn`}
@@ -385,11 +392,14 @@ export function Station5Team({
              sich als Zeichen der nachbarschaftlichen. Die
              Beschriftung beginnt bei (Kartenhöhe − label-row). */
           top: `calc(100% - var(--tellian-t5-label-row) - 2px)`,
-          right: "2px",
-          /* Optisch klein, als Tippziel 45px — Padding nach aussen,
-             leicht nach innen gezogen. */
+          right: 0,
+          /* Klar INNERHALB der eigenen Kachel: mittig in der Lücke
+             stünde das Zeichen gleich weit von beiden Nachbarn und
+             liesse offen, zu wem es gehört. Der Klickbereich wächst
+             nach innen (Padding), nicht über die Kante hinaus. */
+          fontSize: "var(--tellian-t5-name-size)",
           padding: "15px",
-          margin: "-15px -13px 0 0",
+          margin: "-15px 0 0 0",
           display: "inline-flex",
           alignItems: "center",
           justifyContent: "center",
@@ -398,7 +408,7 @@ export function Station5Team({
       >
         <LinkedInGlyph farbe={C.accent} />
       </a>
-    ) : null;
+    );
 
     const huelle = (kind: React.ReactNode) => (
       <div
