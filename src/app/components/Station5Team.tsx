@@ -90,17 +90,18 @@ type L = "DE" | "EN" | "FR";
 const TEXTE: Readonly<Record<string, Readonly<Record<L, readonly string[]>>>> = {
   rolf: {
     DE: [
-      "Bei Tellian Capital konzentriere ich mich auf zwei Bereiche, die mir seit jeher besonders am Herzen liegen: den persönlichen Austausch mit unseren Kunden und das quantitative Portfoliomanagement. Als Gründungspartner habe ich das Fundament der heutigen Tellian Capital – vormals Blumer & Partner – mitgelegt und das Unternehmen seit der Jahrtausendwende durch ganz unterschiedliche Marktphasen geführt. Heute schätze ich es besonders, diese Erfahrung weiterzugeben und gleichzeitig nah am täglichen Geschehen zu bleiben.",
-      "Neben meiner Arbeit ist meine Familie mein wichtigster Anker. Eine Leidenschaft begleitet mich schon fast mein ganzes Leben: der Rennsport. Ob auf Asphalt, Schnee oder Eis – ich bin viele Jahre selbst Rennen gefahren. Besonders die Nordschleife des Nürburgrings kenne ich dabei Kurve für Kurve.",
+      "Seit der Jahrtausendwende habe ich als Gründungspartner die Entwicklung von Blumer & Partner bis zur heutigen Tellian Capital mitgeprägt. Quantitative Anlagestrategien waren dabei schon immer meine Passion. Die Verbindung von Daten, klaren Modellen und konsequenten Anlageentscheidungen fasziniert mich bis heute. Ebenso wichtig ist mir der persönliche Austausch mit unseren Kunden und das Vertrauen, das daraus gewachsen ist. Mit der nächsten Generation beginnt nun ein neues Kapitel, das ich gerne mit meiner Erfahrung begleite, ohne dabei die Nähe zum Markt und zum täglichen Geschehen zu verlieren.",
+      "Was ich beruflich und privat erleben durfte, wäre ohne meine Familie so nicht möglich gewesen. Sie hat meinen Weg nicht nur mitgetragen, sondern viele meiner Leidenschaften mit mir geteilt. Sport und Geschwindigkeit gehören seit jeher dazu, ob auf Asphalt, Schnee oder Eis.",
     ],
     EN: [
-      "At Tellian Capital, I focus on two areas that have always been particularly close to me: personal relationships with our clients and quantitative portfolio management. As a founding partner, I helped lay the foundations of today's Tellian Capital – formerly Blumer & Partner – and have guided the firm through very different market environments since the turn of the millennium. Today, I particularly value the opportunity to pass on this experience while remaining closely involved in the day-to-day business.",
-      "Outside of work, my family is my most important anchor. Another passion has been with me for almost my entire life: motor racing. Whether on asphalt, snow or ice, I spent many years racing myself. And when it comes to the Nürburgring's Nordschleife, I know every corner.",
+      "Since the turn of the millennium, I have helped shape the development of Blumer & Partner through to today’s Tellian Capital as a founding partner. Quantitative investment strategies have always been my passion. The combination of data, clear models and disciplined investment decisions continues to fascinate me to this day.",
+      "Equally important to me is the personal dialogue with our clients and the trust that has grown from it over the years. With the next generation, a new chapter is now beginning, one that I am pleased to accompany with my experience, while remaining closely connected to the markets and day-to-day developments.",
+      "What I have been fortunate enough to experience, both professionally and personally, would not have been possible without my family. They have not only supported me along the way, but have also shared many of my passions. Sport and speed have always been part of that - whether on asphalt, snow or ice.",
     ],
     /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
     FR: [
-      "Bei Tellian Capital konzentriere ich mich auf zwei Bereiche, die mir seit jeher besonders am Herzen liegen: den persönlichen Austausch mit unseren Kunden und das quantitative Portfoliomanagement. Als Gründungspartner habe ich das Fundament der heutigen Tellian Capital – vormals Blumer & Partner – mitgelegt und das Unternehmen seit der Jahrtausendwende durch ganz unterschiedliche Marktphasen geführt. Heute schätze ich es besonders, diese Erfahrung weiterzugeben und gleichzeitig nah am täglichen Geschehen zu bleiben.",
-      "Neben meiner Arbeit ist meine Familie mein wichtigster Anker. Eine Leidenschaft begleitet mich schon fast mein ganzes Leben: der Rennsport. Ob auf Asphalt, Schnee oder Eis – ich bin viele Jahre selbst Rennen gefahren. Besonders die Nordschleife des Nürburgrings kenne ich dabei Kurve für Kurve.",
+      "Seit der Jahrtausendwende habe ich als Gründungspartner die Entwicklung von Blumer & Partner bis zur heutigen Tellian Capital mitgeprägt. Quantitative Anlagestrategien waren dabei schon immer meine Passion. Die Verbindung von Daten, klaren Modellen und konsequenten Anlageentscheidungen fasziniert mich bis heute. Ebenso wichtig ist mir der persönliche Austausch mit unseren Kunden und das Vertrauen, das daraus gewachsen ist. Mit der nächsten Generation beginnt nun ein neues Kapitel, das ich gerne mit meiner Erfahrung begleite, ohne dabei die Nähe zum Markt und zum täglichen Geschehen zu verlieren.",
+      "Was ich beruflich und privat erleben durfte, wäre ohne meine Familie so nicht möglich gewesen. Sie hat meinen Weg nicht nur mitgetragen, sondern viele meiner Leidenschaften mit mir geteilt. Sport und Geschwindigkeit gehören seit jeher dazu, ob auf Asphalt, Schnee oder Eis.",
     ],
   },
   marco: {
@@ -144,7 +145,7 @@ const TEXTE: Readonly<Record<string, Readonly<Record<L, readonly string[]>>>> = 
     ],
     EN: [
       "At Tellian Capital, I work behind the scenes to ensure that our quantitative analysis runs seamlessly and that our portfolio management and trading are built on precise data, robust models and disciplined execution. I enjoy bringing structure to complex systems and creating a solid foundation for well-informed investment decisions.",
-      "My passion for strategy extends well beyond the office. For many years, I served as President of the Schachgesellschaft Zürich, the world's oldest chess club, where I had the privilege of organising a tournament with former World Chess Champions to mark its 200th anniversary.",
+      "My passion for strategy extends well beyond the office. For many years, I served as President of the Schachgesellschaft Zürich, the world’s oldest chess club, where I had the privilege of organising a tournament with former World Chess Champions to mark its 200th anniversary.",
       "Today, I recharge my batteries on the golf course and through discovering fine wines.",
     ],
     /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
@@ -156,18 +157,20 @@ const TEXTE: Readonly<Record<string, Readonly<Record<L, readonly string[]>>>> = 
   },
   olivier: {
     DE: [
-      "Die Finanzwelt ist oft komplex und laut. Meine persönliche Motivation als CEO ist es, für unsere Kunden Ruhe, Struktur und langfristige Sicherheit zu schaffen. Ich verstehe uns als unabhängige Lotsen, die Ihr Vermögen mit der gleichen Sorgfalt und Hingabe betreuen wie das eigene.",
+      "Die Finanzwelt ist oft komplex und laut. Meine persönliche Motivation als CEO ist es, für unsere Kunden Ruhe, Struktur und langfristige Sicherheit zu schaffen. Dabei fliesst meine langjährige Erfahrung im Investment Banking ein, die meinen Blick auf die Märkte über viele Jahre erweitert hat.",
+      "Ich verstehe uns als unabhängige Lotsen, die Ihr Vermögen mit der gleichen Sorgfalt und Hingabe betreuen wie das eigene.",
       "Dieses Vertrauen beginnt bei uns im Haus: Ein offenes, unkompliziertes Verhältnis im Team und kurze Wege sind mir genauso wichtig wie das ehrliche Gespräch mit Ihnen über Ihre Lebenspläne.",
       "Meine Energie und den Fokus hole ich mir beim Sport, mit der Familie und auf Reisen.",
     ],
     EN: [
-      "The financial world can often feel complex and noisy. As CEO, my personal motivation is to bring clarity, structure and long-term confidence to our clients. I see our role as an independent guide, looking after your wealth with the same care and commitment we would apply to our own.",
-      "For me, trust starts within our firm. An open and straightforward relationship within the team, short decision-making paths and direct communication are just as important as an honest conversation with you about your plans and ambitions.",
+      "The financial world can often feel complex and noisy. As CEO, my personal motivation is to bring clarity, structure and long-term confidence to our clients. In doing so, I also draw on my many years of experience in investment banking, which have broadened my perspective on the markets over time.",
+      "I see us as independent guides, looking after your wealth with the same care and dedication as we would our own. This trust starts within our firm: an open, straightforward team culture and short decision-making paths are just as important to me as honest conversations with you about your life plans.",
       "I find my energy and focus through sport, time with my family and travelling.",
     ],
     /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
     FR: [
-      "Die Finanzwelt ist oft komplex und laut. Meine persönliche Motivation als CEO ist es, für unsere Kunden Ruhe, Struktur und langfristige Sicherheit zu schaffen. Ich verstehe uns als unabhängige Lotsen, die Ihr Vermögen mit der gleichen Sorgfalt und Hingabe betreuen wie das eigene.",
+      "Die Finanzwelt ist oft komplex und laut. Meine persönliche Motivation als CEO ist es, für unsere Kunden Ruhe, Struktur und langfristige Sicherheit zu schaffen. Dabei fliesst meine langjährige Erfahrung im Investment Banking ein, die meinen Blick auf die Märkte über viele Jahre erweitert hat.",
+      "Ich verstehe uns als unabhängige Lotsen, die Ihr Vermögen mit der gleichen Sorgfalt und Hingabe betreuen wie das eigene.",
       "Dieses Vertrauen beginnt bei uns im Haus: Ein offenes, unkompliziertes Verhältnis im Team und kurze Wege sind mir genauso wichtig wie das ehrliche Gespräch mit Ihnen über Ihre Lebenspläne.",
       "Meine Energie und den Fokus hole ich mir beim Sport, mit der Familie und auf Reisen.",
     ],
