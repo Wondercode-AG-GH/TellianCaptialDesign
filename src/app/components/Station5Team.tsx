@@ -186,6 +186,11 @@ export function Station5Team({
 }: Props) {
   /* Teilmenge in der Reihenfolge der IDs (Solutions führt Olivier
      und Thibaut); ohne Angabe das ganze Team. */
+  /* Solutions zeigt nur zwei Porträts und hat entsprechend Raum:
+     die Kacheln laufen dort 33 % grösser. Breite UND Höhe gehen
+     mit — sonst änderte sich das Kachelverhältnis und damit der
+     Ausschnitt des Porträts. */
+  const GROSS = 1.33;
   const LEUTE = personenIds
     ? (personenIds
         .map((id) => PERSONEN.find((p) => p.id === id))
@@ -519,9 +524,11 @@ export function Station5Team({
                 padding: 0,
                 display: "flex",
                 gap: "var(--tellian-t5-gap)",
-                height:
-                  "calc(var(--tellian-t5-row-h) + var(--tellian-t5-label-row)" +
-                  " + var(--tellian-t5-label-gap))",
+                height: personenIds
+                  ? `calc(${GROSS} * var(--tellian-t5-row-h) + var(--tellian-t5-label-row)` +
+                    " + var(--tellian-t5-label-gap))"
+                  : "calc(var(--tellian-t5-row-h) + var(--tellian-t5-label-row)" +
+                    " + var(--tellian-t5-label-gap))",
               }}
             >
               {LEUTE.slice(reihe * 5, reihe * 5 + 5).map((person) => (
@@ -531,7 +538,7 @@ export function Station5Team({
                     /* Teilmenge: feste Kachelbreite statt Fünftelung —
                        zwei Kacheln würden sonst die halbe Reihe füllen. */
                     flex: personenIds
-                      ? "0 0 clamp(240px, 21vw, 320px)"
+                      ? `0 0 clamp(${240 * GROSS}px, ${21 * GROSS}vw, ${320 * GROSS}px)`
                       : "1 1 0",
                     minWidth: 0,
                     display: "flex",
