@@ -1315,6 +1315,10 @@ export default function App() {
           onSprache={setSprache}
           onPortal={() => setLoginOpen(true)}
           onLogo={() => navigateToSection(0)}
+          welt="capital"
+          onWelt={(ziel) => {
+            if (ziel === "solutions") window.location.href = "/solutions";
+          }}
           isVertical
           menueOffen={menueOffen}
           onMenue={() => setMenueOffen((o) => !o)}
@@ -1592,6 +1596,12 @@ export default function App() {
           onSprache={setSprache}
           onPortal={() => setLoginOpen(true)}
           onLogo={() => navigateToSection(0)}
+          welt="capital"
+          onWelt={(ziel) => {
+            /* Volle Navigation: Solutions startet auf seiner ersten
+               Station, der Scroll ist zurückgesetzt. */
+            if (ziel === "solutions") window.location.href = "/solutions";
+          }}
         />
 
         {introComplete && (

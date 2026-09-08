@@ -909,6 +909,9 @@
   /* 12px statt 11: die Untergrenze der Seite gilt auch für die
      Kopfzeile — Zielgruppe 65+, und DE/EN ist ein Tippziel. */
   --tellian-kopf-size: 12px;
+  /* Dritte Lockup-Zeile auf Solutions — klar untergeordnet
+     gegenüber der Lustria-Wortmarke, mobil nie unter 9px. */
+  --tellian-kopf-zusatz-size: 9.5px;
   --tellian-kopf-portal-size: 12px;
   --tellian-kopf-tracking: 0.14em;
   --tellian-kopf-gap: clamp(14px, 1.6vw, 28px);
@@ -1024,6 +1027,9 @@
      ihr liegt. Spiegelt den Wert aus Navigation.tsx — dort steht er
      ebenfalls fest, geändert wird dort nichts. */
   --tellian-kopfzeile-schmal: 56px;
+  /* Höhe der zweiten Kopfzeilenzeile (Welten-Umschalter); 0 =
+     einzeilig, s. Medienabfrage unten. */
+  --tellian-kopf-weltzeile: 0px;
   /* SENKRECHTER ATEM DER ABSCHNITTE IM SCHMALEN ZWEIG
      Stand vorher in jeder Station einzeln — meist clamp(56px, 9vh,
      96px) oben und 6 bis 8vh unten. Zwei Stationen stossen
@@ -1079,6 +1085,20 @@
 @media (max-width: 1023px) {
   html {
     scroll-padding-top: var(--tellian-kopfzeile-schmal, 64px);
+  }
+}
+
+/* ZWEIZEILIGE KOPFZEILE (Welten-Umschalter, Briefing 08.09)
+   Unter 700px passen Logo, Umschalter, Sprache, Portal und Menü
+   nicht nebeneinander — gemessen fehlten bei 375px 172px. Der
+   Umschalter wandert in eine zweite Zeile unter das Logo (Spec:
+   NICHT ins Burger-Menü); die Kopfzeile wächst um deren Höhe.
+   Hero-Abstand und scroll-padding hängen an derselben Variablen
+   und gehen mit. */
+@media (max-width: 699px) {
+  :root {
+    --tellian-kopf-weltzeile: 26px;
+    --tellian-kopfzeile-schmal: 82px;
   }
 }
 

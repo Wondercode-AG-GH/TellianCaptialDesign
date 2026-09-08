@@ -69,9 +69,12 @@ interface Props {
   isVertical?: boolean;
   menueOffen?: boolean;
   onMenue?: () => void;
-  /** Solutions: Zusatz «SOLUTIONS» in Mushroom neben dem Lockup;
-      das Logo führt dann zur Hauptseite (logoHref/eigenes Label). */
-  zusatz?: string;
+  /** Welt, in der die Kopfzeile steht. «solutions» ergänzt das
+      Lockup um die dritte Zeile «SOLUTIONS» und stellt den
+      Welten-Umschalter entsprechend. */
+  welt?: "capital" | "solutions";
+  /** Wechsel in die andere Welt (Ziel: deren erste Station). */
+  onWelt?: (ziel: "capital" | "solutions") => void;
   logoHref?: string;
   logoLabel?: string;
   /** Sichtbarer Sprachumfang des Toggles. Standard DE/EN. */
@@ -115,12 +118,13 @@ export function Kopfzeile({
   isVertical = false,
   menueOffen = false,
   onMenue,
-  zusatz,
+  welt = "capital",
+  onWelt,
   logoHref,
   logoLabel,
   sprachen = SPRACHEN_STANDARD,
   portalLabel = "Kundenportal",
-  bildScrim = "rgba(40, 31, 51, 0.28)",
+  bildScrim = "rgba(40, 31, 51, 0.22)",
   bildSchatten = false,
 }: Props) {
   /* ── DECKENDE FLÄCHE, NUR IM SCHMALEN ZWEIG ──
@@ -211,8 +215,16 @@ export function Kopfzeile({
           aria-label={logoLabel ?? `Tellian Capital — zurück zu ${SECTIONS[0].label}`}
           aria-hidden={!griff}
           tabIndex={griff ? undefined : -1}
-          style={{ display: "flex", alignItems: "center", flexShrink: 0 }}
+          style={{
+            display: "flex",
+            /* Solutions: Lockup und Zusatzzeile stehen gestapelt,
+               sonst steht das Lockup allein. */
+            flexDirection: welt === "solutions" ? "column" : "row",
+            alignItems: welt === "solutions" ? "flex-start" : "center",
+            flexShrink: 0,
+          }}
         >
+          <span style={{ display: "flex", alignItems: "center" }}>
           {/* WENN DER PLATZ NICHT REICHT, GEHT DIE WORTMARKE
               Unter 420px ragte die Kopfzeile rechts hinaus — gemessen
               bei 390px stand die Menükante auf 396. Weg muss dann die
@@ -251,23 +263,33 @@ export function Kopfzeile({
               />
             )}
           </span>
-          {/* Solutions-Zusatz: Mushroom liest auf hellen wie dunklen
-              Flächen — eine Fassung für alle Schichten. */}
-          {zusatz && (
+          </span>
+          {/* P3: dritte Lockup-Zeile, nur auf Solutions. Eingerückt
+              auf den Wortteil des Lockups (der Kasten endet bei
+              30.3 %, «TELLIAN» beginnt bei 35.1 % der Breite) —
+              damit steht «SOLUTIONS» unter «CAPITAL». Auf hellem
+              Grund ein abgedunkelter Mushroom-Ton; reines Mushroom
+              trägt auf Archive White zu wenig. */}
+          {welt === "solutions" && (
             <span
               className="tellian-kopf-zusatz"
               style={{
-                marginLeft: "10px",
-                fontFamily: "inherit",
-                fontSize: "var(--tellian-kopf-size)",
-                letterSpacing: "0.22em",
+                marginTop: "3px",
+                marginLeft: "calc(0.351 * var(--tellian-kopf-logo-h) * 3.274)",
+                fontFamily: sans,
+                fontSize: "var(--tellian-kopf-zusatz-size)",
+                letterSpacing: "0.26em",
                 textTransform: "uppercase",
-                color: "#B8AEA3",
+                lineHeight: 1,
                 whiteSpace: "nowrap",
-                transform: "translateY(1px)",
+                color: griff
+                  ? "transparent"
+                  : aufDunkel
+                    ? "#B8AEA3"
+                    : "#8C8479",
               }}
             >
-              {zusatz}
+              Solutions
             </span>
           )}
         </a>
@@ -280,6 +302,71 @@ export function Kopfzeile({
             flexShrink: 0,
           }}
         >
+          {/* ── Welten-Umschalter (P2) ──
+              CAPITAL │ SOLUTIONS, im Vokabular des Sprachtoggles.
+              Die aktive Welt steht in voller Stärke und ist kein
+              Ziel (kein Reload); die andere führt zur ERSTEN
+              Station der Zielwelt mit zurückgesetztem Scroll.
+              UI-LABEL-REVIEW: die Labels «CAPITAL»/«SOLUTIONS»
+              stehen in allen Sprachen gleich. */}
+          <div
+            role={griff ? "group" : undefined}
+            aria-label={griff ? "Bereich" : undefined}
+            aria-hidden={!griff}
+            className="tellian-kopf-welten"
+            style={{ display: "flex", alignItems: "center", gap: "8px" }}
+          >
+            {(["capital", "solutions"] as const).map((ziel, i) => {
+              const aktiv = welt === ziel;
+              return (
+                <span key={ziel} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  {i > 0 && (
+                    <span
+                      aria-hidden
+                      style={{
+                        display: "block",
+                        width: "1px",
+                        height: "10px",
+                        backgroundColor: trenner,
+                      }}
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => griff && !aktiv && onWelt?.(ziel)}
+                    aria-current={aktiv ? "true" : undefined}
+                    aria-disabled={aktiv ? "true" : undefined}
+                    tabIndex={griff ? undefined : -1}
+                    className="tellian-kopf-ziel tellian-kopf-welt"
+                    style={{
+                      ...klein,
+                      letterSpacing: "0.12em",
+                      color: aktiv ? ink : dim,
+                      cursor: griff && !aktiv ? "pointer" : "default",
+                    }}
+                  >
+                    {ziel === "capital" ? "Capital" : "Solutions"}
+                  </button>
+                </span>
+              );
+            })}
+          </div>
+
+          {/* ── Senkrechter Trenner zwischen Umschalter und Sprache ──
+              Entfällt, sobald der Umschalter in die zweite Zeile
+              rückt (dann trennt ihn die Zeile selbst). */}
+          <span
+            aria-hidden
+            className="tellian-kopf-welten-trenner"
+            style={{
+              display: "block",
+              width: "1px",
+              height: "var(--tellian-kopf-trenner-h)",
+              backgroundColor: trenner,
+              flexShrink: 0,
+            }}
+          />
+
           {/* ── Sprachwahl ── leiser als das Portal. Ein Schalter,
               keine Handlung: aktive Sprache in voller Stärke, die
               andere gedämpft, dazwischen ein Schrägstrich. */}
@@ -287,6 +374,7 @@ export function Kopfzeile({
             role={griff ? "group" : undefined}
             aria-label={griff ? "Sprache" : undefined}
             aria-hidden={!griff}
+            className="tellian-kopf-sprachgruppe"
             style={{ display: "flex", alignItems: "center", gap: "6px" }}
           >
             {sprachen.map((s, i) => (
@@ -312,9 +400,12 @@ export function Kopfzeile({
 
           {/* ── Senkrechter Trenner ──
               Trennt Nebensache von Hauptsache, ohne eine Linie unter
-              das ganze Band zu ziehen. */}
+              das ganze Band zu ziehen. Entfällt zweizeilig: dort
+              steht die Sprachwahl in der zweiten Zeile und der
+              Strich bliebe allein neben dem Portal stehen. */}
           <span
             aria-hidden
+            className="tellian-kopf-welten-trenner"
             style={{
               display: "block",
               width: "1px",
@@ -423,6 +514,9 @@ export function Kopfzeile({
       alignItems: "center",
       justifyContent: "space-between",
       gap: "var(--tellian-kopf-gap)",
+      /* Zweizeilig (schmal): die obere Reihe behält ihre Höhe, die
+         Weltenzeile hängt darunter — siehe CSS unten. */
+      paddingBottom: "var(--tellian-kopf-weltzeile)",
       pointerEvents: schicht === "griff" ? "auto" : "none",
       /* ON-IMAGE auf hellem Foto: ein Hauch Schatten unter der
          Schrift — Solutions bis zur finalen Tonung des Panoramas. */
@@ -442,7 +536,9 @@ export function Kopfzeile({
         left: 0,
         right: 0,
         zIndex: 160,
-        height: "var(--tellian-kopf-height)",
+        height: isVertical
+          ? "var(--tellian-kopfzeile-schmal)"
+          : "var(--tellian-kopf-height)",
         backgroundColor: flaeche,
         transition: "background-color 220ms ease",
         border: "none",
@@ -489,13 +585,35 @@ export function Kopfzeile({
         @media (max-width: 419px) {
           .tellian-kopf-wortmarke { display: none; }
           .tellian-kopf-monogramm { display: block; }
+          /* Ohne Wortmarke gibt es kein «CAPITAL», unter das der
+             Zusatz einrücken könnte — er steht dann bündig unter
+             dem Monogramm (und spart die Einrückung als Breite). */
+          .tellian-kopf-zusatz { margin-left: 0 !important; }
         }
-        /* Dieselbe Platzregel wie bei der Wortmarke: reicht die
-           Breite nicht, geht der SOLUTIONS-Zusatz — nicht das
-           Kundenportal und nicht der Menüknopf. Gemessen braucht
-           die volle Zeile mit Zusatz ~560px. */
-        @media (max-width: 559px) {
-          .tellian-kopf-zusatz { display: none; }
+        /* ZWEITE ZEILE für den Welten-Umschalter unter 560px: er
+           verlässt die rechte Gruppe und steht linksbündig unter
+           dem Logo. Absolut, damit die obere Reihe ihre Masse
+           behält. */
+        /* ZWEITE ZEILE unter 700px: Umschalter links, Sprachwahl
+           rechts — beide sind Schalter. Oben bleiben Logo, Portal
+           und Menüknopf; das Portal ist die Hauptsache und wandert
+           nicht. Absolut gesetzt, damit die obere Reihe ihre Masse
+           behält. */
+        @media (max-width: 699px) {
+          .tellian-kopf-welten {
+            position: absolute;
+            left: var(--tellian-kopf-pad-x);
+            bottom: 7px;
+            gap: 10px;
+          }
+          .tellian-kopf-sprachgruppe {
+            position: absolute;
+            right: var(--tellian-kopf-pad-x);
+            bottom: 7px;
+          }
+          /* Inline-Styles setzen display: block — die Regel muss
+             daher !important tragen. */
+          .tellian-kopf-welten-trenner { display: none !important; }
         }
         .tellian-kopf-ziel:focus-visible {
           outline: 2px solid var(--tellian-muted);

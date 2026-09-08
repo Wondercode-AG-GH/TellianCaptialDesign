@@ -109,6 +109,11 @@ export function SolutionsApp() {
      die referenzstabile Registry. */
   const leisteSektionen = useMemo(() => solutionsLeisteSektionen(sprache), [sprache]);
 
+  /* Weltenwechsel und Logo-Klick: der Wechsel ist eine volle
+     Navigation — die Zielwelt startet damit auf ihrer ERSTEN
+     Station mit zurückgesetztem Scroll, und FR kann nicht auf die
+     Hauptseite lecken (dort beginnt DE). Das Logo führt INNERHALB
+     der eigenen Welt zur ersten Station. */
   const zurHauptseite = useCallback(() => {
     window.location.href = "/";
   }, []);
@@ -119,23 +124,24 @@ export function SolutionsApp() {
       sprache={sprache}
       onSprache={setSprache}
       onPortal={() => setLoginOpen(true)}
-      onLogo={zurHauptseite}
-      logoHref="/"
-      /* UI-LABEL-REVIEW: FR-Microcopy des Rückwegs (der Rückweg ist
-         das Logo, kein Text-Link — das Label spricht der Screen-
-         reader). */
+      onLogo={() => navigateToSection(0)}
+      logoHref={`#${SOLUTIONS_SEKTIONEN[0].key}`}
       logoLabel={
         sprache === "FR"
-          ? "Tellian Capital — retour au site principal"
-          : "Tellian Capital — zurück zur Hauptseite"
+          ? "Tellian Capital Solutions — retour à la première station"
+          : "Tellian Capital Solutions — zurück zur ersten Station"
       }
+      welt="solutions"
+      onWelt={(ziel) => ziel === "capital" && zurHauptseite()}
       sprachen={["DE", "EN", "FR"]}
+      /* Der Kontrast-Scrim (P1) trägt den grössten Teil; die
+         Hinterlegung des Portalfelds bleibt dezent bestehen — ohne
+         sie fiel das Feld auf dem hellen Panorama auf 3.97:1. */
+      bildScrim="rgba(40, 31, 51, 0.32)"
       /* KONTRAST-SONDERFALL (A2): das Solutions-Panorama ist bis zur
          finalen Tonung ein helles Tagesbild — Portal-Scrim
          verstärkt, Schrift mit dezentem Schatten (WCAG AA am
          echten Bild geprüft). */
-      bildScrim="rgba(40, 31, 51, 0.4)"
-      bildSchatten
       /* UI-LABEL-REVIEW: «Portail Client» für den Kundenportal-
          Knopf im Solutions-Kontext (FR ohne Quelle). */
       portalLabel={sprache === "FR" ? "Portail Client" : "Kundenportal"}
