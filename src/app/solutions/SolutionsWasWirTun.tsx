@@ -1,4 +1,6 @@
 import { cormorant, sans, serif } from "../tokens";
+import { useSectionEntered } from "../components/SectionEntry";
+import { usePrefersReducedMotion } from "../components/usePrefersReducedMotion";
 import { Aufgang, Kapitelmarke } from "../components/MobilSektion";
 import { SOLUTIONS_INHALT, SOLUTIONS_LEISTE } from "./inhalt";
 
@@ -25,9 +27,27 @@ const MUSHROOM = "#B8AEA3";
 const SILBER = "rgba(249, 249, 247, 0.78)";
 const HAARLINIE = "rgba(249, 249, 247, 0.16)";
 
+/* Eintritts-Grammatik der Hauptseiten-Stationen (Station 02):
+   gestaffeltes Erscheinen beim Betreten, Reduced Motion sofort.
+   Links läuft der Statement-Block, rechts zieht der Weg Schritt
+   für Schritt nach. */
+const DAUER = 460;
+const STEP = { kicker: 0, statement: 80, absatz: 220, credo: 340, weg: 160 } as const;
+
 export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Props) {
   const inhalt = SOLUTIONS_INHALT[sprache].wasWirTun;
   const schritte = SOLUTIONS_INHALT[sprache].vorgehen.schritte;
+  const entered = useSectionEntered();
+  const reducedMotion = usePrefersReducedMotion();
+  const shown = entered || reducedMotion || isVertical;
+  const enter = (delay: number, distance = 18): React.CSSProperties => ({
+    opacity: shown ? 1 : 0,
+    transform: shown ? "translateY(0)" : `translateY(${distance}px)`,
+    transition: reducedMotion
+      ? "none"
+      : `opacity ${DAUER}ms ease-out ${delay}ms,` +
+        ` transform ${DAUER}ms cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+  });
 
   const kicker = (
     <p
@@ -155,7 +175,11 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
               paddingTop: i === 0 ? 0 : "clamp(22px, 3.2vh, 36px)",
             }}
           >
-            {mitAufgang ? <Aufgang stufe={i + 1}>{eintrag}</Aufgang> : eintrag}
+            {mitAufgang ? (
+              <Aufgang stufe={i + 1}>{eintrag}</Aufgang>
+            ) : (
+              <div style={enter(STEP.weg + i * 140)}>{eintrag}</div>
+            )}
           </li>
         );
       })}
@@ -223,15 +247,15 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
           boxSizing: "border-box",
         }}
       >
-        {/* ══ Links: Statement-Block ══ */}
+        {/* ══ Links: Statement-Block, gestaffelt ══ */}
         <div style={{ minWidth: 0 }}>
-          {kicker}
-          {statement}
-          {absatz}
-          {credo}
+          <div style={enter(STEP.kicker)}>{kicker}</div>
+          <div style={enter(STEP.statement, 24)}>{statement}</div>
+          <div style={enter(STEP.absatz)}>{absatz}</div>
+          <div style={enter(STEP.credo)}>{credo}</div>
         </div>
 
-        {/* ══ Rechts: der Weg, vertikal zentriert ══ */}
+        {/* ══ Rechts: der Weg — zieht Schritt für Schritt nach ══ */}
         <div style={{ minWidth: 0 }}>{weg(false)}</div>
       </div>
     </div>
