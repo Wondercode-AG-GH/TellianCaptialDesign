@@ -1329,6 +1329,10 @@ export default function App() {
           activeIndex={activeIndex}
           onNavigate={navigateToSection}
           onOpenLegal={legal.open}
+          welt="capital"
+          onWelt={(ziel) => {
+            if (ziel === "solutions") window.location.href = "/solutions";
+          }}
         />
 
         {/* ── HERO ──

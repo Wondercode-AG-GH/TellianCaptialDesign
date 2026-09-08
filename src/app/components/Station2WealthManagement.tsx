@@ -96,7 +96,13 @@ export function Station2WealthManagement({
         lineHeight: 1.12,
         letterSpacing: "-0.01em",
         color: "var(--tellian-s2-ink)",
+        /* «Geschäftsbeziehungen» misst bei 320px 314px und ragte
+           aus dem Bild — anywhere bricht das Wort notfalls auch
+           ohne Trennstelle. */
+        hyphens: "auto",
+        overflowWrap: "anywhere",
       }}
+      lang={sprache === "EN" ? "en" : "de"}
     >
       {inhalt.titel[0]}
       <br />

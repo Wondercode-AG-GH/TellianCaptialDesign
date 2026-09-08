@@ -167,6 +167,8 @@ export function SolutionsApp() {
           /* Der Verweis «Solutions» zeigte auf diese Seite selbst
              (alte Subdomain) — im eigenen Menü ausgeblendet. */
           nebenVerweise={NEBEN_VERWEISE.filter((v) => v.text !== "Solutions")}
+          welt="solutions"
+          onWelt={(ziel) => ziel === "capital" && zurHauptseite()}
         />
 
         <SolutionsEinstieg isVertical bereit={introComplete} sprache={sprache} />

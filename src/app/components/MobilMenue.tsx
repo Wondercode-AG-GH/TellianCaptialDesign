@@ -33,6 +33,10 @@ interface Props {
   /** Eigene Nebenverweise (Solutions blendet den Verweis auf sich
       selbst aus); ohne Angabe die der Hauptseite. */
   nebenVerweise?: typeof NEBEN_VERWEISE;
+  /** Welt, in der das Menü steht (P2: der Umschalter lebt mobil
+      hier oben, nicht in der Kopfzeile). */
+  welt?: "capital" | "solutions";
+  onWelt?: (ziel: "capital" | "solutions") => void;
 }
 
 export function MobilMenue({
@@ -43,6 +47,8 @@ export function MobilMenue({
   onOpenLegal,
   sektionen = SECTIONS,
   nebenVerweise = NEBEN_VERWEISE,
+  welt = "capital",
+  onWelt,
 }: Props) {
   const panelRef = useRef<HTMLDivElement | null>(null);
 
@@ -189,6 +195,77 @@ export function MobilMenue({
           flexDirection: "column",
         }}
       >
+        {/* ── WELTEN-UMSCHALTER (P2) ──
+            Ganz oben, vor den Stationen: er ist die übergeordnete
+            Navigationsebene. Zwei vollbreite Einträge; die aktive
+            Welt trägt die Mushroom-Hairline und ist kein Ziel, die
+            andere führt zur ersten Station der Zielwelt und
+            schliesst das Menü. UI-LABEL-REVIEW: «Capital» /
+            «Solutions» in allen Sprachen gleich. */}
+        <div
+          role="group"
+          aria-label="Bereich"
+          /* Genug Luft zum Ebenen-Trenner: die aktive Mushroom-
+             Hairline und der Trenner sind beide vollbreit und
+             lägen sonst als Doppellinie beieinander. */
+          style={{ display: "flex", flexDirection: "column", marginBottom: "clamp(26px, 3.4vh, 36px)" }}
+        >
+          {(["capital", "solutions"] as const).map((ziel) => {
+            const istAktiv = welt === ziel;
+            return (
+              <button
+                key={ziel}
+                type="button"
+                onClick={() => {
+                  if (istAktiv) return;
+                  onWelt?.(ziel);
+                  onSchliessen();
+                }}
+                aria-current={istAktiv ? "true" : undefined}
+                aria-disabled={istAktiv ? "true" : undefined}
+                className="tellian-menue-ziel"
+                style={{
+                  display: "block",
+                  width: "100%",
+                  minHeight: "44px",
+                  padding: "10px 0 8px",
+                  background: "transparent",
+                  border: "none",
+                  textAlign: "left",
+                  cursor: istAktiv ? "default" : "pointer",
+                  fontFamily: sans,
+                  fontSize: "16px",
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  fontWeight: istAktiv ? 500 : 400,
+                  color: istAktiv ? C.ink : "rgba(26, 23, 32, 0.58)",
+                }}
+              >
+                {ziel === "capital" ? "Capital" : "Solutions"}
+                <span
+                  aria-hidden
+                  style={{
+                    display: "block",
+                    marginTop: "6px",
+                    height: "1px",
+                    backgroundColor: istAktiv ? "#B8AEA3" : "transparent",
+                  }}
+                />
+              </button>
+            );
+          })}
+        </div>
+        {/* Trenner zwischen der Welten-Ebene und den Stationen. */}
+        <span
+          aria-hidden
+          style={{
+            display: "block",
+            height: "1px",
+            backgroundColor: C.line,
+            marginBottom: "clamp(16px, 2.4vh, 24px)",
+          }}
+        />
+
         {sektionen.map((s, i) => {
           const aktiv = activeIndex === i;
           return (
