@@ -396,8 +396,13 @@ export function Station5Team({
           /* Klar INNERHALB der eigenen Kachel: mittig in der Lücke
              stünde das Zeichen gleich weit von beiden Nachbarn und
              liesse offen, zu wem es gehört. Der Klickbereich wächst
-             nach innen (Padding), nicht über die Kante hinaus. */
-          fontSize: "var(--tellian-t5-name-size)",
+             nach innen (Padding), nicht über die Kante hinaus.
+
+             Auf Solutions laufen die Kacheln 33 % grösser — das
+             Zeichen geht mit, sonst wirkt es dort verloren. */
+          fontSize: personenIds
+            ? `calc(var(--tellian-t5-name-size) * ${GROSS})`
+            : "var(--tellian-t5-name-size)",
           padding: "15px",
           margin: "-15px 0 0 0",
           display: "inline-flex",
