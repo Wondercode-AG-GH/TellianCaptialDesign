@@ -1069,6 +1069,14 @@
 /* Drei Spracheinträge (Solutions: DE/EN/FR) trieben den Menüknopf
    bei 375px rund 18px hinaus — unter 420px gelten die kompakten
    Abstände schon, nicht erst unter 360. */
+/* P3.1 (Station 03 mobil, gilt seitenweit): Ankerspruenge landen
+   nicht unter der festen Kopfzeile. */
+@media (max-width: 1023px) {
+  html {
+    scroll-padding-top: var(--tellian-kopfzeile-schmal, 64px);
+  }
+}
+
 @media (max-width: 419px) {
   :root {
     --tellian-kopf-pad-x: 14px;

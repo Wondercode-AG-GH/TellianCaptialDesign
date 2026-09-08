@@ -39,11 +39,13 @@ interface Inhalt {
   bank: string;
   /** Sie↔Tellian · Sie↔Depotbank · Tellian↔Depotbank */
   kanten: readonly [string, string, string];
-  /** Erklärtexte. Die Kooperationsbanken-Zeile war am 05.09 (P1.1)
-      als nicht belegt gelöscht — am 06.09 hat der Kunde sie
-      ausdrücklich geliefert; sie gilt damit als final. EN ist die
-      historische Fassung aus derselben früheren Grafik. */
-  prosa: Readonly<Record<"sie" | "tellian" | "bank", string>>;
+  /** Erklärtexte. TODO-HOVER-DEPOTBANK: die Depotbank trägt KEINEN
+      Text (Review 08.09, P1 — endgültig; Text von Tellian
+      ausstehend). Chronik im Abschlussbericht: gelöscht 05.09,
+      am 06.09 auf Kundenanweisung wieder eingefügt, am 08.09
+      erneut als nicht freigegeben entfernt. Der Knoten ist ohne
+      Text PASSIV — kein Hover, kein mobiler Block. */
+  prosa: Readonly<Record<"sie" | "tellian", string>>;
 }
 
 const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
@@ -59,7 +61,6 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
     prosa: {
       sie: "Sie haben einen persönlichen Ansprechpartner und jederzeit vollständige Transparenz. Ihr Portfolio wird laufend überwacht, und Sie werden regelmässig darüber informiert.",
       tellian: "Unsere Leistungen für Sie\u00A0→",
-      bank: "Ihr Vermögen liegt bei ausgewählten Kooperationsbanken in der Schweiz und in Liechtenstein — zu besten Konditionen.",
     },
   },
   EN: {
@@ -76,7 +77,6 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
     prosa: {
       sie: "You have a personal point of contact and full transparency at all times. Your portfolio is continuously monitored, and you are kept regularly informed.",
       tellian: "Our services for you\u00A0→",
-      bank: "Your assets are held at selected partner banks in Switzerland and Liechtenstein — on the best terms.",
     },
   },
   /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
@@ -92,7 +92,6 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
     prosa: {
       sie: "Sie haben einen persönlichen Ansprechpartner und jederzeit vollständige Transparenz. Ihr Portfolio wird laufend überwacht, und Sie werden regelmässig darüber informiert.",
       tellian: "Unsere Leistungen für Sie\u00A0→",
-      bank: "Ihr Vermögen liegt bei ausgewählten Kooperationsbanken in der Schweiz und in Liechtenstein — zu besten Konditionen.",
     },
   },
 };
@@ -127,10 +126,14 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
        stapeln. Die Seitenwörter sitzen GESTAFFELT (45 %/64 % des
        Wegs): auf gleicher Höhe sind beide zusammen breiter als die
        ganze Grafik. */
+  /* P3 (Review 08.09): kompakt ist das Dreieck HÖHER gestreckt
+     (sie 118, Basis 460, Feld 640×700) — die Diagonalen tragen so
+     die gestaffelten Linienwörter mit Luft, und unter der Basis ist
+     Platz für Namen DIREKT am Kreis plus das Vollmacht-Wort. */
   const K = kompakt
-    ? ({ sie: { x: 320, y: 128 }, tellian: { x: 150, y: 420 }, bank: { x: 490, y: 420 } } as const)
+    ? ({ sie: { x: 320, y: 118 }, tellian: { x: 150, y: 460 }, bank: { x: 490, y: 460 } } as const)
     : ({ sie: { x: 320, y: 128 }, tellian: { x: 124, y: 420 }, bank: { x: 516, y: 420 } } as const);
-  const VH = kompakt ? 640 : 560;
+  const VH = kompakt ? 700 : 560;
   /* P7: Zeigen/Fokus/Tap hebt einen Knoten hervor und zeigt seinen
      Erklärtext in der Lesezone unter der Grafik. Auf Touch gilt:
      erster Tap zeigt den Text, zweiter Tap auf «T» navigiert —
@@ -147,23 +150,33 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
     x: a.x + (b.x - a.x) * t,
     y: a.y + (b.y - a.y) * t,
   });
-  /* EINE Regel für alle drei Linienwörter: mittig zur Linie, auf
-     der vom Dreieck abgewandten Seite, mit kleinem festem Abstand
-     zur Linie. Keine Farbteller mehr: nichts kreuzt mehr eine
-     Linie, und der Teller war es, der die Ecke aus dem T-Kreis
-     schnitt.
-
-     Das untere Wort hängt mit der OBERKANTE 9 Einheiten unter der
-     Linie T↔Depotbank, mittig zwischen den Kreisen — dafür ist die
-     Basis breit genug gezogen. Nur im kompakten Layout (Telefon)
-     weicht es unter die Kreise aus: die Grafik skaliert, die
-     Schrift nicht, und bei ~330px Breite ist das Wort breiter als
-     die ganze Kreislücke. */
-  const m1 = entlang(K.sie, K.tellian, kompakt ? 0.45 : 0.62);
-  const m2 = entlang(K.sie, K.bank, kompakt ? 0.64 : 0.62);
+  /* LINIENWÖRTER (P2, Review 08.09) — kein Wort berührt seine
+     Linie:
+     BREIT: Versatz-Lösung für alle drei. Die Seitenwörter hängen
+     KANTENgeankert auf der Aussenseite ihrer Diagonale, senkrecht
+     um 17 Einheiten versetzt — die zugewandte Textkante hält damit
+     bei jeder Fensterbreite ~10–12px Luft zur Linie (Schrift steht
+     in festen px, der Versatz skaliert mit). Das Vollmacht-Wort
+     hängt mit der Oberkante 12 Einheiten unter der Basislinie.
+     KOMPAKT: Unterbrechungs-Lösung für die Diagonalen — das Wort
+     sitzt mittig AUF der Linie, ein Teller in Stationsfarbe
+     unterbricht sie optisch (die Lücke wächst mit dem Text, was
+     eine SVG-Lücke nicht könnte). Das Vollmacht-Wort passt bei
+     ~330px nirgends an seine Linie (breiter als die ganze
+     Kreislücke) und steht zentriert unter den Knotennamen. */
+  const NORMAL_1 = { x: -0.83, y: -0.557 };   /* Aussenseite Sie↔Tellian */
+  const NORMAL_2 = { x: 0.83, y: -0.557 };    /* Aussenseite Sie↔Depotbank */
+  const m1roh = entlang(K.sie, K.tellian, kompakt ? 0.5 : 0.62);
+  const m2roh = entlang(K.sie, K.bank, kompakt ? 0.64 : 0.62);
+  const m1 = kompakt
+    ? m1roh
+    : { x: m1roh.x + 17 * NORMAL_1.x, y: m1roh.y + 17 * NORMAL_1.y };
+  const m2 = kompakt
+    ? m2roh
+    : { x: m2roh.x + 17 * NORMAL_2.x, y: m2roh.y + 17 * NORMAL_2.y };
   const m3 = kompakt
-    ? { x: 320, y: K.tellian.y + R + 24 }
-    : { x: 320, y: K.tellian.y + 9 };
+    ? { x: 320, y: K.tellian.y + R + 68 }
+    : { x: 320, y: K.tellian.y + 12 };
 
   const knoten = (
     id: KnotenId,
@@ -174,11 +187,12 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
     beschriftung: string,
   ) => {
     const istCta = id === "tellian";
-    /* Kompakt gibt es kein Zeigen: alle Erklärtexte stehen statisch
-       unter der Grafik (Zielgruppe 65+ — alles ohne Interaktion
-       sichtbar). Nur «T» bleibt Schaltfläche und führt direkt zur
-       Mandat-Unterseite. */
-    const istPassiv = kompakt && !istCta;
+    /* Kompakt gibt es kein Zeigen: die Erklärtexte stehen statisch
+       unter der Grafik (Zielgruppe 65+). Nur «T» bleibt überall
+       Schaltfläche (führt zum Mandat). TODO-HOVER-DEPOTBANK: die
+       Bank ist auf ALLEN Plattformen passiv, bis ein freigegebener
+       Text vorliegt. */
+    const istPassiv = id === "bank" || (kompakt && !istCta);
     const kreisStil: React.CSSProperties = {
       position: "absolute",
       left: pz(zentrum.x, 640),
@@ -221,8 +235,8 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         }}
         aria-label={
           istCta
-            ? `${beschriftung} — ${inhalt.prosa[id].replace("\u00A0→", "")}`
-            : `${beschriftung} — ${inhalt.prosa[id]}`
+            ? `${beschriftung} — ${inhalt.prosa.tellian.replace("\u00A0→", "")}`
+            : `${beschriftung} — ${inhalt.prosa.sie}`
         }
         className="tellian-dreieck-knoten"
         style={{ ...kreisStil, cursor: "pointer", font: "inherit" }}
@@ -234,15 +248,10 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         style={{
           position: "absolute",
           left: pz(zentrum.x, 640),
-          /* Kompakt steht «Sie» ÜBER seinem Kreis: unterhalb kreuzen
-             die gestaffelten Seitenwörter. Die unteren Namen rücken
-             eine Ebene unter das Vollmacht-Wort (+80). */
-          top: pz(
-            kompakt && id === "sie"
-              ? zentrum.y - R - 26
-              : zentrum.y + R + (kompakt ? 80 : 26),
-            VH,
-          ),
+          /* P3.2: jeder Name DIREKT unter seinem Kreis, einheitlich
+             +20 (kompakt) bzw. +26 (breit) — das Vollmacht-Wort
+             steht kompakt eine Ebene TIEFER, nicht dazwischen. */
+          top: pz(zentrum.y + R + (kompakt ? 20 : 26), VH),
           transform: "translate(-50%, -50%)",
           fontFamily: sans,
           fontSize: "13px",
@@ -261,7 +270,8 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
   const wort = (
     zentrum: { x: number; y: number },
     text: string,
-    anker: "oben" | "mitte",
+    anker: "oben" | "mitte" | "links" | "rechts",
+    teller = false,
   ) => (
     <span
       style={{
@@ -271,12 +281,21 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         transform:
           anker === "oben"
             ? "translate(-50%, 0)"
-            : "translate(-50%, -50%)",
+            : anker === "links"
+              ? "translate(0, -50%)"
+              : anker === "rechts"
+                ? "translate(-100%, -50%)"
+                : "translate(-50%, -50%)",
         fontFamily: sans,
         fontSize: "12px",
         letterSpacing: "0.04em",
         whiteSpace: "nowrap",
         color: C.accent,
+        /* Unterbrechungs-Lösung (kompakt): der Teller in Stations-
+           farbe öffnet die Linie um das Wort — 10px je Seite. */
+        ...(teller
+          ? { backgroundColor: "var(--tellian-s2-bg, #F9F9F7)", padding: "2px 10px" }
+          : null),
       }}
     >
       {text}
@@ -369,8 +388,8 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           Dreieck. Kantengeankert liefen die englischen Wörter auf
           dem Telefon rechts aus dem Bild (Schrift steht in festen
           px, die Grafik skaliert). */}
-      {wort({ x: m1.x - 12, y: m1.y }, inhalt.kanten[0], "mitte")}
-      {wort({ x: m2.x + 12, y: m2.y }, inhalt.kanten[1], "mitte")}
+      {wort(m1, inhalt.kanten[0], kompakt ? "mitte" : "rechts", kompakt)}
+      {wort(m2, inhalt.kanten[1], kompakt ? "mitte" : "links", kompakt)}
       {wort(m3, inhalt.kanten[2], kompakt ? "mitte" : "oben")}
     </div>
 
@@ -390,7 +409,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           gap: "18px",
         }}
       >
-        {(["sie", "bank"] as const).map((id) => (
+        {(["sie"] as const).map((id) => (
           <p
             key={id}
             lang={sprache === "EN" ? "en" : "de"}
@@ -421,6 +440,9 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
             </span>
           </p>
         ))}
+        {/* UI-LABEL-REVIEW: «Unsere Leistungen für Sie →» stammt aus
+            der früheren Live-Implementierung (ParteiDreieck,
+            cf1f30c) — Herkunft verifiziert, bleibt. */}
         <button
           type="button"
           onClick={() => onMandat?.()}
@@ -447,7 +469,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
       aria-live="polite"
       style={{ position: "relative", marginTop: "10px", display: "grid" }}
     >
-      {(["sie", "tellian", "bank"] as const).map((id) => (
+      {(["sie", "tellian"] as const).map((id) => (
         <p
           key={id}
           lang={sprache === "EN" ? "en" : "de"}
