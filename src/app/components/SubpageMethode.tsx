@@ -423,6 +423,14 @@ export function SubpageMethode({
             ))}
           </div>
         </section>
+
+        {/* Fussraum: nimmt einen Teil der Restfläche auf, damit der
+            Weg nicht ganz unten klebt. Wirkt vor allem auf der
+            Advisory-Seite, die mit drei Schritten mehr Rest hat
+            (gemessen 190px Luft unter dem CTA gegenüber 161px bei
+            Mandat). Gedeckelt, damit auf hohen Schirmen keine
+            Lücke entsteht; im Scroll-Modus ohne Wirkung. */}
+        <span aria-hidden className="tellian-mb-fussraum" />
       </div>
 
       <style>{`
@@ -480,6 +488,11 @@ export function SubpageMethode({
         .tellian-mb-schritt > span:nth-child(4) {
           margin-top: clamp(7px, 1vh, 11px);
         }
+        .tellian-mb-fussraum {
+          display: block;
+          flex: 0.3 1 0;
+          max-height: 52px;
+        }
         .tellian-mb-trenner {
           display: block;
           height: 1px;
@@ -504,6 +517,7 @@ export function SubpageMethode({
             overflow: visible;
           }
           .tellian-mb-oben { align-items: start; }
+          .tellian-mb-fussraum { display: none; }
         }
       `}</style>
     </div>
