@@ -984,6 +984,11 @@
   --tellian-band-ink-dunkel: var(--tellian-bg);
   --tellian-band-dim-hell: var(--tellian-accent);
   --tellian-band-dim-dunkel: rgba(244, 244, 240, 0.62);
+  /* ON-IMAGE: über einem Foto trägt dieselbe Dämpfung weniger als
+     über einer flachen Fläche — der Grund ist unruhig und stellen-
+     weise hell. Die Nebenrolle bleibt erkennbar (0.88 statt 1.0),
+     der Text aber lesbar. */
+  --tellian-band-dim-bild: rgba(244, 244, 240, 0.88);
   --tellian-band-grund-hell: 244, 244, 240;
   --tellian-band-grund-dunkel: 40, 31, 51;
   /* Deckung des Schleiers an der Aussenkante. Genug, um Schrift über

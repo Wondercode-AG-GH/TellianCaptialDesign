@@ -159,9 +159,11 @@ export function Kopfzeile({
         : "var(--tellian-band-ink-hell)";
     const dim = griff
       ? "transparent"
-      : aufDunkel
-        ? "var(--tellian-band-dim-dunkel)"
-        : "var(--tellian-band-dim-hell)";
+      : schicht === "bild"
+        ? "var(--tellian-band-dim-bild)"
+        : aufDunkel
+          ? "var(--tellian-band-dim-dunkel)"
+          : "var(--tellian-band-dim-hell)";
     const trenner = griff
       ? "transparent"
       : aufDunkel

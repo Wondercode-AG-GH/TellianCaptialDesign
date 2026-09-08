@@ -112,9 +112,11 @@ export function DotNavigation({ activeIndex, onNavigate, zonen, sektionen = SECT
     const aufDunkel = schicht === "dunkel" || schicht === "bild";
     const ziffer = griff
       ? "transparent"
-      : aufDunkel
-        ? "var(--tellian-band-dim-dunkel)"
-        : "var(--tellian-station-numeral)";
+      : schicht === "bild"
+        ? "var(--tellian-band-dim-bild)"
+        : aufDunkel
+          ? "var(--tellian-band-dim-dunkel)"
+          : "var(--tellian-station-numeral)";
     const aktivFarbe = griff
       ? "transparent"
       : aufDunkel
@@ -122,9 +124,11 @@ export function DotNavigation({ activeIndex, onNavigate, zonen, sektionen = SECT
         : "var(--tellian-station-label)";
     const ruheFarbe = griff
       ? "transparent"
-      : aufDunkel
-        ? "var(--tellian-band-dim-dunkel)"
-        : "var(--tellian-station-inactive)";
+      : schicht === "bild"
+        ? "var(--tellian-band-dim-bild)"
+        : aufDunkel
+          ? "var(--tellian-band-dim-dunkel)"
+          : "var(--tellian-station-inactive)";
 
     return sektionen.map((section, i) => {
       const isActive = activeIndex === i;

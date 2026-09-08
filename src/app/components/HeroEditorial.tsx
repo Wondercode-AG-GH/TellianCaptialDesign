@@ -281,6 +281,42 @@ export function HeroEditorial({
             className="w-full h-full"
             style={{ display: "block", width: "100%", height: "100%" }}
           />
+          {/* ── LESBARKEITS-SCRIM ──
+              Kopfzeile und Stationsleiste schreiben über dem Bild in
+              Archive White. Auf hellen Motiven (Solutions-Panorama,
+              der helle Vorplatz unter dem Opernhaus) verschwand die
+              Schrift darin. Zwei Verläufe an Ober- und Unterkante
+              tragen sie — sie beginnen transparent und liegen NUR in
+              den Bandhöhen; das Motiv selbst bleibt unangetastet
+              (keine Tonung, TODO-BILD-TONUNG davon unberührt). */}
+          <span
+            aria-hidden
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              height: "calc(var(--tellian-kopf-height) + 76px)",
+              background:
+                "linear-gradient(to bottom, rgba(40, 31, 51, 0.82) 0%," +
+                " rgba(40, 31, 51, 0.66) 46%, rgba(40, 31, 51, 0) 100%)",
+              pointerEvents: "none",
+            }}
+          />
+          <span
+            aria-hidden
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: "calc(var(--tellian-station-height) + 88px)",
+              background:
+                "linear-gradient(to top, rgba(40, 31, 51, 0.94) 0%," +
+                " rgba(40, 31, 51, 0.82) 38%, rgba(40, 31, 51, 0) 100%)",
+              pointerEvents: "none",
+            }}
+          />
         </div>
       </div>
     </div>
