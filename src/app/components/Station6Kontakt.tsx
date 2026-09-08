@@ -757,7 +757,8 @@ interface Props {
   onOpenLegal?: (path: LegalPath) => void;
   /** Kapitelmarke des schmalen Zweigs — Solutions führt die Station
       als «04 Kontakt/Contact», die Hauptseite als «06 Kontakt». */
-  markeNr?: string;
+  /** null blendet die Kapitelmarke aus (Solutions). */
+  markeNr?: string | null;
   markeName?: string;
   /** Sprache fürs FORMULAR (Solutions ist dreisprachig). DE/EN
       rendern den bestehenden Wortlaut unverändert; die Hauptseite
@@ -1227,9 +1228,11 @@ export function Station6Kontakt({
             flexDirection: "column",
           }}
         >
-          <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
-            <Kapitelmarke nr={markeNr} name={markeName} hell />
-          </div>
+          {markeNr !== null && (
+            <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
+              <Kapitelmarke nr={markeNr} name={markeName} hell />
+            </div>
+          )}
           <Aufgang>{titel}</Aufgang>
           {lead(false)}
 

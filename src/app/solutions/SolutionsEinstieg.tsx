@@ -1,5 +1,5 @@
 import { HeroEditorial } from "../components/HeroEditorial";
-import { SOLUTIONS_INHALT, SOLUTIONS_LEISTE } from "./inhalt";
+import { SOLUTIONS_INHALT } from "./inhalt";
 
 /* ═══════════════════════════════════════════════════════════
    SOLUTIONS S1 — EINSTIEG (Editorial A2, hell)
@@ -42,7 +42,6 @@ export function SolutionsEinstieg({ panelRef, isVertical = false, bereit = true,
       bereit={bereit}
       panelRef={panelRef}
       domId="solutions-einstieg"
-      marke={{ nr: "01", name: SOLUTIONS_LEISTE[sprache][0] }}
     />
   );
 }

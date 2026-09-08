@@ -169,7 +169,8 @@ interface Props {
       Ohne Angabe das ganze Team — Verhalten der Hauptseite. */
   personenIds?: readonly string[];
   /** Kapitelmarke des schmalen Zweigs (Solutions: «03»/Leiste-Label). */
-  markeNr?: string;
+  /** null blendet die Kapitelmarke aus (Solutions). */
+  markeNr?: string | null;
   markeName?: string;
 }
 
@@ -414,9 +415,11 @@ export function Station5Team({
             paddingRight: "clamp(20px, 6vw, 48px)",
           }}
         >
-          <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
-            <Kapitelmarke nr={markeNr} name={markeName} />
-          </div>
+          {markeNr !== null && (
+            <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
+              <Kapitelmarke nr={markeNr} name={markeName} />
+            </div>
+          )}
           <Aufgang>{kopf}</Aufgang>
           <div
             style={{

@@ -120,7 +120,6 @@ export function SolutionsApp() {
       onSprache={setSprache}
       onPortal={() => setLoginOpen(true)}
       onLogo={zurHauptseite}
-      zusatz="Solutions"
       logoHref="/"
       /* UI-LABEL-REVIEW: FR-Microcopy des Rückwegs (der Rückweg ist
          das Logo, kein Text-Link — das Label spricht der Screen-
@@ -172,8 +171,7 @@ export function SolutionsApp() {
           sprache={sprache}
           onDetailToggle={setTeamDetailOffen}
           personenIds={["olivier", "thibaut"]}
-          markeNr="03"
-          markeName={leisteSektionen[2].label}
+          markeNr={null}
         />
         {/* TODO-SOLUTIONS-FIRMA: der Kontaktblock zeigt Firmenname
             und Absender der HAUPTSEITE — die Bestätigung des Namens
@@ -183,8 +181,7 @@ export function SolutionsApp() {
           sprache={sprache}
           domId="solutions-kontakt"
           onOpenLegal={legal.open}
-          markeNr="04"
-          markeName={leisteSektionen[3].label}
+          markeNr={null}
         />
 
         <LoginOverlay open={loginOpen} onClose={() => setLoginOpen(false)} onSupportClick={() => navigateToSection(3)} />

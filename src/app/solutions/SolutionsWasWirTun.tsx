@@ -1,8 +1,8 @@
 import { cormorant, sans, serif } from "../tokens";
 import { useSectionEntered } from "../components/SectionEntry";
 import { usePrefersReducedMotion } from "../components/usePrefersReducedMotion";
-import { Aufgang, Kapitelmarke } from "../components/MobilSektion";
-import { SOLUTIONS_INHALT, SOLUTIONS_LEISTE } from "./inhalt";
+import { Aufgang } from "../components/MobilSektion";
+import { SOLUTIONS_INHALT } from "./inhalt";
 
 /* ═══════════════════════════════════════════════════════════
    SOLUTIONS S2 — WAS WIR TUN + VORGEHEN (dunkel, kombiniert)
@@ -204,9 +204,6 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
             paddingRight: "clamp(20px, 6vw, 48px)",
           }}
         >
-          <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
-            <Kapitelmarke nr="02" name={SOLUTIONS_LEISTE[sprache][1]} hell />
-          </div>
           <Aufgang>
             {kicker}
             {statement}
