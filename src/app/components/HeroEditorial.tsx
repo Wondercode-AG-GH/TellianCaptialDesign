@@ -60,6 +60,10 @@ interface Props {
   domId?: string;
   /** Kapitelmarke des schmalen Zweigs (Solutions «01 …»). */
   marke?: { nr: string; name: string };
+  /** P1 Variante A: Deckung des oberen Kontrast-Scrims am obersten
+      Stop. Solutions liegt bis zur finalen Tonung auf sehr hellem
+      Tagespanorama und bekommt den kräftigeren Wert. */
+  scrimOben?: number;
 }
 
 export function HeroEditorial({
@@ -77,6 +81,7 @@ export function HeroEditorial({
   panelRef,
   domId,
   marke,
+  scrimOben = 0.62,
 }: Props) {
   const entered = useSectionEntered();
   const reducedMotion = usePrefersReducedMotion();
@@ -296,10 +301,11 @@ export function HeroEditorial({
               left: 0,
               right: 0,
               top: 0,
-              height: "calc(var(--tellian-kopf-height) + 76px)",
+              height: "130px",
               background:
-                "linear-gradient(to bottom, rgba(40, 31, 51, 0.82) 0%," +
-                " rgba(40, 31, 51, 0.66) 46%, rgba(40, 31, 51, 0) 100%)",
+                `linear-gradient(to bottom, rgba(40, 31, 51, ${scrimOben}) 0%,` +
+                ` rgba(40, 31, 51, ${(scrimOben * 0.45).toFixed(3)}) 45%,` +
+                " rgba(40, 31, 51, 0) 100%)",
               pointerEvents: "none",
             }}
           />

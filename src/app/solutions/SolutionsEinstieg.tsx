@@ -42,6 +42,9 @@ export function SolutionsEinstieg({ panelRef, isVertical = false, bereit = true,
       bereit={bereit}
       panelRef={panelRef}
       domId="solutions-einstieg"
+      /* Helles Tagespanorama bis zur finalen Tonung — eine Stufe
+         kräftiger als der Standardwert (Variante A). */
+      scrimOben={0.72}
     />
   );
 }
