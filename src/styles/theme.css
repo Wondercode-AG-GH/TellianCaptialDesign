@@ -735,10 +735,15 @@
   --tellian-t5-row-w: calc(
     1.1 * (94vw - var(--tellian-rail-width) - 2 * clamp(24px, 2.8vw, 48px))
   );
+  /* Der letzte Summand ist die weisse Fläche NACH der letzten
+     Kachel — sie trennt das Porträt von der nächsten Station.
+     Mit den früheren 24…48px endete die Kachel gemessen 4px hinter
+     der Stationskante, das Foto stiess also direkt an die dunkle
+     Fläche der Kontakt-Station. */
   --tellian-t5-section-width: calc(
     var(--tellian-titel-links) + var(--tellian-t5-title-col)
     + var(--tellian-t5-mid-gap) + var(--tellian-t5-row-w)
-    + clamp(24px, 2.8vw, 48px)
+    + clamp(72px, 7vw, 128px)
   );
   /* Gerendert wird der Titel in der Grösse von Station 3. Die
      t5-title-*-Tokens darüber bemessen weiterhin NUR die senkrechte
