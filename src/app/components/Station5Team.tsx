@@ -30,6 +30,28 @@ interface Person {
   name: string;
   rolle: string;
   bild?: ImageId;
+  /** Persönliches LinkedIn-Profil. Das Icon erscheint NUR, wenn
+      hier eine Adresse steht — ein Verweis ins Leere oder auf ein
+      fremdes Profil wäre schlimmer als kein Verweis. Die Adressen
+      sind von Tellian zu liefern (TODO-LINKEDIN-<NAME>). */
+  linkedin?: string;
+}
+
+/* TODO-LINKEDIN: für KEINE Person liegt eine Profiladresse vor —
+   das Feld bleibt bei allen leer, bis Tellian sie liefert. Die
+   Firmenseite ist kein Ersatz: der Verweis soll laut Auftrag auf
+   das persönliche Profil führen. */
+/* LinkedIn-Glyph als Vektor: das vorhandene Asset ist ein weisses
+   PNG und trägt auf der hellen Kachel nicht. */
+function LinkedInGlyph({ farbe }: { farbe: string }) {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden focusable="false">
+      <path
+        fill={farbe}
+        d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29ZM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13Zm1.78 13.02H3.55V9h3.57v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0Z"
+      />
+    </svg>
+  );
 }
 
 const PERSONEN: readonly Person[] = [
@@ -344,14 +366,63 @@ export function Station5Team({
       </>
     );
 
+    /* Der Verweis steht NEBEN der Kachel, nicht in ihr: die Kachel
+       ist ein Knopf (öffnet das Porträt), und ein Link im Knopf
+       wäre ungültiges Markup und für Tastatur und Screenreader
+       zweideutig. Absolut in der Beschriftungszone unten rechts —
+       die Namen stehen links, es gibt keine Kollision. */
+    const linkedin = person.linkedin ? (
+      <a
+        href={person.linkedin}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`${person.name} auf LinkedIn`}
+        className="tellian-t5-linkedin"
+        style={{
+          position: "absolute",
+          /* Auf Höhe der NAMENSZEILE, nicht an der Kachelkante: am
+             Fuss der Karte stand es zwischen zwei Kacheln und las
+             sich als Zeichen der nachbarschaftlichen. Die
+             Beschriftung beginnt bei (Kartenhöhe − label-row). */
+          top: `calc(100% - var(--tellian-t5-label-row) - 2px)`,
+          right: "2px",
+          /* Optisch klein, als Tippziel 45px — Padding nach aussen,
+             leicht nach innen gezogen. */
+          padding: "15px",
+          margin: "-15px -13px 0 0",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          lineHeight: 0,
+        }}
+      >
+        <LinkedInGlyph farbe={C.accent} />
+      </a>
+    ) : null;
+
+    const huelle = (kind: React.ReactNode) => (
+      <div
+        style={{
+          position: "relative",
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          height: "100%",
+        }}
+      >
+        {kind}
+        {linkedin}
+      </div>
+    );
+
     if (!hatText) {
-      return (
+      return huelle(
         <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%" }}>
           {innen}
         </div>
       );
     }
-    return (
+    return huelle(
       <button
         type="button"
         ref={(el) => {
@@ -385,7 +456,13 @@ export function Station5Team({
         outline: 2px solid var(--tellian-t5-focus);
         outline-offset: 3px;
       }
-      .tellian-t5-kachel:hover .tellian-t5-mehr { text-decoration: underline; text-underline-offset: 4px; }
+      .tellian-t5-kachel:hover .tellian-t5-linkedin { opacity: 0.75; transition: opacity 180ms ease; }
+      .tellian-t5-linkedin:hover, .tellian-t5-linkedin:focus-visible { opacity: 1; }
+      .tellian-t5-linkedin:focus-visible {
+        outline: 2px solid var(--tellian-accent);
+        outline-offset: 2px;
+      }
+      .tellian-t5-mehr { text-decoration: underline; text-underline-offset: 4px; }
       .tellian-t5-bild picture { display: block; width: 100%; height: 100%; }
       .tellian-t5-bild img { width: 100%; height: 100%; object-fit: cover; }
     `}</style>
