@@ -39,13 +39,13 @@ interface Inhalt {
   bank: string;
   /** Sie↔Tellian · Sie↔Depotbank · Tellian↔Depotbank */
   kanten: readonly [string, string, string];
-  /** Erklärtexte. TODO-HOVER-DEPOTBANK: die Depotbank trägt KEINEN
-      Text (Review 08.09, P1 — endgültig; Text von Tellian
-      ausstehend). Chronik im Abschlussbericht: gelöscht 05.09,
-      am 06.09 auf Kundenanweisung wieder eingefügt, am 08.09
-      erneut als nicht freigegeben entfernt. Der Knoten ist ohne
-      Text PASSIV — kein Hover, kein mobiler Block. */
-  prosa: Readonly<Record<"sie" | "tellian", string>>;
+  /** Erklärtexte. Die Depotbank-Zeile ist vom Kunden am 09.09 in
+      dieser gekürzten Fassung geliefert worden (ohne den früheren
+      Zusatz «— zu besten Konditionen»); TODO-HOVER-DEPOTBANK ist
+      damit erledigt. Chronik: 05.09 gelöscht, 06.09 auf Anweisung
+      zurück, 08.09 erneut gelöscht, 09.09 in dieser Fassung
+      endgültig gesetzt. */
+  prosa: Readonly<Record<"sie" | "tellian" | "bank", string>>;
 }
 
 const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
@@ -61,6 +61,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
     prosa: {
       sie: "Sie haben einen persönlichen Ansprechpartner und jederzeit vollständige Transparenz. Ihr Portfolio wird laufend überwacht, und Sie werden regelmässig darüber informiert.",
       tellian: "Unsere Leistungen für Sie\u00A0→",
+      bank: "Ihr Vermögen liegt bei ausgewählten Kooperationsbanken in der Schweiz und in Liechtenstein.",
     },
   },
   EN: {
@@ -77,6 +78,10 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
     prosa: {
       sie: "You have a personal point of contact and full transparency at all times. Your portfolio is continuously monitored, and you are kept regularly informed.",
       tellian: "Our services for you\u00A0→",
+      /* Gekürzt aus der historischen EN-Fassung derselben Zeile —
+         der Zusatz «on the best terms» entfällt mit dem deutschen
+         Pendant. Nicht neu übersetzt. */
+      bank: "Your assets are held at selected partner banks in Switzerland and Liechtenstein.",
     },
   },
   /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
@@ -92,6 +97,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
     prosa: {
       sie: "Sie haben einen persönlichen Ansprechpartner und jederzeit vollständige Transparenz. Ihr Portfolio wird laufend überwacht, und Sie werden regelmässig darüber informiert.",
       tellian: "Unsere Leistungen für Sie\u00A0→",
+      bank: "Ihr Vermögen liegt bei ausgewählten Kooperationsbanken in der Schweiz und in Liechtenstein.",
     },
   },
 };
@@ -188,11 +194,9 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
   ) => {
     const istCta = id === "tellian";
     /* Kompakt gibt es kein Zeigen: die Erklärtexte stehen statisch
-       unter der Grafik (Zielgruppe 65+). Nur «T» bleibt überall
-       Schaltfläche (führt zum Mandat). TODO-HOVER-DEPOTBANK: die
-       Bank ist auf ALLEN Plattformen passiv, bis ein freigegebener
-       Text vorliegt. */
-    const istPassiv = id === "bank" || (kompakt && !istCta);
+       unter der Grafik (Zielgruppe 65+). Nur «T» bleibt dort
+       Schaltfläche (führt zum Mandat). */
+    const istPassiv = kompakt && !istCta;
     const kreisStil: React.CSSProperties = {
       position: "absolute",
       left: pz(zentrum.x, 640),
@@ -236,7 +240,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         aria-label={
           istCta
             ? `${beschriftung} — ${inhalt.prosa.tellian.replace("\u00A0→", "")}`
-            : `${beschriftung} — ${inhalt.prosa.sie}`
+            : `${beschriftung} — ${inhalt.prosa[id as "sie" | "bank"]}`
         }
         className="tellian-dreieck-knoten"
         style={{ ...kreisStil, cursor: "pointer", font: "inherit" }}
@@ -409,7 +413,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           gap: "18px",
         }}
       >
-        {(["sie"] as const).map((id) => (
+        {(["sie", "bank"] as const).map((id) => (
           <p
             key={id}
             lang={sprache === "EN" ? "en" : "de"}
@@ -469,7 +473,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
       aria-live="polite"
       style={{ position: "relative", marginTop: "10px", display: "grid" }}
     >
-      {(["sie", "tellian"] as const).map((id) => (
+      {(["sie", "tellian", "bank"] as const).map((id) => (
         <p
           key={id}
           lang={sprache === "EN" ? "en" : "de"}
