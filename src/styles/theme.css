@@ -909,6 +909,7 @@
   /* 12px statt 11: die Untergrenze der Seite gilt auch für die
      Kopfzeile — Zielgruppe 65+, und DE/EN ist ein Tippziel. */
   --tellian-kopf-size: 12px;
+  --tellian-kopf-sprache-gap: 6px;
   /* Dritte Lockup-Zeile auf Solutions — klar untergeordnet
      gegenüber der Lustria-Wortmarke, mobil nie unter 9px. */
   --tellian-kopf-zusatz-size: 9.5px;
@@ -992,6 +993,18 @@
      weise hell. Die Nebenrolle bleibt erkennbar (0.88 statt 1.0),
      der Text aber lesbar. */
   --tellian-band-dim-bild: rgba(244, 244, 240, 0.88);
+
+  /* WELTEN-UMSCHALTER (P1, Briefing 08.09)
+     Der inaktive Eintrag ist deutlich gedämpfter als die übrigen
+     Nebenrollen — aber nie unter WCAG AA. Das Briefing nennt 42 %
+     als Startwert; gemessen am echten Bild reisst das die Grenze
+     (AA verlangt 4.5:1), deshalb 62 % auf Bild und dunkel sowie
+     ein Ink bei 58 % auf hell. Endwerte im Bericht. */
+  --tellian-welt-dim-bild: rgba(244, 244, 240, 0.78);
+  --tellian-welt-dim-dunkel: rgba(244, 244, 240, 0.62);
+  --tellian-welt-dim-hell: rgba(26, 23, 32, 0.68);
+  /* Abstand des Umschalters zur Nachbargruppe (P1.3). */
+  --tellian-kopf-welt-gap: 8px;
   --tellian-band-grund-hell: 244, 244, 240;
   --tellian-band-grund-dunkel: 40, 31, 51;
   /* Deckung des Schleiers an der Aussenkante. Genug, um Schrift über
@@ -1027,9 +1040,6 @@
      ihr liegt. Spiegelt den Wert aus Navigation.tsx — dort steht er
      ebenfalls fest, geändert wird dort nichts. */
   --tellian-kopfzeile-schmal: 56px;
-  /* Höhe der zweiten Kopfzeilenzeile (Welten-Umschalter); 0 =
-     einzeilig, s. Medienabfrage unten. */
-  --tellian-kopf-weltzeile: 0px;
   /* SENKRECHTER ATEM DER ABSCHNITTE IM SCHMALEN ZWEIG
      Stand vorher in jeder Station einzeln — meist clamp(56px, 9vh,
      96px) oben und 6 bis 8vh unten. Zwei Stationen stossen
@@ -1088,17 +1098,14 @@
   }
 }
 
-/* ZWEIZEILIGE KOPFZEILE (Welten-Umschalter, Briefing 08.09)
-   Unter 700px passen Logo, Umschalter, Sprache, Portal und Menü
-   nicht nebeneinander — gemessen fehlten bei 375px 172px. Der
-   Umschalter wandert in eine zweite Zeile unter das Logo (Spec:
-   NICHT ins Burger-Menü); die Kopfzeile wächst um deren Höhe.
-   Hero-Abstand und scroll-padding hängen an derselben Variablen
-   und gehen mit. */
-@media (max-width: 699px) {
-  :root {
-    --tellian-kopf-weltzeile: 26px;
-    --tellian-kopfzeile-schmal: 82px;
+/* Drei Spracheinträge (Solutions: DE/EN/FR) trieben den Menüknopf
+   bei 375px rund 18px hinaus — unter 420px gelten die kompakten
+   Abstände schon, nicht erst unter 360. */
+/* P3.1 (Station 03 mobil, gilt seitenweit): Ankerspruenge landen
+   nicht unter der festen Kopfzeile. */
+@media (max-width: 1023px) {
+  html {
+    scroll-padding-top: var(--tellian-kopfzeile-schmal, 64px);
   }
 }
 
@@ -1116,6 +1123,18 @@
     /* P5: das +33 %-Logo (35px) trieb das Band bei 320px wieder
        hinaus; hier gilt die alte Höhe. */
     --tellian-kopf-logo-h: 26px;
+    /* Engste Stufe: bei 320px stehen Logo, Sprache, Portal und
+       Menüknopf zusammen bis auf wenige Pixel im Bild. */
+    --tellian-kopf-pad-x: 8px;
+    --tellian-kopf-gruppe-gap: 5px;
+    --tellian-kopf-portal-pad-x: 6px;
+    --tellian-kopf-gap: 4px;
+    /* Drei Spracheinträge (Solutions) brauchen bei 320px jeden
+       Pixel — sonst wird der Menüknopf angeschnitten. */
+    --tellian-kopf-sprache-gap: 2px;
+    --tellian-kopf-gap: 6px;
+    /* Drei Spracheinträge brauchen bei 320px jeden Pixel. */
+    --tellian-kopf-sprache-gap: 3px;
   }
 }
 
