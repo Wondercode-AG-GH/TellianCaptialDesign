@@ -2,5 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "framework": "vite"
+  "framework": "vite",
+  "rewrites": [
+    {
+      "comment": "Die Seite ist eine SPA: /solutions, /mandat, /advisory, /impressum und die übrigen Pfade sind Zustände im Client, keine Dateien. Ohne diese Regel antwortet Vercel auf jeden Direktaufruf und jeden Reload einer Unterseite mit 404 — gemessen am Deployment vom 09.09. Bestehende Dateien (Assets, Bilder) gehen vor, die Regel greift nur, wenn nichts gefunden wird.",
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
 }
