@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { C, cormorant, sans } from "../tokens";
+import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 import { BankIcon } from "./DreieckIcons";
 /* TODO-ASSET-SIE-SVG: finales Vektor-Icon der Brand-Designerin
    ausstehend. Bis dahin die nachgeschärfte PNG-Fassung (384px,
@@ -146,6 +147,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
      dieselbe Regel trägt auch den Mausklick (Zeigen aktiviert
      bereits, der Klick löst dann aus). */
   const [aktiv, setAktiv] = useState<KnotenId | null>(null);
+  const reducedMotion = usePrefersReducedMotion();
 
   /* Beschriftungspunkte. Die Seitenwörter sitzen bei 62 % des Wegs
      von «Sie» abwärts — auf halber Höhe berührten sich die beiden
@@ -193,6 +195,16 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
     beschriftung: string,
   ) => {
     const istCta = id === "tellian";
+    /* HERVORHEBUNG (wie im Bestand vor dem Redesign): zeigt man auf
+       einen Knoten, treten die beiden anderen samt ihren Namen
+       zurück und der gewählte kommt eine Spur nach vorn. Nur im
+       breiten Zweig — kompakt gibt es kein Zeigen, dort stehen alle
+       Texte ohnehin untereinander. */
+    const gedimmt = !kompakt && aktiv !== null && aktiv !== id;
+    const hervor = !kompakt && aktiv === id;
+    const uebergang = reducedMotion
+      ? undefined
+      : "opacity 260ms cubic-bezier(0.22,0.61,0.36,1), transform 260ms cubic-bezier(0.22,0.61,0.36,1)";
     /* Kompakt gibt es kein Zeigen: die Erklärtexte stehen statisch
        unter der Grafik (Zielgruppe 65+). Nur «T» bleibt dort
        Schaltfläche (führt zum Mandat). */
@@ -203,7 +215,6 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
       top: pz(zentrum.y, VH),
       width: pz(2 * R, 640),
       aspectRatio: "1",
-      transform: "translate(-50%, -50%)",
       borderRadius: "50%",
       backgroundColor: fuellung,
       border: kontur ? `1.5px solid ${kontur}` : "none",
@@ -212,6 +223,10 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
       alignItems: "center",
       justifyContent: "center",
       padding: 0,
+      opacity: gedimmt ? 0.25 : 1,
+      transform: `translate(-50%, -50%) scale(${hervor ? 1.03 : 1})`,
+      transition: uebergang,
+      zIndex: hervor ? 2 : 1,
     };
     return (
     <>
@@ -263,6 +278,8 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           textTransform: "uppercase",
           whiteSpace: "nowrap",
           color: C.ink,
+          opacity: gedimmt ? 0.25 : 1,
+          transition: uebergang,
         }}
       >
         {beschriftung}
