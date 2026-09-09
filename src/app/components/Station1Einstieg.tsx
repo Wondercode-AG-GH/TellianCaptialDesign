@@ -94,7 +94,7 @@ export function Station1Einstieg({
       {/* Zeile 1 bleibt ganz — «Looking Ahead.» misst bei 70px rund
           470px und darf in den 80px-Abstand laufen (gemessen ~41px),
           statt nach «Looking» zu brechen. */}
-      <span style={{ whiteSpace: "nowrap" }}>{inhalt.titel[0]}</span>
+      <span className="tellian-hero-zeile1">{inhalt.titel[0]}</span>
       <br />
       {/* DE/FR: die Kursivzeile «mit Erfahrung» ist EINE Zeile
           (nowrap; Überlänge liefe in den 80px-Abstand, nie ins
@@ -109,9 +109,24 @@ export function Station1Einstieg({
           fontWeight: "inherit",
           whiteSpace: sprache === "EN" ? undefined : "nowrap",
         }}
+        className="tellian-hero-zeile2"
       >
         {inhalt.titel[1]}
       </em>
+      {/* Der nowrap hält die Zeilen auf normalen Schirmen zusammen;
+          bei sehr schmalen (320px) ist «mit Erfahrung» breiter als
+          das Fenster und erzeugte einen waagrechten Überlauf —
+          dort darf er brechen. */}
+      <style>{`
+        /* Basisregel: Zeile 1 bleibt zusammen (früher inline
+           gesetzt — beim Umbau auf die Klasse ging sie verloren). */
+        .tellian-hero-zeile1 { white-space: nowrap; }
+        @media (max-width: 359px) {
+          .tellian-hero-zeile1, .tellian-hero-zeile2 {
+            white-space: normal !important;
+          }
+        }
+      `}</style>
     </>
   );
 
