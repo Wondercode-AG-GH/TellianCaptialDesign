@@ -301,7 +301,13 @@ export function Station5Team({
           style={{
             display: "flex",
             width: "100%",
-            ...(breit
+            /* Breit füllt das Bild die vorgegebene Reihenhöhe; die
+               Kachel ist dabei breiter als das Motiv, cover
+               beschneidet oben und unten (gemessen 83 % sichtbar).
+               Auf Solutions (Teilmenge) bekommt die Kachel das
+               FORMAT des Motivs — dort ist Platz, und das Porträt
+               steht vollständig. */
+            ...(breit && !personenIds
               ? { flex: 1, minHeight: 0 }
               : { aspectRatio: "var(--tellian-t5-tile-ratio)" }),
             overflow: "hidden",
@@ -619,9 +625,10 @@ export function Station5Team({
                 padding: 0,
                 display: "flex",
                 gap: "var(--tellian-t5-gap)",
+                /* Teilmenge: die Hoehe ergibt sich aus dem Bildformat,
+                   nicht aus der Reihenvorgabe. */
                 height: personenIds
-                  ? `calc(${GROSS} * var(--tellian-t5-row-h) + var(--tellian-t5-label-row)` +
-                    " + var(--tellian-t5-label-gap))"
+                  ? "auto"
                   : "calc(var(--tellian-t5-row-h) + var(--tellian-t5-label-row)" +
                     " + var(--tellian-t5-label-gap))",
               }}
