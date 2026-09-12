@@ -390,9 +390,15 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           top: pz(zentrum.y + R + (kompakt ? 20 : 26), VH),
           transform: "translate(-50%, -50%)",
           fontFamily: sans,
-          fontSize: "13px",
-          letterSpacing: "var(--tellian-ls-marker)",
-          textTransform: "uppercase",
+          /* Kundenwunsch 12.09: die Knotennamen stehen in
+             SATZSCHREIBWEISE («Sie», «Tellian Capital»,
+             «Depotbank») und im Mass der Linienwörter (12px,
+             0.04em) — bewusste Abweichung vom Versal-Standard,
+             der sie als Marker führte. Die Tinte bleibt dunkler
+             als die grauen Linienwörter: Namen benennen, Wörter
+             erklären. */
+          fontSize: "12px",
+          letterSpacing: "0.04em",
           whiteSpace: "nowrap",
           color: C.ink,
           opacity: gedimmt ? GEDIMMT : 1,
@@ -556,8 +562,10 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
                 marginBottom: "4px",
                 fontFamily: sans,
                 fontSize: "12px",
-                letterSpacing: "var(--tellian-ls-marker)",
-                textTransform: "uppercase",
+                /* Zieht mit den Knotennamen der Grafik mit
+                   (Kundenwunsch 12.09): Satzschreibweise statt
+                   Versalien — gleicher Name, gleiche Schreibweise. */
+                letterSpacing: "0.04em",
                 color: C.stone,
               }}
             >
