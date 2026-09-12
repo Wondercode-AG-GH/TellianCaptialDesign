@@ -147,8 +147,7 @@ export function ScrollDebugOverlay({ debugRef }: Props) {
       </div>
 
       <div style={{ color: "#52525b", marginTop: 6, fontSize: 10 }}>
-        Sprung {SCROLL_TUNING.JUMP_MS}ms · Taste {SCROLL_TUNING.KEY_MS}ms ·{" "}
-        {Math.round(SCROLL_TUNING.KEY_STEP_FRACTION * 100)}% Bildbreite
+        Sprung {SCROLL_TUNING.JUMP_MS}ms · Tastatur nativ (Scrub)
       </div>
     </div>
   );

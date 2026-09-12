@@ -5,29 +5,42 @@ import { EASE } from "../../styles/motion";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
 /* ═══════════════════════════════════════════════════════════
-   HORIZONTALER SCROLL — FREI
+   HORIZONTALER SCRUB — der Seiten-Scroll treibt den Track
 
-   Die Seite scrollt. Sie wechselt keine Abschnitte.
+   Umbau 12.09: vorher war der Track ein horizontaler Overflow-
+   Container, dessen scrollLeft wir aus abgefangenen Wheel-/Touch-/
+   Tastatur-Ereignissen selbst schrieben. Das funktionierte, hiess
+   aber: jede Eingabeart musste nachgebaut werden (Trackpad-Momentum
+   kam aus dem Event-Strom, Touch-Ausrollen war eine eigene Reibungs-
+   simulation, ein Scrollbalken existierte nicht).
 
-   Vorher stand hier ein Automat, der entschied, wo die Fläche
-   stehenbleibt: Rastpunkte, Commit-Schwelle, Nachlauf-Erkennung,
-   Feder, Gestenerkennung mit vier Scharfstell-Signalen. Jede Runde
-   hat die Mechanik verfeinert und das Grundgefühl nicht verändert —
-   solange die Maschine das Ziel bestimmt, wirkt es wie Automatik,
-   egal wie weich die Kurve ist.
+   Jetzt scrollt die SEITE — vertikal, nativ, mit ihrem eigenen
+   Balken. Drei Bausteine:
 
-   Jetzt gilt: die Position folgt der Eingabe, sonst nichts. Wo die
-   Bewegung ausläuft, bleibt sie stehen — auch mitten zwischen zwei
-   Sektionen. Das ist erlaubt und der ganze Punkt.
+     SPACER      ein Element im Fluss, dessen Höhe die Scrollstrecke
+                 erzeugt: Fensterhöhe + (Trackbreite − Fensterbreite).
+                 Ein vertikales Pixel entspricht damit exakt einem
+                 horizontalen — auch Station 04 (breiter als der
+                 Viewport) fliesst korrekt ein, weil die STRECKE aus
+                 der gemessenen Gesamtbreite kommt, nicht aus
+                 Anzahl × 100vw.
+     VIEWPORT    position:sticky, 100vh, overflow:hidden — bleibt
+                 stehen, während der Spacer unter ihm durchscrollt.
+     TRACK       die Stationen in einer Reihe, verschoben per
+                 transform:translate3d(−x). Nur transform, nie
+                 left/margin — die Bewegung bleibt beim Kompositor.
 
-   Das Ausrollen bauen wir NICHT nach. Ein Trackpad liefert seine
-   Momentum-Phase bereits im Event-Strom mit; wir müssen sie nur nicht
-   mehr abfangen und umdeuten. Der frühere freie Scroll fühlte sich
-   träge an, weil jede Eingabe durch einen Lerp mit Faktor 0.065 lief
-   — rund 550ms Nachlauf. Das ist kein Scrollen, das ist Sirup.
+   Der Gewinn: Mausrad, Trackpad samt Momentum, Scrollbalken-Ziehen,
+   Tastatur und Touch sind NATIVES Seitenscrollen — nichts wird
+   abgefangen oder nachgebaut. Wir lesen nur window.scrollY und
+   ziehen den Track mit kurzer Zeitkonstante nach.
 
-   Animiert wird nur noch, was ein BEFEHL ist: Navigation und
-   Direktsprung. Ein Klick auf "Kontakt" darf fahren; ein Wisch nicht.
+   KEIN Einrasten, keine Rastpunkte, keine Commit-Schwellen: die
+   Position folgt der Eingabe, und wo die Bewegung ausläuft, bleibt
+   sie stehen — auch mitten zwischen zwei Stationen. Animiert wird
+   nur, was ein BEFEHL ist (Stationsleiste, Deep-Link): eine
+   zeitlich begrenzte Fahrt des Scrollwerts, jederzeit durch neue
+   Eingabe unterbrechbar.
    ═══════════════════════════════════════════════════════════ */
 
 /* ═══════════════════════════════════════════════════════════
@@ -37,42 +50,26 @@ import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 /**
  * Zeitkonstante der Glättung, in ms.
  *
- * Klein genug, um bei zusammenhängender Eingabe nicht als Verzögerung
- * wahrgenommen zu werden, gross genug, um die Stufen eines Mausrads zu
- * verschleifen. Bei 22ms holt die Position je Frame rund 53% des
- * Rückstands auf: ein Trackpad-Delta von 15px hinkt im Beharrungs-
- * zustand um etwa 13px nach — weniger als ein Frame Bewegung, also
- * unsichtbar. Ein Rad-Rastpunkt von 100px gleitet über rund fünf
- * Frames hinein, statt zu springen.
- *
- * Auf 0 gesetzt wäre die Bewegung exakt 1:1 und ein Mausrad ruckelig.
- * Deutlich höher gesetzt fühlt es sich an wie das "smooth scrolling"
- * mancher Browser, also träge.
+ * Der Track holt je Frame rund 53 % seines Rückstands auf den
+ * Scrollwert auf. Bei zusammenhängender Trackpad-Eingabe hinkt er
+ * damit weniger als eine Framebewegung nach — unsichtbar, kein
+ * «Sirup». Ein Mausrad-Rastpunkt von ~100px gleitet über etwa fünf
+ * Frames hinein, statt zu springen. Am Gerät justiert (22 → weich,
+ * ohne spürbare Abkopplung); 0 wäre exakt 1:1 und bei Rad-Stufen
+ * ruckelig, deutlich mehr fühlte sich nach Nachlauf an.
  */
 const SMOOTH_TAU_MS = 22;
 
-/** Dauer eines befohlenen Sprungs (Navigation, Direktsprung). */
+/** Dauer eines befohlenen Sprungs (Stationsleiste, Direktsprung). */
 const JUMP_MS = 600;
 
 /** Kurve dafür — s. EASE.snap in motion.ts. */
 const JUMP_EASE = EASE.snapArr;
 
-/** Strecke, die Pfeiltasten und Bild auf/ab zurücklegen, als Anteil
- *  der Bildbreite. Wer mit den Pfeilen liest, will weiterlesen. */
-const KEY_STEP_FRACTION = 0.9;
-
-/** Dauer einer Tastaturbewegung. Kürzer als ein Sprung — es ist eine
- *  kleinere Strecke und soll sich wie Blättern anfühlen. */
-const KEY_MS = 420;
-
 /**
- * Tiefe während der Bewegung.
- *
- * Bildflächen laufen langsamer als die Textebene. Der Versatz hängt
- * jetzt an der GESCHWINDIGKEIT statt an einem Tween-Fortschritt: null
- * im Stillstand, wachsend mit der Bewegung, und beim Ausrollen
- * verschwindet er von selbst. Damit braucht er weder Anfang noch Ende
- * einer Transition zu kennen — es gibt keine mehr.
+ * Tiefe während der Bewegung: Bildflächen laufen langsamer als die
+ * Textebene. Der Versatz hängt an der GESCHWINDIGKEIT — null im
+ * Stillstand, und beim Ausrollen verschwindet er von selbst.
  */
 const LAYER_SPEED = 0.88;
 
@@ -83,16 +80,10 @@ const LAYER_OVERSCAN_MARGIN = 1.15;
 const LAYER_FULL_VELOCITY = 3.5;
 
 /**
- * Überdeckung, ab der eine Sektion als betreten gilt — als Anteil
- * gelesen: 0.75 bedeutet, ein Viertel muss im Bild sein.
- *
- * Getrennt von `activeIndex`, der an der Bildmitte hängt. Für die
- * Navigation ist die Mitte richtig — dort steht man "in" einer
- * Sektion. Für die Eintrittsanimation wäre sie zu spät: beim freien
- * Scrollen sieht man eine Sektion lange, bevor sie die Mitte erreicht,
- * und ihr Inhalt würde vor den Augen des Betrachters aufblenden.
- * Bei 0.75 beginnt der Eintritt, wenn ein Viertel der Sektion im Bild
- * ist.
+ * Überdeckung, ab der eine Sektion als betreten gilt — 0.75 heisst:
+ * ein Viertel muss im Bild sein. Treibt die Eintrittsanimationen;
+ * deren Latch (in App) sorgt dafür, dass beim Vor- und Zurück-
+ * scrubben nichts erneut animiert.
  */
 const ENTER_FRACTION = 0.75;
 
@@ -103,32 +94,18 @@ const REMEASURE_DEBOUNCE_MS = 100;
    CSS-VARIABLEN
    ═══════════════════════════════════════════════════════════ */
 
-/**
- * Versatz der zurückgesetzten Ebenen.
- *
- * Bewusst eine Stil-Eigenschaft am Container statt React-State: ein
- * State-Update pro Frame würde den Baum neu rendern und genau die
- * Frame-Zeiten kosten, die flüssiges Scrollen braucht. So bleibt die
- * Bewegung frei von React-Arbeit und die Ebenen werden vom Kompositor
- * verschoben.
- */
+/** Versatz der zurückgesetzten Ebenen — Stil statt React-State,
+ *  damit kein Render pro Frame anfällt. */
 const LAG_VAR = "--tellian-tween-lag";
 
-/**
- * Überstand, den eine zurückgesetzte Ebene über ihren Ausschnitt
- * hinaus braucht, damit der Versatz an der nachlaufenden Kante nichts
- * freilegt. Wird beim Messen aus dem Scheitel abgeleitet.
- */
+/** Überstand, den eine zurückgesetzte Ebene über ihren Ausschnitt
+ *  hinaus braucht. */
 const OVERSCAN_VAR = "--tellian-tween-overscan";
 
 /* ═══════════════════════════════════════════════════════════
    EASING
    ═══════════════════════════════════════════════════════════ */
 
-/**
- * Cubic-Bezier-Solver für befohlene Sprünge. CSS-Transitions helfen
- * hier nicht: bewegt wird `scrollLeft`, keine animierbare Eigenschaft.
- */
 function cubicBezier(x1: number, y1: number, x2: number, y2: number) {
   const cx = 3 * x1;
   const bx = 3 * (x2 - x1) - cx;
@@ -172,14 +149,6 @@ const easeJump = cubicBezier(...JUMP_EASE);
    TYPEN
    ═══════════════════════════════════════════════════════════ */
 
-/**
- * Eine zur Laufzeit vermessene Sektion.
- *
- * Die Offsets werden per `offsetLeft` am echten DOM-Knoten abgegriffen,
- * nicht aus den vw-Werten zurückgerechnet. Gebraucht werden sie für
- * Navigation, URL und den Eintritts-Latch — nicht mehr, um die
- * Bewegung zu steuern.
- */
 export interface MeasuredSection {
   index: number;
   offset: number;
@@ -189,7 +158,7 @@ export interface MeasuredSection {
   snap: number;
 }
 
-/** Befohlene Bewegung. Freies Scrollen erzeugt keine. */
+/** Befohlene Fahrt des Scrollwerts. Freies Scrubben erzeugt keine. */
 interface Jump {
   from: number;
   to: number;
@@ -204,14 +173,11 @@ export interface ScrollDebugInfo {
   events: number;
   delta: number;
   gap: number;
-  /** Aktuelle Geschwindigkeit in px/ms. */
   velocity: number;
-  /** Rückstand der geglätteten Position auf die Eingabe, in px. */
   lagPx: number;
   position: number;
   progressPct: number;
   index: number;
-  /** true, solange eine befohlene Bewegung läuft. */
   commanded: boolean;
 }
 
@@ -225,13 +191,13 @@ function createDebugInfo(): ScrollDebugInfo {
 interface UseHorizontalScrollOptions {
   /** When true the hook becomes a no-op (vertical mode) */
   disabled?: boolean;
-  /** Eigene Stationenliste (Solutions). Ohne Angabe: die Registry
-      der Hauptseite. Muss referenzstabil sein. */
+  /** Eigene Stationenliste (Solutions). Muss referenzstabil sein. */
   sektionen?: readonly SectionDef[];
   /**
-   * Sperrt jede Eingabe, ohne den Hook abzubauen. Für offene Overlays
-   * und die Intro-Phase: der Wheel-Handler ist dort schon durch
-   * `pointer-events: none` blockiert, `keydown` hängt aber am Fenster.
+   * Sperrt den Seiten-Scroll, ohne den Hook abzubauen — für offene
+   * Overlays und die Intro-Phase. Umgesetzt als overflow:hidden am
+   * Wurzelelement: der Scrollwert bleibt exakt stehen, nach dem
+   * Schliessen ist die Scrub-Position unverändert.
    */
   locked?: boolean;
   /** Sektion, die beim ersten Aufbau eingenommen wird — ohne Animation. */
@@ -245,16 +211,17 @@ interface UseHorizontalScrollOptions {
 export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   const disabled = opts?.disabled ?? false;
   const locked = opts?.locked ?? false;
-  /* Solutions: dieselbe Engine faehrt eine zweite Stationenliste.
-     Ohne Angabe gilt die Registry der Hauptseite — Verhalten dort
-     unveraendert. Die Liste muss referenzstabil sein (Modul-
-     konstante), sie haengt in Mess-Effekten. */
   const sektionen = opts?.sektionen ?? SECTIONS;
   const anzahl = sektionen.length;
   const initialIndex = Math.max(0, Math.min(anzahl - 1, opts?.initialIndex ?? 0));
   const reducedMotion = usePrefersReducedMotion();
 
+  /** Der Track — die Stationsreihe, verschoben per transform. */
   const containerRef = useRef<HTMLDivElement>(null);
+  /** Der Spacer im Fluss — seine Höhe ist die Scrollstrecke. */
+  const spacerRef = useRef<HTMLDivElement>(null);
+  /** Der sticky-Ausschnitt über dem Track. */
+  const viewportRef = useRef<HTMLDivElement>(null);
 
   /* ── Registry ── */
   const panelsRef = useRef<(HTMLDivElement | null)[]>([]);
@@ -263,7 +230,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   const peakLagRef = useRef(0);
 
   /* ── Position ──
-     `target` nimmt die Eingabe 1:1 auf, `pos` zieht mit kurzer
+     `target` ist der native Scrollwert, `pos` zieht mit kurzer
      Zeitkonstante nach. Mehr Zustand gibt es nicht. */
   const targetRef = useRef(0);
   const posRef = useRef(0);
@@ -272,19 +239,12 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
   const lastFrameRef = useRef(0);
   const initialisedRef = useRef(false);
   const jumpRef = useRef<Jump | null>(null);
-
-  /* ── Touch ── */
-  const touchLastXRef = useRef(0);
-  const touchVelocityRef = useRef(0);
-  const touchLastTsRef = useRef(0);
-  const glideRef = useRef(0);
+  const jumpRafRef = useRef(0);
 
   const debugRef = useRef<ScrollDebugInfo>(createDebugInfo());
   const lastEventTsRef = useRef(0);
 
   const [activeIndex, setActiveIndex] = useState(initialIndex);
-  /** Bereich der Sektionen, die weit genug im Bild sind, um als
-   *  betreten zu gelten. Treibt die Eintrittsanimationen. */
   const [visibleRange, setVisibleRange] = useState<[number, number]>([initialIndex, initialIndex]);
   const [scrollDirection, setScrollDirection] = useState<ScrollDirection>("idle");
 
@@ -318,10 +278,21 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     const container = containerRef.current;
     if (!container) return;
 
-    const max = Math.max(0, container.scrollWidth - container.clientWidth);
+    /* Trackbreite gegen Fensterbreite — der Track ist kein Overflow-
+       Container mehr, aber scrollWidth liefert weiterhin die volle
+       Inhaltsbreite (transform geht nicht in die Messung ein). */
+    const viewportW = window.innerWidth;
+    const max = Math.max(0, container.scrollWidth - viewportW);
     maxScrollRef.current = max;
 
-    peakLagRef.current = container.clientWidth * (1 - LAYER_SPEED) * 0.25;
+    /* Die Scrollstrecke der Seite: Fensterhöhe + horizontale Strecke.
+       Damit entspricht ein vertikales Pixel exakt einem horizontalen
+       und der native Balken bildet den Fortschritt 1:1 ab. */
+    if (spacerRef.current) {
+      spacerRef.current.style.height = `${window.innerHeight + max}px`;
+    }
+
+    peakLagRef.current = viewportW * (1 - LAYER_SPEED) * 0.25;
     container.style.setProperty(
       OVERSCAN_VAR,
       `${(peakLagRef.current * LAYER_OVERSCAN_MARGIN).toFixed(2)}px`
@@ -343,18 +314,11 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 
   const getSections = useCallback(() => measuredRef.current, []);
 
-  /**
-   * Sektion unter der Mitte des sichtbaren Ausschnitts.
-   *
-   * Nicht "nächstgelegener Rastpunkt": beim freien Scrollen steht man
-   * ständig zwischen zwei Sektionen, und der nächstgelegene Offset
-   * würde auf halber Strecke hin- und herspringen. Die Sektion, die
-   * die Bildmitte überdeckt, wechselt dagegen genau einmal.
-   */
+  /** Sektion unter der Mitte des sichtbaren Ausschnitts. */
   const indexAt = useCallback((pos: number) => {
     const sections = measuredRef.current;
     if (!sections.length) return 0;
-    const centre = pos + (containerRef.current?.clientWidth ?? 0) / 2;
+    const centre = pos + window.innerWidth / 2;
     for (let i = sections.length - 1; i >= 0; i--) {
       if (centre >= sections[i].offset) return i;
     }
@@ -370,27 +334,19 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     []
   );
 
+  /** Schreibt die Trackposition — NUR transform, Compositor-Ebene. */
   const write = useCallback((pos: number, velocity: number) => {
     const container = containerRef.current;
     if (!container) return;
-    container.scrollLeft = pos;
+    container.style.transform = `translate3d(${(-pos).toFixed(2)}px, 0, 0)`;
 
-    /* Tiefe aus der Geschwindigkeit: null im Stillstand, Scheitel bei
-       zügiger Fahrt, und beim Ausrollen verschwindet sie von selbst.
-       Kein Anfang, kein Ende, keine Restverschiebung. */
     const lag = reducedMotionRef.current
       ? 0
       : Math.max(-1, Math.min(1, velocity / LAYER_FULL_VELOCITY)) * peakLagRef.current;
     container.style.setProperty(LAG_VAR, `${lag.toFixed(2)}px`);
   }, []);
 
-  /**
-   * Meldet die Sektion unter der Bildmitte nach aussen.
-   *
-   * Die URL schreibt App, nicht der Hook: dort ist bekannt, ob gerade
-   * eine Unterseite offen ist, deren Pfad nicht überschrieben werden
-   * darf. Der Hook liefert nur den Index.
-   */
+  /** Meldet die Sektion unter der Bildmitte nach aussen. */
   const syncIndex = useCallback(() => {
     const idx = indexAt(posRef.current);
     if (idx !== debugRef.current.index) {
@@ -398,12 +354,8 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       setActiveIndex(idx);
     }
 
-    /* Betreten = weit genug im Bild, unabhängig von der Bildmitte.
-       Als BEREICH, nicht als höchster Index: beim Zurückscrollen
-       kommt die neue Sektion von links, ihr Index ist kleiner. Ein
-       monoton steigender Wert würde sie nie erfassen. */
     const sections = measuredRef.current;
-    const viewport = containerRef.current?.clientWidth ?? 0;
+    const viewport = window.innerWidth;
     const left = posRef.current;
     const right = left + viewport;
     let from = -1;
@@ -422,44 +374,24 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     }
   }, [indexAt]);
 
+  /** Nachzieh-Schleife: lerpt den Track zum Scrollwert. Läuft nur,
+   *  solange Rückstand besteht — im Stillstand kein rAF. */
   const tick = useCallback(() => {
     const now = performance.now();
     const dt = Math.max(1, Math.min(64, now - (lastFrameRef.current || now - 16)));
     lastFrameRef.current = now;
 
-    const jump = jumpRef.current;
     let moving = false;
-
-    if (jump) {
-      /* Befohlene Bewegung — der einzige Fall, in dem ein Ziel
-         durchgesetzt wird. */
-      const t = jump.duration <= 0 ? 1 : Math.min(1, (now - jump.start) / jump.duration);
-      const next = jump.from + (jump.to - jump.from) * easeJump(t);
-      velocityRef.current = (next - posRef.current) / dt;
-      posRef.current = next;
-      targetRef.current = next;
-      if (t >= 1) {
-        jumpRef.current = null;
-        velocityRef.current = 0;
-        setScrollDirection("idle");
-      } else {
-        moving = true;
-      }
+    const residual = targetRef.current - posRef.current;
+    if (Math.abs(residual) > 0.05) {
+      const step = residual * (1 - Math.exp(-dt / SMOOTH_TAU_MS));
+      velocityRef.current = step / dt;
+      posRef.current += step;
+      moving = true;
     } else {
-      /* Freies Scrollen: die Position zieht mit kurzer Zeitkonstante
-         zum Ziel nach. Kein Filter mit langem Nachlauf — das Ausrollen
-         steckt im Event-Strom, nicht in einer Glättung. */
-      const residual = targetRef.current - posRef.current;
-      if (Math.abs(residual) > 0.05) {
-        const step = residual * (1 - Math.exp(-dt / SMOOTH_TAU_MS));
-        velocityRef.current = step / dt;
-        posRef.current += step;
-        moving = true;
-      } else {
-        posRef.current = targetRef.current;
-        velocityRef.current = 0;
-        setScrollDirection("idle");
-      }
+      posRef.current = targetRef.current;
+      velocityRef.current = 0;
+      setScrollDirection("idle");
     }
 
     write(posRef.current, velocityRef.current);
@@ -486,25 +418,49 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     }
   }, [tick]);
 
-  /** Nimmt Eingabe entgegen. Das ist der ganze Scroll-Pfad. */
-  const push = useCallback(
-    (delta: number) => {
-      jumpRef.current = null;
-      const before = targetRef.current;
-      targetRef.current = clamp(targetRef.current + delta);
-      if (targetRef.current !== before) {
-        setScrollDirection(delta > 0 ? "forward" : "backward");
-      }
-      startRaf();
-    },
-    [clamp, startRaf]
-  );
+  /** Nimmt den nativen Scrollwert auf — der ganze Scroll-Pfad. */
+  const follow = useCallback(() => {
+    const before = targetRef.current;
+    const next = clamp(window.scrollY);
+    if (next === before) return;
+    targetRef.current = next;
+    setScrollDirection(next > before ? "forward" : "backward");
+
+    const now = performance.now();
+    const dbg = debugRef.current;
+    dbg.events++;
+    dbg.delta = Math.round(next - before);
+    dbg.gap = Math.round(now - lastEventTsRef.current);
+    lastEventTsRef.current = now;
+
+    if (reducedMotionRef.current) {
+      /* Bewegung DIREKT an den Scroll gekoppelt — keine Glättung,
+         keine Animation obendrauf. */
+      posRef.current = next;
+      velocityRef.current = 0;
+      write(next, 0);
+      syncIndex();
+      return;
+    }
+    startRaf();
+  }, [clamp, startRaf, write, syncIndex]);
+
+  /** Bricht eine befohlene Fahrt ab — jede echte Eingabe darf das. */
+  const cancelJump = useCallback(() => {
+    jumpRef.current = null;
+    if (jumpRafRef.current) {
+      cancelAnimationFrame(jumpRafRef.current);
+      jumpRafRef.current = 0;
+    }
+  }, []);
 
   /**
-   * Befohlene Bewegung zu einer Sektion.
+   * Befohlene Fahrt zu einer Sektion (Stationsleiste, Deep-Link).
    *
-   * Navigation und Direktsprung — das darf fahren, weil es ein Befehl
-   * ist und keine Scrollbewegung.
+   * Animiert wird der SCROLLWERT — der Track folgt über denselben
+   * Pfad wie bei jeder Eingabe, und der native Balken fährt mit.
+   * Kein Fixieren: die Fahrt ist jederzeit unterbrechbar, danach
+   * ist frei weiterscrubben.
    */
   const jumpToIndex = useCallback(
     (next: number) => {
@@ -514,45 +470,42 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       const index = Math.max(0, Math.min(anzahl - 1, next));
       const to = clamp(sections[index].snap);
 
-      cancelAnimationFrame(glideRef.current);
-      glideRef.current = 0;
-
       setActiveIndex(index);
       debugRef.current.index = index;
 
-      if (Math.abs(to - posRef.current) < 0.5) {
-        jumpRef.current = null;
-        targetRef.current = to;
-        return;
-      }
-
-      if (reducedMotionRef.current) {
-        jumpRef.current = null;
-        posRef.current = to;
-        targetRef.current = to;
-        write(to, 0);
-        setScrollDirection("idle");
+      if (reducedMotionRef.current || Math.abs(to - window.scrollY) < 0.5) {
+        cancelJump();
+        window.scrollTo(0, to);
         return;
       }
 
       setScrollDirection(to > posRef.current ? "forward" : "backward");
-      jumpRef.current = {
-        from: posRef.current,
+      cancelJump();
+      const jump: Jump = {
+        from: window.scrollY,
         to,
         start: performance.now(),
         duration: JUMP_MS,
       };
-      startRaf();
+      jumpRef.current = jump;
+
+      const fahrt = () => {
+        if (jumpRef.current !== jump) return;
+        const t = Math.min(1, (performance.now() - jump.start) / jump.duration);
+        window.scrollTo(0, jump.from + (jump.to - jump.from) * easeJump(t));
+        if (t >= 1) {
+          jumpRef.current = null;
+          jumpRafRef.current = 0;
+          return;
+        }
+        jumpRafRef.current = requestAnimationFrame(fahrt);
+      };
+      jumpRafRef.current = requestAnimationFrame(fahrt);
     },
-    [clamp, startRaf, write]
+    [clamp, cancelJump]
   );
 
-  /**
-   * Direktsprung über einen Fortschrittswert 0–1.
-   *
-   * Signatur bleibt für Navigation.tsx und DotNavigation.tsx erhalten;
-   * abgebildet wird auf die nächstgelegene Sektion.
-   */
+  /** Direktsprung über einen Fortschrittswert 0–1 (Alt-Signatur). */
   const scrollTo = useCallback(
     (progress: number) => {
       const sections = measuredRef.current;
@@ -573,6 +526,43 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     [jumpToIndex]
   );
 
+  /** Zurück an den Anfang, ohne Animation — Sprach-/Weltenwechsel. */
+  const resetToStart = useCallback(() => {
+    cancelJump();
+    window.scrollTo(0, 0);
+    posRef.current = 0;
+    targetRef.current = 0;
+    velocityRef.current = 0;
+    write(0, 0);
+    syncIndex();
+    setScrollDirection("idle");
+  }, [cancelJump, write, syncIndex]);
+
+  /* ═══════════════════════════════════════════════════════
+     SPERRE — Overlays und Intro halten den Seiten-Scroll an.
+     Der Scrollwert bleibt dabei stehen; nach dem Schliessen ist
+     die Scrub-Position exakt unverändert.
+     ═══════════════════════════════════════════════════════ */
+
+  useEffect(() => {
+    if (disabled) return;
+    /* Die Sperre liegt am BODY, nicht am Wurzelelement: overflow
+       hidden am html setzt in Chrome den Scrollwert sofort auf 0 —
+       die Scrub-Position wäre nach jedem Overlay verloren. Am body
+       propagiert die Sperre nur die Scrollbarkeit ins Viewport:
+       Eingaben sind blockiert, der Scrollwert bleibt exakt stehen,
+       und programmatische Sprünge (Deep-Link während des Intros)
+       greifen weiterhin. */
+    const body = document.body;
+    if (locked) {
+      const prev = body.style.overflow;
+      body.style.overflow = "hidden";
+      return () => {
+        body.style.overflow = prev;
+      };
+    }
+  }, [disabled, locked]);
+
   /* ═══════════════════════════════════════════════════════
      MESSUNG
      ═══════════════════════════════════════════════════════ */
@@ -582,36 +572,44 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     const container = containerRef.current;
     if (!container) return;
 
+    /* Der Browser darf beim Neuladen/Weltenwechsel keine alte
+       Scrollposition wiederherstellen — der Startpunkt gehört der
+       Registry (Deep-Link oder Anfang). */
+    const prevRestoration = window.history.scrollRestoration;
+    try { window.history.scrollRestoration = "manual"; } catch { /* alte Browser */ }
+
     measure();
 
     if (!initialisedRef.current) {
       initialisedRef.current = true;
       const start = measuredRef.current[initialIndex];
-      if (start) {
-        posRef.current = start.snap;
-        targetRef.current = start.snap;
-        debugRef.current.index = initialIndex;
-        write(start.snap, 0);
-      }
+      const startPos = start ? start.snap : 0;
+      window.scrollTo(0, startPos);
+      posRef.current = startPos;
+      targetRef.current = startPos;
+      debugRef.current.index = initialIndex;
+      write(startPos, 0);
+      syncIndex();
     }
 
     let timer = 0;
     const remeasure = () => {
-      const index = indexAt(posRef.current);
+      /* Anker halten: dieselbe Sektion, derselbe Anteil in ihr —
+         bei Fenster- oder Zoomänderung springt der Track nicht. */
+      const idx = indexAt(posRef.current);
+      const alt = measuredRef.current[idx];
+      const frac = alt && alt.width > 0
+        ? (posRef.current - alt.offset) / alt.width
+        : 0;
       measure();
-      /* Beim Resize wird die Position nur geklemmt, nicht auf einen
-         Rastpunkt gezogen — es gibt keinen Zwang mehr, irgendwo zu
-         stehen. Nur wenn sie aus dem Bereich fällt, wird der Anfang
-         der zuletzt sichtbaren Sektion eingenommen. */
-      const section = measuredRef.current[index];
-      const next =
-        posRef.current > maxScrollRef.current && section
-          ? clamp(section.snap)
-          : clamp(posRef.current);
+      const neu = measuredRef.current[idx];
+      const next = clamp(neu ? neu.offset + frac * neu.width : posRef.current);
+      cancelJump();
+      window.scrollTo(0, next);
       posRef.current = next;
       targetRef.current = next;
-      jumpRef.current = null;
       write(next, 0);
+      syncIndex();
     };
     const scheduleRemeasure = () => {
       clearTimeout(timer);
@@ -619,8 +617,7 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
     };
 
     /* `resize` allein reicht nicht: nachgeladene Schriften und Bilder
-       verschieben die Breite des Filmstrips in Sektion 5, ohne dass das
-       Fenster seine Grösse ändert. */
+       verschieben die Trackbreite, ohne dass das Fenster sich ändert. */
     const observer = new ResizeObserver(scheduleRemeasure);
     observer.observe(container);
     window.addEventListener("resize", scheduleRemeasure);
@@ -629,187 +626,88 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
       clearTimeout(timer);
       observer.disconnect();
       window.removeEventListener("resize", scheduleRemeasure);
+      try { window.history.scrollRestoration = prevRestoration; } catch { /* — */ }
     };
-  }, [disabled, measure, write, clamp, indexAt, initialIndex]);
+  }, [disabled, measure, write, clamp, indexAt, syncIndex, cancelJump, initialIndex]);
 
   /* ═══════════════════════════════════════════════════════
-     EINGABE
+     EINGABE — fast nichts: der Browser scrollt selbst.
      ═══════════════════════════════════════════════════════ */
 
   useEffect(() => {
     if (disabled) return;
 
-    const container = containerRef.current;
-    if (!container) return;
+    /** Der ganze Scroll-Pfad: Scrollwert lesen, Track nachziehen. */
+    const handleScroll = () => {
+      /* Während einer befohlenen Fahrt schreibt die Fahrt selbst den
+         Scrollwert — folgen ja, aber nicht als «Eingabe» werten. */
+      follow();
+    };
+
+    /** Jede ECHTE Eingabe bricht eine laufende Fahrt ab (2.2). */
+    const handleInput = () => {
+      if (jumpRef.current) cancelJump();
+    };
 
     /**
-     * Wheel — der ganze Handler.
-     *
-     * Kein Akkumulator, keine Schwelle, keine Gestenerkennung, keine
-     * Nachlauf-Unterscheidung, keine Geräteverzweigung. Das Delta geht
-     * direkt in die Position. Die Momentum-Phase eines Trackpads ist
-     * Teil des Stroms und wird einfach mitgescrollt — genau wie in
-     * jedem nativen Scrollbereich.
+     * Waagrechte Trackpad-Gesten bleiben nutzbar: dominantes deltaX
+     * wird auf den Seiten-Scroll gelegt. Alles andere fasst dieser
+     * Handler nicht an — senkrechtes Scrollen läuft nativ.
      */
     const handleWheel = (e: WheelEvent) => {
+      if (lockedRef.current) return;
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
       e.preventDefault();
-      if (lockedRef.current) return;
-
-      const delta =
-        Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-      if (delta === 0) return;
-
-      const now = performance.now();
-      const dbg = debugRef.current;
-      dbg.events++;
-      dbg.delta = Math.round(delta);
-      dbg.gap = Math.round(now - lastEventTsRef.current);
-      lastEventTsRef.current = now;
-
-      cancelAnimationFrame(glideRef.current);
-      glideRef.current = 0;
-      push(delta);
-    };
-
-    const handleTouchStart = (e: TouchEvent) => {
-      if (lockedRef.current) return;
-      cancelAnimationFrame(glideRef.current);
-      glideRef.current = 0;
-      touchLastXRef.current = e.touches[0].clientX;
-      touchLastTsRef.current = performance.now();
-      touchVelocityRef.current = 0;
-      jumpRef.current = null;
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
-      if (lockedRef.current) return;
-
-      const x = e.touches[0].clientX;
-      const step = touchLastXRef.current - x;
-      touchLastXRef.current = x;
-
-      const now = performance.now();
-      const dt = Math.max(4, now - touchLastTsRef.current);
-      touchLastTsRef.current = now;
-      touchVelocityRef.current = touchVelocityRef.current * 0.7 + (step / dt) * 0.3;
-
-      push(step);
+      if (jumpRef.current) cancelJump();
+      window.scrollBy(0, e.deltaX);
     };
 
     /**
-     * Beim Loslassen rollt die Bewegung aus.
-     *
-     * Anders als beim Trackpad liefert der Browser hier keine
-     * Momentum-Phase, also erzeugen wir sie — mit Reibung und ohne
-     * Ziel. Sie endet, wo sie endet.
+     * Tastaturfokus ausserhalb des Ausschnitts: der Browser scrollt
+     * dafür den sticky-Ausschnitt (programmatisch geht das trotz
+     * overflow:hidden). Wir übersetzen diesen Versatz in Seiten-
+     * Scroll und setzen den Ausschnitt zurück — der Fokus wird
+     * sichtbar, ohne dass zwei Scrollquellen entstehen.
      */
-    const handleTouchEnd = () => {
-      if (lockedRef.current) return;
-      let v = touchVelocityRef.current;
-      if (Math.abs(v) < 0.08) return;
-
-      const glide = () => {
-        v *= 0.94;
-        if (Math.abs(v) < 0.02) {
-          glideRef.current = 0;
-          return;
-        }
-        push(v * 16);
-        glideRef.current = requestAnimationFrame(glide);
-      };
-      glideRef.current = requestAnimationFrame(glide);
+    const viewport = viewportRef.current;
+    const handleViewportScroll = () => {
+      if (!viewport) return;
+      const sl = viewport.scrollLeft;
+      const st = viewport.scrollTop;
+      if (sl === 0 && st === 0) return;
+      viewport.scrollLeft = 0;
+      viewport.scrollTop = 0;
+      cancelJump();
+      window.scrollBy(0, sl + st);
     };
 
-    const isTypingTarget = (target: EventTarget | null): boolean => {
-      const el = target as HTMLElement | null;
-      if (!el || typeof el.tagName !== "string") return false;
-      return el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
-    };
-
-    /**
-     * Tastatur bewegt um knapp eine Bildbreite, nicht zu einer Sektion.
-     * Wer mit den Pfeiltasten liest, will weiterlesen — nicht springen.
-     * Pos1 und Ende gehen an den Anfang und ans Ende.
-     */
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (lockedRef.current) return;
-      /* Ohne diesen Guard ist das Kontaktformular in Sektion 6 mit den
-         Pfeiltasten nicht bedienbar. */
-      if (isTypingTarget(e.target)) return;
-
-      if (e.key === "Home") { e.preventDefault(); jumpToIndex(0); return; }
-      if (e.key === "End") { e.preventDefault(); jumpToIndex(anzahl - 1); return; }
-
-      const stepPx = (containerRef.current?.clientWidth ?? 0) * KEY_STEP_FRACTION;
-      let step = 0;
-      if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "PageDown") step = stepPx;
-      else if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "PageUp") step = -stepPx;
-      else return;
-
-      e.preventDefault();
-      const to = clamp(posRef.current + step);
-
-      if (reducedMotionRef.current) {
-        jumpRef.current = null;
-        posRef.current = to;
-        targetRef.current = to;
-        write(to, 0);
-        syncIndex();
-        return;
-      }
-
-      setScrollDirection(step > 0 ? "forward" : "backward");
-      jumpRef.current = {
-        from: posRef.current,
-        to,
-        start: performance.now(),
-        duration: KEY_MS,
-      };
-      startRaf();
-    };
-
-    /* Der Container ist ein echter Overflow-Container. Fokuswechsel per
-       Tab lassen den Browser scrollLeft eigenmächtig verschieben; im
-       Ruhezustand wird die eigene Position daran angeglichen, statt
-       dagegen zu arbeiten. */
-    const handleScroll = () => {
-      if (rafRef.current) return;
-      const el = containerRef.current;
-      if (!el) return;
-      if (Math.abs(el.scrollLeft - posRef.current) < 1) return;
-      posRef.current = clamp(el.scrollLeft);
-      targetRef.current = posRef.current;
-      syncIndex();
-    };
-
-    container.addEventListener("wheel", handleWheel, { passive: false });
-    container.addEventListener("touchstart", handleTouchStart, { passive: true });
-    container.addEventListener("touchmove", handleTouchMove, { passive: false });
-    container.addEventListener("touchend", handleTouchEnd, { passive: true });
-    container.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    window.addEventListener("touchstart", handleInput, { passive: true });
+    window.addEventListener("keydown", handleInput);
+    viewport?.addEventListener("scroll", handleViewportScroll, { passive: true });
 
     return () => {
-      container.removeEventListener("wheel", handleWheel);
-      container.removeEventListener("touchstart", handleTouchStart);
-      container.removeEventListener("touchmove", handleTouchMove);
-      container.removeEventListener("touchend", handleTouchEnd);
-      container.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("touchstart", handleInput);
+      window.removeEventListener("keydown", handleInput);
+      viewport?.removeEventListener("scroll", handleViewportScroll);
       cancelAnimationFrame(rafRef.current);
-      cancelAnimationFrame(glideRef.current);
       rafRef.current = 0;
-      glideRef.current = 0;
+      cancelJump();
     };
-  }, [disabled, push, jumpToIndex, clamp, startRaf, write, syncIndex]);
+  }, [disabled, follow, cancelJump]);
 
   return {
     containerRef,
+    spacerRef,
+    viewportRef,
     panelRef,
     getSections,
     scrollTo,
     jumpToIndex,
+    resetToStart,
     activeIndex,
     visibleRange,
     scrollDirection,
@@ -822,8 +720,6 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
 export const SCROLL_TUNING = {
   SMOOTH_TAU_MS,
   JUMP_MS,
-  KEY_MS,
-  KEY_STEP_FRACTION,
   LAYER_SPEED,
   LAYER_FULL_VELOCITY,
 } as const;
@@ -831,13 +727,7 @@ export const SCROLL_TUNING = {
 /**
  * CSS-Variable mit dem Ebenen-Versatz, gesetzt am Track.
  *
- * Verwendung an einer zurückgesetzten Ebene — nur `transform`, nie
- * `left`/`top`, damit die Bewegung beim Kompositor bleibt:
- *
  *   transform: translate3d(var(--tellian-tween-lag, 0px), 0, 0)
- *
- * Die Ebene muss ihren Ausschnitt überragen, sonst legt der Versatz an
- * der nachlaufenden Kante etwas frei.
  */
 export const TWEEN_LAG_VAR = LAG_VAR;
 

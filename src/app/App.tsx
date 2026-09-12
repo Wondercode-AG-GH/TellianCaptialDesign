@@ -1112,12 +1112,17 @@ export default function App() {
      selbst und dürfen nicht auf uns selbst zurückwirken. */
   const [initialSectionIndex] = useState(readInitialSectionIndex);
 
-  /* Personen-Detail der Teamstation: sperrt die Tastatur des Tracks. */
+  /* Personen-Detail der Teamstation: sperrt den Scroll des Tracks. */
   const [teamDetailOffen, setTeamDetailOffen] = useState(false);
-  const { containerRef, panelRef: panelRefRoh, jumpToIndex, scrollDirection, activeIndex: horizontalIndex, visibleRange, debugRef } =
+  /* Login und Rechtsseiten stehen VOR dem Hook: im Scrub-Modell ist
+     der Seiten-Scroll nativ — offene Overlays müssen ihn über die
+     locked-Option anhalten, sonst scrubbt der Track dahinter. */
+  const [loginOpen, setLoginOpen] = useState(false);
+  const legal = useLegalRoute();
+  const { containerRef, spacerRef, viewportRef, panelRef: panelRefRoh, jumpToIndex, resetToStart, scrollDirection, activeIndex: horizontalIndex, visibleRange, debugRef } =
     useHorizontalScroll({
       disabled: isVertical,
-      locked: isDetailMode || teamDetailOffen || !introComplete,
+      locked: isDetailMode || teamDetailOffen || loginOpen || !!legal.activePath || !introComplete,
       initialIndex: initialSectionIndex,
     });
 
@@ -1200,9 +1205,6 @@ export default function App() {
     setIntroComplete(true);
   }, []);
 
-  /* ── Login overlay state ── */
-  const [loginOpen, setLoginOpen] = useState(false);
-
   /* Jedes Panel bekommt seine Nummer als data-Attribut. useBandTon
      misst darüber, wie viel Fläche jede Station gerade im Fenster
      einnimmt — daraus entsteht der stetige Ton der beiden Bänder. */
@@ -1220,6 +1222,18 @@ export default function App() {
   const [sprache, setSprache] = useState<"DE" | "EN">("DE");
   const [menueOffen, setMenueOffen] = useState(false);
 
+  /* Sprachwechsel setzt die Scrub-Position an den Anfang (Briefing
+     12.09, 2.4) — ohne Fahrt, der Track steht sofort auf Station 1.
+     Nicht beim ersten Aufbau: dort gilt der Deep-Link. */
+  const spracheInitial = useRef(true);
+  useEffect(() => {
+    if (spracheInitial.current) {
+      spracheInitial.current = false;
+      return;
+    }
+    if (!isVertical) resetToStart();
+  }, [sprache, isVertical, resetToStart]);
+
   /* Trägt die aktive Station eine dunkle Fläche? Kopfzeile und
      Stationsleiste wählen danach ihre Fassung — auf Station 4 also
      das helle Logo und helle Schrift. */
@@ -1227,9 +1241,6 @@ export default function App() {
      danach zweimal und maskieren jede Fassung auf ihren Grund —
      siehe useBandZonen. */
   const bandZonen = useBandZonen(!isVertical, activeIndex);
-
-  /* ── Legal pages routing (Impressum / Datenschutz / Kundeninformation) ── */
-  const legal = useLegalRoute();
 
   /* ═══ Aktuelle Sektion in der URL halten ═══
        replaceState statt pushState: der Zurück-Button soll Unterseiten
@@ -1453,27 +1464,37 @@ export default function App() {
      DESKTOP — HORIZONTAL LAYOUT (unchanged logic)
      ═══════════════════════════════════════════════════════ */
   return (
-    <div
-      className="h-screen w-screen overflow-hidden cursor-default"
-      style={{ backgroundColor: C.bg }}
-    >
+    <div className="cursor-default" style={{ backgroundColor: C.bg }}>
       {!introComplete && (
         <PreloadScreen onComplete={handleIntroComplete} />
       )}
 
-      {/* ── Horizontal Scroll Strip ──
-           Fade-out starts after a 150ms delay so Framer Motion can measure
-           the source position of FLIP ordinals before the parent becomes
-           invisible. */}
+      {/* ── SCRUB-GERÜST (12.09) ──
+           Der SPACER erzeugt die vertikale Scrollstrecke (Höhe setzt
+           die Engine: Fensterhöhe + Trackbreite − Fensterbreite). Im
+           STICKY-Ausschnitt darüber liegt der TRACK, den die Engine
+           per transform:translate3d aus dem Seiten-Scroll nachzieht.
+           Fade-out starts after a 150ms delay so Framer Motion can
+           measure FLIP ordinals before the parent becomes invisible. */}
+      <div ref={spacerRef}>
+      <div
+        ref={viewportRef}
+        style={{
+          position: "sticky",
+          top: 0,
+          height: "100vh",
+          overflow: "hidden",
+        }}
+      >
       <div
         ref={containerRef}
-        className="flex h-screen overflow-x-scroll overflow-y-hidden"
+        className="flex h-screen"
         style={{
           /* Macht den Track zum offsetParent der Panels, damit die
              Registry containerrelative offsetLeft-Werte misst. */
           position: "relative",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
+          width: "max-content",
+          willChange: "transform",
           pointerEvents: introComplete && !isDetailMode ? "auto" : "none",
           opacity: isDetailMode ? 0 : 1,
           transition: isDetailMode
@@ -1573,6 +1594,8 @@ export default function App() {
             panelRef={panelRef(5)}
           />
         </SectionEnteredProvider>
+      </div>
+      </div>
       </div>
 
       {/* Schiene und Stationsleiste stehen bewusst NACH dem Track im

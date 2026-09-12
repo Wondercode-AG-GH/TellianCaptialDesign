@@ -2,7 +2,11 @@
 @import './tailwind.css';
 @import './theme.css';
 
-/* ── Global scrollbar hide ── */
+/* ── Global scrollbar hide ──
+   Gilt für INNERE Container (Overlays, Legal-Seiten, Listen). Der
+   SEITEN-Balken ist auf Desktop wieder sichtbar (unten): im Scrub-
+   Modell (12.09) ist er die Fortschrittsanzeige und muss ziehbar
+   sein — Briefing 1.4/5. */
 *::-webkit-scrollbar {
   display: none;
 }
@@ -10,6 +14,28 @@
 * {
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+
+@media (min-width: 1024px) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(40, 31, 51, 0.4) transparent;
+  }
+  html::-webkit-scrollbar {
+    display: block;
+    width: 9px;
+    background: transparent;
+  }
+  html::-webkit-scrollbar-thumb {
+    background: rgba(40, 31, 51, 0.4);
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  html::-webkit-scrollbar-thumb:hover {
+    background: rgba(40, 31, 51, 0.6);
+    background-clip: content-box;
+  }
 }
 
 /* ── GPU-accelerated transforms ── */

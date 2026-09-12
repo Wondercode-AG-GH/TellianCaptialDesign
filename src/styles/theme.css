@@ -1348,13 +1348,13 @@
     @apply bg-background text-foreground;
   }
 
-  /* Desktop: lock body so horizontal scroll container takes over.
-     Tablet/Mobile (< 1024px): allow natural vertical scrolling. */
-  @media (min-width: 1024px) {
-    body {
-      overflow: hidden;
-    }
-  }
+  /* SCRUB-MODELL (12.09): die Seite scrollt auf ALLEN Breiten
+     nativ — auf Desktop treibt der vertikale Scroll den
+     horizontalen Track (useHorizontalScroll). Die frühere
+     Desktop-Sperre (body overflow:hidden, damit der alte
+     Overflow-Container übernimmt) würde genau dieses native
+     Scrollen ersticken. Overlays sperren gezielt über
+     documentElement.style.overflow — nicht hier. */
 
   /**
   * Default typography styles for HTML elements (h1-h4, p, label, button, input).

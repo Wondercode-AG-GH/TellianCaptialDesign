@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Kopfzeile } from "../components/Kopfzeile";
 import { DotNavigation } from "../components/DotNavigation";
@@ -50,8 +50,11 @@ export function SolutionsApp() {
 
   const {
     containerRef,
+    spacerRef,
+    viewportRef,
     panelRef: panelRefRoh,
     jumpToIndex,
+    resetToStart,
     activeIndex: horizontalIndex,
     visibleRange,
   } = useHorizontalScroll({
@@ -62,6 +65,17 @@ export function SolutionsApp() {
 
   const verticalIndex = useVerticalSectionIndex(isVertical, SOLUTIONS_SEKTIONEN);
   const activeIndex = isVertical ? verticalIndex : horizontalIndex;
+
+  /* Sprachwechsel setzt die Scrub-Position an den Anfang (2.4) —
+     ohne Fahrt; nicht beim ersten Aufbau. */
+  const spracheInitial = useRef(true);
+  useEffect(() => {
+    if (spracheInitial.current) {
+      spracheInitial.current = false;
+      return;
+    }
+    if (!isVertical) resetToStart();
+  }, [sprache, isVertical, resetToStart]);
   const bandZonen = useBandZonen(!isVertical, activeIndex, SOLUTIONS_SEKTIONEN);
 
   /* Betretene Stationen — einmal betreten bleibt betreten, wie auf
@@ -202,13 +216,20 @@ export function SolutionsApp() {
   return (
     <div style={{ backgroundColor: "var(--tellian-bg)" }}>
       {!introComplete && <PreloadScreen onComplete={() => setIntroComplete(true)} />}
+      {/* Scrub-Gerüst wie auf der Hauptseite: Spacer → Sticky-
+          Ausschnitt → Track (transform), siehe useHorizontalScroll. */}
+      <div ref={spacerRef}>
+      <div
+        ref={viewportRef}
+        style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}
+      >
       <div
         ref={containerRef}
-        className="flex h-screen overflow-x-scroll overflow-y-hidden"
+        className="flex h-screen"
         style={{
           position: "relative",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
+          width: "max-content",
+          willChange: "transform",
         }}
       >
         <SectionEnteredProvider value={entered[0]}>
@@ -233,6 +254,8 @@ export function SolutionsApp() {
         <SectionEnteredProvider value={entered[3]}>
           <Station6Kontakt panelRef={panelRef(3)} sprache={sprache} domId="solutions-kontakt" onOpenLegal={legal.open} />
         </SectionEnteredProvider>
+      </div>
+      </div>
       </div>
 
       {kopf}
