@@ -1344,6 +1344,10 @@ export default function App() {
           onWelt={(ziel) => {
             if (ziel === "solutions") window.location.href = "/solutions";
           }}
+          sprache={sprache}
+          sprachen={["DE", "EN"]}
+          onSprache={(s) => setSprache(s as "DE" | "EN")}
+          onPortal={() => setLoginOpen(true)}
         />
 
         {/* ── HERO ──

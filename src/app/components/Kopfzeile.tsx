@@ -401,7 +401,11 @@ export function Kopfzeile({
 
           {/* ── Sprachwahl ── leiser als das Portal. Ein Schalter,
               keine Handlung: aktive Sprache in voller Stärke, die
-              andere gedämpft, dazwischen ein Schrägstrich. */}
+              andere gedämpft, dazwischen ein Schrägstrich.
+              SCHMAL entfällt sie hier: die Wahl lebt dort im Menü
+              (Feature 12.09) — das Band trägt nur noch Logo,
+              Portal und Menüknopf. */}
+          {!isVertical && (
           <div
             role={griff ? "group" : undefined}
             aria-label={griff ? "Sprache" : undefined}
@@ -428,17 +432,24 @@ export function Kopfzeile({
               </span>
             ))}
           </div>
+          )}
 
           {/* ── Senkrechter Trenner ──
               Trennt Nebensache von Hauptsache, ohne eine Linie unter
-              das ganze Band zu ziehen. */}
+              das ganze Band zu ziehen. Schmal entfällt er mit der
+              Sprachwahl. */}
+          {!isVertical && (
           <span
             aria-hidden
             className="tellian-kopf-trenner"
             style={{ backgroundColor: trenner }}
           />
+          )}
 
-          {/* ── Kundenportal ── das einzige Feld im Band. */}
+          {/* ── Kundenportal ── das einzige Feld im Band. SCHMAL
+              lebt es im Menü (Feature 12.09): das Band trägt dort
+              nur noch Logo und Menüknopf. */}
+          {!isVertical && (
           <button
             type="button"
             onClick={() => griff && onPortal()}
@@ -476,6 +487,7 @@ export function Kopfzeile({
             <Schloss />
             {portalLabel}
           </button>
+          )}
 
           {isVertical && onMenue && (
             <button

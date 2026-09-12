@@ -183,6 +183,11 @@ export function SolutionsApp() {
           nebenVerweise={NEBEN_VERWEISE.filter((v) => v.text !== "Solutions")}
           welt="solutions"
           onWelt={(ziel) => ziel === "capital" && zurHauptseite()}
+          sprache={sprache}
+          sprachen={["DE", "EN", "FR"]}
+          onSprache={(s) => setSprache(s as "DE" | "EN" | "FR")}
+          onPortal={() => setLoginOpen(true)}
+          portalLabel={sprache === "FR" ? "Portail Client" : "Kundenportal"}
         />
 
         <SolutionsEinstieg isVertical bereit={introComplete} sprache={sprache} />
