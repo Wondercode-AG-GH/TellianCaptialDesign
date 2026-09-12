@@ -334,21 +334,17 @@ export function Kopfzeile({
             aria-label={griff ? "Bereich" : undefined}
             aria-hidden={!griff}
             className="tellian-kopf-welten"
-            style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            style={{ display: "flex", alignItems: "center", gap: "var(--tellian-kopf-gap-innen)" }}
           >
             {(["capital", "solutions"] as const).map((ziel, i) => {
               const aktiv = welt === ziel;
               return (
-                <span key={ziel} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span key={ziel} style={{ display: "flex", alignItems: "center", gap: "var(--tellian-kopf-gap-innen)" }}>
                   {i > 0 && (
                     <span
                       aria-hidden
-                      style={{
-                        display: "block",
-                        width: "1px",
-                        height: "10px",
-                        backgroundColor: trenner,
-                      }}
+                      className="tellian-kopf-trenner"
+                      style={{ backgroundColor: trenner }}
                     />
                   )}
                   <button
@@ -363,42 +359,28 @@ export function Kopfzeile({
                     tabIndex={griff ? undefined : -1}
                     className={
                       "tellian-kopf-ziel tellian-kopf-welt" +
-                      (aktiv ? " tellian-kopf-welt-aktiv" : "")
+                      (aktiv && !griff ? " tellian-kopf-welt-aktiv" : "")
                     }
                     style={{
                       ...klein,
-                      letterSpacing: "var(--tellian-ls-marker)",
                       /* P1 Variante A: der aktive Eintrag steht in
                          voller Textfarbe und eine Gewichtsstufe
                          kräftiger; der inaktive ist deutlich
-                         gedimmt. */
-                      /* Beim Zeigen hellt der inaktive Eintrag zur
+                         gedimmt. Beim Zeigen hellt der inaktive zur
                          vollen Textfarbe auf — die Hairline bleibt
-                         dem aktiven vorbehalten (P1.2). */
+                         dem aktiven vorbehalten (P1.2).
+                         AUSRICHTUNG (12.09): der Knopf ist wieder
+                         EINZEILIG — die Hairline lebt als absolutes
+                         ::after (s. Stilblock) und belegt keinen
+                         Layoutraum mehr. Vorher schob die Spalte
+                         (Text + 6px + 1px) die Grundlinie des
+                         Umschalters über die der Nachbarn. */
                       color: aktiv || weltAn === ziel ? ink : weltDim,
                       fontWeight: aktiv ? 500 : 400,
                       cursor: griff && !aktiv ? "pointer" : "default",
-                      display: "inline-flex",
-                      flexDirection: "column",
-                      alignItems: "stretch",
-                      gap: "6px",
                     }}
                   >
                     {ziel === "capital" ? "Capital" : "Solutions"}
-                    {/* Mushroom-Hairline unter dem aktiven Eintrag.
-                        Der inaktive trägt sie transparent in
-                        gleicher Höhe — so springt beim Wechsel
-                        nichts. Beim Zeigen erscheint sie NICHT
-                        (sonst mit dem aktiven Zustand verwechselbar). */}
-                    <span
-                      aria-hidden
-                      style={{
-                        display: "block",
-                        height: "1px",
-                        backgroundColor:
-                          aktiv && !griff ? "#B8AEA3" : "transparent",
-                      }}
-                    />
                   </button>
                 </span>
               );
@@ -412,17 +394,8 @@ export function Kopfzeile({
           {!isVertical && (
           <span
             aria-hidden
-            style={{
-              display: "block",
-              width: "1px",
-              height: "var(--tellian-kopf-trenner-h)",
-              backgroundColor: trenner,
-              flexShrink: 0,
-              /* P1.3: der Umschalter liest als eigene Einheit —
-                 mehr Luft als zwischen den übrigen Elementen. */
-              marginLeft: "var(--tellian-kopf-welt-gap)",
-              marginRight: "var(--tellian-kopf-welt-gap)",
-            }}
+            className="tellian-kopf-trenner"
+            style={{ backgroundColor: trenner }}
           />
           )}
 
@@ -461,13 +434,8 @@ export function Kopfzeile({
               das ganze Band zu ziehen. */}
           <span
             aria-hidden
-            style={{
-              display: "block",
-              width: "1px",
-              height: "var(--tellian-kopf-trenner-h)",
-              backgroundColor: trenner,
-              flexShrink: 0,
-            }}
+            className="tellian-kopf-trenner"
+            style={{ backgroundColor: trenner }}
           />
 
           {/* ── Kundenportal ── das einzige Feld im Band. */}
@@ -614,6 +582,28 @@ export function Kopfzeile({
 
       <style>{`
         .tellian-kopf-ziel { text-decoration: none; outline: none; position: relative; }
+        /* EIN Trennermass für alle drei Linien der Kopfgruppe —
+           mittig zur Textzeile über align-items:center des
+           Containers; nur die Farbe kommt je Schicht inline. */
+        .tellian-kopf-trenner {
+          display: block;
+          width: 1px;
+          height: var(--tellian-kopf-trenner-h);
+          flex-shrink: 0;
+        }
+        /* Aktiv-Hairline des Welten-Umschalters: absolut, ~6px
+           unter der Grundlinie, Breite des Labels — belegt keinen
+           Layoutraum, aktiver und inaktiver Eintrag teilen exakt
+           dieselbe Grundlinie. Farbe wie gehabt (Mushroom). */
+        .tellian-kopf-welt-aktiv::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: -6px;
+          height: 1px;
+          background-color: var(--tellian-muted);
+        }
         /* TREFFERFLÄCHEN
            Der Zuwachs kommt aus einer unsichtbaren Auflage, nicht aus
            Innenabstand: die drei Schichten müssen deckungsgleich

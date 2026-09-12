@@ -991,7 +991,7 @@
   /* 12px statt 11: die Untergrenze der Seite gilt auch für die
      Kopfzeile — Zielgruppe 65+, und DE/EN ist ein Tippziel. */
   --tellian-kopf-size: 12px;
-  --tellian-kopf-sprache-gap: 6px;
+  --tellian-kopf-sprache-gap: var(--tellian-kopf-gap-innen);
   /* Dritte Lockup-Zeile auf Solutions — klar untergeordnet
      gegenüber der Lustria-Wortmarke, mobil nie unter 9px. */
   --tellian-kopf-zusatz-size: 9.5px;
@@ -999,14 +999,23 @@
   --tellian-kopf-tracking: var(--tellian-ls-marker);
   --tellian-kopf-gap: clamp(14px, 1.6vw, 28px);
   /* Abstand innerhalb der rechten Gruppe: Sprache | Trenner | Portal */
-  --tellian-kopf-gruppe-gap: clamp(12px, 1.2vw, 18px);
+  --tellian-kopf-gruppe-gap: calc((var(--tellian-kopf-gap-einheit) - 1px) / 2);
   /* Eigener Randabstand, damit sich das Band auf sehr schmalen
      Geräten zusammenziehen kann, ohne die Stationsleiste oder das
      mobile Menü mitzunehmen — die lesen weiter --tellian-band-pad-x. */
   --tellian-kopf-pad-x: var(--tellian-band-pad-x);
 
   /* Senkrechter Trenner — kurze Haarlinie, keine Linie unter dem Band. */
-  --tellian-kopf-trenner-h: 15px;
+  /* Ausrichtung (12.09): EIN Trennermass für alle drei Linien der
+     Kopfgruppe — 14px, 1px breit, mittig zur Textzeile (Klasse
+     .tellian-kopf-trenner in der Kopfzeile). */
+  --tellian-kopf-trenner-h: 14px;
+  /* Abstands-Skala der Kopfgruppe: innerhalb einer Einheit klein,
+     zwischen den Einheiten (Umschalter | Sprache | Portal) gross —
+     der Container-gap ist die halbe Einheit minus Trennerbreite,
+     damit Gruppe→Trenner→Gruppe zusammen das Einheitenmass ergibt. */
+  --tellian-kopf-gap-innen: 8px;
+  --tellian-kopf-gap-einheit: 28px;
   --tellian-kopf-trenner-hell: rgba(25, 23, 24, 0.30);
   --tellian-kopf-trenner-dunkel: rgba(244, 244, 240, 0.30);
 
@@ -1086,7 +1095,6 @@
   --tellian-welt-dim-dunkel: rgba(244, 244, 240, 0.62);
   --tellian-welt-dim-hell: rgba(26, 23, 32, 0.68);
   /* Abstand des Umschalters zur Nachbargruppe (P1.3). */
-  --tellian-kopf-welt-gap: 8px;
   --tellian-band-grund-hell: 244, 244, 240;
   --tellian-band-grund-dunkel: 40, 31, 51;
   /* Deckung des Schleiers an der Aussenkante. Genug, um Schrift über
