@@ -5,7 +5,10 @@ import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 import { BankIcon } from "./DreieckIcons";
 /* TODO-ASSET-SIE-SVG: finales Vektor-Icon der Brand-Designerin
    ausstehend. Bis dahin die nachgeschärfte PNG-Fassung (384px,
-   Striche verdichtet), damit es neben den Vektor-Icons besteht. */
+   Striche verdichtet), damit es neben den Vektor-Icons besteht.
+   TODO-ICON-SIE: gruppe-scharf.png ist eine OUTLINE-Zeichnung; die
+   für P2 verlangte gefüllte Darstellung lässt sich daraus nicht
+   ableiten (siehe Abschnitt ICONS unten). */
 import gruppeIcon from "../../assets/gruppe-scharf.png";
 import monogramm from "../../assets/logo/tellian-monogramm-hell.svg";
 
@@ -25,14 +28,79 @@ import monogramm from "../../assets/logo/tellian-monogramm-hell.svg";
    der Breite — die Schriften NICHT: sie stehen in festen Pixeln,
    damit sie auf dem Telefon nicht unter die 12px fallen.
 
+   Die Kreise sind in Prozent der FELDBREITE bemessen und quadratisch
+   gehalten; der Radius misst darum in beiden Achsen dieselben R
+   Feldeinheiten wie im SVG. Die Linien dürfen deshalb rein
+   geometrisch am Kreisrand enden — siehe kante().
+
    Die Verbindungswörter liegen WAAGRECHT auf den Linienmitten, mit
    der Stationsfarbe als Teller — die Linie läuft optisch durch das
    Wort hindurch, ohne es zu durchstreichen. Vorher waren sie den
    Diagonalen entlang rotiert; Lesbarkeit vor Effekt.
+
+   ICONS (P2, 12.09)
+   Alle drei Motive sind um denselben Faktor 0.83 verkleinert — die
+   frühere Abstimmung ihrer optischen Grössen zueinander bleibt
+   dadurch erhalten, jedes bekommt ~17 % mehr Luft zum Kreisrand.
+   Die Farbe der beiden Sachmotive ist Imperial Purple; das
+   Sie-Motiv liegt als schwarze PNG-Strichzeichnung vor und wird
+   über eine Alpha-Maske eingefärbt, statt schwarz zu bleiben —
+   sonst wögen die beiden Mushroom-Knoten unterschiedlich.
+
+   NICHT erfüllt ist die geforderte GEFÜLLTE Darstellung: sowohl
+   gruppe-scharf.png als auch bank-1071.svg sind reine
+   Outline-Zeichnungen, und im Bestand liegt zu keinem der beiden
+   eine gefüllte Fassung. Ein gefülltes Motiv liesse sich nur neu
+   zeichnen — deshalb TODO-ICON-SIE und TODO-ICON-BANK statt einer
+   improvisierten Eigenfassung. Das Tellian-Monogramm bleibt hell:
+   P3 hält den Markenknoten bewusst in Imperial Purple, eine
+   purpurne Füllung wäre darauf unsichtbar.
    ═══════════════════════════════════════════════════════════ */
 
 /* Knotenzentren im 640×560-Raster. */
 const R = 78;
+
+/* ── P1 (Korrektur 12.09): LINIEN ENDEN AM KREISRAND ──
+   Die drei Verbindungen liefen von Mittelpunkt zu Mittelpunkt und
+   damit quer durch die Kreise hindurch. Solange die Flächen deckend
+   waren, verdeckte der Kreis das; sobald einer beim Zeigen
+   zurücktrat, lag die Linie offen darin.
+
+   Korrigiert wird der ENDPUNKT, nicht die Deckung: auf dem
+   Einheitsvektor zwischen beiden Mittelpunkten wird jedes Ende um
+   den Kreisradius nach innen versetzt. Das gilt unabhängig vom
+   Zustand und ohne Stapeltrick.
+
+   Die halbe Einheit Überlappung (~0.4px bei üblicher Feldbreite)
+   schliesst den Haarspalt, den die weiche Kreiskante sonst stehen
+   liesse — unter der zugestandenen 1px-Toleranz. */
+const KANTENSCHLUSS = 0.5;
+
+const kante = (a: { x: number; y: number }, b: { x: number; y: number }) => {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const laenge = Math.hypot(dx, dy) || 1;
+  const ux = dx / laenge;
+  const uy = dy / laenge;
+  const r = R - KANTENSCHLUSS;
+  return { x1: a.x + ux * r, y1: a.y + uy * r, x2: b.x - ux * r, y2: b.y - uy * r };
+};
+
+/* ── DECKENDE DÄMPFUNG ──
+   Der zurückgetretene Knoten wurde bisher über opacity 0.25
+   abgesenkt — dadurch schien alles Darunterliegende durch. Dieselbe
+   Optik entsteht deckend, wenn die Füllung mit dem Stationsgrund
+   verrechnet wird; das Icon IM Kreis darf weiter über die Deckkraft
+   gehen, hinter ihm liegt die deckende Fläche. */
+const GEDIMMT = 0.25;
+
+const mischen = (vorn: string, hinten: string, deckung: number) => {
+  const kanal = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  const [r1, g1, b1] = kanal(vorn);
+  const [r2, g2, b2] = kanal(hinten);
+  const m = (a: number, b: number) => Math.round(a * deckung + b * (1 - deckung));
+  return `rgb(${m(r1, r2)}, ${m(g1, g2)}, ${m(b1, b2)})`;
+};
 
 interface Inhalt {
   sie: string;
@@ -216,23 +284,46 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
       width: pz(2 * R, 640),
       aspectRatio: "1",
       borderRadius: "50%",
-      backgroundColor: fuellung,
       border: kontur ? `1.5px solid ${kontur}` : "none",
       boxSizing: "border-box",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       padding: 0,
-      opacity: gedimmt ? 0.25 : 1,
+      /* P1: KEIN Alpha auf der Fläche — sonst scheinen die Linien
+         durch den zurückgetretenen Kreis. Gedämpft wird über die
+         Farbe: die Füllung gegen den Stationsgrund verrechnet, das
+         Ergebnis ist deckend. */
+      backgroundColor: gedimmt ? mischen(fuellung, C.bg, GEDIMMT) : fuellung,
       transform: `translate(-50%, -50%) scale(${hervor ? 1.03 : 1})`,
-      transition: uebergang,
+      transition: uebergang
+        ? `${uebergang}, background-color 260ms cubic-bezier(0.22,0.61,0.36,1)`
+        : undefined,
       zIndex: hervor ? 2 : 1,
     };
+    /* Das Icon liegt auf der deckenden Fläche — hier ist die
+       Deckkraft unbedenklich, hinter ihr steht kein Strich. */
+    const inhaltHuelle = (
+      <span
+        aria-hidden
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          height: "100%",
+          opacity: gedimmt ? GEDIMMT : 1,
+          transition: uebergang,
+        }}
+      >
+        {kind}
+      </span>
+    );
     return (
     <>
       {istPassiv ? (
         <div aria-hidden style={kreisStil}>
-          {kind}
+          {inhaltHuelle}
         </div>
       ) : (
       <button
@@ -260,7 +351,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         className="tellian-dreieck-knoten"
         style={{ ...kreisStil, cursor: "pointer", font: "inherit" }}
       >
-        {kind}
+        {inhaltHuelle}
       </button>
       )}
       <span
@@ -278,7 +369,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           textTransform: "uppercase",
           whiteSpace: "nowrap",
           color: C.ink,
-          opacity: gedimmt ? 0.25 : 1,
+          opacity: gedimmt ? GEDIMMT : 1,
           transition: uebergang,
         }}
       >
@@ -338,7 +429,9 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         aspectRatio: `640 / ${VH}`,
       }}
     >
-      {/* Linien — Imperial Purple, 1px, nicht mitskalierend. */}
+      {/* Linien — Imperial Purple, 1px, nicht mitskalierend. Die
+          Endpunkte sind über kante() um je einen Kreisradius nach
+          innen gesetzt: keine Linie läuft in einen Kreis. */}
       <svg
         viewBox={`0 0 640 ${VH}`}
         preserveAspectRatio="xMidYMid meet"
@@ -353,10 +446,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         ].map(([a, b], i) => (
           <line
             key={i}
-            x1={a.x}
-            y1={a.y}
-            x2={b.x}
-            y2={b.y}
+            {...kante(a, b)}
             stroke={C.purple}
             strokeWidth={1}
             vectorEffect="non-scaling-stroke"
@@ -364,19 +454,37 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         ))}
       </svg>
 
-      {/* Knoten. «Sie» mit dem finalen Gruppen-Asset (P6) — 512px
-          Quelle bei ~150px Darstellung, scharf auch auf 3x-Dichte.
-          Strichzeichnung in Schwarz auf Mushroom: 4.1 : 1. */}
+      {/* Knoten. «Sie» mit dem Gruppen-Asset (P6). Das PNG liegt in
+          384px vor und steht jetzt auf 40 % statt 48 % des Kreises —
+          bei 150px Kreis sind das 60px, auf 3x also 180px aus 384px
+          Quelle: die Verkleinerung schärft eher, als dass sie
+          weichzeichnet.
+          Die Einfärbung läuft über den Alphakanal als Maske (das PNG
+          ist schwarze Strichzeichnung auf transparent, gemessen:
+          keine deckenden hellen Flächen) — die Fläche darunter ist
+          Imperial Purple. Gegen Mushroom misst das 7.2 : 1, weit
+          über den 3 : 1 für grafische Elemente. */}
       {knoten(
         "sie",
         K.sie,
         C.muted,
         null,
-        <img
-          src={gruppeIcon}
-          alt=""
+        <span
           aria-hidden
-          style={{ width: "48%", height: "auto", display: "block" }}
+          style={{
+            width: "40%",
+            aspectRatio: "1",
+            display: "block",
+            backgroundColor: C.purple,
+            WebkitMaskImage: `url(${gruppeIcon})`,
+            maskImage: `url(${gruppeIcon})`,
+            WebkitMaskRepeat: "no-repeat",
+            maskRepeat: "no-repeat",
+            WebkitMaskPosition: "center",
+            maskPosition: "center",
+            WebkitMaskSize: "contain",
+            maskSize: "contain",
+          }}
         />,
         inhalt.sie,
       )}
@@ -389,16 +497,20 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           src={monogramm}
           alt=""
           aria-hidden
-          style={{ width: "42%", height: "auto", display: "block" }}
+          style={{ width: "35%", height: "auto", display: "block" }}
         />,
         inhalt.tellian,
       )}
+      {/* P3: «Sie» und «Depotbank» tragen dieselbe Füllung
+          (Mushroom, ohne Kontur) — allein «Tellian Capital» ist als
+          Markenknoten in Imperial Purple abgesetzt. Der Kreis stand
+          vorher auf Archive White mit purpurner Kontur. */}
       {knoten(
         "bank",
         K.bank,
-        C.bg,
-        C.purple,
-        <span style={{ width: "38%", aspectRatio: "1", display: "flex" }}>
+        C.muted,
+        null,
+        <span style={{ width: "31.5%", aspectRatio: "1", display: "flex" }}>
           <BankIcon w="100%" h="100%" color={C.purple} />
         </span>,
         inhalt.bank,
