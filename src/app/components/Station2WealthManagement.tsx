@@ -93,8 +93,8 @@ export function Station2WealthManagement({
         fontFamily: serif,
         fontSize: "var(--tellian-s2-title-size)",
         fontWeight: 400,
-        lineHeight: 1.12,
-        letterSpacing: "-0.01em",
+        lineHeight: "var(--tellian-titel-lh)" as unknown as number,
+        letterSpacing: "var(--tellian-titel-ls)",
         color: "var(--tellian-s2-ink)",
         /* «Geschäftsbeziehungen» misst bei 320px 314px und ragte
            aus dem Bild — anywhere bricht das Wort notfalls auch
@@ -117,7 +117,7 @@ export function Station2WealthManagement({
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: "clamp(14px, 2.2vh, 24px)",
+        gap: "var(--tellian-abstand-absatz)",
       }}
     >
       {inhalt.absaetze.map((text, i) => (
@@ -126,8 +126,8 @@ export function Station2WealthManagement({
           style={{
             margin: 0,
             fontFamily: sans,
-            fontSize: "15px",
-            lineHeight: 1.7,
+            fontSize: "var(--tellian-lauf-size)",
+            lineHeight: "var(--tellian-lauf-lh)" as unknown as number,
             color: "var(--tellian-s2-dim)",
             maxWidth: "52ch",
           }}
@@ -153,11 +153,11 @@ export function Station2WealthManagement({
           style={{
             paddingTop: "var(--tellian-abschnitt-luft-schmal)",
             paddingBottom: "var(--tellian-abschnitt-luft-schmal)",
-            paddingLeft: "clamp(20px, 6vw, 48px)",
-            paddingRight: "clamp(20px, 6vw, 48px)",
+            paddingLeft: "var(--tellian-rand-schmal)",
+            paddingRight: "var(--tellian-rand-schmal)",
             display: "flex",
             flexDirection: "column",
-            gap: "clamp(24px, 3.6vh, 40px)",
+            gap: "var(--tellian-stapel-schmal)",
           }}
         >
           <Kapitelmarke nr="03" name="Wealth Management" />

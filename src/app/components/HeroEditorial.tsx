@@ -119,7 +119,7 @@ export function HeroEditorial({
         margin: "0 0 18px",
         fontFamily: sans,
         fontSize: "12px",
-        letterSpacing: "0.22em",
+        letterSpacing: "var(--tellian-ls-eyebrow)",
         textTransform: "uppercase",
         color: "var(--tellian-purple)",
         ...enter(STEP.titel),
@@ -137,10 +137,10 @@ export function HeroEditorial({
         /* Der A2-Grad gilt dem Desktop; auf dem Telefon wären 54px
            Minimum breiter als die Spalte («Weiterdenken» ~370px bei
            335px Platz) — dort eine eigene, kleinere Treppe. */
-        fontSize: isVertical ? "clamp(38px, 10.8vw, 54px)" : "clamp(54px, 4.9vw, 80px)",
+        fontSize: isVertical ? "clamp(38px, 10.8vw, 54px)" : "var(--tellian-hero-titel-size)",
         fontWeight: 400,
-        lineHeight: 1.05,
-        letterSpacing: "-0.015em",
+        lineHeight: "var(--tellian-titel-lh)" as unknown as number,
+        letterSpacing: "var(--tellian-titel-ls)",
         color: "var(--tellian-ink)",
         ...enter(STEP.titel, 24),
       }}
@@ -154,8 +154,10 @@ export function HeroEditorial({
       aria-hidden
       style={{
         display: "block",
-        marginTop: "44px",
-        marginBottom: "36px",
+        /* Referenz 900er Fenster: 44/36 — flachere Fenster geben
+           anteilig Luft ab (P4; der EN-Hero brauchte sie unten). */
+        marginTop: "clamp(24px, 4.9vh, 44px)",
+        marginBottom: "clamp(20px, 4vh, 36px)",
         width: "100%",
         height: "1px",
         backgroundColor: "rgba(184, 174, 163, 0.5)",
@@ -184,8 +186,8 @@ export function HeroEditorial({
             margin:
               breit && zweispaltig ? 0 : i === 0 ? 0 : "1em 0 0",
             fontFamily: sans,
-            fontSize: "15px",
-            lineHeight: 1.75,
+            fontSize: "var(--tellian-lauf-size)",
+            lineHeight: "var(--tellian-lauf-lh)" as unknown as number,
             color: "var(--tellian-ink)",
           }}
         >
@@ -204,8 +206,8 @@ export function HeroEditorial({
           style={{
             paddingTop: "calc(var(--tellian-kopfzeile-schmal) + clamp(28px, 4vh, 48px))",
             paddingBottom: "clamp(32px, 5vh, 56px)",
-            paddingLeft: "clamp(20px, 6vw, 48px)",
-            paddingRight: "clamp(20px, 6vw, 48px)",
+            paddingLeft: "var(--tellian-rand-schmal)",
+            paddingRight: "var(--tellian-rand-schmal)",
           }}
         >
           {marke && (

@@ -138,7 +138,7 @@ export function StationPortfolioManagement({
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: "clamp(14px, 2.2vh, 24px)",
+        gap: "var(--tellian-abstand-absatz)",
       }}
     >
       {inhalt.absaetze.slice(0, 2).map((text, i) => (
@@ -147,13 +147,12 @@ export function StationPortfolioManagement({
           style={{
             margin: 0,
             fontFamily: sans,
-            fontSize: "var(--tellian-pm-body-size)",
-            lineHeight: "var(--tellian-pm-body-leading)" as unknown as number,
-            color: "var(--tellian-pm-dunkel-dim)",
-            /* v5: 16px, Zeilenabstand 1.75 — flache Fenster enger,
-               siehe --tellian-lauf-lh. */
-            fontSize: "16px",
+            /* P4: die beiden früheren Doppel-Schlüssel (pm-body-*
+               UND v5-Werte im selben Objekt) sind bereinigt — es
+               gilt die Lauftext-Rolle. */
+            fontSize: "var(--tellian-lauf-size)",
             lineHeight: "var(--tellian-lauf-lh)" as unknown as number,
+            color: "var(--tellian-pm-dunkel-dim)",
             maxWidth: "50ch",
           }}
         >
@@ -178,11 +177,11 @@ export function StationPortfolioManagement({
           style={{
             paddingTop: "var(--tellian-abschnitt-luft-schmal)",
             paddingBottom: "var(--tellian-abschnitt-luft-schmal)",
-            paddingLeft: "clamp(20px, 6vw, 48px)",
-            paddingRight: "clamp(20px, 6vw, 48px)",
+            paddingLeft: "var(--tellian-rand-schmal)",
+            paddingRight: "var(--tellian-rand-schmal)",
             display: "flex",
             flexDirection: "column",
-            gap: "clamp(24px, 3.6vh, 40px)",
+            gap: "var(--tellian-stapel-schmal)",
             alignItems: "flex-start",
           }}
         >

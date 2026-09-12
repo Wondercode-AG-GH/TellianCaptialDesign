@@ -514,8 +514,8 @@ function Formular({
             marginTop: "14px",
             maxWidth: "34em",
             fontFamily: sans,
-            fontSize: "15px",
-            lineHeight: 1.65,
+            fontSize: "var(--tellian-lauf-size)",
+            lineHeight: "var(--tellian-lauf-lh)" as unknown as number,
             color: "var(--tellian-k6-dim)",
           }}
         >
@@ -527,8 +527,8 @@ function Formular({
             display: "block",
             marginTop: "20px",
             fontFamily: sans,
-            fontSize: "15px",
-            lineHeight: 1.65,
+            fontSize: "var(--tellian-lauf-size)",
+            lineHeight: "var(--tellian-lauf-lh)" as unknown as number,
             color: "var(--tellian-k6-dim)",
           }}
         >
@@ -712,7 +712,7 @@ function Formular({
           fontFamily: sans,
           fontSize: "13px",
           fontWeight: 500,
-          letterSpacing: "0.16em",
+          letterSpacing: "var(--tellian-ls-cta-gross)",
           textTransform: "uppercase",
           /* Dunkel auf Mushroom — 8.17 : 1. Hell auf Mushroom wären
              1.6 : 1 gewesen. */
@@ -910,7 +910,7 @@ export function Station6Kontakt({
           style={{
             fontFamily: sans,
             fontSize: "13px",
-            letterSpacing: "0.1em",
+            letterSpacing: "var(--tellian-ls-caps)",
             textTransform: "uppercase",
             color: "var(--tellian-k6-dim)",
           }}

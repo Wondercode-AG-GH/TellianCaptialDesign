@@ -55,7 +55,7 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
         margin: 0,
         fontFamily: sans,
         fontSize: "12px",
-        letterSpacing: "0.22em",
+        letterSpacing: "var(--tellian-ls-eyebrow)",
         textTransform: "uppercase",
         color: MUSHROOM,
       }}
@@ -72,8 +72,8 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
         fontFamily: serif,
         fontSize: "clamp(30px, 3vw, 48px)",
         fontWeight: 400,
-        lineHeight: 1.12,
-        letterSpacing: "-0.01em",
+        lineHeight: "var(--tellian-titel-lh)" as unknown as number,
+        letterSpacing: "var(--tellian-titel-ls)",
         color: ARCHIVE_WHITE,
       }}
     >
@@ -88,7 +88,7 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
         margin: "clamp(24px, 3.2vh, 40px) 0 0",
         maxWidth: "46ch",
         fontFamily: sans,
-        fontSize: "16px",
+        fontSize: "var(--tellian-lauf-size)",
         lineHeight: "var(--tellian-lauf-lh, 1.75)",
         color: SILBER,
       }}
@@ -104,7 +104,7 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
         fontFamily: cormorant,
         fontStyle: "italic",
         fontSize: "clamp(19px, 1.8vw, 24px)",
-        lineHeight: 1.4,
+        lineHeight: "var(--tellian-kursiv-lh)" as unknown as number,
         color: ARCHIVE_WHITE,
       }}
     >
@@ -132,9 +132,9 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
                 display: "block",
                 fontFamily: serif,
                 fontSize: "clamp(18px, 1.5vw, 22px)",
-                fontWeight: 300,
-                lineHeight: 1,
-                letterSpacing: "0.04em",
+                fontWeight: "var(--tellian-ziffer-weight)" as unknown as number,
+                lineHeight: "var(--tellian-ziffer-lh)" as unknown as number,
+                letterSpacing: "var(--tellian-ziffer-ls)",
                 color: MUSHROOM,
               }}
             >
@@ -146,7 +146,7 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
                 marginTop: "10px",
                 fontFamily: serif,
                 fontSize: "clamp(20px, 1.7vw, 26px)",
-                lineHeight: 1.15,
+                lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
                 color: ARCHIVE_WHITE,
               }}
             >
@@ -200,8 +200,8 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
           style={{
             paddingTop: "var(--tellian-abschnitt-luft-schmal)",
             paddingBottom: "var(--tellian-abschnitt-luft-schmal)",
-            paddingLeft: "clamp(20px, 6vw, 48px)",
-            paddingRight: "clamp(20px, 6vw, 48px)",
+            paddingLeft: "var(--tellian-rand-schmal)",
+            paddingRight: "var(--tellian-rand-schmal)",
           }}
         >
           <Aufgang>

@@ -74,9 +74,9 @@ export function SchritteRaster({
   const zifferStil: React.CSSProperties = {
     fontFamily: nummerFont,
     fontSize: "var(--tellian-adv-num-size)",
-    fontWeight: 300,
-    lineHeight: 1,
-    letterSpacing: "0.04em",
+    fontWeight: "var(--tellian-ziffer-weight)" as unknown as number,
+    lineHeight: "var(--tellian-ziffer-lh)" as unknown as number,
+    letterSpacing: "var(--tellian-ziffer-ls)",
     color: nummerFarbe,
     backgroundColor: liniePos === "mitte" ? tellerFarbe : "transparent",
     position: "relative",
@@ -147,7 +147,7 @@ export function SchritteRaster({
                 fontFamily: serif,
                 fontSize: "var(--tellian-adv-step-title-size)",
                 fontWeight: 400,
-                lineHeight: 1.15,
+                lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
                 color: C.ink,
               }}
             >

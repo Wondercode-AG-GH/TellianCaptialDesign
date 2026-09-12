@@ -181,7 +181,7 @@ export function TeamDetail({
           fontFamily: serif,
           fontSize: "clamp(28px, 2.8vw, 42px)",
           fontWeight: 400,
-          lineHeight: 1.15,
+          lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
           color: C.ink,
         }}
       >
@@ -213,8 +213,8 @@ export function TeamDetail({
             style={{
               margin: 0,
               fontFamily: sans,
-              fontSize: "15px",
-              lineHeight: 1.7,
+              fontSize: "var(--tellian-lauf-size)",
+              lineHeight: "var(--tellian-lauf-lh)" as unknown as number,
               color: C.accent,
             }}
           >

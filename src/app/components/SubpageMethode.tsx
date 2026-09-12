@@ -122,8 +122,8 @@ export function SubpageMethode({
         fontFamily: serif,
         fontSize: isMobile ? "clamp(30px, 8vw, 40px)" : "clamp(32px, 3.1vw, 48px)",
         fontWeight: 400,
-        lineHeight: 1.1,
-        letterSpacing: "-0.015em",
+        lineHeight: "var(--tellian-titel-lh)" as unknown as number,
+        letterSpacing: "var(--tellian-titel-ls)",
         color: C.ink,
       }}
     >
@@ -141,7 +141,7 @@ export function SubpageMethode({
       style={{
         fontFamily: sans,
         fontSize: "13px",
-        letterSpacing: "0.08em",
+        letterSpacing: "var(--tellian-ls-cta-klein)",
         color: C.dark,
         backgroundColor: "var(--tellian-button)",
         border: "none",
@@ -185,7 +185,7 @@ export function SubpageMethode({
         fontFamily: serif,
         fontSize: isMobile ? "clamp(20px, 5.4vw, 26px)" : "clamp(21px, 1.8vw, 28px)",
         fontWeight: 400,
-        lineHeight: 1.2,
+        lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
         color: C.ink,
       }}
     >
@@ -235,9 +235,9 @@ export function SubpageMethode({
                   style={{
                     fontFamily: serif,
                     fontSize: "20px",
-                    fontWeight: 300,
-                    lineHeight: 1,
-                    letterSpacing: "0.04em",
+                    fontWeight: "var(--tellian-ziffer-weight)" as unknown as number,
+                    lineHeight: "var(--tellian-ziffer-lh)" as unknown as number,
+                    letterSpacing: "var(--tellian-ziffer-ls)",
                     color: MUSHROOM,
                   }}
                 >
@@ -247,7 +247,7 @@ export function SubpageMethode({
                   style={{
                     fontFamily: serif,
                     fontSize: "19px",
-                    lineHeight: 1.2,
+                    lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
                     color: C.ink,
                   }}
                 >
@@ -346,9 +346,9 @@ export function SubpageMethode({
                   style={{
                     fontFamily: serif,
                     fontSize: "clamp(24px, 2.1vw, 30px)",
-                    fontWeight: 300,
-                    lineHeight: 1,
-                    letterSpacing: "0.04em",
+                    fontWeight: "var(--tellian-ziffer-weight)" as unknown as number,
+                    lineHeight: "var(--tellian-ziffer-lh)" as unknown as number,
+                    letterSpacing: "var(--tellian-ziffer-ls)",
                     color: MUSHROOM,
                   }}
                 >
@@ -359,7 +359,7 @@ export function SubpageMethode({
                   style={{
                     fontFamily: serif,
                     fontSize: "20px",
-                    lineHeight: 1.2,
+                    lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
                     color: C.ink,
                   }}
                 >

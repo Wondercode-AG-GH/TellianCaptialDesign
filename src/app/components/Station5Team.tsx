@@ -371,7 +371,7 @@ export function Station5Team({
                 marginTop: "7px",
                 fontFamily: sans,
                 fontSize: "12px",
-                letterSpacing: "0.06em",
+                letterSpacing: "var(--tellian-ls-cta-klein)",
                 color: C.ink,
               }}
             >

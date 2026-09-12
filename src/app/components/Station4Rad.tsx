@@ -273,7 +273,7 @@ export function Station4Rad({
               fontFamily: cormorant,
               fontSize: "var(--tellian-r4-title-size)",
               fontWeight: 300,
-              lineHeight: 1.15,
+              lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
               color: "var(--tellian-r4-ink)",
             }}
           >
@@ -413,7 +413,7 @@ export function Station4Rad({
                   fontFamily: cormorant,
                   fontSize: "var(--tellian-r4-title-size)",
                   fontWeight: 300,
-                  lineHeight: 1.15,
+                  lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
                   color: "var(--tellian-r4-ink)",
                 }}
               >

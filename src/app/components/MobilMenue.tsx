@@ -235,7 +235,7 @@ export function MobilMenue({
                   cursor: istAktiv ? "default" : "pointer",
                   fontFamily: sans,
                   fontSize: "16px",
-                  letterSpacing: "0.14em",
+                  letterSpacing: "var(--tellian-ls-caps)",
                   textTransform: "uppercase",
                   fontWeight: istAktiv ? 500 : 400,
                   color: istAktiv ? C.ink : "rgba(26, 23, 32, 0.58)",

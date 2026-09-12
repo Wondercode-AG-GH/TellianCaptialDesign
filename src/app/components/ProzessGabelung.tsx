@@ -160,7 +160,7 @@ export function ProzessGabelung({
           fontFamily: serif,
           fontSize: "var(--tellian-pm-wege-size)",
           fontWeight: 400,
-          lineHeight: 1.2,
+          lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
           color: aufDunkel ? "var(--tellian-pm-wege-color)" : C.ink,
           /* In der gestapelten Spur steht der Titel auf der linken
              Kante wie alles andere — zentriert war er nur über dem
@@ -178,8 +178,8 @@ export function ProzessGabelung({
             /* v5: 40px auf Standardhöhe; flache Fenster atmen mit. */
             margin: "0 0 clamp(26px, 4.4vh, 40px)",
             fontFamily: sans,
-            fontSize: "15.5px",
-            lineHeight: 1.65,
+            fontSize: "var(--tellian-lauf-size)",
+            lineHeight: "var(--tellian-lauf-lh)" as unknown as number,
             maxWidth: "66ch",
             color: aufDunkel ? "var(--tellian-pm-dunkel-dim)" : C.accent,
           }}
@@ -292,7 +292,7 @@ export function ProzessGabelung({
                   fontFamily: serif,
                   fontSize: "var(--tellian-pm-card-name-size)",
                   fontWeight: 400,
-                  lineHeight: 1.15,
+                  lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
                   /* P3: gemeinsames Token statt Einzelwerte — beide
                      Kartentitel laufen zwingend gleich weit. */
                   letterSpacing: "var(--tellian-pm-card-name-tracking)",
@@ -339,7 +339,7 @@ export function ProzessGabelung({
                     fontFamily: cormorant,
                     fontStyle: "italic",
                     fontSize: "var(--tellian-pm-card-fuer-size)",
-                    lineHeight: 1.4,
+                    lineHeight: "var(--tellian-kursiv-lh)" as unknown as number,
                     color: "var(--tellian-pm-card-fuer-color)",
                   }}
                 >
@@ -362,7 +362,7 @@ export function ProzessGabelung({
                   display: "inline-block",
                   fontFamily: sans,
                   fontSize: "var(--tellian-pm-card-link-size)",
-                  letterSpacing: "0.06em",
+                  letterSpacing: "var(--tellian-ls-cta-klein)",
                 }}
               >
                 <span
@@ -378,7 +378,7 @@ export function ProzessGabelung({
               </span>,
               {
                 padding:
-                  "22px var(--tellian-pm-dip-pad-x) var(--tellian-pm-dip-pad-unten)",
+                  "var(--tellian-pm-cta-pad-oben) var(--tellian-pm-dip-pad-x) var(--tellian-pm-dip-pad-unten)",
                 ...(gestapelt ? { marginTop: "auto" } : { alignSelf: "end" }),
               },
             )}

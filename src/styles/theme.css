@@ -265,8 +265,8 @@
   );
   --tellian-pm-title-size: clamp(38px, 4.6vw, 64px);
   --tellian-pm-title-weight: 300;
-  --tellian-pm-title-leading: 1.04;
-  --tellian-pm-title-tracking: -0.015em;
+  --tellian-pm-title-leading: var(--tellian-titel-lh);
+  --tellian-pm-title-tracking: var(--tellian-titel-ls);
 
   --tellian-pm-body-size: 15px;
   --tellian-pm-body-leading: 1.68;
@@ -317,6 +317,7 @@
   --tellian-pm-fuge: rgba(184, 174, 163, 0.35);
   --tellian-pm-dip-pad-x: 40px;
   --tellian-pm-dip-pad-unten: 36px;
+  --tellian-pm-cta-pad-oben: 22px;
 
   --tellian-pm-band-title-size: 14px;
   /* 9px unterschritt die Untergrenze von 12px. */
@@ -336,7 +337,7 @@
      "SIE ENTSCHEIDEN" nicht — die beiden Karten liefen dadurch
      auseinander. Engere Sperrung für diese Zeile, und zwei Zeilen
      fest reserviert, damit beide Namen auf einer Linie stehen. */
-  --tellian-pm-card-eyebrow-tracking: 0.08em;
+  --tellian-pm-card-eyebrow-tracking: var(--tellian-ls-eyebrow);
   --tellian-pm-card-eyebrow-leading: 1.35;
   --tellian-pm-card-name-size: 32px;          /* v5: Lustria 32 */
   /* P3 (12.09): EIN Wert für beide Kartentitel. Im Quellcode war
@@ -805,9 +806,9 @@
   /* ── STATION 6 — KONTAKT ── */
   --tellian-k6-title-size: clamp(38px, 4.4vw, 64px);
   --tellian-k6-title-weight: 300;
-  --tellian-k6-title-leading: 1.05;
-  --tellian-k6-lead-size: 15px;
-  --tellian-k6-lead-leading: 1.65;
+  --tellian-k6-title-leading: var(--tellian-titel-lh);
+  --tellian-k6-lead-size: var(--tellian-lauf-size);
+  --tellian-k6-lead-leading: var(--tellian-lauf-lh);
 
   /* Telefon ist der wichtigste Weg auf der Seite — entsprechend gross. */
   --tellian-k6-phone-size: clamp(26px, 2.4vw, 34px);
@@ -853,7 +854,7 @@
   /* Fussband */
   /* 11px unterschritt die Untergrenze von 12px. */
   --tellian-k6-foot-size: 12px;
-  --tellian-k6-foot-tracking: 0.12em;
+  --tellian-k6-foot-tracking: var(--tellian-ls-caps);
   --tellian-k6-foot-color: var(--tellian-k6-meta);
   /* Markenzeichen im Fussband (LinkedIn).
      Das Zeichen steht in voller Deckung, das Wort daneben im
@@ -922,6 +923,47 @@
      Station 02 bei 1280×800 exakt 2px in die Stationsleiste. */
   --tellian-lauf-lh: 1.75;
 
+  /* ══ P4 (12.09) — TYPOGRAFIE-ROLLEN ══
+     EIN Wertesatz für beide Welten, alle Stationen und die
+     Subpages Mandat/Advisory. Vor der Konsolidierung führten die
+     Bauteile je eigene Zahlen (Audit im Abschlussbericht 12.09):
+     Titel-Zeilenabstand 1.04/1.05/1.1/1.12, Titel-Laufweite
+     −0.01/−0.015em, Lauftext 14–16px auf 1.65–1.75, Versal-
+     Laufweiten 0.08–0.22em quer durch die Rollen. Die Referenz ist
+     je Rolle der Wert der Hauptseite; wo zwei Hauptseiten-Werte
+     konkurrierten, der jüngere bewusst gesetzte (v5).
+
+     Schriftgrössen der Titel bleiben je Station eigene clamp()-
+     Treppen — die Stationen sind auf EINE Ansicht gerechnet, ihre
+     Grade sind Layoutmasse. Vereinheitlicht ist, was die Stimme
+     ausmacht: Zeilenabstand, Laufweite, Gewicht, Lauftext. */
+  --tellian-titel-lh: 1.05;        /* H1/H2 — Serif-Stationstitel */
+  /* A2-Grad des Hero-Titels (beide Welten). Flache Fenster eine
+     Stufe zurück — siehe Media-Block unten. */
+  --tellian-hero-titel-size: clamp(54px, 4.9vw, 80px);
+  --tellian-titel-ls: -0.015em;
+  --tellian-zwischen-lh: 1.15;     /* H3, Karten- und Wegtitel */
+  --tellian-lauf-size: 16px;       /* Stations-Fliesstext (v5) */
+  --tellian-kursiv-lh: 1.4;        /* Cormorant-Kursivzeilen */
+  --tellian-ziffer-weight: 300;    /* Serif-Ziffern der Wege */
+  --tellian-ziffer-ls: 0.04em;
+  --tellian-ziffer-lh: 1;
+
+  /* Versal-Laufweiten — DREI Stufen statt neun Einzelwerte:
+     Eyebrow (über Titeln, mit Kapitelmarken), Caps (Bänder,
+     Navigation, Beschriftungen), CTA gross/klein. */
+  --tellian-ls-eyebrow: 0.22em;
+  --tellian-ls-caps: 0.14em;
+  --tellian-ls-cta-gross: 0.16em;
+  --tellian-ls-cta-klein: 0.08em;
+
+  /* Abstands-Skala, ergänzend zum P2-System oben: die zwei
+     Wiederholtäter, die bisher als Kopien durch die Bauteile
+     liefen. */
+  --tellian-abstand-absatz: clamp(14px, 2.2vh, 24px);
+  --tellian-rand-schmal: clamp(20px, 6vw, 48px);
+  --tellian-stapel-schmal: clamp(24px, 3.6vh, 40px);
+
   /* ── KOPFZEILE ──
      Feste Höhe statt vh: der Inhalt wächst nicht mit dem Fenster.
      Logo 26px, Portalfeld 36px — 64px lassen oben und unten je 14px.
@@ -938,7 +980,7 @@
      gegenüber der Lustria-Wortmarke, mobil nie unter 9px. */
   --tellian-kopf-zusatz-size: 9.5px;
   --tellian-kopf-portal-size: 12px;
-  --tellian-kopf-tracking: 0.14em;
+  --tellian-kopf-tracking: var(--tellian-ls-caps);
   --tellian-kopf-gap: clamp(14px, 1.6vw, 28px);
   /* Abstand innerhalb der rechten Gruppe: Sprache | Trenner | Portal */
   --tellian-kopf-gruppe-gap: clamp(12px, 1.2vw, 18px);
@@ -1108,6 +1150,23 @@
 @media (max-height: 830px) {
   :root {
     --tellian-lauf-lh: 1.6;
+    /* P4: die Lauftext-Rolle geht auf flachen Fenstern gesamthaft
+       eine Stufe zurück — vorher stand der EN-Hero bei 1280×800
+       mit 15px/1.75 bereits 63px in der Stationsleiste (vorbe-
+       stehender Bruch, vom Rollen-Audit aufgedeckt). */
+    --tellian-lauf-size: 15px;
+    /* Der A2-Grad braucht die 830er-Stufe ebenfalls: 62.7px×3
+       Zeilen + zweispaltiger EN-Text passen bei 800er Höhe sonst
+       nicht zwischen die Bänder. */
+    --tellian-hero-titel-size: clamp(48px, 4.4vw, 72px);
+    /* Auch die Zwei-Wege-Karten (S02) gehen eine Stufe zurück:
+       vor der Stufe stand der EN-Kartenfuss bei 1280×800 90px in
+       der Stationsleiste — ebenfalls vorbestehend. */
+    --tellian-pm-wege-size: clamp(24px, 1.9vw, 30px);
+    --tellian-pm-card-name-size: 24px;
+    --tellian-pm-card-fuer-size: 16px;
+    --tellian-pm-dip-pad-unten: 18px;
+    --tellian-pm-cta-pad-oben: 12px;
   }
 }
 
