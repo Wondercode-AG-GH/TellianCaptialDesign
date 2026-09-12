@@ -2,14 +2,17 @@ import { useState } from "react";
 
 import { C, cormorant, sans } from "../tokens";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
-import { BankIcon } from "./DreieckIcons";
-/* TODO-ASSET-SIE-SVG: finales Vektor-Icon der Brand-Designerin
-   ausstehend. Bis dahin die nachgeschärfte PNG-Fassung (384px,
-   Striche verdichtet), damit es neben den Vektor-Icons besteht.
-   TODO-ICON-SIE: gruppe-scharf.png ist eine OUTLINE-Zeichnung; die
-   für P2 verlangte gefüllte Darstellung lässt sich daraus nicht
-   ableiten (siehe Abschnitt ICONS unten). */
-import gruppeIcon from "../../assets/gruppe-scharf.png";
+/* Die beiden gefüllten Motive, geliefert am 12.09 — sie lösen die
+   bisherigen Outline-Zeichnungen ab (gruppe-scharf.png und
+   bank-1071.svg / BankIcon). Beide sind 512px schwarz auf
+   transparent, vollflächig gezeichnet; eingefärbt werden sie über
+   ihren Alphakanal, siehe rasterMotiv().
+   TODO-ASSET-SIE-SVG bleibt: die Motive sind Raster, keine
+   Vektoren. Bei den hier gezeigten Grössen (max. 63px auf 3x aus
+   512px Quelle) ist das unkritisch — der Marker gilt der
+   Vollständigkeit der Markenablage, nicht der Darstellung. */
+import publikumIcon from "../../assets/publikum.png";
+import bankgebaeudeIcon from "../../assets/bankgebaude.png";
 import monogramm from "../../assets/logo/tellian-monogramm-hell.svg";
 
 /* ═══════════════════════════════════════════════════════════
@@ -39,22 +42,26 @@ import monogramm from "../../assets/logo/tellian-monogramm-hell.svg";
    Diagonalen entlang rotiert; Lesbarkeit vor Effekt.
 
    ICONS (P2, 12.09)
-   Alle drei Motive sind um denselben Faktor 0.83 verkleinert — die
-   frühere Abstimmung ihrer optischen Grössen zueinander bleibt
-   dadurch erhalten, jedes bekommt ~17 % mehr Luft zum Kreisrand.
-   Die Farbe der beiden Sachmotive ist Imperial Purple; das
-   Sie-Motiv liegt als schwarze PNG-Strichzeichnung vor und wird
-   über eine Alpha-Maske eingefärbt, statt schwarz zu bleiben —
-   sonst wögen die beiden Mushroom-Knoten unterschiedlich.
+   «Sie» und «Depotbank» tragen die am 12.09 gelieferten GEFÜLLTEN
+   Motive publikum.png und bankgebaude.png; die früheren
+   Outline-Zeichnungen sind damit abgelöst, TODO-ICON-SIE und
+   TODO-ICON-BANK erledigt. Beide werden über ihren Alphakanal als
+   Maske in Imperial Purple eingefärbt (rasterMotiv()) — die
+   Quellen sind schwarz, und Schwarz neben Imperial Purple wöge
+   unterschiedlich.
 
-   NICHT erfüllt ist die geforderte GEFÜLLTE Darstellung: sowohl
-   gruppe-scharf.png als auch bank-1071.svg sind reine
-   Outline-Zeichnungen, und im Bestand liegt zu keinem der beiden
-   eine gefüllte Fassung. Ein gefülltes Motiv liesse sich nur neu
-   zeichnen — deshalb TODO-ICON-SIE und TODO-ICON-BANK statt einer
-   improvisierten Eigenfassung. Das Tellian-Monogramm bleibt hell:
-   P3 hält den Markenknoten bewusst in Imperial Purple, eine
-   purpurne Füllung wäre darauf unsichtbar.
+   GRÖSSEN: die beiden Motive füllen ihre Leinwand unterschiedlich —
+   das Bankgebäude randlos über die ganze Fläche, das Publikum als
+   waagrechtes Band von 512x290. Angeglichen wird deshalb nicht die
+   Kastenbreite, sondern die gezeichnete TINTENFLÄCHE: Publikum auf
+   40 %, Bankgebäude auf 31.5 % des Kreisdurchmessers ergeben
+   0.057 D² gegen 0.054 D² — die Motive wiegen gleich schwer. Das
+   ist zugleich dieselbe Fläche wie vor dem Tausch, die mit P2
+   gewonnene Luft zum Kreisrand bleibt also erhalten.
+
+   Das Tellian-Monogramm bleibt hell: P3 hält den Markenknoten
+   bewusst in Imperial Purple, eine purpurne Füllung wäre darauf
+   unsichtbar.
    ═══════════════════════════════════════════════════════════ */
 
 /* Knotenzentren im 640×560-Raster. */
@@ -172,6 +179,25 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
 };
 
 const pz = (v: number, ganz: number) => `${((v / ganz) * 100).toFixed(2)}%`;
+
+/* Schwarzes Rastermotiv in Markenfarbe: die Datei dient als
+   Alpha-Maske, gefärbt wird die Fläche darunter. Das hält die
+   Kanten weich (der Alphakanal geht voll in die Maske ein) und
+   bindet die Farbe an das Token statt an die Datei. */
+const rasterMotiv = (quelle: string, breite: string, farbe: string): React.CSSProperties => ({
+  width: breite,
+  aspectRatio: "1",
+  display: "block",
+  backgroundColor: farbe,
+  WebkitMaskImage: `url(${quelle})`,
+  maskImage: `url(${quelle})`,
+  WebkitMaskRepeat: "no-repeat",
+  maskRepeat: "no-repeat",
+  WebkitMaskPosition: "center",
+  maskPosition: "center",
+  WebkitMaskSize: "contain",
+  maskSize: "contain",
+});
 
 interface Props {
   sprache?: "DE" | "EN";
@@ -454,38 +480,16 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         ))}
       </svg>
 
-      {/* Knoten. «Sie» mit dem Gruppen-Asset (P6). Das PNG liegt in
-          384px vor und steht jetzt auf 40 % statt 48 % des Kreises —
-          bei 150px Kreis sind das 60px, auf 3x also 180px aus 384px
-          Quelle: die Verkleinerung schärft eher, als dass sie
-          weichzeichnet.
-          Die Einfärbung läuft über den Alphakanal als Maske (das PNG
-          ist schwarze Strichzeichnung auf transparent, gemessen:
-          keine deckenden hellen Flächen) — die Fläche darunter ist
-          Imperial Purple. Gegen Mushroom misst das 7.2 : 1, weit
-          über den 3 : 1 für grafische Elemente. */}
+      {/* Knoten. «Sie» trägt publikum.png — drei gefüllte Figuren,
+          512px, Inhalt als Band 512x290 randlos über die Breite.
+          Imperial Purple auf Mushroom misst 7.21 : 1, weit über den
+          3 : 1 für grafische Elemente. */}
       {knoten(
         "sie",
         K.sie,
         C.muted,
         null,
-        <span
-          aria-hidden
-          style={{
-            width: "40%",
-            aspectRatio: "1",
-            display: "block",
-            backgroundColor: C.purple,
-            WebkitMaskImage: `url(${gruppeIcon})`,
-            maskImage: `url(${gruppeIcon})`,
-            WebkitMaskRepeat: "no-repeat",
-            maskRepeat: "no-repeat",
-            WebkitMaskPosition: "center",
-            maskPosition: "center",
-            WebkitMaskSize: "contain",
-            maskSize: "contain",
-          }}
-        />,
+        <span aria-hidden style={rasterMotiv(publikumIcon, "40%", C.purple)} />,
         inhalt.sie,
       )}
       {knoten(
@@ -510,9 +514,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         K.bank,
         C.muted,
         null,
-        <span style={{ width: "31.5%", aspectRatio: "1", display: "flex" }}>
-          <BankIcon w="100%" h="100%" color={C.purple} />
-        </span>,
+        <span aria-hidden style={rasterMotiv(bankgebaeudeIcon, "31.5%", C.purple)} />,
         inhalt.bank,
       )}
 
