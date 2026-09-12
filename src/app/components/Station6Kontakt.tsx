@@ -1150,6 +1150,16 @@ export function Station6Kontakt({
     <style>{`
       .tellian-k6-tel:hover,
       .tellian-k6-still:hover { text-decoration: underline; text-underline-offset: 4px; }
+      /* Tippziele (12.09): die Fussverweise messen ~26px Höhe —
+         eine unsichtbare Zone hebt sie Richtung 44px-Richtwert,
+         ohne Layout oder Optik zu ändern. Senkrecht grosszügig,
+         waagrecht knapp (Nachbarn ab 16px Spaltenabstand). */
+      .tellian-k6-still { position: relative; }
+      .tellian-k6-still::before {
+        content: "";
+        position: absolute;
+        inset: -9px -7px;
+      }
       /* TREFFERFLÄCHEN
          Gemessen waren die Fussverweise 18px hoch, Telefon 29,
          E-Mail 24. Der Zuwachs kommt aus dem Innenabstand und wird

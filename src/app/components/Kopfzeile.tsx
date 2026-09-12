@@ -591,6 +591,25 @@ export function Kopfzeile({
           height: var(--tellian-kopf-trenner-h);
           flex-shrink: 0;
         }
+        /* TIPPZIELE (12.09): die Textknöpfe messen nur ihre Textbox
+           (~19x12px) — weit unter dem 44px-Richtwert
+           (--tellian-tippziel). Eine unsichtbare Trefferzone hebt
+           die Fläche, ohne die Optik zu ändern. Waagrecht knapp
+           gehalten, damit Nachbarziele nicht überlappen (der
+           Schrägstrich dazwischen ist kein Ziel). Wirkt nur auf der
+           Griffschicht — die Farbschichten stehen auf
+           pointer-events:none. */
+        .tellian-kopf-sprache::before,
+        .tellian-kopf-welt::before {
+          content: "";
+          position: absolute;
+          inset: -14px -6px;
+        }
+        .tellian-kopf-menue::before {
+          content: "";
+          position: absolute;
+          inset: -10px;
+        }
         /* Aktiv-Hairline des Welten-Umschalters: absolut, ~6px
            unter der Grundlinie, Breite des Labels — belegt keinen
            Layoutraum, aktiver und inaktiver Eintrag teilen exakt
