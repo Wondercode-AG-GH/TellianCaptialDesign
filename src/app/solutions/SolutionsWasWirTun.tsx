@@ -55,7 +55,7 @@ export function SolutionsWasWirTun({ panelRef, isVertical = false, sprache }: Pr
         margin: 0,
         fontFamily: sans,
         fontSize: "12px",
-        letterSpacing: "var(--tellian-ls-eyebrow)",
+        letterSpacing: "var(--tellian-ls-marker)",
         textTransform: "uppercase",
         color: MUSHROOM,
       }}

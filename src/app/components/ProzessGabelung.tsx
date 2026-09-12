@@ -264,6 +264,10 @@ export function ProzessGabelung({
                   fontSize: "var(--tellian-pm-card-eyebrow-size)",
                   letterSpacing: "var(--tellian-pm-card-eyebrow-tracking)",
                   lineHeight: "var(--tellian-pm-card-eyebrow-leading)",
+                  /* Ebene 1 (12.09): Kartenkopf ist ein Marker —
+                     Versalien per CSS, der String bleibt in
+                     Satzschreibweise. */
+                  textTransform: "uppercase",
                   color: C.accent,
                 }}
               >

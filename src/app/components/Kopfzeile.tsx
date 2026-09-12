@@ -367,7 +367,7 @@ export function Kopfzeile({
                     }
                     style={{
                       ...klein,
-                      letterSpacing: "var(--tellian-ls-caps)",
+                      letterSpacing: "var(--tellian-ls-marker)",
                       /* P1 Variante A: der aktive Eintrag steht in
                          voller Textfarbe und eine Gewichtsstufe
                          kräftiger; der inaktive ist deutlich

@@ -56,7 +56,7 @@ export function Kapitelmarke({ nr, name, hell = false }: MarkeProps) {
         style={{
           fontFamily: sans,
           fontSize: "12px",
-          letterSpacing: "var(--tellian-ls-eyebrow)",
+          letterSpacing: "var(--tellian-ls-marker)",
           textTransform: "uppercase",
           color: schrift,
           whiteSpace: "nowrap",

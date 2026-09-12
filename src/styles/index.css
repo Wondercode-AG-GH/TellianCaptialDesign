@@ -38,6 +38,16 @@
   }
 }
 
+/* ── EBENE 1 — MARKER (Versal-Standard, 12.09) ──
+   Versalien, Inter, EINE Laufweite, Grundgrösse 12px (Kontexte
+   dürfen 11–13px setzen). Ebene 2 (Inhalt) ist der Grundzustand
+   der Rollen-Tokens: Satzschreibweise, keine Extra-Laufweite. */
+.tellian-marker {
+  text-transform: uppercase;
+  letter-spacing: var(--tellian-ls-marker);
+  font-size: 12px;
+}
+
 /* ── GPU-accelerated transforms ── */
 .will-change-transform {
   will-change: transform, opacity;

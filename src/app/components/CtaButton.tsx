@@ -54,7 +54,6 @@ export function CtaButton({
         onClick={handleClick}
         className={`
           inline-flex items-center justify-center gap-3
-          uppercase
           rounded-none
           transition-colors duration-300 ease-out
           active:scale-[0.98]
@@ -68,7 +67,7 @@ export function CtaButton({
           fontFamily: sans,
           color: C.dark,
           backgroundColor: C.button,
-          letterSpacing: "var(--tellian-ls-cta-gross)",
+          letterSpacing: "var(--tellian-ls-cta-klein)",
           lineHeight: 1,
           textAlign: "center",
           ...style,
@@ -89,7 +88,6 @@ export function CtaButton({
       onClick={handleClick}
       className={`
         group inline-flex items-center gap-3
-        uppercase
         rounded-none
         hover:bg-tellian-button-hover
         active:scale-[0.98]
@@ -103,7 +101,7 @@ export function CtaButton({
         color: C.dark,
         backgroundColor: C.button,
         border: `1px solid ${C.button}`,
-        letterSpacing: "var(--tellian-ls-cta-gross)",
+        letterSpacing: "var(--tellian-ls-cta-klein)",
         lineHeight: 1,
         transition: "background-color 400ms cubic-bezier(0.16,1,0.3,1)",
         ...style,

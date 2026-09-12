@@ -391,7 +391,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           transform: "translate(-50%, -50%)",
           fontFamily: sans,
           fontSize: "13px",
-          letterSpacing: "var(--tellian-ls-caps)",
+          letterSpacing: "var(--tellian-ls-marker)",
           textTransform: "uppercase",
           whiteSpace: "nowrap",
           color: C.ink,
@@ -556,7 +556,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
                 marginBottom: "4px",
                 fontFamily: sans,
                 fontSize: "12px",
-                letterSpacing: "var(--tellian-ls-caps)",
+                letterSpacing: "var(--tellian-ls-marker)",
                 textTransform: "uppercase",
                 color: C.stone,
               }}

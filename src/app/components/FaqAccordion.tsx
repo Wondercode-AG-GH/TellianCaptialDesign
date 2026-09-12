@@ -65,7 +65,7 @@ export function FaqAccordion({ items, schemaId }: FaqAccordionProps) {
           style={{
             fontFamily: sans,
             fontSize: "12px",
-            letterSpacing: "0.18em",
+            letterSpacing: "var(--tellian-ls-marker)",
             color: C.stone,
             textTransform: "uppercase",
           }}

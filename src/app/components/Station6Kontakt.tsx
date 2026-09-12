@@ -712,8 +712,9 @@ function Formular({
           fontFamily: sans,
           fontSize: "13px",
           fontWeight: 500,
-          letterSpacing: "var(--tellian-ls-cta-gross)",
-          textTransform: "uppercase",
+          /* Ebene 2 (12.09): Formular-CTA im Inhalt — Satzschreib-
+             weise, Laufweite der Inhalt-CTA-Rolle. */
+          letterSpacing: "var(--tellian-ls-cta-klein)",
           /* Dunkel auf Mushroom — 8.17 : 1. Hell auf Mushroom wären
              1.6 : 1 gewesen. */
           color: "var(--tellian-dark)",
@@ -910,7 +911,7 @@ export function Station6Kontakt({
           style={{
             fontFamily: sans,
             fontSize: "13px",
-            letterSpacing: "var(--tellian-ls-caps)",
+            letterSpacing: "var(--tellian-ls-marker)",
             textTransform: "uppercase",
             color: "var(--tellian-k6-dim)",
           }}

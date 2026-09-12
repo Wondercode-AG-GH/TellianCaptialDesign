@@ -337,7 +337,7 @@
      "SIE ENTSCHEIDEN" nicht — die beiden Karten liefen dadurch
      auseinander. Engere Sperrung für diese Zeile, und zwei Zeilen
      fest reserviert, damit beide Namen auf einer Linie stehen. */
-  --tellian-pm-card-eyebrow-tracking: var(--tellian-ls-eyebrow);
+  --tellian-pm-card-eyebrow-tracking: var(--tellian-ls-marker);
   --tellian-pm-card-eyebrow-leading: 1.35;
   --tellian-pm-card-name-size: 32px;          /* v5: Lustria 32 */
   /* P3 (12.09): EIN Wert für beide Kartentitel. Im Quellcode war
@@ -854,7 +854,7 @@
   /* Fussband */
   /* 11px unterschritt die Untergrenze von 12px. */
   --tellian-k6-foot-size: 12px;
-  --tellian-k6-foot-tracking: var(--tellian-ls-caps);
+  --tellian-k6-foot-tracking: var(--tellian-ls-marker);
   --tellian-k6-foot-color: var(--tellian-k6-meta);
   /* Markenzeichen im Fussband (LinkedIn).
      Das Zeichen steht in voller Deckung, das Wort daneben im
@@ -949,12 +949,16 @@
   --tellian-ziffer-ls: 0.04em;
   --tellian-ziffer-lh: 1;
 
-  /* Versal-Laufweiten — DREI Stufen statt neun Einzelwerte:
-     Eyebrow (über Titeln, mit Kapitelmarken), Caps (Bänder,
-     Navigation, Beschriftungen), CTA gross/klein. */
-  --tellian-ls-eyebrow: 0.22em;
-  --tellian-ls-caps: 0.14em;
-  --tellian-ls-cta-gross: 0.16em;
+  /* Versal-Standard (Briefing 12.09, «Ebene 1 — Marker»): ALLE
+     Versalzeilen — Header-Chrome, Eyebrows/Kicker, Knotennamen,
+     Kartenköpfe, «Zurück» — laufen auf EINER Stufe. Die früheren
+     Stufen eyebrow (0.22) / caps (0.14) / cta-gross (0.16) sind
+     darin aufgegangen. Versalien entstehen ausschliesslich per
+     text-transform (Klasse .tellian-marker bzw. Inline-Transform),
+     nie im String — Screenreader lesen Wörter, keine Buchstaben.
+     cta-klein bleibt: die Laufweite der INHALT-CTAs, die in
+     Satzschreibweise stehen (Ebene 2). */
+  --tellian-ls-marker: 0.12em;
   --tellian-ls-cta-klein: 0.08em;
 
   /* Abstands-Skala, ergänzend zum P2-System oben: die zwei
@@ -980,7 +984,7 @@
      gegenüber der Lustria-Wortmarke, mobil nie unter 9px. */
   --tellian-kopf-zusatz-size: 9.5px;
   --tellian-kopf-portal-size: 12px;
-  --tellian-kopf-tracking: var(--tellian-ls-caps);
+  --tellian-kopf-tracking: var(--tellian-ls-marker);
   --tellian-kopf-gap: clamp(14px, 1.6vw, 28px);
   /* Abstand innerhalb der rechten Gruppe: Sprache | Trenner | Portal */
   --tellian-kopf-gruppe-gap: clamp(12px, 1.2vw, 18px);

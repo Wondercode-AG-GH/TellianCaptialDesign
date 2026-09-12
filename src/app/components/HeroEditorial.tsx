@@ -119,7 +119,7 @@ export function HeroEditorial({
         margin: "0 0 18px",
         fontFamily: sans,
         fontSize: "12px",
-        letterSpacing: "var(--tellian-ls-eyebrow)",
+        letterSpacing: "var(--tellian-ls-marker)",
         textTransform: "uppercase",
         color: "var(--tellian-purple)",
         ...enter(STEP.titel),

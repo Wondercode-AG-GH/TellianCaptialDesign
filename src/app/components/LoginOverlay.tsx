@@ -240,7 +240,7 @@ function PortalRow({ portal }: { portal: (typeof PORTALS)[number] }) {
             fontFamily: sans,
             fontSize: "12px",
             fontWeight: 600,
-            letterSpacing: "0.16em",
+            letterSpacing: "var(--tellian-ls-marker)",
             textTransform: "uppercase",
             color: hover ? C.warm : C.dark,
             transition: `color 300ms ${EASE.standard}`,

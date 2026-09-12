@@ -42,12 +42,12 @@ interface SolutionsInhalt {
 export const SOLUTIONS_INHALT: Readonly<Record<SolutionsSprache, SolutionsInhalt>> = {
   DE: {
     einstieg: {
-      eyebrow: "TELLIAN CAPITAL SOLUTIONS",
+      eyebrow: "Tellian Capital Solutions",
       titel: "Wir denken in Chancen, nicht Produkte.",
       text: "Als unabhängiger Partner bieten wir Schweizer Privatbanken, Family Offices und unabhängigen Vermögensverwaltern Zugang zu Investmentlösungen in den Bereichen Aktien, Rohstoffe, Zinsen, CLNs, Devisen und Fonds.",
     },
     wasWirTun: {
-      kicker: "WAS WIR TUN.",
+      kicker: "Was wir tun.",
       statement: "Kein Emittent ist in allem und zu jeder Zeit der Beste.",
       absatz:
         "Der Appetit verschiebt sich, Handelsbücher rotieren, und taktische Opportunitäten können überall am Markt entstehen. Über ein globales Netzwerk von Investmentbanken verfolgt Tellian Capital Solutions diese ständige Bewegung und eröffnet ihren Kunden den Zugang.",
@@ -75,12 +75,12 @@ export const SOLUTIONS_INHALT: Readonly<Record<SolutionsSprache, SolutionsInhalt
   },
   EN: {
     einstieg: {
-      eyebrow: "TELLIAN CAPITAL SOLUTIONS",
+      eyebrow: "Tellian Capital Solutions",
       titel: "We source opportunities, not products.",
       text: "Independent by design, we provide Swiss Private Banks, Family Offices and Independent Asset Managers with investment solutions across equities, commodities, rates, credit, FX and funds.",
     },
     wasWirTun: {
-      kicker: "WHAT WE DO.",
+      kicker: "What we do.",
       statement: "No issuer is best at everything, all the time.",
       absatz:
         "Appetites shift, trading books rotate and tactical opportunities might surface anywhere across the market. Through a global network of investment banks, Tellian Capital Solutions tracks that constant motion and gives its clients a way in.",
@@ -112,12 +112,12 @@ export const SOLUTIONS_INHALT: Readonly<Record<SolutionsSprache, SolutionsInhalt
      nicht korrigieren. */
   FR: {
     einstieg: {
-      eyebrow: "TELLIAN CAPITAL SOLUTIONS",
+      eyebrow: "Tellian Capital Solutions",
       titel: "Nous sourçons des opportunités, pas des produits.",
       text: "Indépendants par nature, nous proposons aux banques privées, family offices et gérants de fortune indépendants en Suisse des solutions d’investissement sur les actions, les matières premières, les taux, le crédit, le change et les fonds.",
     },
     wasWirTun: {
-      kicker: "CE QUE NOUS FAISONS.",
+      kicker: "Ce que nous faisons.",
       statement: "Aucun emetteur n’est le meilleur en tout, en permanence.",
       absatz:
         "Les appétits évoluent, les books de trading tournent et des opportunités tactiques peuvent apparaître partout sur le marché. À travers un réseau mondial de banques d’investissement, Tellian Capital Solutions suit ce mouvement permanent et en ouvre la porte à ses clients.",
