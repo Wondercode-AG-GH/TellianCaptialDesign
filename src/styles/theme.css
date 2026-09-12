@@ -48,6 +48,15 @@
   --tellian-dot-inactive: #C8C5BB;
   --tellian-dot-active: #8A8575;
   --tellian-purple: #281F33;          /* Imperial Purple */
+  /* ── GOLD-AKZENT (12.09) ──
+     EIN Akzent für Untertitel, Boxtitel und primäre Knöpfe auf den
+     dunklen Stationen (02-Mandat-CTA, 04, 06). ERSETZT Mushroom
+     NICHT flächendeckend: Hairlines, Eyebrows, Kicker, Kreis-Labels
+     und Grafikelemente bleiben Mushroom. Kontraste: auf Imperial
+     Purple 6.48:1, auf dem Glanzton 5.44:1, Purpur-Text auf der
+     Goldfläche 6.48:1 (aktiv 5.19:1) — alle über AA. */
+  --tellian-gold: #C6A15B;
+  --tellian-gold-aktiv: #B28F4C;      /* Hover/Fokus: dezent dunkler */
 
   /* ══ DIE DUNKLE STATIONSFLÄCHE ══
      Eine Definition für alle drei dunklen Stationen (02, 04, 06).
@@ -390,8 +399,8 @@
      Gold ab bzw. hellt das Purpur auf — dieselbe Geste in beiden
      Welten. Kontraste: Gold/Purpur 6.48:1, Purpur/Archive White
      14.28:1, aktiv 5.19:1 bzw. 11.41:1 — alle über AA (4.5:1). */
-  --tellian-pm-knopf-gold: #C6A15B;
-  --tellian-pm-knopf-gold-aktiv: #B28F4C;
+  --tellian-pm-knopf-gold: var(--tellian-gold);
+  --tellian-pm-knopf-gold-aktiv: var(--tellian-gold-aktiv);
   --tellian-pm-knopf-gold-ink: var(--tellian-purple);
   --tellian-pm-knopf-nacht: var(--tellian-purple);
   --tellian-pm-knopf-nacht-aktiv: #3A2E4A;
@@ -490,7 +499,10 @@
   --tellian-r4-arc-idle: 1.5px;
   --tellian-r4-arc-active: 9px;
   --tellian-r4-arc-idle-color: rgba(244, 244, 240, 0.28);
-  --tellian-r4-arc-active-color: var(--tellian-muted);
+  /* P1 (12.09): der aktive Bogen führt die Gold-Akzentspur —
+     Bogen, Untertitel und Boxtitel gehören zusammen. Die inaktiven
+     Anteile und die Labels bleiben unverändert. */
+  --tellian-r4-arc-active-color: var(--tellian-gold);
   /* Lücke zwischen den Segmenten, in Grad. */
   --tellian-r4-arc-gap: 7;
 

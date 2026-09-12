@@ -54,7 +54,10 @@ const FIRMA = [
   "Löwenstrasse 1, CH-8001 Zürich",
 ] as const;
 
-const FUSS_LINKS = "Tellian Capital Solutions · FINMA-lizenziert · © 2026";
+/* 4.1 (12.09): die Marke der Fusszeile gehört der WELT, nicht der
+   Komponente — die Hauptseite trug fälschlich den Solutions-Namen.
+   Standard ist die Hauptseite; Solutions übergibt seinen Namen. */
+const FUSS_ZUSATZ = "FINMA-lizenziert · © 2026";
 
 interface FussVerweis {
   text: string;
@@ -715,10 +718,12 @@ function Formular({
           /* Ebene 2 (12.09): Formular-CTA im Inhalt — Satzschreib-
              weise, Laufweite der Inhalt-CTA-Rolle. */
           letterSpacing: "var(--tellian-ls-cta-klein)",
-          /* Dunkel auf Mushroom — 8.17 : 1. Hell auf Mushroom wären
-             1.6 : 1 gewesen. */
-          color: "var(--tellian-dark)",
-          backgroundColor: "var(--tellian-button)",
+          /* P2 (12.09): Gold mit Imperial Purple — konsistent zum
+             Mandat-CTA der Station 02. 6.48:1, aktiv 5.19:1.
+             Die FLÄCHE steht in der CSS-Regel, nicht hier: inline
+             hätte sie jede Hover-Regel überstimmt — genau daran war
+             der frühere Mushroom-Hover immer schon gescheitert. */
+          color: "var(--tellian-purple)",
           border: "none",
           borderRadius: 0,
           padding: "17px 26px",
@@ -765,6 +770,9 @@ interface Props {
       rendern den bestehenden Wortlaut unverändert; die Hauptseite
       übergibt nichts und bleibt beim Standard DE. */
   sprache?: "DE" | "EN" | "FR";
+  /** Marke der Fusszeile (4.1): Hauptseite «Tellian Capital»,
+      Solutions übergibt «Tellian Capital Solutions». */
+  fussMarke?: string;
 }
 
 export function Station6Kontakt({
@@ -775,6 +783,7 @@ export function Station6Kontakt({
   markeNr = "06",
   markeName = "Kontakt",
   sprache = "DE",
+  fussMarke = "Tellian Capital",
 }: Props) {
   const [karteOffen, setKarteOffen] = useState(false);
   const karteBtn = useRef<HTMLButtonElement | null>(null);
@@ -803,7 +812,9 @@ export function Station6Kontakt({
         fontFamily: sans,
         fontSize: "var(--tellian-k6-lead-size)",
         lineHeight: "var(--tellian-k6-lead-leading)" as unknown as number,
-        color: "var(--tellian-k6-dim)",
+        /* P2 (12.09): die Unterzeile in Gold — analog zum
+           Untertitel der Station 04. Auf Imperial Purple 6.48:1. */
+        color: "var(--tellian-gold)",
       }}
     >
       {LEAD[0]}
@@ -1058,7 +1069,7 @@ export function Station6Kontakt({
           color: "var(--tellian-k6-foot-color)",
         }}
       >
-        {FUSS_LINKS}
+        {`${fussMarke} · ${FUSS_ZUSATZ}`}
       </span>
 
       <nav
@@ -1154,7 +1165,9 @@ export function Station6Kontakt({
         margin-top: -12px;
         margin-bottom: -12px;
       }
-      .tellian-k6-primaer:hover:not(:disabled) { background-color: var(--tellian-button-hover); }
+      .tellian-k6-primaer { background-color: var(--tellian-gold); }
+      .tellian-k6-primaer:hover:not(:disabled),
+      .tellian-k6-primaer:focus-visible:not(:disabled) { background-color: var(--tellian-gold-aktiv); }
       .tellian-k6-primaer:disabled { opacity: 0.8; }
       .tellian-k6-kachel:hover {
         background-color: var(--tellian-k6-kachel-bg-hover);

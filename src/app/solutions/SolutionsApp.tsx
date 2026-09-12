@@ -199,6 +199,7 @@ export function SolutionsApp() {
             und Absender der HAUPTSEITE — die Bestätigung des Namens
             für den Solutions-Kontaktblock steht aus. */}
         <Station6Kontakt
+          fussMarke="Tellian Capital Solutions"
           isVertical
           sprache={sprache}
           domId="solutions-kontakt"
@@ -252,7 +253,7 @@ export function SolutionsApp() {
           />
         </SectionEnteredProvider>
         <SectionEnteredProvider value={entered[3]}>
-          <Station6Kontakt panelRef={panelRef(3)} sprache={sprache} domId="solutions-kontakt" onOpenLegal={legal.open} />
+          <Station6Kontakt fussMarke="Tellian Capital Solutions" panelRef={panelRef(3)} sprache={sprache} domId="solutions-kontakt" onOpenLegal={legal.open} />
         </SectionEnteredProvider>
       </div>
       </div>

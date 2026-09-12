@@ -274,7 +274,10 @@ export function Station4Rad({
               fontSize: "var(--tellian-r4-title-size)",
               fontWeight: 300,
               lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
-              color: "var(--tellian-r4-ink)",
+              /* P1: der Name des aktiven Punkts in Gold — das dritte
+                 Glied der Akzentspur. Auf dem Boxgrund (7 % Mushroom
+                 über Purpur) misst Gold über 5.4:1. */
+              color: "var(--tellian-gold)",
             }}
           >
             {p.titel}
@@ -319,15 +322,17 @@ export function Station4Rad({
           {inhalt.titel[1]}
         </em>
       </h2>
-      {/* Untertitel — Zwischentitel-Stufe, auf der dunklen Station
-          in Mushroom (Redesign-Hierarchie). */}
+      {/* Untertitel — Zwischentitel-Stufe. P1 (12.09): Gold statt
+          Mushroom — er eröffnet die Akzentspur der Station (Bogen,
+          Untertitel, Boxtitel). Der Haupttitel bleibt Archive
+          White: Gold ist Akzent, nicht Titelfarbe. */}
       <p
         style={{
           margin: "12px 0 0",
           fontFamily: serif,
           fontSize: "var(--tellian-r4-unter-size)",
           lineHeight: 1.3,
-          color: C.muted,
+          color: "var(--tellian-gold)",
         }}
       >
         {inhalt.untertitel}
