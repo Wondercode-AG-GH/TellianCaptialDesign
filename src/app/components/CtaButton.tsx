@@ -59,14 +59,12 @@ export function CtaButton({
           active:scale-[0.98]
           px-6 py-4
           text-[12px]
-          hover:bg-tellian-button-hover
+          tellian-cta-primaer
           ${widthFull ? "w-full" : ""}
           ${className}
         `}
         style={{
           fontFamily: sans,
-          color: C.dark,
-          backgroundColor: C.button,
           letterSpacing: "var(--tellian-ls-cta-klein)",
           lineHeight: 1,
           textAlign: "center",
@@ -89,21 +87,18 @@ export function CtaButton({
       className={`
         group inline-flex items-center gap-3
         rounded-none
-        hover:bg-tellian-button-hover
         active:scale-[0.98]
         px-6 py-3 md:px-8 md:py-4
         text-[12px]
+        tellian-cta-primaer
         ${widthFull ? "w-full justify-center" : ""}
         ${className}
       `}
       style={{
         fontFamily: sans,
-        color: C.dark,
-        backgroundColor: C.button,
-        border: `1px solid ${C.button}`,
+        border: "1px solid var(--tellian-gold)",
         letterSpacing: "var(--tellian-ls-cta-klein)",
         lineHeight: 1,
-        transition: "background-color 400ms cubic-bezier(0.16,1,0.3,1)",
         ...style,
       }}
     >

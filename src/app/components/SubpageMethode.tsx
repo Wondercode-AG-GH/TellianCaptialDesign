@@ -137,13 +137,11 @@ export function SubpageMethode({
     <button
       type="button"
       onClick={onContactClick}
-      className="tellian-adv-cta"
+      className="tellian-adv-cta tellian-cta-primaer"
       style={{
         fontFamily: sans,
         fontSize: "13px",
         letterSpacing: "var(--tellian-ls-cta-klein)",
-        color: C.dark,
-        backgroundColor: "var(--tellian-button)",
         border: "none",
         borderRadius: 0,
         padding: "13px 26px",

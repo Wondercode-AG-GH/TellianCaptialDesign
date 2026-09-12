@@ -38,6 +38,24 @@
   }
 }
 
+/* ── PRIMÄRER CTA (Gold-Akzent, 12.09) ──
+   EINE Fläche für alle gefüllten Handlungs-CTAs beider Welten:
+   Gold mit Imperial Purple, Gewicht 500, Hover/Fokus dunkelt auf
+   die Aktivstufe. Konsistent zu Mandat-CTA (S02) und «Anfrage
+   senden» (S06); bewusst NICHT darauf: der Advisory-CTA (Purpur-
+   Gegenstück im Kartenpaar) und das Kundenportal (Header-Chrome,
+   Kontur statt Fläche). */
+.tellian-cta-primaer {
+  background-color: var(--tellian-gold);
+  color: var(--tellian-purple);
+  font-weight: 500;
+  transition: background-color 200ms ease;
+}
+.tellian-cta-primaer:hover,
+.tellian-cta-primaer:focus-visible {
+  background-color: var(--tellian-gold-aktiv);
+}
+
 /* ── EBENE 1 — MARKER (Versal-Standard, 12.09) ──
    Versalien, Inter, EINE Laufweite, Grundgrösse 12px (Kontexte
    dürfen 11–13px setzen). Ebene 2 (Inhalt) ist der Grundzustand
