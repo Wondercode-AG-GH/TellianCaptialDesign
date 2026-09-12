@@ -331,10 +331,13 @@ export function MobilMenue({
         })}
 
         {/* ── Kundenportal (Feature 12.09) ──
-            Die Hauptaktion des Bandes, schmal hierher verlegt: ein
-            konturiertes Feld im Band-Vokabular (Schloss + Marker),
-            vollbreit als Tippziel. Öffnet den Login und schliesst
-            das Menü. */}
+            Die Hauptaktion des Bandes, schmal hierher verlegt —
+            vollbreit als Tippziel, öffnet den Login und schliesst
+            das Menü. FARBE (Korrektur 12.09): die Gold-Fläche der
+            Primär-CTAs (.tellian-cta-primaer) statt der Kontur —
+            im Menü ist das Feld eine Hauptaktion wie «Anfrage
+            senden», kein Band-Chrome. Beschriftung bleibt Marker
+            (Versalien + Schloss). */}
         {onPortal && (
           <button
             type="button"
@@ -342,7 +345,7 @@ export function MobilMenue({
               onPortal();
               onSchliessen();
             }}
-            className="tellian-menue-ziel"
+            className="tellian-menue-ziel tellian-cta-primaer"
             style={{
               marginTop: "auto",
               display: "flex",
@@ -352,15 +355,13 @@ export function MobilMenue({
               width: "100%",
               minHeight: "var(--tellian-tippziel)",
               padding: "0 16px",
-              background: "transparent",
-              border: `1px solid ${C.ink}`,
+              border: "none",
               borderRadius: 0,
               cursor: "pointer",
               fontFamily: sans,
               fontSize: "12px",
               letterSpacing: "var(--tellian-ls-marker)",
               textTransform: "uppercase",
-              color: C.ink,
             }}
           >
             <svg
