@@ -293,6 +293,9 @@ export function ProzessGabelung({
                   fontSize: "var(--tellian-pm-card-name-size)",
                   fontWeight: 400,
                   lineHeight: 1.15,
+                  /* P3: gemeinsames Token statt Einzelwerte — beide
+                     Kartentitel laufen zwingend gleich weit. */
+                  letterSpacing: "var(--tellian-pm-card-name-tracking)",
                   color: C.ink,
                 }}
               >
@@ -348,8 +351,13 @@ export function ProzessGabelung({
 
             {/* Zeile 5 — CTA am Kartenfuss */}
             {zeile(
+              /* P1: die Farbwelt hängt an der Karte (Gold für das
+                 Mandat, Imperial Purple für Advisory), die FORM an
+                 der gemeinsamen Klasse — Masse, Schriftgrad,
+                 Laufweite und Gewicht sind für beide identisch und
+                 stehen in EINEM Regelblock. */
               <span
-                className="tellian-pm-knopf"
+                className={`tellian-pm-knopf tellian-pm-knopf--${k.id}`}
                 style={{
                   display: "inline-block",
                   fontFamily: sans,
@@ -360,7 +368,6 @@ export function ProzessGabelung({
                 <span
                   style={{
                     display: "inline-block",
-                    color: "var(--tellian-pm-knopf-ink)",
                     padding: "var(--tellian-pm-knopf-pad)",
                     borderRadius: 0,
                     whiteSpace: "nowrap",
@@ -403,15 +410,33 @@ export function ProzessGabelung({
           transform: translateY(var(--tellian-pm-card-hub));
           box-shadow: var(--tellian-pm-card-schatten);
         }
-        /* Der Knopf dunkelt mit der Karte nach — er ist Teil von ihr,
-           kein eigenes Ziel, also hat er auch keinen eigenen Hover. */
+        /* Der Knopf reagiert mit der Karte — er ist Teil von ihr,
+           kein eigenes Ziel, also hat er auch keinen eigenen Hover.
+           Fokus: die ganze Karte ist DAS Bedienelement, ihr
+           :focus-visible-Ring (unten) ist der Fokusring des Knopfs.
+           P1: Gewicht 500 und Übergänge gemeinsam, die Farbwelt je
+           Karte — Gold dunkelt ab, Purpur hellt auf. */
         .tellian-pm-knopf > span {
-          background-color: var(--tellian-pm-knopf-bg);
-          transition: background-color var(--tellian-pm-card-ms) ease;
+          font-weight: var(--tellian-pm-knopf-weight);
+          transition:
+            background-color var(--tellian-pm-card-ms) ease,
+            color var(--tellian-pm-card-ms) ease;
         }
-        .tellian-pm-karte:hover .tellian-pm-knopf > span,
-        .tellian-pm-karte:focus-visible .tellian-pm-knopf > span {
-          background-color: var(--tellian-pm-knopf-bg-aktiv);
+        .tellian-pm-knopf--mandat > span {
+          background-color: var(--tellian-pm-knopf-gold);
+          color: var(--tellian-pm-knopf-gold-ink);
+        }
+        .tellian-pm-karte:hover .tellian-pm-knopf--mandat > span,
+        .tellian-pm-karte:focus-visible .tellian-pm-knopf--mandat > span {
+          background-color: var(--tellian-pm-knopf-gold-aktiv);
+        }
+        .tellian-pm-knopf--advisory > span {
+          background-color: var(--tellian-pm-knopf-nacht);
+          color: var(--tellian-pm-knopf-nacht-ink);
+        }
+        .tellian-pm-karte:hover .tellian-pm-knopf--advisory > span,
+        .tellian-pm-karte:focus-visible .tellian-pm-knopf--advisory > span {
+          background-color: var(--tellian-pm-knopf-nacht-aktiv);
         }
         .tellian-pm-karte:focus-visible {
           outline: 2px solid var(--tellian-pm-focus-ring);

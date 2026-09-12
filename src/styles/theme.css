@@ -327,7 +327,10 @@
   /* v5: H2 in Mushroom — zweite Ebene, konkurrenziert den H1 nicht.
      Mushroom trägt 7.4 : 1 auf Imperial Purple. */
   --tellian-pm-wege-size: clamp(26px, 2.2vw, 34px);
-  --tellian-pm-wege-color: var(--tellian-muted);
+  /* P2 (12.09): dieselbe Farbe wie der Fliesstext darunter —
+     vorher Mushroom, das stand als dritte Stimme zwischen Titel-
+     Weiss und Lauftext-Silber. */
+  --tellian-pm-wege-color: var(--tellian-pm-dunkel-dim);
   --tellian-pm-card-eyebrow-size: 12px;   /* war 9px */
   /* Bei 12px und 0.16em Sperrung bricht "TELLIAN ENTSCHEIDET" um,
      "SIE ENTSCHEIDEN" nicht — die beiden Karten liefen dadurch
@@ -336,6 +339,10 @@
   --tellian-pm-card-eyebrow-tracking: 0.08em;
   --tellian-pm-card-eyebrow-leading: 1.35;
   --tellian-pm-card-name-size: 32px;          /* v5: Lustria 32 */
+  /* P3 (12.09): EIN Wert für beide Kartentitel. Im Quellcode war
+     nie ein zweiter gesetzt (beide erbten normal) — das Token macht
+     die Gleichheit explizit und unumgehbar. */
+  --tellian-pm-card-name-tracking: 0.01em;
   --tellian-pm-card-text-size: 12px;
   /* Zielgruppenzeile: Serifenschrift kursiv in Imperial Purple. */
   --tellian-pm-card-fuer-size: 18px;          /* v5 */
@@ -366,17 +373,29 @@
      von Imperial Purple, 70.2° der von Mushroom. Die Helligkeit
      bleibt knapp unter dem Untergrund (L 0.966), die Buntheit
      bleibt klein — leicht, aber unterscheidbar. */
-  /* EINE Füllung für beide Karten. Vorher trugen sie zwei leicht
-     verschiedene Töne; die Unterscheidung liegt jetzt allein beim
-     farbigen Punkt vor der Eyebrow-Zeile. */
-  --tellian-pm-card-bg: oklch(96.5% 0.004 300);
-  --tellian-pm-card-bg-aktiv: oklch(93.5% 0.008 300);
+  /* EINE Füllung für beide Karten — Archive White, im Ruhezustand
+     identisch (Korrektur 12.09, P0.2). Der frühere oklch-Ton auf
+     Farbwinkel 300 wirkte violettstichig, sobald der Hover ihn
+     zeigte; die aktive Fläche dunkelt jetzt NEUTRAL über die
+     abgedunkelte Archive-White-Stufe ab, ohne Buntton. */
+  --tellian-pm-card-bg: var(--tellian-bg);
+  --tellian-pm-card-bg-aktiv: var(--tellian-bg-secondary);
 
-  /* Der Knopf in der Karte. Dieselbe Farbe wie der Hauptknopf in
-     Station 1 — die Seite soll ein einziges Klicksignal führen. */
-  --tellian-pm-knopf-bg: var(--tellian-button);
-  --tellian-pm-knopf-bg-aktiv: var(--tellian-button-hover);
-  --tellian-pm-knopf-ink: var(--tellian-dark);
+  /* Die Knöpfe in den Karten (P1, 12.09): zwei Farbwelten, EINE
+     Form — Grösse, Innenabstand, Schriftgrad, Laufweite und Gewicht
+     teilen sich beide, nur die Füllung unterscheidet sie.
+     Mandat trägt Gold mit dunkler Schrift, Advisory Imperial Purple
+     (die Stationsfarbe) mit Archive White. Hover/Fokus dunkelt das
+     Gold ab bzw. hellt das Purpur auf — dieselbe Geste in beiden
+     Welten. Kontraste: Gold/Purpur 6.48:1, Purpur/Archive White
+     14.28:1, aktiv 5.19:1 bzw. 11.41:1 — alle über AA (4.5:1). */
+  --tellian-pm-knopf-gold: #C6A15B;
+  --tellian-pm-knopf-gold-aktiv: #B28F4C;
+  --tellian-pm-knopf-gold-ink: var(--tellian-purple);
+  --tellian-pm-knopf-nacht: var(--tellian-purple);
+  --tellian-pm-knopf-nacht-aktiv: #3A2E4A;
+  --tellian-pm-knopf-nacht-ink: var(--tellian-bg);
+  --tellian-pm-knopf-weight: 500;
   --tellian-pm-knopf-pad: 9px 14px;
 
   /* Reaktion der Karte. Kurz und knapp — sie soll antworten, nicht
