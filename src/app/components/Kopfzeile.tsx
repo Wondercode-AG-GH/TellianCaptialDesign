@@ -653,29 +653,17 @@ export function Kopfzeile({
         }
         .tellian-kopf-sprache::after { left: -6px; right: -6px; }
         .tellian-kopf-menue::after { left: -10px; right: -10px; }
+        /* EIN Logo auf allen Breiten (Kundenwunsch 13.09): die
+           volle Wortmarke — samt SOLUTIONS-Zusatz — steht auch
+           schmal im Band. Die früheren Weich-Schwellen (420/500/560)
+           stammten aus der Zeit, als das Band dort noch Sprachwahl
+           und Portalfeld trug; seit beide im Menü leben, teilen
+           sich nur Logo und Menüknopf die Zeile — die Wortmarke
+           (~115px) hat selbst bei 320px reichlich Platz. Das
+           Monogramm bleibt als Markup für einen künftigen Rückfall,
+           gezeigt wird es nirgends. */
         .tellian-kopf-wortmarke { display: block; }
         .tellian-kopf-monogramm { display: none; }
-        @media (max-width: 419px) {
-          .tellian-kopf-wortmarke { display: none; }
-          .tellian-kopf-monogramm { display: block; }
-
-        }
-                /* Die dritte Lockup-Zeile gehört zur Wortmarke und braucht
-           deren Platz: unter 560px stehen Logo, Sprache, Portal und
-           Menüknopf sonst nicht mehr zusammen im Bild (gemessen bei
-           430px). Funktion vor Beischrift — die Welt steht dort im
-           Menü. */
-        @media (max-width: 559px) {
-          .tellian-kopf-zusatz { display: none !important; }
-        }
-        /* Solutions trägt drei Spracheinträge statt zwei — dort
-           weicht die Wortmarke dem Monogramm schon unter 500px,
-           sonst schöbe sie den Menüknopf aus dem Bild (gemessen bei
-           430px). Die Hauptseite behält ihre 420er-Schwelle. */
-        @media (max-width: 499px) {
-          .tellian-kopfzeile-solutions .tellian-kopf-wortmarke { display: none; }
-          .tellian-kopfzeile-solutions .tellian-kopf-monogramm { display: block; }
-        }
         .tellian-kopf-welt { transition: color 180ms ease; }
         .tellian-kopf-ziel:focus-visible {
           outline: 2px solid var(--tellian-muted);
