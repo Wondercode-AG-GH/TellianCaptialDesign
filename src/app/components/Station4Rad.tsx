@@ -105,21 +105,8 @@ function bogen(i: number, luecke: number) {
   return `M ${a.x.toFixed(2)} ${a.y.toFixed(2)} A ${RADIUS} ${RADIUS} 0 0 1 ${b.x.toFixed(2)} ${b.y.toFixed(2)}`;
 }
 
-/* Eintritt: acht Segmente versetzt einzeichnen, zusammen unter einer
-   Sekunde. 7 × 95 + 250 = 915 ms. */
-const STAFFEL_MS = 95;
-const ZEICHNEN_MS = 250;
-const SESSION_KEY = "tellian:rad-eintritt";
-
-function schonGelaufen() {
-  try {
-    return sessionStorage.getItem(SESSION_KEY) === "1";
-  } catch {
-    /* Privater Modus: dann läuft es einmal je Seitenaufruf. Das ist
-       der harmlosere der beiden Fehler. */
-    return false;
-  }
-}
+/* Das frühere zeitgesteuerte Einzeichnen (Staffel + Session-Latch)
+   ist durch das Scrub-Zeichnen ersetzt — s. Effekt im Bauteil. */
 
 interface Props {
   panelRef?: (el: HTMLDivElement | null) => void;
@@ -165,33 +152,82 @@ export function Station4Rad({
      Sequenz schreibt beim Start hinein — als Abhängigkeit eines
      Effekts kippte der Wert mitten im Lauf. */
   const betreten = useSectionEntered();
-  const [darfZeichnen] = useState(() => {
-    if (typeof window === "undefined" || isVertical) return false;
-    const rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    return !rm && !schonGelaufen();
-  });
-  /* warten: unsichtbar, noch nicht betreten · laeuft: zeichnet ein ·
-     fertig: fester Strich */
-  const [phase, setPhase] = useState<"warten" | "laeuft" | "fertig">(
-    darfZeichnen ? "warten" : "fertig",
-  );
-  const gestartet = useRef(false);
+
+  /* ── SCRUB-ZEICHNEN (Kundenwunsch 13.09) ──
+     Der Ring hängt am SCROLL statt an der Uhr: beim Hineinscrollen
+     zeichnet er sich im Uhrzeigersinn zu, beim Zurückscrollen
+     öffnet er sich wieder — ein durchlaufender Zug durch die vier
+     Segmente (Segment i zeichnet in P ∈ [i/4, (i+1)/4]).
+
+     Die frühere einmalige Keyframe-Staffel (Session-Latch) ist
+     damit im breiten Zweig abgelöst: eine Scrub-Kopplung ist per
+     Definition umkehrbar und kennt kein «erneut abspielen» — die
+     Position IST der Zustand.
+
+     Mechanik ohne React-Arbeit pro Frame: die Segmente tragen
+     pathLength=1, geschrieben wird nur ihr stroke-dashoffset über
+     Refs. Ein IntersectionObserver (±50 % Fensterbreite) startet
+     und stoppt die rAF-Schleife — abseits der Station läuft
+     nichts, schmal (isVertical) gar nichts. prefers-reduced-motion
+     zeigt den Ring sofort vollständig. */
+  const ringRef = useRef<SVGSVGElement | null>(null);
+  const zeichenRefs = useRef<(SVGPathElement | null)[]>([]);
+  const scrubRafRef = useRef(0);
+  const scrubPRef = useRef(-1);
 
   useEffect(() => {
-    if (!darfZeichnen || !betreten || gestartet.current) return;
-    gestartet.current = true;
-    try {
-      sessionStorage.setItem(SESSION_KEY, "1");
-    } catch {
-      /* siehe schonGelaufen() */
+    if (isVertical) return;
+    const svg = ringRef.current;
+    if (!svg) return;
+
+    const schreibe = (P: number) => {
+      if (Math.abs(P - scrubPRef.current) < 0.0005) return;
+      scrubPRef.current = P;
+      for (let i = 0; i < N; i++) {
+        const el = zeichenRefs.current[i];
+        if (!el) continue;
+        const p = Math.max(0, Math.min(1, P * N - i));
+        el.style.strokeDashoffset = String(1 - p);
+      }
+    };
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      schreibe(1);
+      return;
     }
-    setPhase("laeuft");
-    const t = window.setTimeout(
-      () => setPhase("fertig"),
-      (N - 1) * STAFFEL_MS + ZEICHNEN_MS + 60,
+
+    let laeuft = false;
+    const tick = () => {
+      if (!laeuft) return;
+      const r = svg.getBoundingClientRect();
+      /* 0, wenn der Ring rechts ins Bild tritt; 1, wenn er ganz im
+         Bild steht plus einem kurzen Nachlauf (15 % seiner Breite) —
+         der Schluss des Kreises fällt so mit dem Ankommen der
+         Station zusammen. */
+      const P = Math.max(0, Math.min(1, (window.innerWidth - r.left) / (r.width * 1.15)));
+      schreibe(P);
+      scrubRafRef.current = requestAnimationFrame(tick);
+    };
+    const io = new IntersectionObserver(
+      (eintraege) => {
+        const nah = eintraege.some((e) => e.isIntersecting);
+        if (nah && !laeuft) {
+          laeuft = true;
+          scrubRafRef.current = requestAnimationFrame(tick);
+        } else if (!nah && laeuft) {
+          laeuft = false;
+          cancelAnimationFrame(scrubRafRef.current);
+        }
+      },
+      { rootMargin: "0px 50% 0px 50%" },
     );
-    return () => clearTimeout(t);
-  }, [darfZeichnen, betreten]);
+    io.observe(svg);
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(scrubRafRef.current);
+      laeuft = false;
+    };
+  }, [isVertical]);
 
   /* Jedes Mal, wenn die Station ins Bild kommt, steht wieder der
      erste Punkt — nicht der, auf dem der Zeiger beim letzten Besuch
@@ -551,6 +587,7 @@ export function Station4Rad({
         >
           {/* Ring und Nabe */}
           <svg
+            ref={ringRef}
             viewBox={`0 0 ${VB} ${VB}`}
             aria-hidden
             focusable="false"
@@ -572,11 +609,22 @@ export function Station4Rad({
               return (
                 <path
                   key={p.titel}
+                  ref={(el) => {
+                    zeichenRefs.current[i] = el;
+                  }}
                   className="tellian-r4-seg"
                   d={bogen(i, luecke)}
                   fill="none"
                   strokeLinecap="butt"
                   pointerEvents="none"
+                  /* Scrub-Zeichnen: pathLength normiert den Bogen auf
+                     1 — der Effekt schreibt nur den dashoffset
+                     (1 = leer, 0 = voll). Startwert leer; die
+                     Kopplung setzt beim ersten Frame den zur
+                     Scroll-Lage passenden Stand. */
+                  pathLength={1}
+                  strokeDasharray="1"
+                  strokeDashoffset={1}
                   stroke={
                     an
                       ? "var(--tellian-r4-arc-active-color)"
@@ -586,15 +634,6 @@ export function Station4Rad({
                     an ? "var(--tellian-r4-arc-active)" : "var(--tellian-r4-arc-idle)"
                   }
                   style={{
-                    /* Eintritt: jedes Segment zeichnet sich versetzt
-                       ein. Nach dem Lauf steht der Strich fest, damit
-                       das Muster nicht bei jedem Wechsel neu läuft. */
-                    strokeDasharray: phase === "fertig" ? undefined : bogenlaenge,
-                    strokeDashoffset: phase === "fertig" ? undefined : bogenlaenge,
-                    animation:
-                      phase === "laeuft"
-                        ? `tellianR4Zeichnen ${ZEICHNEN_MS}ms ease-out ${i * STAFFEL_MS}ms both`
-                        : undefined,
                     transition: "stroke 220ms ease, stroke-width 220ms ease",
                   }}
                 />
@@ -742,12 +781,6 @@ export function Station4Rad({
         </div>
       </div>
 
-      <style>{`
-        @keyframes tellianR4Zeichnen {
-          from { stroke-dashoffset: ${bogenlaenge}; }
-          to   { stroke-dashoffset: 0; }
-        }
-      `}</style>
       {stil}
     </div>
   );
