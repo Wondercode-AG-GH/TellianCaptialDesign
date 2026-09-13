@@ -20,6 +20,15 @@
   html {
     scrollbar-width: thin;
     scrollbar-color: rgba(40, 31, 51, 0.4) transparent;
+    /* Scrub-Modell: an den Enden darf der Seiten-Scroller nicht
+       senkrecht nachfedern (Gummiband) — der Track stünde sonst
+       kurz schief im Bild. Safari ignoriert die Eigenschaft in
+       älteren Fassungen; dort greift zusätzlich die Randbremse im
+       Wheel-Handler der Engine. */
+    overscroll-behavior-y: none;
+  }
+  body {
+    overscroll-behavior-y: none;
   }
   html::-webkit-scrollbar {
     display: block;

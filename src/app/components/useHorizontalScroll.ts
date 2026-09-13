@@ -656,10 +656,25 @@ export function useHorizontalScroll(opts?: UseHorizontalScrollOptions) {
      */
     const handleWheel = (e: WheelEvent) => {
       if (lockedRef.current) return;
-      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
-      e.preventDefault();
-      if (jumpRef.current) cancelJump();
-      window.scrollBy(0, e.deltaX);
+      /* Zoom-Gesten (ctrl+Rad) gehören dem Browser. */
+      if (e.ctrlKey) return;
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        e.preventDefault();
+        if (jumpRef.current) cancelJump();
+        window.scrollBy(0, e.deltaX);
+        return;
+      }
+      /* RANDBREMSE: wer am Anfang weiter zurück oder am Ende weiter
+         vor dreht, würde den Seiten-Scroller ins Gummiband ziehen —
+         die Fläche federte kurz SENKRECHT, mitten in einer
+         waagrechten Erfahrung. Am Rand wird das Rad deshalb
+         geschluckt; innerhalb des Bereichs bleibt das Scrollen
+         vollständig nativ. Ergänzt overscroll-behavior (index.css),
+         das ältere Safari-Fassungen ignorieren. */
+      const y = window.scrollY;
+      if ((y <= 0 && e.deltaY < 0) || (y >= maxScrollRef.current - 0.5 && e.deltaY > 0)) {
+        e.preventDefault();
+      }
     };
 
     /**
