@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { C, cormorant, sans } from "../tokens";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
@@ -243,6 +243,84 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
   const [aktiv, setAktiv] = useState<KnotenId | null>(null);
   const reducedMotion = usePrefersReducedMotion();
 
+  /* ── SCRUB-ZEICHNEN DER LINIEN (Kundenwunsch 13.09) ──
+     Wie der Ring der Station 04: die drei Verbindungen hängen am
+     SCROLL — beim Hineinscrollen zeichnen sie sich als EIN
+     durchlaufender Zug ums Dreieck (Sie → Tellian → Depotbank →
+     zurück zu Sie), beim Zurückscrollen öffnen sie sich wieder.
+     Die Position ist der Zustand; nichts spielt ab.
+
+     Mechanik ohne React-Arbeit pro Frame: die Linien tragen
+     pathLength=1, geschrieben wird nur ihr stroke-dashoffset über
+     Refs; die Schlusslinie (Depotbank → Sie) läuft mit negativem
+     Offset — sie zeichnet von ihrem ENDE her, weil das Element als
+     Sie → Depotbank definiert ist (die Kantenwörter hängen an
+     dieser Richtung). Ein IntersectionObserver (±50 % Fenster)
+     startet/stoppt die rAF-Schleife; kompakt (senkrecht) bleiben
+     die Linien statisch voll — dort steht alles ohne Interaktion
+     (Zielgruppe 65+), prefers-reduced-motion ebenso. */
+  const linienSvgRef = useRef<SVGSVGElement | null>(null);
+  const linienRefs = useRef<(SVGLineElement | null)[]>([]);
+  const linienRafRef = useRef(0);
+  const linienPRef = useRef(-1);
+
+  useEffect(() => {
+    if (kompakt) return;
+    const svg = linienSvgRef.current;
+    if (!svg) return;
+
+    /* Zugfolge ums Dreieck: Linie 0 (Sie→Tellian) vorwärts,
+       Linie 2 (Tellian→Depotbank) vorwärts, Linie 1 (Sie→Depotbank)
+       RÜCKWÄRTS — zusammen eine Umrundung. */
+    const schreibe = (P: number) => {
+      if (Math.abs(P - linienPRef.current) < 0.0005) return;
+      linienPRef.current = P;
+      const folge: Array<[number, boolean]> = [[0, false], [2, false], [1, true]];
+      folge.forEach(([index, rueckwaerts], k) => {
+        const el = linienRefs.current[index];
+        if (!el) return;
+        const p = Math.max(0, Math.min(1, P * 3 - k));
+        el.style.strokeDashoffset = String(rueckwaerts ? -(1 - p) : 1 - p);
+      });
+    };
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      schreibe(1);
+      return;
+    }
+
+    let laeuft = false;
+    const tick = () => {
+      if (!laeuft) return;
+      const r = svg.getBoundingClientRect();
+      /* 0, wenn die Grafik rechts ins Bild tritt; 1, wenn sie ganz
+         im Bild steht plus kurzem Nachlauf — der Schluss des Zugs
+         fällt mit dem Ankommen der Station zusammen. */
+      const P = Math.max(0, Math.min(1, (window.innerWidth - r.left) / (r.width * 1.15)));
+      schreibe(P);
+      linienRafRef.current = requestAnimationFrame(tick);
+    };
+    const io = new IntersectionObserver(
+      (eintraege) => {
+        const nah = eintraege.some((e) => e.isIntersecting);
+        if (nah && !laeuft) {
+          laeuft = true;
+          linienRafRef.current = requestAnimationFrame(tick);
+        } else if (!nah && laeuft) {
+          laeuft = false;
+          cancelAnimationFrame(linienRafRef.current);
+        }
+      },
+      { rootMargin: "0px 50% 0px 50%" },
+    );
+    io.observe(svg);
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(linienRafRef.current);
+      laeuft = false;
+    };
+  }, [kompakt]);
+
   /* Beschriftungspunkte. Die Seitenwörter sitzen bei 62 % des Wegs
      von «Sie» abwärts — auf halber Höhe berührten sich die beiden
      Teller in der Dreiecksmitte. Das untere Wort steht UNTER seiner
@@ -465,6 +543,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           Endpunkte sind über kante() um je einen Kreisradius nach
           innen gesetzt: keine Linie läuft in einen Kreis. */}
       <svg
+        ref={linienSvgRef}
         viewBox={`0 0 640 ${VH}`}
         preserveAspectRatio="xMidYMid meet"
         aria-hidden
@@ -478,10 +557,24 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         ].map(([a, b], i) => (
           <line
             key={i}
+            ref={(el) => {
+              linienRefs.current[i] = el;
+            }}
             {...kante(a, b)}
             stroke={C.purple}
             strokeWidth={1}
             vectorEffect="non-scaling-stroke"
+            /* Scrub-Zeichnen (nur breit): pathLength normiert auf 1,
+               der Effekt schreibt den dashoffset. Startwert leer —
+               Linie 1 von ihrem Ende her (negativ), s. Effekt.
+               Kompakt bleiben die Linien ohne Dash statisch voll. */
+            {...(kompakt
+              ? null
+              : {
+                  pathLength: 1,
+                  strokeDasharray: "1",
+                  strokeDashoffset: i === 1 ? -1 : 1,
+                })}
           />
         ))}
       </svg>
