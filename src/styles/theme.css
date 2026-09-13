@@ -1028,7 +1028,13 @@
      zu wenig. 55 % trägt 3.86 : 1.
      Auf Imperial Purple: 45 % Weiss trägt 4.02 : 1. */
   --tellian-kopf-portal-line-hell: rgba(25, 23, 24, 0.55);    /* 3.86 : 1 */
-  --tellian-kopf-portal-line-dunkel: rgba(244, 244, 240, 0.45); /* 4.02 : 1 */
+  /* Kundenwunsch 13.09: auf dunklem Grund (dunkle Stationen und
+     Bildzone) trägt das Portalfeld das satte Gold der Primär-CTAs —
+     Kontur und Schrift #C6A15B (auf Imperial Purple 6.48:1), der
+     Hover füllt Gold mit Purpur statt Mushroom. Hell bleibt das
+     Feld unverändert Chrome (dunkle Kontur, purpurne Füllung beim
+     Zeigen). */
+  --tellian-kopf-portal-line-dunkel: var(--tellian-gold);
   --tellian-kopf-portal-h: 36px;
   --tellian-kopf-portal-pad-x: clamp(12px, 1.1vw, 18px);
   /* Gefüllter Zustand bei Zeiger und Tastaturfokus. Die Füllung ist
@@ -1036,8 +1042,8 @@
      hell auf Purple 14.28 : 1, Iron auf Mushroom 8.17 : 1. */
   --tellian-kopf-portal-fuell-hell: var(--tellian-purple);
   --tellian-kopf-portal-ink-fuell-hell: var(--tellian-bg);
-  --tellian-kopf-portal-fuell-dunkel: var(--tellian-muted);
-  --tellian-kopf-portal-ink-fuell-dunkel: var(--tellian-dark);
+  --tellian-kopf-portal-fuell-dunkel: var(--tellian-gold);
+  --tellian-kopf-portal-ink-fuell-dunkel: var(--tellian-purple);
 
   /* Unter 360px reicht die Breite nicht mehr: gemessen stand die
      Menükante bei 320px auf 341. Enger gesetzt und mit knapperem
