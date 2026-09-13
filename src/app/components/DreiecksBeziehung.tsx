@@ -530,6 +530,238 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
     </span>
   );
 
+  /* ═══════════════════════════════════════════════════════
+     KOMPAKT — VERTIKALER FLUSS (Neubau 13.09, Variante nach
+     Kundenwahl). Das kleine Dreieck mit schräg gestaffelten
+     Langwörtern war auf dem Telefon unübersichtlich, und die
+     Lesezone darunter wiederholte alle drei Parteien — die
+     Information stand doppelt.
+
+     Jetzt: drei Karten untereinander (Sie → Tellian Capital →
+     Depotbank), die Erklärtexte IN den Karten, die beiden
+     Vertragswörter waagrecht an senkrechten Konnektoren, und die
+     dritte Beziehung (Sie ↔ Depotbank) als rechte Klammer mit
+     ihrem Wort. Ein Bedienelement wie gehabt: der Verweis
+     «Unsere Leistungen für Sie →» in der Tellian-Karte.
+     Der breite Zweig (Dreiecksgrafik) bleibt unverändert. */
+  if (kompakt) {
+    const KREIS = 44;
+    const kreis = (fuellung: string, kind: React.ReactNode) => (
+      <span
+        aria-hidden
+        style={{
+          width: KREIS,
+          height: KREIS,
+          borderRadius: "50%",
+          backgroundColor: fuellung,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        {kind}
+      </span>
+    );
+    const kartenRahmen: React.CSSProperties = {
+      gridColumn: 1,
+      minWidth: 0,
+      border: "1px solid rgba(184, 174, 163, 0.35)",
+      padding: "16px",
+      boxSizing: "border-box",
+    };
+    const kopfzeile = (fuellung: string, motiv: React.ReactNode, name: string) => (
+      <span style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        {kreis(fuellung, motiv)}
+        <span
+          style={{
+            fontFamily: sans,
+            fontSize: "14px",
+            letterSpacing: "0.04em",
+            color: C.ink,
+          }}
+        >
+          {name}
+        </span>
+      </span>
+    );
+    const kartenText = (text: string) => (
+      <span
+        lang={sprache === "EN" ? "en" : "de"}
+        style={{
+          display: "block",
+          marginTop: "12px",
+          fontFamily: sans,
+          fontSize: "14px",
+          lineHeight: 1.65,
+          color: C.accent,
+        }}
+      >
+        {text}
+      </span>
+    );
+    /* Konnektor: senkrechte Linie unter der Icon-Achse (16px
+       Kartenpolster + halber Kreis = 38px), das Vertragswort
+       waagrecht daneben. */
+    const konnektor = (text: string) => (
+      <div
+        style={{
+          gridColumn: 1,
+          position: "relative",
+          minHeight: "56px",
+          padding: "10px 12px 10px 56px",
+          display: "flex",
+          alignItems: "center",
+          boxSizing: "border-box",
+        }}
+      >
+        <span
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: "38px",
+            top: 0,
+            bottom: 0,
+            width: "1px",
+            backgroundColor: C.purple,
+          }}
+        />
+        <span
+          lang={sprache === "EN" ? "en" : "de"}
+          style={{
+            fontFamily: sans,
+            fontSize: "12px",
+            letterSpacing: "0.04em",
+            lineHeight: 1.45,
+            color: C.accent,
+            hyphens: "auto",
+            /* EN-Kanten tragen Schrägstrich-Token («Custody/account»),
+               die Chrome nicht von selbst bricht — Notbruch. */
+            overflowWrap: "anywhere",
+          }}
+        >
+          {/* Unsichtbare Umbruchstelle nach dem Schrägstrich
+             («Custody/account») — Darstellung, kein Wortlaut. */}
+          {text.replace("/", "/\u200B")}
+        </span>
+      </div>
+    );
+
+    return (
+      <div
+        role="group"
+        aria-label={
+          `${inhalt.sie} — ${inhalt.tellian}: ${inhalt.kanten[0]}. ` +
+          `${inhalt.sie} — ${inhalt.bank}: ${inhalt.kanten[1]}. ` +
+          `${inhalt.tellian} — ${inhalt.bank}: ${inhalt.kanten[2]}.`
+        }
+        style={{
+          width: "100%",
+          display: "grid",
+          /* Rechts die Klammerspalte der dritten Beziehung. */
+          gridTemplateColumns: "minmax(0, 1fr) 92px",
+        }}
+      >
+        <div style={kartenRahmen}>
+          {kopfzeile(C.muted, <span aria-hidden style={rasterMotiv(publikumIcon, "40%", C.purple)} />, inhalt.sie)}
+          {kartenText(inhalt.prosa.sie)}
+        </div>
+
+        {konnektor(inhalt.kanten[0])}
+
+        <div style={kartenRahmen}>
+          {kopfzeile(
+            C.purple,
+            <img src={monogramm} alt="" aria-hidden style={{ width: "35%", height: "auto", display: "block" }} />,
+            inhalt.tellian,
+          )}
+          {/* UI-LABEL-REVIEW: «Unsere Leistungen für Sie →» stammt
+              aus der früheren Live-Implementierung — bleibt das
+              einzige Bedienelement des kompakten Zweigs. */}
+          <button
+            type="button"
+            onClick={() => onMandat?.()}
+            className="tellian-dreieck-mandat"
+            style={{
+              display: "inline-block",
+              margin: "14px 0 0",
+              padding: "10px 0",
+              background: "transparent",
+              border: "none",
+              borderBottom: `1px solid ${C.purple}`,
+              fontFamily: sans,
+              fontSize: "13px",
+              letterSpacing: "var(--tellian-ls-cta-klein)",
+              color: C.ink,
+              cursor: "pointer",
+              textAlign: "left",
+            }}
+          >
+            {inhalt.prosa.tellian}
+          </button>
+        </div>
+
+        {konnektor(inhalt.kanten[2])}
+
+        <div style={kartenRahmen}>
+          {kopfzeile(C.muted, <span aria-hidden style={rasterMotiv(bankgebaeudeIcon, "31.5%", C.purple)} />, inhalt.bank)}
+          {kartenText(inhalt.prosa.bank)}
+        </div>
+
+        {/* ── Die dritte Beziehung: Sie ↔ Depotbank ──
+            Klammer von der Kopfachse der ersten zur Kopfachse der
+            letzten Karte (die Senkrechte übersteht die eigene Zelle
+            um 38px nach unten — exakt bis zur Icon-Mitte der
+            Depotbank-Karte), ihr Wort waagrecht daneben. */}
+        <div
+          aria-hidden
+          style={{ gridColumn: 2, gridRow: "1 / 5", position: "relative", minWidth: 0 }}
+        >
+          <span
+            style={{
+              position: "absolute",
+              left: 0,
+              width: "14px",
+              top: "38px",
+              bottom: "-38px",
+              borderTop: `1px solid ${C.purple}`,
+              borderRight: `1px solid ${C.purple}`,
+              borderBottom: `1px solid ${C.purple}`,
+              boxSizing: "border-box",
+            }}
+          />
+          <span
+            lang={sprache === "EN" ? "en" : "de"}
+            style={{
+              position: "absolute",
+              left: "22px",
+              right: "2px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              fontFamily: sans,
+              fontSize: "12px",
+              letterSpacing: "0.04em",
+              lineHeight: 1.45,
+              color: C.accent,
+              hyphens: "auto",
+              overflowWrap: "anywhere",
+            }}
+          >
+            {inhalt.kanten[1].replace("/", "/\u200B")}
+          </span>
+        </div>
+
+        <style>{`
+          .tellian-dreieck-mandat { outline: none; }
+          .tellian-dreieck-mandat:focus-visible {
+            outline: 2px solid var(--tellian-accent);
+            outline-offset: 4px;
+          }
+        `}</style>
+      </div>
+    );
+  }
+
   return (
     <div style={{ width: "100%" }}>
     <div
