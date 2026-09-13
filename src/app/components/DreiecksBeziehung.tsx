@@ -293,10 +293,16 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
     const tick = () => {
       if (!laeuft) return;
       const r = svg.getBoundingClientRect();
-      /* 0, wenn die Grafik rechts ins Bild tritt; 1, wenn sie ganz
-         im Bild steht plus kurzem Nachlauf — der Schluss des Zugs
-         fällt mit dem Ankommen der Station zusammen. */
-      const P = Math.max(0, Math.min(1, (window.innerWidth - r.left) / (r.width * 1.15)));
+      /* Der Zug startet NICHT mit der ersten Berührung des rechten
+         Rands: die erste Kante (Sie → Tellian) liegt links im
+         Grafikfeld und wäre dann noch gar nicht im Bild — man sähe
+         ihr Zeichnen nie (Korrektur 13.09). Los geht es erst, wenn
+         rund 45 % der Grafik sichtbar sind (die erste Kante steht
+         dann vollständig im Bild); fertig wie gehabt mit dem
+         Ankommen der Station (sichtbare Breite = 115 % der
+         Grafikbreite). */
+      const sichtbar = window.innerWidth - r.left;
+      const P = Math.max(0, Math.min(1, (sichtbar - r.width * 0.45) / (r.width * 0.7)));
       schreibe(P);
       linienRafRef.current = requestAnimationFrame(tick);
     };
