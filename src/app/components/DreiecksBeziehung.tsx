@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { C, cormorant, sans } from "../tokens";
+import { C, cormorant, sans, serif } from "../tokens";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 /* Die beiden gefüllten Motive, geliefert am 12.09 — sie lösen die
    bisherigen Outline-Zeichnungen ab (gruppe-scharf.png und
@@ -14,6 +14,7 @@ import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 import publikumIcon from "../../assets/publikum.png";
 import bankgebaeudeIcon from "../../assets/bankgebaude.png";
 import monogramm from "../../assets/logo/tellian-monogramm-hell.svg";
+import monogrammDunkel from "../../assets/logo/tellian-monogramm-dunkel.svg";
 
 /* ═══════════════════════════════════════════════════════════
    DREIECKSBEZIEHUNG — Sie · Tellian Capital · Depotbank
@@ -545,15 +546,18 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
      «Unsere Leistungen für Sie →» in der Tellian-Karte.
      Der breite Zweig (Dreiecksgrafik) bleibt unverändert. */
   if (kompakt) {
-    const KREIS = 44;
-    const kreis = (fuellung: string, kind: React.ReactNode) => (
+    const KREIS = 48;
+    const PAD = 18;
+    /* Icon-Achse — Konnektorlinien und Klammer-Anschlüsse. */
+    const ACHSE = PAD + KREIS / 2;
+    const kreis = (kind: React.ReactNode) => (
       <span
         aria-hidden
         style={{
           width: KREIS,
           height: KREIS,
           borderRadius: "50%",
-          backgroundColor: fuellung,
+          backgroundColor: C.muted,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -563,22 +567,23 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         {kind}
       </span>
     );
-    const kartenRahmen: React.CSSProperties = {
+    const kartenRahmen = (dunkel: boolean): React.CSSProperties => ({
       gridColumn: 1,
       minWidth: 0,
-      border: "1px solid rgba(184, 174, 163, 0.35)",
-      padding: "16px",
+      border: dunkel ? "none" : "1px solid rgba(184, 174, 163, 0.35)",
+      backgroundColor: dunkel ? C.purple : "rgba(184, 174, 163, 0.08)",
+      padding: `${PAD}px`,
       boxSizing: "border-box",
-    };
-    const kopfzeile = (fuellung: string, motiv: React.ReactNode, name: string) => (
-      <span style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        {kreis(fuellung, motiv)}
+    });
+    const kopfzeile = (motiv: React.ReactNode, name: string, dunkel: boolean) => (
+      <span style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+        {kreis(motiv)}
         <span
           style={{
-            fontFamily: sans,
-            fontSize: "14px",
-            letterSpacing: "0.04em",
-            color: C.ink,
+            fontFamily: serif,
+            fontSize: "20px",
+            lineHeight: "var(--tellian-zwischen-lh)",
+            color: dunkel ? "var(--tellian-bg)" : C.ink,
           }}
         >
           {name}
@@ -600,16 +605,16 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         {text}
       </span>
     );
-    /* Konnektor: senkrechte Linie unter der Icon-Achse (16px
-       Kartenpolster + halber Kreis = 38px), das Vertragswort
-       waagrecht daneben. */
+    /* Konnektor: senkrechte Linie auf der Icon-Achse, das
+       Vertragswort waagrecht daneben — dank schmaler Klammerspalte
+       in voller Restbreite, ohne Trennstriche. */
     const konnektor = (text: string) => (
       <div
         style={{
           gridColumn: 1,
           position: "relative",
-          minHeight: "56px",
-          padding: "10px 12px 10px 56px",
+          minHeight: "60px",
+          padding: `12px 8px 12px ${ACHSE + 18}px`,
           display: "flex",
           alignItems: "center",
           boxSizing: "border-box",
@@ -619,7 +624,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           aria-hidden
           style={{
             position: "absolute",
-            left: "38px",
+            left: `${ACHSE}px`,
             top: 0,
             bottom: 0,
             width: "1px",
@@ -634,15 +639,9 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
             letterSpacing: "0.04em",
             lineHeight: 1.45,
             color: C.accent,
-            hyphens: "auto",
-            /* EN-Kanten tragen Schrägstrich-Token («Custody/account»),
-               die Chrome nicht von selbst bricht — Notbruch. */
-            overflowWrap: "anywhere",
           }}
         >
-          {/* Unsichtbare Umbruchstelle nach dem Schrägstrich
-             («Custody/account») — Darstellung, kein Wortlaut. */}
-          {text.replace("/", "/\u200B")}
+          {text}
         </span>
       </div>
     );
@@ -658,22 +657,51 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         style={{
           width: "100%",
           display: "grid",
-          /* Rechts die Klammerspalte der dritten Beziehung. */
-          gridTemplateColumns: "minmax(0, 1fr) 92px",
+          /* Rechts nur noch die LINIE der dritten Beziehung — ihr
+             Wort steht ungebrochen in der Kopfzeile der Grafik. */
+          gridTemplateColumns: "minmax(0, 1fr) 22px",
         }}
       >
-        <div style={kartenRahmen}>
-          {kopfzeile(C.muted, <span aria-hidden style={rasterMotiv(publikumIcon, "40%", C.purple)} />, inhalt.sie)}
+        {/* ── Wort der dritten Beziehung (Sie ↔ Depotbank):
+            rechtsbündig über der Klammer, EINE Zeile. */}
+        <div
+          lang={sprache === "EN" ? "en" : "de"}
+          style={{
+            gridColumn: "1 / -1",
+            textAlign: "right",
+            paddingBottom: "10px",
+            fontFamily: sans,
+            fontSize: "12px",
+            letterSpacing: "0.04em",
+            color: C.accent,
+            whiteSpace: "nowrap",
+          }}
+        >
+          {inhalt.kanten[1]}
+        </div>
+
+        <div style={kartenRahmen(false)}>
+          {kopfzeile(<span aria-hidden style={rasterMotiv(publikumIcon, "40%", C.purple)} />, inhalt.sie, false)}
           {kartenText(inhalt.prosa.sie)}
         </div>
 
         {konnektor(inhalt.kanten[0])}
 
-        <div style={kartenRahmen}>
+        {/* Die Markenkarte: Imperial Purple wie der Tellian-Knoten
+            der Grafik, der Verweis im Gold der Primär-CTAs. */}
+        <div style={kartenRahmen(true)}>
           {kopfzeile(
-            C.purple,
-            <img src={monogramm} alt="" aria-hidden style={{ width: "35%", height: "auto", display: "block" }} />,
+            /* Das Monogramm ist mehrfarbig gezeichnet — als Bild,
+               nicht als Alpha-Maske (die lieferte eine volle
+               Fläche). Dunkle Fassung auf dem Mushroom-Kreis. */
+            <img
+              src={monogrammDunkel}
+              alt=""
+              aria-hidden
+              style={{ width: "36%", height: "auto", display: "block" }}
+            />,
             inhalt.tellian,
+            true,
           )}
           {/* UI-LABEL-REVIEW: «Unsere Leistungen für Sie →» stammt
               aus der früheren Live-Implementierung — bleibt das
@@ -684,15 +712,15 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
             className="tellian-dreieck-mandat"
             style={{
               display: "inline-block",
-              margin: "14px 0 0",
+              margin: "16px 0 0",
               padding: "10px 0",
               background: "transparent",
               border: "none",
-              borderBottom: `1px solid ${C.purple}`,
+              borderBottom: "1px solid var(--tellian-gold)",
               fontFamily: sans,
               fontSize: "13px",
               letterSpacing: "var(--tellian-ls-cta-klein)",
-              color: C.ink,
+              color: "var(--tellian-gold)",
               cursor: "pointer",
               textAlign: "left",
             }}
@@ -703,58 +731,39 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
 
         {konnektor(inhalt.kanten[2])}
 
-        <div style={kartenRahmen}>
-          {kopfzeile(C.muted, <span aria-hidden style={rasterMotiv(bankgebaeudeIcon, "31.5%", C.purple)} />, inhalt.bank)}
+        <div style={kartenRahmen(false)}>
+          {kopfzeile(<span aria-hidden style={rasterMotiv(bankgebaeudeIcon, "31.5%", C.purple)} />, inhalt.bank, false)}
           {kartenText(inhalt.prosa.bank)}
         </div>
 
-        {/* ── Die dritte Beziehung: Sie ↔ Depotbank ──
-            Klammer von der Kopfachse der ersten zur Kopfachse der
-            letzten Karte (die Senkrechte übersteht die eigene Zelle
-            um 38px nach unten — exakt bis zur Icon-Mitte der
-            Depotbank-Karte), ihr Wort waagrecht daneben. */}
+        {/* ── Klammerlinie der dritten Beziehung: von der Icon-Achse
+            der ersten zur Icon-Achse der letzten Karte; die
+            Senkrechte übersteht ihre Zellen um die halbe Kopfhöhe
+            nach unten — exakt bis zur Icon-Mitte der Depotbank-
+            Karte. */}
         <div
           aria-hidden
-          style={{ gridColumn: 2, gridRow: "1 / 5", position: "relative", minWidth: 0 }}
+          style={{ gridColumn: 2, gridRow: "2 / 6", position: "relative", minWidth: 0 }}
         >
           <span
             style={{
               position: "absolute",
-              left: 0,
-              width: "14px",
-              top: "38px",
-              bottom: "-38px",
+              left: "6px",
+              right: 0,
+              top: `${ACHSE}px`,
+              bottom: `${-ACHSE}px`,
               borderTop: `1px solid ${C.purple}`,
               borderRight: `1px solid ${C.purple}`,
               borderBottom: `1px solid ${C.purple}`,
               boxSizing: "border-box",
             }}
           />
-          <span
-            lang={sprache === "EN" ? "en" : "de"}
-            style={{
-              position: "absolute",
-              left: "22px",
-              right: "2px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              fontFamily: sans,
-              fontSize: "12px",
-              letterSpacing: "0.04em",
-              lineHeight: 1.45,
-              color: C.accent,
-              hyphens: "auto",
-              overflowWrap: "anywhere",
-            }}
-          >
-            {inhalt.kanten[1].replace("/", "/\u200B")}
-          </span>
         </div>
 
         <style>{`
           .tellian-dreieck-mandat { outline: none; }
           .tellian-dreieck-mandat:focus-visible {
-            outline: 2px solid var(--tellian-accent);
+            outline: 2px solid var(--tellian-gold);
             outline-offset: 4px;
           }
         `}</style>
