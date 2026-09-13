@@ -17,7 +17,8 @@ import { C, serif, sans, EYEBROW } from "../tokens";
 const MAP_COLORS = { road: "#E8E6E1", water: "#D5DDD8", green: "#E4E8E0" };
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined;
-const MAP_CENTER: [number, number] = [8.5387, 47.3769];
+/* Beethovenstrasse 7, CH-8002 Zürich (Kundenkorrektur 13.09). */
+const MAP_CENTER: [number, number] = [8.5346, 47.3667];
 
 /* ═══════════════════════════════════════════════════════════
    MAPBOX STYLING HELPERS
@@ -340,7 +341,7 @@ export function MapOverlay({ open, onClose, returnFocusRef }: MapOverlayProps) {
               color: "rgba(255, 255, 255, 0.45)",
             }}
           >
-            Löwenstrasse 1, 8001 Zürich
+            Beethovenstrasse 7, 8002 Zürich
           </span>
         </div>
       </div>
@@ -750,7 +751,7 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
             marginTop: "24px",
           }}
         >
-          Ein erstes Gespräch ist unverbindlich. Persönlich an der Löwenstrasse, oder digital.
+          Ein erstes Gespräch ist unverbindlich. Persönlich an der Beethovenstrasse, oder digital.
         </p>
 
         {/* Phone — prominent */}
@@ -846,7 +847,7 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
               marginTop: "2px",
             }}
           >
-            Vermögensverwaltung Zürich AG (vormals Dr. Blumer &amp; Partner)
+            Tellian Capital AG
           </span>
           <span
             style={{
@@ -857,7 +858,7 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
               marginTop: "4px",
             }}
           >
-            Löwenstrasse 1, CH-8001 Zürich
+            Beethovenstrasse 7, CH-8002 Zürich
           </span>
 
           {/* Map link — directly under address, part of the address block */}
@@ -1011,7 +1012,7 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
               marginTop: "24px",
             }}
           >
-            Ein erstes Gespräch ist unverbindlich. Persönlich an der Löwenstrasse, oder digital.
+            Ein erstes Gespräch ist unverbindlich. Persönlich an der Beethovenstrasse, oder digital.
           </p>
 
           {/* 5. Phone — prominent */}
@@ -1070,10 +1071,10 @@ export function Section6Kontakt({ isVertical = false, breakpoint = "desktop", on
               Tellian Capital
             </span>
             <span style={{ fontFamily: sans, fontSize: "11px", color: C.stone, display: "block", marginTop: "4px" }}>
-              Vermögensverwaltung Zürich AG (vormals Dr. Blumer &amp; Partner)
+              Tellian Capital AG
             </span>
             <span style={{ fontFamily: sans, fontSize: "11px", color: C.stone, display: "block", marginTop: "4px" }}>
-              Löwenstrasse 1, CH-8001 Zürich
+              Beethovenstrasse 7, CH-8002 Zürich
             </span>
 
             {/* "Auf Karte anzeigen" — action link under address */}

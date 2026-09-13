@@ -44,14 +44,12 @@ const OEFFNUNG = "Montag bis Freitag, 8 bis 18 Uhr";
 const TITEL = ["Sprechen", "wir."] as const;
 const LEAD = [
   "Ein erstes Gespräch ist unverbindlich.",
-  "Persönlich an der Löwenstrasse, oder digital.",
+  "Persönlich an der Beethovenstrasse, oder digital.",
 ] as const;
 
-/* Der frühere Firmenname steht bewusst hier und nirgends sonst auf
-   der Seite. */
+/* Firmenname und Adresse — Kundenkorrektur 13.09. */
 const FIRMA = [
-  "Vermögensverwaltung Zürich AG, vormals Dr. Blumer & Partner",
-  "Löwenstrasse 1, CH-8001 Zürich",
+  "Beethovenstrasse 7, CH-8002 Zürich",
 ] as const;
 
 /* 4.1 (12.09): die Marke der Fusszeile gehört der WELT, nicht der
@@ -1012,7 +1010,7 @@ export function Station6Kontakt({
           color: "var(--tellian-k6-ink)",
         }}
       >
-        Tellian Capital
+        Tellian Capital AG
       </span>
       {FIRMA.map((zeile) => (
         <span

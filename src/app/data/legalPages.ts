@@ -34,7 +34,7 @@ export const LEGAL_PAGES: Record<LegalPath, LegalPageContent> = {
         heading: "2. Verantwortlicher und Kontakt",
         paragraphs: [
           "Für die Bearbeitung Ihrer Personaldaten ist die Tellian Capital AG verantwortlich. Sie können sich für datenschutzrechtliche Anliegen an uns wenden:",
-          "Tellian Capital AG\nLöwenstr. 1\nCH-8001 Zürich\n+41 (0) 44 224 40 24\ninfo@telliancapital.ch",
+          "Tellian Capital AG\nBeethovenstrasse 7\nCH-8002 Zürich\n+41 (0) 44 224 40 24\ninfo@telliancapital.ch",
         ],
       },
       {
@@ -171,7 +171,7 @@ export const LEGAL_PAGES: Record<LegalPath, LegalPageContent> = {
       {
         heading: "2. Kundenkommunikation und allgemeine Informationen",
         paragraphs: [
-          "Die Tellian Capital AG (nachstehend «Tellian»), Löwenstrasse 1, CH-8001 Zürich, ist ein Vermögensverwalter nach Art. 17 Abs. 1 Finanzinstitutsgesetz. Sie erreichen uns unter:",
+          "Die Tellian Capital AG (nachstehend «Tellian»), Beethovenstrasse 7, CH-8002 Zürich, ist ein Vermögensverwalter nach Art. 17 Abs. 1 Finanzinstitutsgesetz. Sie erreichen uns unter:",
           "Telefonnummer: +41 44 22 44 024\nTelefaxnummer: +41 44 22 44 034\nE-Mail: info@telliancapital.ch\nHandelsregisternummer: CHE-108.439.825\nMWST-Nummer: CHE-108.439.825 MWST\nLEI-Nummer: 967600KF42JJULZA0S73",
           "Sie können mit uns jederzeit in Deutsch oder Englisch kommunizieren und werden die entsprechenden Dokumente unserer Vermögensverwaltungsgesellschaft stets in deutscher Sprache erhalten.",
           "Die weitere Kommunikation zwischen der Tellian Capital AG und Ihnen als Kunden wird im Vermögensverwaltungsauftrag geregelt. Wir möchten Sie aber darauf hinweisen, dass die allfällige Verwendung von E-Mails in Bezug auf die Vertraulichkeit gewisse Risiken beinhaltet.",
