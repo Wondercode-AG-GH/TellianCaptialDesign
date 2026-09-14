@@ -85,8 +85,11 @@ export const SECTIONS: readonly SectionDef[] = [
     imageIds: [],
   },
   {
-    /* Position 04, seit dem Tausch die DUNKLE Fläche (s. o.). */
-    key: "philosophie", label: "Wealth Management", labelKurz: "Wealth", dunkel: true,
+    /* Position 04, seit dem Tausch die DUNKLE Fläche (s. o.).
+       Kundenwunsch 14.09: heisst in der Leiste
+       «Geschäftsbeziehungen» statt «Wealth Management» — deckt
+       sich mit dem Stationstitel «Bewährte Geschäftsbeziehungen». */
+    key: "philosophie", label: "Geschäftsbeziehungen", labelKurz: "Beziehungen", dunkel: true,
     domId: "section-anlagephilosophie",
     imageIds: ["sardona"],
   },

@@ -123,6 +123,15 @@ interface Inhalt {
   bank: string;
   /** Sie↔Tellian · Sie↔Depotbank · Tellian↔Depotbank */
   kanten: readonly [string, string, string];
+  /** Zeilenfassung der Kantenwörter für die GRAFIK (Kundenwunsch
+      14.09): die langen Komposita brechen mit Trennstrich in zwei
+      Zeilen. Legende und aria-Texte führen weiter das ganze Wort
+      (kanten). */
+  kantenZeilen: readonly [
+    readonly string[],
+    readonly string[],
+    readonly string[],
+  ];
   /** Erklärtexte. Die Depotbank-Zeile ist vom Kunden am 09.09 in
       dieser gekürzten Fassung geliefert worden (ohne den früheren
       Zusatz «— zu besten Konditionen»); TODO-HOVER-DEPOTBANK ist
@@ -142,6 +151,11 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
       "Depot- / Kontobeziehung",
       "Vermögensverwaltungsvollmacht",
     ],
+    kantenZeilen: [
+      ["Vermögensverwaltungs-", "auftrag"],
+      ["Depot- / Kontobeziehung"],
+      ["Vermögensverwaltungs-", "vollmacht"],
+    ],
     prosa: {
       sie: "Sie haben einen persönlichen Ansprechpartner und jederzeit vollständige Transparenz. Ihr Portfolio wird laufend überwacht, und Sie werden regelmässig darüber informiert.",
       tellian: "Unsere Leistungen für Sie\u00A0→",
@@ -158,6 +172,11 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
       "Asset management mandate",
       "Custody/account relationship",
       "Asset management authority",
+    ],
+    kantenZeilen: [
+      ["Asset management", "mandate"],
+      ["Custody/account relationship"],
+      ["Asset management", "authority"],
     ],
     prosa: {
       sie: "You have a personal point of contact and full transparency at all times. Your portfolio is continuously monitored, and you are kept regularly informed.",
@@ -177,6 +196,11 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
       "Vermögensverwaltungsauftrag",
       "Depot- / Kontobeziehung",
       "Vermögensverwaltungsvollmacht",
+    ],
+    kantenZeilen: [
+      ["Vermögensverwaltungs-", "auftrag"],
+      ["Depot- / Kontobeziehung"],
+      ["Vermögensverwaltungs-", "vollmacht"],
     ],
     prosa: {
       sie: "Sie haben einen persönlichen Ansprechpartner und jederzeit vollständige Transparenz. Ihr Portfolio wird laufend überwacht, und Sie werden regelmässig darüber informiert.",
@@ -521,10 +545,12 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         style={{
           position: "absolute",
           left: pz(zentrum.x, 640),
-          /* P3.2: jeder Name DIREKT unter seinem Kreis, einheitlich
-             +20 (kompakt) bzw. +26 (breit) — das Vollmacht-Wort
-             steht kompakt eine Ebene TIEFER, nicht dazwischen. */
-          top: pz(zentrum.y + R + (kompakt ? 20 : 26), VH),
+          /* P3.2: jeder Name DIREKT bei seinem Kreis — «Sie» steht
+             OBERHALB (Kundenwunsch 14.09), die übrigen darunter. */
+          top: pz(
+            zentrum.y + (id === "sie" ? -(R + 26) : R + (kompakt ? 20 : 26)),
+            VH,
+          ),
           transform: "translate(-50%, -50%)",
           fontFamily: sans,
           /* Kundenwunsch 12.09: die Knotennamen stehen in
@@ -553,6 +579,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
     text: string,
     anker: "oben" | "mitte" | "links" | "rechts",
     teller = false,
+    zeilen?: readonly string[],
   ) => (
     <span
       style={{
@@ -571,6 +598,11 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         fontSize: "12px",
         letterSpacing: "0.04em",
         whiteSpace: "nowrap",
+        lineHeight: 1.4,
+        /* Mehrzeilig richtet sich der Block nach seinem Anker —
+           die dem Dreieck zugewandte Kante bleibt die Bezugskante. */
+        textAlign:
+          anker === "rechts" ? "right" : anker === "links" ? "left" : "center",
         color: SILBER,
         /* Unterbrechungs-Lösung (kompakt): der Teller in Stations-
            farbe öffnet die Linie um das Wort — 10px je Seite. */
@@ -579,7 +611,11 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           : null),
       }}
     >
-      {text}
+      {(zeilen ?? [text]).map((z) => (
+        <span key={z} style={{ display: "block" }}>
+          {z}
+        </span>
+      ))}
     </span>
   );
 
@@ -653,12 +689,16 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         {kind}
       </div>
     );
-    const nameKompakt = (zentrum: { x: number; y: number }, text: string) => (
+    const nameKompakt = (
+      zentrum: { x: number; y: number },
+      text: string,
+      oben = false,
+    ) => (
       <span
         style={{
           position: "absolute",
           left: pz(zentrum.x, 640),
-          top: pz(zentrum.y + R + 30, VHD),
+          top: pz(zentrum.y + (oben ? -(R + 30) : R + 30), VHD),
           transform: "translate(-50%, -50%)",
           fontFamily: sans,
           fontSize: "12px",
@@ -715,7 +755,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
             <span aria-hidden style={rasterMotiv(bankgebaeudeIcon, "31.5%", C.purple)} />
           ))}
 
-          {nameKompakt(KD.sie, inhalt.sie)}
+          {nameKompakt(KD.sie, inhalt.sie, true)}
           {nameKompakt(KD.tellian, inhalt.tellian)}
           {nameKompakt(KD.bank, inhalt.bank)}
 
@@ -966,9 +1006,9 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           Dreieck. Kantengeankert liefen die englischen Wörter auf
           dem Telefon rechts aus dem Bild (Schrift steht in festen
           px, die Grafik skaliert). */}
-      {wort(m1, inhalt.kanten[0], kompakt ? "mitte" : "rechts", kompakt)}
-      {wort(m2, inhalt.kanten[1], kompakt ? "mitte" : "links", kompakt)}
-      {wort(m3, inhalt.kanten[2], kompakt ? "mitte" : "oben")}
+      {wort(m1, inhalt.kanten[0], kompakt ? "mitte" : "rechts", kompakt, inhalt.kantenZeilen[0])}
+      {wort(m2, inhalt.kanten[1], kompakt ? "mitte" : "links", kompakt, inhalt.kantenZeilen[1])}
+      {wort(m3, inhalt.kanten[2], kompakt ? "mitte" : "oben", false, inhalt.kantenZeilen[2])}
     </div>
 
     {/* ── Lesezone.

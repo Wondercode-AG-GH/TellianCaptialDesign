@@ -166,7 +166,7 @@ export function Station2WealthManagement({
             gap: "var(--tellian-stapel-schmal)",
           }}
         >
-          <Kapitelmarke nr="04" name="Wealth Management" hell />
+          <Kapitelmarke nr="04" name="Geschäftsbeziehungen" hell />
           <Aufgang>{titel}</Aufgang>
           <Aufgang stufe={1}>{absaetze}</Aufgang>
           <Aufgang stufe={1}>
