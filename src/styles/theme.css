@@ -50,9 +50,9 @@
   --tellian-purple: #281F33;          /* Imperial Purple */
   /* ── GOLD-AKZENT (12.09) ──
      EIN Akzent für Untertitel, Boxtitel und primäre Knöpfe auf den
-     dunklen Stationen (02-Mandat-CTA, 04 Wealth, 06) und — auf
-     Kundenentscheid vom 14.09 — auch für die Akzentspur der hellen
-     Vorteile-Station: EIN Gold für die ganze Seite. ERSETZT Mushroom
+     dunklen Stationen (02-Mandat-CTA, 04 Wealth, 06). Die
+     Akzentspur der hellen Vorteile-Station führt seit dem Rückbau
+     vom 14.09 wieder Mushroom. ERSETZT Mushroom
      NICHT flächendeckend: Hairlines, Eyebrows, Kicker, Kreis-Labels
      und Grafikelemente bleiben Mushroom. Kontraste: auf Imperial
      Purple 6.48:1, auf dem Glanzton 5.44:1, Purpur-Text auf der
@@ -426,8 +426,8 @@
      einfarbige Fläche wirkt flach, weil das Auge keine Tiefe findet. */
   /* TAUSCH 14.09: die Station steht neu an Position 03 auf HELLER
      Fläche (Takt-Erhalt). Die Werte hier sind die helle Fassung;
-     die Akzentspur führt das Seiten-Gold (Kundenentscheid 14.09:
-     EIN Gold, auch auf hellem Grund). */
+     die Akzentspur führt Mushroom (Rückbau 14.09 — die
+     Gold-Fassung ist abgelöst). */
   --tellian-r4-bg: var(--tellian-bg);
   --tellian-r4-ink: var(--tellian-ink);                /* 16.18 : 1 */
   --tellian-r4-ink-dim: var(--tellian-accent);         /*  5.17 : 1 */
@@ -508,11 +508,12 @@
   /* P1 (12.09): der aktive Bogen führt die Gold-Akzentspur —
      Bogen, Untertitel und Boxtitel gehören zusammen. Die inaktiven
      Anteile und die Labels bleiben unverändert. */
-  /* KUNDENENTSCHEID 14.09: EIN Gold für die ganze Seite — der
-     Bogen trägt das helle CTA-Gold auch auf der hellen Fläche.
-     Gemessen 2.2:1; die zwischenzeitliche tiefe Stufe (#83682F,
-     4.78:1) ist auf Kundenwunsch wieder entfallen. */
-  --tellian-r4-arc-active-color: var(--tellian-gold);
+  /* RÜCKBAU 14.09 (Kundenwunsch): die Akzentspur der Station
+     trägt wieder Mushroom aus dem Brandbook — löst die kurzlebige
+     Gold-Fassung ab (davor: tiefe Stufe #83682F, davor Gold auf
+     der dunklen Fläche). Gemessen 1.98:1 auf Archive White —
+     grafischer Akzent, als Kundenentscheid dokumentiert. */
+  --tellian-r4-arc-active-color: var(--tellian-muted);
   /* Lücke zwischen den Segmenten, in Grad. */
   --tellian-r4-arc-gap: 7;
 

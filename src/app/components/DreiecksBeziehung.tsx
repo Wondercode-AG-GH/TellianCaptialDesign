@@ -108,10 +108,6 @@ const GEDIMMT = 0.25;
 const SILBER = "rgba(249, 249, 247, 0.78)";
 const SILBER_DIM = "rgba(249, 249, 247, 0.6)";
 const KONTUR_HELL = "rgba(249, 249, 247, 0.4)";
-/* Kundenwunsch 14.09: «Sie» und «Depotbank» tragen das helle Gold
-   der Primär-CTAs statt Mushroom. Hex statt Token, weil mischen()
-   (Hover-Dimmen) Hexwerte verrechnet — Wert = --tellian-gold. */
-const GOLD = "#C6A15B";
 
 const mischen = (vorn: string, hinten: string, deckung: number) => {
   const kanal = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
@@ -704,7 +700,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
             ))}
           </svg>
 
-          {kreisKompakt(KD.sie, GOLD, (
+          {kreisKompakt(KD.sie, C.muted, (
             <span aria-hidden style={rasterMotiv(publikumIcon, "40%", C.purple)} />
           ))}
           {kreisKompakt(KD.tellian, C.purple, (
@@ -715,7 +711,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
               style={{ width: "35%", height: "auto", display: "block" }}
             />
           ), KONTUR_HELL)}
-          {kreisKompakt(KD.bank, GOLD, (
+          {kreisKompakt(KD.bank, C.muted, (
             <span aria-hidden style={rasterMotiv(bankgebaeudeIcon, "31.5%", C.purple)} />
           ))}
 
@@ -929,12 +925,13 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
 
       {/* Knoten. «Sie» trägt publikum.png — drei gefüllte Figuren,
           512px, Inhalt als Band 512x290 randlos über die Breite.
-          Imperial Purple auf dem CTA-Gold misst 6.48 : 1, weit über
-          den 3 : 1 für grafische Elemente. */}
+          RÜCKBAU 14.09 (Kundenwunsch): wieder Mushroom aus dem
+          Brandbook — die Gold-Fassung ist abgelöst. Imperial
+          Purple auf Mushroom misst 7.21 : 1. */}
       {knoten(
         "sie",
         K.sie,
-        GOLD,
+        C.muted,
         null,
         <span aria-hidden style={rasterMotiv(publikumIcon, "40%", C.purple)} />,
         inhalt.sie,
@@ -952,13 +949,13 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         />,
         inhalt.tellian,
       )}
-      {/* P3: «Sie» und «Depotbank» tragen dieselbe Füllung (das
-          helle CTA-Gold, ohne Kontur) — allein «Tellian Capital»
-          ist als Markenknoten in Imperial Purple abgesetzt. */}
+      {/* P3: «Sie» und «Depotbank» tragen dieselbe Füllung
+          (Mushroom, ohne Kontur) — allein «Tellian Capital» ist
+          als Markenknoten in Imperial Purple abgesetzt. */}
       {knoten(
         "bank",
         K.bank,
-        GOLD,
+        C.muted,
         null,
         <span aria-hidden style={rasterMotiv(bankgebaeudeIcon, "31.5%", C.purple)} />,
         inhalt.bank,

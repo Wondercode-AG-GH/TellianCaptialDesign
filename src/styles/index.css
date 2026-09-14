@@ -101,13 +101,13 @@ html {
   text-rendering: optimizeLegibility;
 }
 
-/* ── Auswahlfarbe (Korrektur 14.09) ──
-   Vorher erzwang die Regel dunkle Schrift auf 8 % dunklem Grund —
-   auf den dunklen Stationen wurde ausgewählter Text damit dunkel
-   auf dunkel und unlesbar. Das Gold-Paar der Primär-CTAs trägt auf
-   beiden Welten: Purpur auf Gold misst 6.48:1, und die Goldfläche
-   hebt sich von hellen wie dunklen Gründen ab. */
+/* ── Auswahlfarbe (Korrektur 14.09, Rückbau auf Mushroom) ──
+   Die alte Regel erzwang dunkle Schrift auf 8 % dunklem Grund —
+   auf den dunklen Stationen wurde Auswahl unlesbar. Das
+   Mushroom-Paar aus dem Brandbook trägt auf beiden Welten: Tinte
+   auf Mushroom misst 7.9:1, und die Fläche hebt sich von hellen
+   wie dunklen Gründen ab. */
 ::selection {
-  background: var(--tellian-gold);
-  color: var(--tellian-purple);
+  background: var(--tellian-muted);
+  color: var(--tellian-ink);
 }

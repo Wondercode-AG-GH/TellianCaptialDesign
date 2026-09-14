@@ -19,10 +19,10 @@ import { C, cormorant, sans, serif } from "../tokens";
 
 interface Karte {
   id: "mandat" | "advisory";
-  /* Kundenwunsch 14.09: der Farbpunkt folgt der CTA-Welt seiner
-     Karte — Gold für das Mandat, Nacht (Imperial Purple) für
-     Advisory. Er liest sich als Vorschau auf den Knopf unten. */
-  punkt: "gold" | "nacht";
+  /* Kundenwunsch 14.09 (Rückbau): der Mandat-Punkt trägt Mushroom
+     aus dem Brandbook, Advisory die Nacht (Imperial Purple) seines
+     Knopfs — die kurzlebige Gold-Fassung ist abgelöst. */
+  punkt: "mushroom" | "nacht";
   eyebrow: string;
   name: string;
   text: string;
@@ -41,7 +41,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
     karten: [
       {
         id: "mandat",
-        punkt: "gold",
+        punkt: "mushroom",
         eyebrow: "Wir verwalten",
         name: "Mandat",
         text: "Sie übertragen uns die Verwaltung Ihres Portfolios. Wir treffen die Anlageentscheide innerhalb Ihrer definierten Strategie und Ihres Risikoprofils.",
@@ -66,7 +66,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
     karten: [
       {
         id: "mandat",
-        punkt: "gold",
+        punkt: "mushroom",
         eyebrow: "We manage",
         name: "Discretionary Mandate",
         text: "You entrust us with the management of your portfolio. We make investment decisions within your agreed strategy and risk profile.",
@@ -90,7 +90,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
     karten: [
       {
         id: "mandat",
-        punkt: "gold",
+        punkt: "mushroom",
         eyebrow: "Wir verwalten",
         name: "Mandat",
         text: "Sie übertragen uns die Verwaltung Ihres Portfolios. Wir treffen die Anlageentscheide innerhalb Ihrer definierten Strategie und Ihres Risikoprofils.",
@@ -282,10 +282,10 @@ export function ProzessGabelung({
                     width: "7px",
                     height: "7px",
                     borderRadius: "50%",
-                    /* Farbwelt des Karten-CTAs (s. Typ Karte). */
+                    /* s. Typ Karte (Rückbau 14.09). */
                     backgroundColor:
-                      k.punkt === "gold"
-                        ? "var(--tellian-pm-knopf-gold)"
+                      k.punkt === "mushroom"
+                        ? "var(--tellian-muted)"
                         : "var(--tellian-pm-knopf-nacht)",
                   }}
                 />

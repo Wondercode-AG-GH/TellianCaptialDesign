@@ -560,12 +560,11 @@ export function Station4Rad({
                  geladen (fonts.css). */
               fontWeight: 600,
               lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
-              /* P1: der Name des aktiven Punkts in Gold — das
-                 dritte Glied der Akzentspur. KUNDENENTSCHEID 14.09:
-                 das helle Seiten-Gold auch auf hellem Grund
-                 (gemessen 2.2:1) — der Semi-Bold-Schnitt trägt die
+              /* Der Name des aktiven Punkts als Akzentglied der
+                 Spur — seit dem Rückbau 14.09 wieder Mushroom
+                 (Brandbook); der Semi-Bold-Schnitt trägt die
                  Lesbarkeit. */
-              color: "var(--tellian-gold)",
+              color: "var(--tellian-muted)",
             }}
           >
             {p.titel}
@@ -610,18 +609,17 @@ export function Station4Rad({
           {inhalt.titel[1]}
         </em>
       </h2>
-      {/* Untertitel — Zwischentitel-Stufe. P1 (12.09): Gold statt
-          Mushroom — er eröffnet die Akzentspur der Station (Bogen,
-          Untertitel, Boxtitel). KUNDENENTSCHEID 14.09: das helle
-          Seiten-Gold auch auf hellem Grund; der Haupttitel bleibt
-          Tinte. */}
+      {/* Untertitel — Zwischentitel-Stufe. Er eröffnet die
+          Akzentspur der Station (Bogen, Untertitel, Boxtitel);
+          seit dem Rückbau 14.09 wieder in Mushroom (Brandbook).
+          Der Haupttitel bleibt Tinte. */}
       <p
         style={{
           margin: "12px 0 0",
           fontFamily: serif,
           fontSize: "var(--tellian-r4-unter-size)",
           lineHeight: 1.3,
-          color: "var(--tellian-gold)",
+          color: "var(--tellian-muted)",
         }}
       >
         {inhalt.untertitel}
