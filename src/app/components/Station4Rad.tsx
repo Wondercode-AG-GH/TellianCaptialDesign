@@ -351,16 +351,18 @@ export function Station4Rad({
               display: "block",
               fontFamily: cormorant,
               fontSize: "var(--tellian-r4-title-size)",
-              /* Semi-Bold (Kundenwunsch 14.09): der Goldton trägt
-                 auf hellem Grund weniger als Tinte — der kräftigere
+              /* Semi-Bold (Kundenwunsch 14.09): das Gold trägt auf
+                 hellem Grund weniger als Tinte — der kräftigere
                  Schnitt hält den Titel lesbar. Cormorant 600 ist
                  geladen (fonts.css). */
               fontWeight: 600,
               lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
-              /* P1: der Name des aktiven Punkts in Gold — das dritte
-                 Glied der Akzentspur. Auf hellem Grund die TIEFE
-                 Goldstufe (4.78:1 auf Archive White, AA). */
-              color: "var(--tellian-gold-tief)",
+              /* P1: der Name des aktiven Punkts in Gold — das
+                 dritte Glied der Akzentspur. KUNDENENTSCHEID 14.09:
+                 das helle Seiten-Gold auch auf hellem Grund
+                 (gemessen 2.2:1) — der Semi-Bold-Schnitt trägt die
+                 Lesbarkeit. */
+              color: "var(--tellian-gold)",
             }}
           >
             {p.titel}
@@ -407,15 +409,16 @@ export function Station4Rad({
       </h2>
       {/* Untertitel — Zwischentitel-Stufe. P1 (12.09): Gold statt
           Mushroom — er eröffnet die Akzentspur der Station (Bogen,
-          Untertitel, Boxtitel). Seit dem Tausch auf hellem Grund
-          die TIEFE Goldstufe; der Haupttitel bleibt Tinte. */}
+          Untertitel, Boxtitel). KUNDENENTSCHEID 14.09: das helle
+          Seiten-Gold auch auf hellem Grund; der Haupttitel bleibt
+          Tinte. */}
       <p
         style={{
           margin: "12px 0 0",
           fontFamily: serif,
           fontSize: "var(--tellian-r4-unter-size)",
           lineHeight: 1.3,
-          color: "var(--tellian-gold-tief)",
+          color: "var(--tellian-gold)",
         }}
       >
         {inhalt.untertitel}
