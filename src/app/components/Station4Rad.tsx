@@ -351,7 +351,11 @@ export function Station4Rad({
               display: "block",
               fontFamily: cormorant,
               fontSize: "var(--tellian-r4-title-size)",
-              fontWeight: 300,
+              /* Semi-Bold (Kundenwunsch 14.09): der Goldton trägt
+                 auf hellem Grund weniger als Tinte — der kräftigere
+                 Schnitt hält den Titel lesbar. Cormorant 600 ist
+                 geladen (fonts.css). */
+              fontWeight: 600,
               lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
               /* P1: der Name des aktiven Punkts in Gold — das dritte
                  Glied der Akzentspur. Auf hellem Grund die TIEFE
@@ -494,7 +498,9 @@ export function Station4Rad({
                   marginTop: "4px",
                   fontFamily: cormorant,
                   fontSize: "var(--tellian-r4-title-size)",
-                  fontWeight: 300,
+                  /* Gleicher Schnitt wie der Erklärtitel im breiten
+                     Zweig — eine Rolle, ein Gewicht. */
+                  fontWeight: 600,
                   lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
                   color: "var(--tellian-r4-ink)",
                 }}

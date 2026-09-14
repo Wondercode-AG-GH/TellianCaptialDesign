@@ -101,8 +101,13 @@ html {
   text-rendering: optimizeLegibility;
 }
 
-/* ── Light mode selection color ── */
+/* ── Auswahlfarbe (Korrektur 14.09) ──
+   Vorher erzwang die Regel dunkle Schrift auf 8 % dunklem Grund —
+   auf den dunklen Stationen wurde ausgewählter Text damit dunkel
+   auf dunkel und unlesbar. Das Gold-Paar der Primär-CTAs trägt auf
+   beiden Welten: Purpur auf Gold misst 6.48:1, und die Goldfläche
+   hebt sich von hellen wie dunklen Gründen ab. */
 ::selection {
-  background: rgba(26, 25, 22, 0.08);
-  color: #191718;
+  background: var(--tellian-gold);
+  color: var(--tellian-purple);
 }
