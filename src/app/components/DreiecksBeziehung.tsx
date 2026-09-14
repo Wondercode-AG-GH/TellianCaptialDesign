@@ -546,218 +546,262 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
      «Unsere Leistungen für Sie →» in der Tellian-Karte.
      Der breite Zweig (Dreiecksgrafik) bleibt unverändert. */
   if (kompakt) {
-    const KREIS = 48;
-    const PAD = 18;
-    /* Icon-Achse — Konnektorlinien und Klammer-Anschlüsse. */
-    const ACHSE = PAD + KREIS / 2;
-    const kreis = (kind: React.ReactNode) => (
-      <span
+    /* ── DREIECK MIT ZIFFERN-LEGENDE (V3, Kundenwunsch 14.09) ──
+       Der Auftraggeber will die Dreiecks-Visualisierung auch auf
+       dem Telefon. Das Grundproblem der ersten Mobilfassung waren
+       nie die Kreise, sondern die drei Langwörter, die schräg
+       gestaffelt am kleinen Dreieck hingen. Sie werden durch
+       ZIFFERN-Teller auf den Linienmitten ersetzt (Serif-Ziffern
+       im Wege-Vokabular); die Wörter stehen darunter als ruhige
+       Legende. Danach die Erklärtexte und der Gold-Verweis zur
+       Mandat-Seite — einziges Bedienelement, wie gehabt.
+       Geometrie = Desktop-Feld (640×560, R 78): ohne die
+       Langwörter braucht das Dreieck keine gestreckte
+       Sonderform mehr. */
+    const KD = {
+      sie: { x: 320, y: 128 },
+      tellian: { x: 124, y: 420 },
+      bank: { x: 516, y: 420 },
+    } as const;
+    const VHD = 560;
+    const mitte = (a: { x: number; y: number }, b: { x: number; y: number }) => ({
+      x: (a.x + b.x) / 2,
+      y: (a.y + b.y) / 2,
+    });
+    const zf = (n: number) => `0${n}`;
+    const kanteMitZiffer: Array<[{ x: number; y: number }, { x: number; y: number }, number]> = [
+      [KD.sie, KD.tellian, 1],
+      [KD.sie, KD.bank, 2],
+      [KD.tellian, KD.bank, 3],
+    ];
+    const kreisKompakt = (
+      zentrum: { x: number; y: number },
+      fuellung: string,
+      kind: React.ReactNode,
+    ) => (
+      <div
         aria-hidden
         style={{
-          width: KREIS,
-          height: KREIS,
+          position: "absolute",
+          left: pz(zentrum.x, 640),
+          top: pz(zentrum.y, VHD),
+          width: pz(2 * R, 640),
+          aspectRatio: "1",
           borderRadius: "50%",
-          backgroundColor: C.muted,
+          backgroundColor: fuellung,
+          transform: "translate(-50%, -50%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          flexShrink: 0,
         }}
       >
         {kind}
-      </span>
+      </div>
     );
-    const kartenRahmen = (dunkel: boolean): React.CSSProperties => ({
-      gridColumn: 1,
-      minWidth: 0,
-      border: dunkel ? "none" : "1px solid rgba(184, 174, 163, 0.35)",
-      backgroundColor: dunkel ? C.purple : "rgba(184, 174, 163, 0.08)",
-      padding: `${PAD}px`,
-      boxSizing: "border-box",
-    });
-    const kopfzeile = (motiv: React.ReactNode, name: string, dunkel: boolean) => (
-      <span style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-        {kreis(motiv)}
-        <span
-          style={{
-            fontFamily: serif,
-            fontSize: "20px",
-            lineHeight: "var(--tellian-zwischen-lh)",
-            color: dunkel ? "var(--tellian-bg)" : C.ink,
-          }}
-        >
-          {name}
-        </span>
-      </span>
-    );
-    const kartenText = (text: string) => (
+    const nameKompakt = (zentrum: { x: number; y: number }, text: string) => (
       <span
-        lang={sprache === "EN" ? "en" : "de"}
         style={{
-          display: "block",
-          marginTop: "12px",
+          position: "absolute",
+          left: pz(zentrum.x, 640),
+          top: pz(zentrum.y + R + 30, VHD),
+          transform: "translate(-50%, -50%)",
           fontFamily: sans,
-          fontSize: "14px",
-          lineHeight: 1.65,
-          color: C.accent,
+          fontSize: "12px",
+          letterSpacing: "0.04em",
+          whiteSpace: "nowrap",
+          color: C.ink,
         }}
       >
         {text}
       </span>
     );
-    /* Konnektor: senkrechte Linie auf der Icon-Achse, das
-       Vertragswort waagrecht daneben — dank schmaler Klammerspalte
-       in voller Restbreite, ohne Trennstriche. */
-    const konnektor = (text: string) => (
-      <div
-        style={{
-          gridColumn: 1,
-          position: "relative",
-          minHeight: "60px",
-          padding: `12px 8px 12px ${ACHSE + 18}px`,
-          display: "flex",
-          alignItems: "center",
-          boxSizing: "border-box",
-        }}
-      >
-        <span
-          aria-hidden
-          style={{
-            position: "absolute",
-            left: `${ACHSE}px`,
-            top: 0,
-            bottom: 0,
-            width: "1px",
-            backgroundColor: C.purple,
-          }}
-        />
-        <span
-          lang={sprache === "EN" ? "en" : "de"}
-          style={{
-            fontFamily: sans,
-            fontSize: "12px",
-            letterSpacing: "0.04em",
-            lineHeight: 1.45,
-            color: C.accent,
-          }}
-        >
-          {text}
-        </span>
-      </div>
-    );
 
     return (
-      <div
-        role="group"
-        aria-label={
-          `${inhalt.sie} — ${inhalt.tellian}: ${inhalt.kanten[0]}. ` +
-          `${inhalt.sie} — ${inhalt.bank}: ${inhalt.kanten[1]}. ` +
-          `${inhalt.tellian} — ${inhalt.bank}: ${inhalt.kanten[2]}.`
-        }
-        style={{
-          width: "100%",
-          display: "grid",
-          /* Rechts nur noch die LINIE der dritten Beziehung — ihr
-             Wort steht ungebrochen in der Kopfzeile der Grafik. */
-          gridTemplateColumns: "minmax(0, 1fr) 22px",
-        }}
-      >
-        {/* ── Wort der dritten Beziehung (Sie ↔ Depotbank):
-            rechtsbündig über der Klammer, EINE Zeile. */}
+      <div style={{ width: "100%" }}>
         <div
-          lang={sprache === "EN" ? "en" : "de"}
-          style={{
-            gridColumn: "1 / -1",
-            textAlign: "right",
-            paddingBottom: "10px",
-            fontFamily: sans,
-            fontSize: "12px",
-            letterSpacing: "0.04em",
-            color: C.accent,
-            whiteSpace: "nowrap",
-          }}
+          role="group"
+          aria-label={
+            `${inhalt.sie} — ${inhalt.tellian}: ${inhalt.kanten[0]}. ` +
+            `${inhalt.sie} — ${inhalt.bank}: ${inhalt.kanten[1]}. ` +
+            `${inhalt.tellian} — ${inhalt.bank}: ${inhalt.kanten[2]}.`
+          }
+          style={{ position: "relative", width: "100%", aspectRatio: `640 / ${VHD}` }}
         >
-          {inhalt.kanten[1]}
-        </div>
+          <svg
+            viewBox={`0 0 640 ${VHD}`}
+            preserveAspectRatio="xMidYMid meet"
+            aria-hidden
+            focusable="false"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+          >
+            {kanteMitZiffer.map(([a, b]) => (
+              <line
+                key={`${a.x}-${b.x}`}
+                {...kante(a, b)}
+                stroke={C.purple}
+                strokeWidth={1}
+                vectorEffect="non-scaling-stroke"
+              />
+            ))}
+          </svg>
 
-        <div style={kartenRahmen(false)}>
-          {kopfzeile(<span aria-hidden style={rasterMotiv(publikumIcon, "40%", C.purple)} />, inhalt.sie, false)}
-          {kartenText(inhalt.prosa.sie)}
-        </div>
-
-        {konnektor(inhalt.kanten[0])}
-
-        {/* Die Markenkarte: Imperial Purple wie der Tellian-Knoten
-            der Grafik, der Verweis im Gold der Primär-CTAs. */}
-        <div style={kartenRahmen(true)}>
-          {kopfzeile(
-            /* Das Monogramm ist mehrfarbig gezeichnet — als Bild,
-               nicht als Alpha-Maske (die lieferte eine volle
-               Fläche). Dunkle Fassung auf dem Mushroom-Kreis. */
+          {kreisKompakt(KD.sie, C.muted, (
+            <span aria-hidden style={rasterMotiv(publikumIcon, "40%", C.purple)} />
+          ))}
+          {kreisKompakt(KD.tellian, C.purple, (
             <img
-              src={monogrammDunkel}
+              src={monogramm}
               alt=""
               aria-hidden
-              style={{ width: "36%", height: "auto", display: "block" }}
-            />,
-            inhalt.tellian,
-            true,
-          )}
+              style={{ width: "35%", height: "auto", display: "block" }}
+            />
+          ))}
+          {kreisKompakt(KD.bank, C.muted, (
+            <span aria-hidden style={rasterMotiv(bankgebaeudeIcon, "31.5%", C.purple)} />
+          ))}
+
+          {nameKompakt(KD.sie, inhalt.sie)}
+          {nameKompakt(KD.tellian, inhalt.tellian)}
+          {nameKompakt(KD.bank, inhalt.bank)}
+
+          {/* Ziffern-Teller auf den Linienmitten — der Teller in
+              Stationsfarbe öffnet die Linie um die Ziffer. */}
+          {kanteMitZiffer.map(([a, b, n]) => {
+            const m = mitte(a, b);
+            return (
+              <span
+                key={`z-${n}`}
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  left: pz(m.x, 640),
+                  top: pz(m.y, VHD),
+                  transform: "translate(-50%, -50%)",
+                  padding: "2px 9px",
+                  backgroundColor: "var(--tellian-s2-bg, #F9F9F7)",
+                  fontFamily: serif,
+                  fontSize: "15px",
+                  fontWeight: "var(--tellian-ziffer-weight)" as unknown as number,
+                  letterSpacing: "var(--tellian-ziffer-ls)",
+                  color: "var(--tellian-stone)",
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {zf(n)}
+              </span>
+            );
+          })}
+        </div>
+
+        {/* ── Legende: die drei Beziehungen zu ihren Ziffern. ── */}
+        <div
+          style={{
+            marginTop: "18px",
+            paddingTop: "16px",
+            borderTop: "1px solid rgba(184, 174, 163, 0.35)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "8px",
+          }}
+        >
+          {inhalt.kanten.map((wortText, i) => (
+            <p
+              key={wortText}
+              lang={sprache === "EN" ? "en" : "de"}
+              style={{ margin: 0, display: "flex", alignItems: "baseline", gap: "12px" }}
+            >
+              <span
+                aria-hidden
+                style={{
+                  fontFamily: serif,
+                  fontSize: "15px",
+                  fontWeight: "var(--tellian-ziffer-weight)" as unknown as number,
+                  letterSpacing: "var(--tellian-ziffer-ls)",
+                  color: C.muted,
+                  fontVariantNumeric: "tabular-nums",
+                  flexShrink: 0,
+                }}
+              >
+                {zf(i + 1)}
+              </span>
+              <span
+                style={{
+                  fontFamily: sans,
+                  fontSize: "13px",
+                  lineHeight: 1.5,
+                  letterSpacing: "0.02em",
+                  color: C.accent,
+                }}
+              >
+                {wortText}
+              </span>
+            </p>
+          ))}
+        </div>
+
+        {/* ── Erklärtexte und der Verweis zur Mandat-Seite. ── */}
+        <div
+          style={{
+            marginTop: "22px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "18px",
+          }}
+        >
+          {(["sie", "bank"] as const).map((id) => (
+            <p key={id} lang={sprache === "EN" ? "en" : "de"} style={{ margin: 0 }}>
+              <span
+                style={{
+                  display: "block",
+                  marginBottom: "4px",
+                  fontFamily: sans,
+                  fontSize: "12px",
+                  letterSpacing: "0.04em",
+                  color: C.stone,
+                }}
+              >
+                {inhalt[id]}
+              </span>
+              <span
+                style={{
+                  fontFamily: sans,
+                  fontSize: "14px",
+                  lineHeight: 1.65,
+                  color: C.accent,
+                }}
+              >
+                {inhalt.prosa[id]}
+              </span>
+            </p>
+          ))}
           {/* UI-LABEL-REVIEW: «Unsere Leistungen für Sie →» stammt
               aus der früheren Live-Implementierung — bleibt das
-              einzige Bedienelement des kompakten Zweigs. */}
+              einzige Bedienelement des kompakten Zweigs; Gold wie
+              die Primär-CTA-Welt (V2 übernommen). */}
           <button
             type="button"
             onClick={() => onMandat?.()}
-            className="tellian-dreieck-mandat"
+            /* Auf dem hellen Stationsgrund fiele GOLDENER TEXT
+               durch AA (2.2:1) — der Verweis trägt darum die
+               gefüllte Gold-Primärfläche (Purpur auf Gold 6.48:1),
+               wie jede Handlungs-CTA der Seite. */
+            className="tellian-dreieck-mandat tellian-cta-primaer"
             style={{
-              display: "inline-block",
-              margin: "16px 0 0",
-              padding: "10px 0",
-              background: "transparent",
+              alignSelf: "flex-start",
+              margin: 0,
+              padding: "13px 20px",
               border: "none",
-              borderBottom: "1px solid var(--tellian-gold)",
+              borderRadius: 0,
+              minHeight: "var(--tellian-tippziel)",
               fontFamily: sans,
               fontSize: "13px",
               letterSpacing: "var(--tellian-ls-cta-klein)",
-              color: "var(--tellian-gold)",
               cursor: "pointer",
               textAlign: "left",
             }}
           >
             {inhalt.prosa.tellian}
           </button>
-        </div>
-
-        {konnektor(inhalt.kanten[2])}
-
-        <div style={kartenRahmen(false)}>
-          {kopfzeile(<span aria-hidden style={rasterMotiv(bankgebaeudeIcon, "31.5%", C.purple)} />, inhalt.bank, false)}
-          {kartenText(inhalt.prosa.bank)}
-        </div>
-
-        {/* ── Klammerlinie der dritten Beziehung: von der Icon-Achse
-            der ersten zur Icon-Achse der letzten Karte; die
-            Senkrechte übersteht ihre Zellen um die halbe Kopfhöhe
-            nach unten — exakt bis zur Icon-Mitte der Depotbank-
-            Karte. */}
-        <div
-          aria-hidden
-          style={{ gridColumn: 2, gridRow: "2 / 6", position: "relative", minWidth: 0 }}
-        >
-          <span
-            style={{
-              position: "absolute",
-              left: "6px",
-              right: 0,
-              top: `${ACHSE}px`,
-              bottom: `${-ACHSE}px`,
-              borderTop: `1px solid ${C.purple}`,
-              borderRight: `1px solid ${C.purple}`,
-              borderBottom: `1px solid ${C.purple}`,
-              boxSizing: "border-box",
-            }}
-          />
         </div>
 
         <style>{`
