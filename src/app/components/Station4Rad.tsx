@@ -303,11 +303,13 @@ export function Station4Rad({
   const ringSchmalRef = useRef<SVGSVGElement | null>(null);
   const ringHuelleRef = useRef<HTMLDivElement | null>(null);
   const dockLeisteRef = useRef<HTMLDivElement | null>(null);
+  const dockAnkerRef = useRef<HTMLDivElement | null>(null);
   const dockSvgRef = useRef<SVGSVGElement | null>(null);
   const zeichenSchmalRefs = useRef<(SVGPathElement | null)[]>([]);
   const zeichenDockRefs = useRef<(SVGPathElement | null)[]>([]);
   const goldSchmalRefs = useRef<(SVGPathElement | null)[]>([]);
   const goldDockRefs = useRef<(SVGPathElement | null)[]>([]);
+  const dockZifferRef = useRef<SVGTextElement | null>(null);
   const ziffernSchmalRefs = useRef<(SVGTextElement | null)[]>([]);
   const liRefs = useRef<(HTMLLIElement | null)[]>([]);
   const schmalRafRef = useRef(0);
@@ -356,13 +358,21 @@ export function Station4Rad({
       }
     };
 
-    const kopfPx = () => {
-      const roh = getComputedStyle(document.documentElement).getPropertyValue(
-        "--tellian-kopf-height",
-      );
-      const n = parseFloat(roh);
-      return Number.isFinite(n) ? n : 64;
+    /* Die REALE Unterkante der Kopfzeile, nicht der Token: der
+       steht auf 64px, die mobile Kopfzeile misst 56px — am Token
+       verankert lugte in der 8px-Lücke Text durch. */
+    let kopfUnterkante = 56;
+    const messeKopf = () => {
+      const kopfEl = document.querySelector("header");
+      kopfUnterkante = kopfEl
+        ? Math.max(0, kopfEl.getBoundingClientRect().bottom)
+        : 56;
+      const anker = dockAnkerRef.current;
+      if (anker) anker.style.top = `${kopfUnterkante}px`;
     };
+    messeKopf();
+    window.addEventListener("resize", messeKopf);
+    const kopfPx = () => kopfUnterkante;
 
     const rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const ZUG_PRO_S = 0.7;
@@ -389,13 +399,23 @@ export function Station4Rad({
         schreibeBasis(anzeigeP);
       }
 
-      /* Akt 3 — Goldfüllung je gelesenem Anteil. */
+      /* Akt 3 — Goldfüllung je gelesenem Anteil. Nebenbei den
+         GELESENEN Punkt bestimmen: seine Ziffer steht im Zentrum
+         des Docks — die Rückbindung des Instruments an den Text
+         (gleiche Serifen-Ziffer wie am Listenpunkt). */
       const lesezone = vh * 0.55;
+      let aktivI = -1;
       for (let i = 0; i < N; i++) {
         const li = liRefs.current[i];
         if (!li) continue;
         const lr = li.getBoundingClientRect();
         schreibeGold(i, lr.height > 0 ? klemme((lesezone - lr.top) / lr.height) : 0);
+        if (lr.top < lesezone) aktivI = i;
+      }
+      const dz = dockZifferRef.current;
+      if (dz) {
+        const soll = aktivI >= 0 ? ziffer(aktivI) : "";
+        if (dz.textContent !== soll) dz.textContent = soll;
       }
 
       /* Akt 2 — die Reise ins Dock. */
@@ -459,6 +479,7 @@ export function Station4Rad({
     return () => {
       io.disconnect();
       cancelAnimationFrame(schmalRafRef.current);
+      window.removeEventListener("resize", messeKopf);
     };
   }, [isVertical]);
 
@@ -652,8 +673,11 @@ export function Station4Rad({
             Kopfzeile; das Abbild übernimmt nach der Übergabe. Der
             Aussenbehälter ist 0 hoch und kostet keinen Fluss. */}
         <div
+          ref={dockAnkerRef}
           style={{
             position: "sticky",
+            /* Startwert; der Effekt setzt die GEMESSENE
+               Kopfzeilen-Unterkante (s. messeKopf). */
             top: "var(--tellian-kopf-height)",
             zIndex: 3,
             height: 0,
@@ -717,6 +741,21 @@ export function Station4Rad({
                   strokeWidth={18}
                 />
               ))}
+              {/* Die Ziffer des gelesenen Punkts — die Rückbindung
+                  an den Text. Der Effekt schreibt sie; leer,
+                  solange noch kein Punkt in der Lesezone steht. */}
+              <text
+                ref={dockZifferRef}
+                x={MITTE}
+                y={MITTE}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fontFamily={cormorant}
+                fontSize="66"
+                letterSpacing="0.06em"
+                fill="var(--tellian-r4-ink)"
+                fontVariantNumeric="tabular-nums"
+              />
             </svg>
           </div>
         </div>
