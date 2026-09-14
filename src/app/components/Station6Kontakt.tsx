@@ -915,7 +915,6 @@ export function Station6Kontakt({
         style={{
           display: "block",
           fontFamily: sans,
-          fontSize: "11px",
           color: "var(--tellian-k6-dim)",
         }}
       >
@@ -1230,7 +1229,6 @@ export function Station6Kontakt({
                 style={{
                   display: "block",
                   fontFamily: sans,
-                  fontSize: "11px",
                   color: "var(--tellian-k6-dim)",
                 }}
               >
