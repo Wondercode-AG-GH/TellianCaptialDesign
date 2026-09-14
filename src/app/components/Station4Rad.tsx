@@ -282,18 +282,32 @@ export function Station4Rad({
     if (istAktiv) setAktiv(RUHE);
   }, [istAktiv]);
 
-  /* ── SCHMAL: der Ring auch hier (Kundenwunsch 14.09) ──
-     Das Rad mit seinen Beschriftungen passt nicht auf schmale
-     Bildschirme — der RING schon. Er steht zwischen Kopf und
-     Punkteliste, zeichnet sich am VERTIKALEN Scroll zu (gleiche
-     Grammatik wie breit: Fenster, Tempolimit 0.7 P/s, Rückstellung
-     beim Verlassen), und beim Lesen führt er mit: das Segment des
-     Punktes, der gerade in der Lesezone steht (55 % Fensterhöhe),
-     trägt Gold — die Grafik zeigt die Leseposition.
-     prefers-reduced-motion: Ring sofort voll, die Lesezonen-
-     Kopplung bleibt (reine Farbänderung, keine Bewegung). */
+  /* ── SCHMAL: der MITREISENDE Ring (Kundenwunsch 14.09) ──
+     Drei Akte, alle scroll-gekoppelt und umkehrbar:
+     1. ENTRÉE — der Ring zeichnet sich gross zwischen Kopf und
+        Liste (Fenster bis zur Leseposition, Tempolimit 0.7 P/s).
+     2. ANDOCKEN — rückt die Liste heran, schrumpft der Ring und
+        reist in die Dockleiste unter der Kopfzeile; dort übernimmt
+        ein kleines Abbild (beide zeigen stets denselben Stand).
+     3. LESEFORTSCHRITT — je Punkt füllt sich sein Segment golden,
+        proportional zum gelesenen Anteil (Oberkante des Punktes
+        durch die Lesezone bei 55 % Fensterhöhe): mit dem Ende von
+        Punkt 04 ist der Ring komplett golden — das runde
+        Versprechen vollendet sich mit dem Fertiglesen.
+     Beim Verlassen fällt alles auf leer zurück — jeder Besuch
+     erzählt die Geschichte neu.
+     prefers-reduced-motion: keine Reise und kein Zeichnen — der
+     grosse Ring steht sofort voll, die Dockleiste erscheint ohne
+     Flug, die goldene Füllung bleibt (Zustandsanzeige am Scroll,
+     keine eigenständige Bewegung). */
   const ringSchmalRef = useRef<SVGSVGElement | null>(null);
+  const ringHuelleRef = useRef<HTMLDivElement | null>(null);
+  const dockLeisteRef = useRef<HTMLDivElement | null>(null);
+  const dockSvgRef = useRef<SVGSVGElement | null>(null);
   const zeichenSchmalRefs = useRef<(SVGPathElement | null)[]>([]);
+  const zeichenDockRefs = useRef<(SVGPathElement | null)[]>([]);
+  const goldSchmalRefs = useRef<(SVGPathElement | null)[]>([]);
+  const goldDockRefs = useRef<(SVGPathElement | null)[]>([]);
   const ziffernSchmalRefs = useRef<(SVGTextElement | null)[]>([]);
   const liRefs = useRef<(HTMLLIElement | null)[]>([]);
   const schmalRafRef = useRef(0);
@@ -301,39 +315,53 @@ export function Station4Rad({
   useEffect(() => {
     if (!isVertical) return;
     const svg = ringSchmalRef.current;
-    if (!svg) return;
+    const huelle = ringHuelleRef.current;
+    const leiste = dockLeisteRef.current;
+    const dockSvg = dockSvgRef.current;
+    if (!svg || !huelle || !leiste || !dockSvg) return;
 
-    let P = -1;
-    const schreibe = (p: number) => {
-      if (Math.abs(p - P) < 0.0005) return;
-      P = p;
+    const klemme = (x: number) => Math.max(0, Math.min(1, x));
+
+    /* Basiszug (Akt 1) — schreibt grossen Ring UND Abbild. */
+    let basisP = -1;
+    const schreibeBasis = (p: number) => {
+      if (Math.abs(p - basisP) < 0.0005) return;
+      basisP = p;
       for (let i = 0; i < N; i++) {
-        const el = zeichenSchmalRefs.current[i];
-        if (!el) continue;
-        const q = Math.max(0, Math.min(1, p * N - i));
-        el.style.strokeDashoffset = String(1 - q);
+        const q = klemme(p * N - i);
+        const offset = String(1 - q);
+        const a = zeichenSchmalRefs.current[i];
+        if (a) a.style.strokeDashoffset = offset;
+        const b = zeichenDockRefs.current[i];
+        if (b) b.style.strokeDashoffset = offset;
       }
     };
-    let letztesAktiv = -2;
-    const male = (aktivI: number) => {
-      for (let i = 0; i < N; i++) {
-        const an = i === aktivI;
-        const el = zeichenSchmalRefs.current[i];
-        if (el) {
-          el.style.stroke = an
-            ? "var(--tellian-r4-arc-active-color)"
-            : "var(--tellian-r4-arc-idle-color)";
-          el.style.strokeWidth = an
-            ? "var(--tellian-r4-arc-active)"
-            : "var(--tellian-r4-arc-idle)";
-        }
-        const z = ziffernSchmalRefs.current[i];
-        if (z) {
-          z.style.fill = an
+
+    /* Goldfüllung (Akt 3) — je Segment, in beide Ringe. */
+    const goldStand = [-1, -1, -1, -1];
+    const schreibeGold = (i: number, q: number) => {
+      if (Math.abs(q - goldStand[i]) < 0.003) return;
+      goldStand[i] = q;
+      const offset = String(1 - q);
+      const a = goldSchmalRefs.current[i];
+      if (a) a.style.strokeDashoffset = offset;
+      const b = goldDockRefs.current[i];
+      if (b) b.style.strokeDashoffset = offset;
+      const z = ziffernSchmalRefs.current[i];
+      if (z) {
+        z.style.fill =
+          q > 0.02
             ? "var(--tellian-r4-arc-active-color)"
             : "var(--tellian-r4-accent)";
-        }
       }
+    };
+
+    const kopfPx = () => {
+      const roh = getComputedStyle(document.documentElement).getPropertyValue(
+        "--tellian-kopf-height",
+      );
+      const n = parseFloat(roh);
+      return Number.isFinite(n) ? n : 64;
     };
 
     const rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -341,39 +369,63 @@ export function Station4Rad({
     let laeuft = false;
     let anzeigeP = rm ? 1 : 0;
     let letzteZeit = 0;
-    if (rm) schreibe(1);
+    if (rm) schreibeBasis(1);
 
     const tick = (jetzt: number) => {
       if (!laeuft) return;
       const vh = window.innerHeight;
+      const rw = huelle.getBoundingClientRect();
+
+      /* Akt 1 — Entrée. */
       if (!rm) {
         const dt = letzteZeit ? Math.min((jetzt - letzteZeit) / 1000, 0.1) : 0;
         letzteZeit = jetzt;
-        const r = svg.getBoundingClientRect();
-        /* 0, wenn der Ring unten eintritt; 1, wenn er im oberen
-           Drittel angekommen ist — der Schluss fällt mit der
-           bequemen Leseposition zusammen. */
-        const ziel = Math.max(0, Math.min(1, (vh - r.top) / (vh * 0.65)));
+        const ziel = klemme((vh - rw.top) / (vh * 0.65));
         const delta = Math.max(
           -ZUG_PRO_S * dt,
           Math.min(ZUG_PRO_S * dt, ziel - anzeigeP),
         );
         anzeigeP += delta;
-        schreibe(anzeigeP);
+        schreibeBasis(anzeigeP);
       }
-      /* Lesezonen-Kopplung: der letzte Punkt, dessen Oberkante die
-         Lesezone passiert hat. -1 = noch keiner (Ring über der
-         Liste im Bild) — dann bleibt alles ruhig. */
+
+      /* Akt 3 — Goldfüllung je gelesenem Anteil. */
       const lesezone = vh * 0.55;
-      let aktivI = -1;
       for (let i = 0; i < N; i++) {
         const li = liRefs.current[i];
-        if (li && li.getBoundingClientRect().top < lesezone) aktivI = i;
+        if (!li) continue;
+        const lr = li.getBoundingClientRect();
+        schreibeGold(i, lr.height > 0 ? klemme((lesezone - lr.top) / lr.height) : 0);
       }
-      if (aktivI !== letztesAktiv) {
-        male(aktivI);
-        letztesAktiv = aktivI;
+
+      /* Akt 2 — die Reise ins Dock. */
+      const kopf = kopfPx();
+      if (rm) {
+        /* Ohne Flug: das Abbild übernimmt, sobald der grosse Ring
+           hinter der Leiste verschwunden ist. */
+        leiste.style.opacity = rw.bottom < kopf + 70 ? "1" : "0";
+      } else {
+        const start = kopf + 210;
+        const zielTop = kopf + 12;
+        const H = klemme((start - rw.top) / (start - zielTop));
+        leiste.style.opacity = H.toFixed(3);
+        if (H > 0) {
+          const dr = dockSvg.getBoundingClientRect();
+          const dx = dr.left + dr.width / 2 - (rw.left + rw.width / 2);
+          const dy = dr.top + dr.height / 2 - (rw.top + rw.height / 2);
+          const S = svg.clientWidth > 0 ? dr.width / svg.clientWidth : 0.24;
+          svg.style.transform =
+            "translate(" + (dx * H).toFixed(1) + "px, " + (dy * H).toFixed(1) +
+            "px) scale(" + (1 + (S - 1) * H).toFixed(3) + ")";
+          /* Auf dem letzten Drittel der Reise blendet der grosse
+             Ring aus und das Abbild steht — die Übergabe. */
+          svg.style.opacity = (1 - klemme((H - 0.7) / 0.3)).toFixed(3);
+        } else {
+          svg.style.transform = "none";
+          svg.style.opacity = "1";
+        }
       }
+
       schmalRafRef.current = requestAnimationFrame(tick);
     };
 
@@ -387,24 +439,26 @@ export function Station4Rad({
         } else if (!nah && laeuft) {
           laeuft = false;
           cancelAnimationFrame(schmalRafRef.current);
+          /* Rückstellung: jeder Besuch erzählt neu. */
           if (!rm) {
-            /* Rückstellung wie breit: jeder Besuch zeichnet neu. */
             anzeigeP = 0;
-            P = -1;
-            schreibe(0);
+            basisP = -1;
+            schreibeBasis(0);
           }
+          for (let i = 0; i < N; i++) schreibeGold(i, 0);
+          svg.style.transform = "none";
+          svg.style.opacity = "1";
+          leiste.style.opacity = "0";
         }
       },
-      /* Die Kopplung läuft, solange irgendein Teil der SEKTION in
-         Reichweite ist — der Ring allein wäre beim Lesen der
-         unteren Punkte längst aus dem Bild. */
+      /* Beobachtet die ganze SEKTION — die Kopplung läuft, solange
+         irgendein Teil in Reichweite ist. */
       { rootMargin: "30% 0px 30% 0px" },
     );
     io.observe(svg.closest("section") ?? svg);
     return () => {
       io.disconnect();
       cancelAnimationFrame(schmalRafRef.current);
-      laeuft = false;
     };
   }, [isVertical]);
 
@@ -594,14 +648,91 @@ export function Station4Rad({
         </div>
         <Aufgang>{kopf}</Aufgang>
 
-        {/* Der Ring — zeichnet am Scroll, führt beim Lesen mit
-            (s. Effekt oben). Ziffern an den Ankerpunkten binden
-            die Segmente an die Listenpunkte darunter. */}
+        {/* Dockleiste — Ziel der Reise (Akt 2): haftet unter der
+            Kopfzeile; das Abbild übernimmt nach der Übergabe. Der
+            Aussenbehälter ist 0 hoch und kostet keinen Fluss. */}
         <div
+          style={{
+            position: "sticky",
+            top: "var(--tellian-kopf-height)",
+            zIndex: 3,
+            height: 0,
+            overflow: "visible",
+            pointerEvents: "none",
+          }}
+        >
+          <div
+            ref={dockLeisteRef}
+            style={{
+              margin: "0 calc(-1 * clamp(20px, 6vw, 48px))",
+              height: "64px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              paddingRight: "clamp(20px, 6vw, 48px)",
+              backgroundColor: "var(--tellian-r4-bg)",
+              borderBottom: "1px solid rgba(25, 23, 24, 0.08)",
+              opacity: 0,
+            }}
+          >
+            {/* Das Abbild: dieselben Bögen, dickere Striche für die
+                kleine Grösse (1.5px-Einheiten wären bei 48px
+                unsichtbar dünn). */}
+            <svg
+              ref={dockSvgRef}
+              viewBox={`0 0 ${VB} ${VB}`}
+              aria-hidden
+              focusable="false"
+              style={{ width: "48px", height: "48px", overflow: "visible" }}
+            >
+              {PUNKTE.map((p, i) => (
+                <path
+                  key={`dock-${p.titel}`}
+                  ref={(el) => {
+                    zeichenDockRefs.current[i] = el;
+                  }}
+                  d={bogen(i, LUECKE)}
+                  fill="none"
+                  strokeLinecap="butt"
+                  pathLength={1}
+                  strokeDasharray="1"
+                  strokeDashoffset={1}
+                  stroke="var(--tellian-r4-arc-idle-color)"
+                  strokeWidth={7}
+                />
+              ))}
+              {PUNKTE.map((p, i) => (
+                <path
+                  key={`dock-gold-${p.titel}`}
+                  ref={(el) => {
+                    goldDockRefs.current[i] = el;
+                  }}
+                  d={bogen(i, LUECKE)}
+                  fill="none"
+                  strokeLinecap="butt"
+                  pathLength={1}
+                  strokeDasharray="1"
+                  strokeDashoffset={1}
+                  stroke="var(--tellian-r4-arc-active-color)"
+                  strokeWidth={18}
+                />
+              ))}
+            </svg>
+          </div>
+        </div>
+
+        {/* Der grosse Ring (Akt 1) — zeichnet am Scroll und reist
+            dann ins Dock (s. Effekt oben). Ziffern an den Anker-
+            punkten binden die Segmente an die Punkte darunter. */}
+        <div
+          ref={ringHuelleRef}
           style={{
             marginTop: "clamp(30px, 4.5vh, 48px)",
             display: "flex",
             justifyContent: "center",
+            position: "relative",
+            zIndex: 2,
+            pointerEvents: "none",
           }}
         >
           <svg
@@ -613,6 +744,8 @@ export function Station4Rad({
               width: "clamp(190px, 56vw, 270px)",
               height: "auto",
               overflow: "visible",
+              transformOrigin: "center center",
+              willChange: "transform, opacity",
             }}
           >
             {PUNKTE.map((p, i) => (
@@ -631,9 +764,23 @@ export function Station4Rad({
                 strokeDashoffset={1}
                 stroke="var(--tellian-r4-arc-idle-color)"
                 strokeWidth="var(--tellian-r4-arc-idle)"
-                style={{
-                  transition: "stroke 220ms ease, stroke-width 220ms ease",
+              />
+            ))}
+            {PUNKTE.map((p, i) => (
+              <path
+                key={`gold-${p.titel}`}
+                ref={(el) => {
+                  goldSchmalRefs.current[i] = el;
                 }}
+                d={bogen(i, LUECKE)}
+                fill="none"
+                strokeLinecap="butt"
+                pointerEvents="none"
+                pathLength={1}
+                strokeDasharray="1"
+                strokeDashoffset={1}
+                stroke="var(--tellian-r4-arc-active-color)"
+                strokeWidth="var(--tellian-r4-arc-active)"
               />
             ))}
             {PUNKTE.map((p, i) => {
