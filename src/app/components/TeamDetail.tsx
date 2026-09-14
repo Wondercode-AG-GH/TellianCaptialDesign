@@ -242,6 +242,12 @@ export function TeamDetail({
           id={bild}
           alt=""
           sizes={isMobile ? "100vw" : "42vw"}
+          /* Oben ankern wie die Kacheln (14.09): die mobile
+             40vh-Fläche beschneidet ~11 % der Bildhöhe — mittig
+             geankert fiel genau der Kopfraum weg und der Scheitel
+             war angeschnitten. Breit schneidet die Fläche kaum
+             (≈1 %), der Anker ändert dort nichts Sichtbares. */
+          objectPosition="50% 0%"
           className="w-full h-full"
           style={{ display: "block" }}
         />

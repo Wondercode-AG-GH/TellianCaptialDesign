@@ -190,7 +190,11 @@ const SOURCES = [
     ["rolf-schneider",    "Rolf-Schneider.JPG",   0.000, 0.010, 0.996],
     ["bryan-honegger",    "Bryan-Honegger.png",   0.002, 0.014, 0.996],
     ["andreas-truempler", "Andreas-Trümpler.JPG", 0.002, 0.031, 0.996],
-    ["jasmina-rukavina",  "Jasmina-Rukavina.JPG", 0.002, 0.015, 0.996],
+    /* Korrektur 14.09: mit 0.015 lag die Augenlinie bei 26.6 %
+       statt 22 % — der Scheitel fiel aus dem Ausschnitt (im
+       Porträt-Overlay oben angeschnitten). Auf die Augenlinie der
+       übrigen Porträts nachkalibriert. */
+    ["jasmina-rukavina",  "Jasmina-Rukavina.JPG", 0.002, 0.049, 0.996],
     /* Wilhelm Tell unverändert — Statue, eigene Regeln. */
     ["wilhelm-tell",      "WilhelmTell_2.png",    0.000, 0.195, 0.960],
   ].map(([id, file, left, top, width]) => ({
