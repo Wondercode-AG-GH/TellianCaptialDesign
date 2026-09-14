@@ -204,13 +204,13 @@ export function Kopfzeile({
       : aufDunkel
         ? "var(--tellian-kopf-portal-ink-fuell-dunkel)"
         : "var(--tellian-kopf-portal-ink-fuell-hell)";
-    /* Ruhezustand: auf dunklem Grund schreibt das Feld in Gold
-       (Kundenwunsch 13.09) — hell in der Schichtfarbe wie gehabt.
+    /* Ruhezustand: auf dunklem Grund schreibt das Feld in Mushroom
+       (Rückbau 14.09) — hell in der Schichtfarbe wie gehabt.
        Das Schloss folgt über currentColor. */
     const portalInkRuhe = griff
       ? "transparent"
       : aufDunkel
-        ? "var(--tellian-gold)"
+        ? "var(--tellian-muted)"
         : ink;
 
     const klein: React.CSSProperties = {

@@ -722,12 +722,12 @@ function Formular({
           /* Ebene 2 (12.09): Formular-CTA im Inhalt — Satzschreib-
              weise, Laufweite der Inhalt-CTA-Rolle. */
           letterSpacing: "var(--tellian-ls-cta-klein)",
-          /* P2 (12.09): Gold mit Imperial Purple — konsistent zum
-             Mandat-CTA der Station 02. 6.48:1, aktiv 5.19:1.
+          /* Rückbau 14.09: Mushroom mit Tinte (8.17:1, aktiv
+             ~6.9:1) — konsistent zum Mandat-CTA der Station 02.
              Die FLÄCHE steht in der CSS-Regel, nicht hier: inline
              hätte sie jede Hover-Regel überstimmt — genau daran war
              der frühere Mushroom-Hover immer schon gescheitert. */
-          color: "var(--tellian-purple)",
+          color: "var(--tellian-ink)",
           border: "none",
           borderRadius: 0,
           padding: "17px 26px",
@@ -816,9 +816,10 @@ export function Station6Kontakt({
         fontFamily: sans,
         fontSize: "var(--tellian-k6-lead-size)",
         lineHeight: "var(--tellian-k6-lead-leading)" as unknown as number,
-        /* P2 (12.09): die Unterzeile in Gold — analog zum
-           Untertitel der Station 04. Auf Imperial Purple 6.48:1. */
-        color: "var(--tellian-gold)",
+        /* Die Unterzeile folgt dem Untertitel der Vorteile-Station —
+           seit dem Rückbau 14.09 Mushroom, auf Imperial Purple
+           6.7:1. */
+        color: "var(--tellian-muted)",
       }}
     >
       {LEAD[0]}
@@ -1126,9 +1127,9 @@ export function Station6Kontakt({
         margin-top: -12px;
         margin-bottom: -12px;
       }
-      .tellian-k6-primaer { background-color: var(--tellian-gold); }
+      .tellian-k6-primaer { background-color: var(--tellian-muted); }
       .tellian-k6-primaer:hover:not(:disabled),
-      .tellian-k6-primaer:focus-visible:not(:disabled) { background-color: var(--tellian-gold-aktiv); }
+      .tellian-k6-primaer:focus-visible:not(:disabled) { background-color: var(--tellian-button-hover); }
       .tellian-k6-primaer:disabled { opacity: 0.8; }
       .tellian-k6-weg:hover .tellian-k6-weg-wert {
         text-decoration: underline;

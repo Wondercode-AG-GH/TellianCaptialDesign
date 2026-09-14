@@ -862,7 +862,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         <style>{`
           .tellian-dreieck-mandat { outline: none; }
           .tellian-dreieck-mandat:focus-visible {
-            outline: 2px solid var(--tellian-gold);
+            outline: 2px solid var(--tellian-muted);
             outline-offset: 4px;
           }
         `}</style>
@@ -1076,7 +1076,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
     <style>{`
       .tellian-dreieck-knoten { outline: none; }
       .tellian-dreieck-knoten:focus-visible {
-        outline: 2px solid var(--tellian-gold);
+        outline: 2px solid var(--tellian-muted);
         outline-offset: 4px;
       }
       .tellian-dreieck-knoten:hover { filter: brightness(1.06); }

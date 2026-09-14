@@ -96,7 +96,7 @@ export function CtaButton({
       `}
       style={{
         fontFamily: sans,
-        border: "1px solid var(--tellian-gold)",
+        border: "1px solid var(--tellian-muted)",
         letterSpacing: "var(--tellian-ls-cta-klein)",
         lineHeight: 1,
         ...style,

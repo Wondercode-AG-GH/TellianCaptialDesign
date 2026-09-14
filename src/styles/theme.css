@@ -48,17 +48,12 @@
   --tellian-dot-inactive: #C8C5BB;
   --tellian-dot-active: #8A8575;
   --tellian-purple: #281F33;          /* Imperial Purple */
-  /* ── GOLD-AKZENT (12.09) ──
-     EIN Akzent für Untertitel, Boxtitel und primäre Knöpfe auf den
-     dunklen Stationen (02-Mandat-CTA, 04 Wealth, 06). Die
-     Akzentspur der hellen Vorteile-Station führt seit dem Rückbau
-     vom 14.09 wieder Mushroom. ERSETZT Mushroom
-     NICHT flächendeckend: Hairlines, Eyebrows, Kicker, Kreis-Labels
-     und Grafikelemente bleiben Mushroom. Kontraste: auf Imperial
-     Purple 6.48:1, auf dem Glanzton 5.44:1, Purpur-Text auf der
-     Goldfläche 6.48:1 (aktiv 5.19:1) — alle über AA. */
-  --tellian-gold: #C6A15B;
-  --tellian-gold-aktiv: #B28F4C;      /* Hover/Fokus: dezent dunkler */
+  /* ── AKZENT-RÜCKBAU (14.09) ──
+     Die Gold-Welt vom 12.09 (#C6A15B/#B28F4C) ist auf Kundenwunsch
+     KOMPLETT abgelöst: Akzente, Punkte und alle Primär-CTAs tragen
+     wieder Mushroom aus dem Brandbook (--tellian-muted, Aktivstufe
+     --tellian-button-hover). Kontraste: Tinte auf Mushroom 8.17:1,
+     auf der Aktivstufe ~6.9:1; Mushroom auf Imperial Purple 6.7:1. */
 
   /* ══ DIE DUNKLE STATIONSFLÄCHE ══
      Eine Definition für alle drei dunklen Stationen (02, 04, 06).
@@ -403,9 +398,9 @@
      Gold ab bzw. hellt das Purpur auf — dieselbe Geste in beiden
      Welten. Kontraste: Gold/Purpur 6.48:1, Purpur/Archive White
      14.28:1, aktiv 5.19:1 bzw. 11.41:1 — alle über AA (4.5:1). */
-  --tellian-pm-knopf-gold: var(--tellian-gold);
-  --tellian-pm-knopf-gold-aktiv: var(--tellian-gold-aktiv);
-  --tellian-pm-knopf-gold-ink: var(--tellian-purple);
+  --tellian-pm-knopf-mandat: var(--tellian-muted);
+  --tellian-pm-knopf-mandat-aktiv: var(--tellian-button-hover);
+  --tellian-pm-knopf-mandat-ink: var(--tellian-ink);
   --tellian-pm-knopf-nacht: var(--tellian-purple);
   --tellian-pm-knopf-nacht-aktiv: #3A2E4A;
   --tellian-pm-knopf-nacht-ink: var(--tellian-bg);
@@ -1034,13 +1029,12 @@
      zu wenig. 55 % trägt 3.86 : 1.
      Auf Imperial Purple: 45 % Weiss trägt 4.02 : 1. */
   --tellian-kopf-portal-line-hell: rgba(25, 23, 24, 0.55);    /* 3.86 : 1 */
-  /* Kundenwunsch 13.09: auf dunklem Grund (dunkle Stationen und
-     Bildzone) trägt das Portalfeld das satte Gold der Primär-CTAs —
-     Kontur und Schrift #C6A15B (auf Imperial Purple 6.48:1), der
-     Hover füllt Gold mit Purpur statt Mushroom. Hell bleibt das
-     Feld unverändert Chrome (dunkle Kontur, purpurne Füllung beim
+  /* Rückbau 14.09: auf dunklem Grund trägt das Portalfeld wieder
+     Mushroom (Kontur und Schrift, auf Imperial Purple 6.7:1); der
+     Hover füllt Mushroom mit Tinte (8.17:1). Hell bleibt das Feld
+     unverändert Chrome (dunkle Kontur, purpurne Füllung beim
      Zeigen). */
-  --tellian-kopf-portal-line-dunkel: var(--tellian-gold);
+  --tellian-kopf-portal-line-dunkel: var(--tellian-muted);
   --tellian-kopf-portal-h: 36px;
   --tellian-kopf-portal-pad-x: clamp(12px, 1.1vw, 18px);
   /* Gefüllter Zustand bei Zeiger und Tastaturfokus. Die Füllung ist
@@ -1048,8 +1042,8 @@
      hell auf Purple 14.28 : 1, Iron auf Mushroom 8.17 : 1. */
   --tellian-kopf-portal-fuell-hell: var(--tellian-purple);
   --tellian-kopf-portal-ink-fuell-hell: var(--tellian-bg);
-  --tellian-kopf-portal-fuell-dunkel: var(--tellian-gold);
-  --tellian-kopf-portal-ink-fuell-dunkel: var(--tellian-purple);
+  --tellian-kopf-portal-fuell-dunkel: var(--tellian-muted);
+  --tellian-kopf-portal-ink-fuell-dunkel: var(--tellian-ink);
 
   /* Unter 360px reicht die Breite nicht mehr: gemessen stand die
      Menükante bei 320px auf 341. Enger gesetzt und mit knapperem

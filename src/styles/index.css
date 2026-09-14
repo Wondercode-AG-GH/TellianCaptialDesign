@@ -59,22 +59,22 @@
   flex-direction: column;
 }
 
-/* ── PRIMÄRER CTA (Gold-Akzent, 12.09) ──
+/* ── PRIMÄRER CTA (Rückbau 14.09: Mushroom statt Gold) ──
    EINE Fläche für alle gefüllten Handlungs-CTAs beider Welten:
-   Gold mit Imperial Purple, Gewicht 500, Hover/Fokus dunkelt auf
-   die Aktivstufe. Konsistent zu Mandat-CTA (S02) und «Anfrage
-   senden» (S06); bewusst NICHT darauf: der Advisory-CTA (Purpur-
-   Gegenstück im Kartenpaar) und das Kundenportal (Header-Chrome,
-   Kontur statt Fläche). */
+   Mushroom aus dem Brandbook mit Tinte (8.17:1), Gewicht 500,
+   Hover/Fokus dunkelt auf die Aktivstufe (#A69D93, ~6.9:1). Die
+   Gold-Welt vom 12.09 ist auf Kundenwunsch komplett abgelöst.
+   Bewusst NICHT darauf: der Advisory-CTA (Purpur-Gegenstück im
+   Kartenpaar). */
 .tellian-cta-primaer {
-  background-color: var(--tellian-gold);
-  color: var(--tellian-purple);
+  background-color: var(--tellian-muted);
+  color: var(--tellian-ink);
   font-weight: 500;
   transition: background-color 200ms ease;
 }
 .tellian-cta-primaer:hover,
 .tellian-cta-primaer:focus-visible {
-  background-color: var(--tellian-gold-aktiv);
+  background-color: var(--tellian-button-hover);
 }
 
 /* ── EBENE 1 — MARKER (Versal-Standard, 12.09) ──

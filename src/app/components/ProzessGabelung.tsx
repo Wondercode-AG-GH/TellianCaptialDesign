@@ -435,12 +435,12 @@ export function ProzessGabelung({
             color var(--tellian-pm-card-ms) ease;
         }
         .tellian-pm-knopf--mandat > span {
-          background-color: var(--tellian-pm-knopf-gold);
-          color: var(--tellian-pm-knopf-gold-ink);
+          background-color: var(--tellian-pm-knopf-mandat);
+          color: var(--tellian-pm-knopf-mandat-ink);
         }
         .tellian-pm-karte:hover .tellian-pm-knopf--mandat > span,
         .tellian-pm-karte:focus-visible .tellian-pm-knopf--mandat > span {
-          background-color: var(--tellian-pm-knopf-gold-aktiv);
+          background-color: var(--tellian-pm-knopf-mandat-aktiv);
         }
         .tellian-pm-knopf--advisory > span {
           background-color: var(--tellian-pm-knopf-nacht);
