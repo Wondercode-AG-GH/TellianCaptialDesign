@@ -191,16 +191,17 @@ const SOURCES = [
        Stufe entfaellt (Skript ueberspringt > Ausschnitt), Retina-
        Desktops erhalten die 620er leicht weicher als die uebrigen
        Portraets. Hoeher aufgeloeste Fassung willkommen. */
+    /* NEUE FASSUNGEN 14.09 (alle 1024x1536; die Vorgänger liegen
+       als OLD_ daneben). Augenlinien am Prozentraster der neuen
+       Quellen abgelesen und auf 22 % der Ausschnitthöhe gerechnet
+       (oben = Augenlinie − 0.22 × 0.738). Gleicher Hinweis wie bei
+       Olivier: 1024px Quellbreite — die 1080er-Stufe entfällt. */
     ["olivier-bill",      "Olivier-Bill.JPG",     0.003, 0.147, 0.996],
-    ["marco-ludescher",   "Marco-Ludescher.JPG",  0.002, 0.122, 0.996],
-    ["rolf-schneider",    "Rolf-Schneider.JPG",   0.000, 0.010, 0.996],
-    ["bryan-honegger",    "Bryan-Honegger.png",   0.002, 0.014, 0.996],
-    ["andreas-truempler", "Andreas-Trümpler.JPG", 0.002, 0.031, 0.996],
-    /* Korrektur 14.09: mit 0.015 lag die Augenlinie bei 26.6 %
-       statt 22 % — der Scheitel fiel aus dem Ausschnitt (im
-       Porträt-Overlay oben angeschnitten). Auf die Augenlinie der
-       übrigen Porträts nachkalibriert. */
-    ["jasmina-rukavina",  "Jasmina-Rukavina.JPG", 0.002, 0.049, 0.996],
+    ["marco-ludescher",   "Marco-Ludescher.JPG",  0.002, 0.193, 0.996],
+    ["rolf-schneider",    "Rolf-Schneider.JPG",   0.000, 0.053, 0.996],
+    ["bryan-honegger",    "Bryan-Honegger.png",   0.002, 0.008, 0.996],
+    ["andreas-truempler", "Andreas-Trümpler.JPG", 0.002, 0.048, 0.996],
+    ["jasmina-rukavina",  "Jasmina-Rukavina.JPG", 0.002, 0.053, 0.996],
     /* Wilhelm Tell unverändert — Statue, eigene Regeln. */
     ["wilhelm-tell",      "WilhelmTell_2.png",    0.000, 0.195, 0.960],
   ].map(([id, file, left, top, width]) => ({
