@@ -102,6 +102,13 @@ const kante = (a: { x: number; y: number }, b: { x: number; y: number }) => {
    gehen, hinter ihm liegt die deckende Fläche. */
 const GEDIMMT = 0.25;
 
+/* Dunkle Stationsfassung (Tausch 14.09): die Station steht neu auf
+   Imperial Purple — Texte in den hellen Tönen der übrigen dunklen
+   Stationen, Linien in Mushroom (Purpur wäre unsichtbar). */
+const SILBER = "rgba(249, 249, 247, 0.78)";
+const SILBER_DIM = "rgba(249, 249, 247, 0.6)";
+const KONTUR_HELL = "rgba(249, 249, 247, 0.4)";
+
 const mischen = (vorn: string, hinten: string, deckung: number) => {
   const kanal = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
   const [r1, g1, b1] = kanal(vorn);
@@ -450,7 +457,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
          durch den zurückgetretenen Kreis. Gedämpft wird über die
          Farbe: die Füllung gegen den Stationsgrund verrechnet, das
          Ergebnis ist deckend. */
-      backgroundColor: gedimmt ? mischen(fuellung, C.bg, GEDIMMT) : fuellung,
+      backgroundColor: gedimmt ? mischen(fuellung, C.purple, GEDIMMT) : fuellung,
       transform: `translate(-50%, -50%) scale(${hervor ? 1.03 : 1})`,
       transition: uebergang
         ? `${uebergang}, background-color 260ms cubic-bezier(0.22,0.61,0.36,1)`
@@ -530,7 +537,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           fontSize: "12px",
           letterSpacing: "0.04em",
           whiteSpace: "nowrap",
-          color: C.ink,
+          color: C.bg,
           opacity: gedimmt ? GEDIMMT : 1,
           transition: uebergang,
         }}
@@ -564,11 +571,11 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         fontSize: "12px",
         letterSpacing: "0.04em",
         whiteSpace: "nowrap",
-        color: C.accent,
+        color: SILBER,
         /* Unterbrechungs-Lösung (kompakt): der Teller in Stations-
            farbe öffnet die Linie um das Wort — 10px je Seite. */
         ...(teller
-          ? { backgroundColor: "var(--tellian-s2-bg, #F9F9F7)", padding: "2px 10px" }
+          ? { backgroundColor: "var(--tellian-s2-bg, #281F33)", padding: "2px 10px" }
           : null),
       }}
     >
@@ -623,6 +630,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
       zentrum: { x: number; y: number },
       fuellung: string,
       kind: React.ReactNode,
+      kontur?: string,
     ) => (
       <div
         aria-hidden
@@ -633,6 +641,8 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           width: pz(2 * R, 640),
           aspectRatio: "1",
           borderRadius: "50%",
+          border: kontur ? `1.5px solid ${kontur}` : "none",
+          boxSizing: "border-box",
           backgroundColor: fuellung,
           transform: "translate(-50%, -50%)",
           display: "flex",
@@ -654,7 +664,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           fontSize: "12px",
           letterSpacing: "0.04em",
           whiteSpace: "nowrap",
-          color: C.ink,
+          color: C.bg,
         }}
       >
         {text}
@@ -683,7 +693,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
               <line
                 key={`${a.x}-${b.x}`}
                 {...kante(a, b)}
-                stroke={C.purple}
+                stroke={C.muted}
                 strokeWidth={1}
                 vectorEffect="non-scaling-stroke"
               />
@@ -700,7 +710,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
               aria-hidden
               style={{ width: "35%", height: "auto", display: "block" }}
             />
-          ))}
+          ), KONTUR_HELL)}
           {kreisKompakt(KD.bank, C.muted, (
             <span aria-hidden style={rasterMotiv(bankgebaeudeIcon, "31.5%", C.purple)} />
           ))}
@@ -723,12 +733,12 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
                   top: pz(m.y, VHD),
                   transform: "translate(-50%, -50%)",
                   padding: "2px 9px",
-                  backgroundColor: "var(--tellian-s2-bg, #F9F9F7)",
+                  backgroundColor: "var(--tellian-s2-bg, #281F33)",
                   fontFamily: serif,
                   fontSize: "15px",
                   fontWeight: "var(--tellian-ziffer-weight)" as unknown as number,
                   letterSpacing: "var(--tellian-ziffer-ls)",
-                  color: "var(--tellian-stone)",
+                  color: C.muted,
                   fontVariantNumeric: "tabular-nums",
                 }}
               >
@@ -775,7 +785,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
                   fontSize: "13px",
                   lineHeight: 1.5,
                   letterSpacing: "0.02em",
-                  color: C.accent,
+                  color: SILBER,
                 }}
               >
                 {wortText}
@@ -802,7 +812,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
                   fontFamily: sans,
                   fontSize: "12px",
                   letterSpacing: "0.04em",
-                  color: C.stone,
+                  color: SILBER_DIM,
                 }}
               >
                 {inhalt[id]}
@@ -812,7 +822,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
                   fontFamily: sans,
                   fontSize: "14px",
                   lineHeight: 1.65,
-                  color: C.accent,
+                  color: SILBER,
                 }}
               >
                 {inhalt.prosa[id]}
@@ -875,9 +885,11 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         aspectRatio: `640 / ${VH}`,
       }}
     >
-      {/* Linien — Imperial Purple, 1px, nicht mitskalierend. Die
-          Endpunkte sind über kante() um je einen Kreisradius nach
-          innen gesetzt: keine Linie läuft in einen Kreis. */}
+      {/* Linien — Mushroom, 1px: seit dem Tausch (14.09) steht die
+          Station auf Imperial Purple, purpurne Linien wären
+          unsichtbar. Die Endpunkte sind über kante() um je einen
+          Kreisradius nach innen gesetzt: keine Linie läuft in
+          einen Kreis. */}
       <svg
         ref={linienSvgRef}
         viewBox={`0 0 640 ${VH}`}
@@ -897,7 +909,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
               linienRefs.current[i] = el;
             }}
             {...kante(a, b)}
-            stroke={C.purple}
+            stroke={C.muted}
             /* KEIN vector-effect mehr: non-scaling-stroke ×
                strokeDasharray ist browserübergreifend eine bekannte
                Bug-Klasse (das Muster wird im falschen Koordinaten-
@@ -927,7 +939,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         "tellian",
         K.tellian,
         C.purple,
-        null,
+        KONTUR_HELL,
         <img
           src={monogramm}
           alt=""
@@ -1049,7 +1061,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
             fontStyle: "italic",
             fontSize: "16px",
             lineHeight: "var(--tellian-kursiv-lh)" as unknown as number,
-            color: C.ink,
+            color: C.bg,
             maxWidth: "34em",
             justifySelf: "center",
             visibility: aktiv === id ? "visible" : "hidden",
@@ -1064,10 +1076,10 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
     <style>{`
       .tellian-dreieck-knoten { outline: none; }
       .tellian-dreieck-knoten:focus-visible {
-        outline: 2px solid var(--tellian-accent);
+        outline: 2px solid var(--tellian-gold);
         outline-offset: 4px;
       }
-      .tellian-dreieck-knoten:hover { filter: brightness(0.97); }
+      .tellian-dreieck-knoten:hover { filter: brightness(1.06); }
     `}</style>
     </div>
   );

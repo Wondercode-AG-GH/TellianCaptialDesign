@@ -50,13 +50,18 @@
   --tellian-purple: #281F33;          /* Imperial Purple */
   /* ── GOLD-AKZENT (12.09) ──
      EIN Akzent für Untertitel, Boxtitel und primäre Knöpfe auf den
-     dunklen Stationen (02-Mandat-CTA, 04, 06). ERSETZT Mushroom
+     dunklen Stationen (02-Mandat-CTA, 04 Wealth, 06); die helle
+     Vorteile-Station führt die Spur über --tellian-gold-tief. ERSETZT Mushroom
      NICHT flächendeckend: Hairlines, Eyebrows, Kicker, Kreis-Labels
      und Grafikelemente bleiben Mushroom. Kontraste: auf Imperial
      Purple 6.48:1, auf dem Glanzton 5.44:1, Purpur-Text auf der
      Goldfläche 6.48:1 (aktiv 5.19:1) — alle über AA. */
   --tellian-gold: #C6A15B;
   --tellian-gold-aktiv: #B28F4C;      /* Hover/Fokus: dezent dunkler */
+  /* Tiefe Goldstufe für HELLE Gründe (Tausch 14.09): #C6A15B misst
+     auf Archive White nur 2.2:1. Diese Stufe trägt 4.78:1 (AA) und
+     hält die Akzentspur der hellen Vorteile-Station erkennbar Gold. */
+  --tellian-gold-tief: #83682F;
 
   /* ══ DIE DUNKLE STATIONSFLÄCHE ══
      Eine Definition für alle drei dunklen Stationen (02, 04, 06).
@@ -243,9 +248,11 @@
      jetzt auf der HELLEN Fläche — Schrift vom Dunkel- aufs
      Hell-Schema. Inhalt und Grafik unverändert; die Überarbeitung
      der Station folgt in einer eigenen Session. */
-  --tellian-s2-bg: var(--tellian-bg);
-  --tellian-s2-ink: var(--tellian-ink);                /* 16.18 : 1 */
-  --tellian-s2-dim: var(--tellian-accent);             /*  5.17 : 1 */
+  /* TAUSCH 14.09: Wealth Management steht neu an Position 04 auf
+     der DUNKLEN Fläche (Takt-Erhalt) — helle Tinten wie 02/06. */
+  --tellian-s2-bg: var(--tellian-purple);
+  --tellian-s2-ink: var(--tellian-bg);                 /* 14.7 : 1 */
+  --tellian-s2-dim: rgba(249, 249, 247, 0.78);         /* ~10 : 1  */
   --tellian-s2-title-size: clamp(36px, 3.6vw, 54px);
   --tellian-s2-panel-bg: var(--tellian-s2-bg);
   --tellian-s2-panel-pad: clamp(32px, 3.4vw, 72px);
@@ -420,18 +427,19 @@
   /* ── STATION 4 — IHRE VORTEILE (Rad) ──
      Dunkle Station. Der radiale Verlauf ist kein Schmuck: eine grosse
      einfarbige Fläche wirkt flach, weil das Auge keine Tiefe findet. */
-  --tellian-r4-bg: var(--tellian-purple);
-  --tellian-r4-glow: var(--tellian-flaeche-glanz);
-  --tellian-r4-ink: var(--tellian-bg);
-  --tellian-r4-ink-dim: rgba(244, 244, 240, 0.45);
-  --tellian-r4-accent: var(--tellian-muted);
+  /* TAUSCH 14.09: die Station steht neu an Position 03 auf HELLER
+     Fläche (Takt-Erhalt). Die Werte hier sind die helle Fassung;
+     die Akzentspur führt die tiefe Goldstufe (--tellian-gold-tief). */
+  --tellian-r4-bg: var(--tellian-bg);
+  --tellian-r4-ink: var(--tellian-ink);                /* 16.18 : 1 */
+  --tellian-r4-ink-dim: var(--tellian-accent);         /*  5.17 : 1 */
+  --tellian-r4-accent: var(--tellian-accent);          /*  5.17 : 1 */
   /* ── Redesign: vier Punkte, alle sichtbar ── */
   --tellian-r4-titel-size: clamp(36px, 3.6vw, 54px);
   --tellian-r4-unter-size: clamp(19px, 1.7vw, 25px);
   --tellian-r4-num-size: clamp(22px, 2vw, 30px);
   --tellian-r4-punkt-titel-size: clamp(20px, 1.8vw, 26px);
   --tellian-r4-punkt-text-size: 14px;
-  --tellian-r4-silver: #C6C0CD;               /* 8.9 : 1 auf Purple */
 
   /* Der Titel trug vorher die Form einer Kapitälchen-Zeile und fiel
      damit aus der Reihe. Er soll GLEICH GROSS sein wie der in
@@ -498,15 +506,15 @@
      zu wenig. */
   --tellian-r4-arc-idle: 1.5px;
   --tellian-r4-arc-active: 9px;
-  --tellian-r4-arc-idle-color: rgba(244, 244, 240, 0.28);
+  --tellian-r4-arc-idle-color: rgba(25, 23, 24, 0.22);
   /* P1 (12.09): der aktive Bogen führt die Gold-Akzentspur —
      Bogen, Untertitel und Boxtitel gehören zusammen. Die inaktiven
      Anteile und die Labels bleiben unverändert. */
-  --tellian-r4-arc-active-color: var(--tellian-gold);
+  --tellian-r4-arc-active-color: var(--tellian-gold-tief);  /* 4.78 : 1 */
   /* Lücke zwischen den Segmenten, in Grad. */
   --tellian-r4-arc-gap: 7;
 
-  --tellian-r4-focus: var(--tellian-muted);
+  --tellian-r4-focus: var(--tellian-accent);
 
   /* Masse des Rades. Aus der HÖHE abgeleitet, damit nichts über die
      Stationsleiste läuft — auch auf flachen Notebook-Formaten.

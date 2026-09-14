@@ -6,7 +6,12 @@ import { DreiecksBeziehung } from "./DreiecksBeziehung";
 import { Aufgang, Kapitelmarke } from "./MobilSektion";
 
 /* ═══════════════════════════════════════════════════════════
-   STATION 03 — DREIECKSBEZIEHUNG (hell)
+   STATION 04 — DREIECKSBEZIEHUNG (dunkel)
+
+   TAUSCH 14.09: mit «Ihre Vorteile» getauscht, steht neu an
+   Position 04 auf der DUNKLEN Fläche — die Farben hängen zentral
+   an den s2-Tokens (theme.css), die Grafik an der dunklen Fassung
+   der DreiecksBeziehung.
 
    Redesign: links die Textzone (H1 + drei Absätze, einspaltig,
    52ch), rechts die Dreiecksgrafik als visueller Anker — deutlich
@@ -146,6 +151,7 @@ export function Station2WealthManagement({
         id="section-anlagephilosophie"
         style={{
           backgroundColor: "var(--tellian-s2-bg)",
+          backgroundImage: "var(--tellian-flaeche-dunkel-schmal)",
           scrollMarginTop: "var(--tellian-kopf-height)",
         }}
       >
@@ -160,7 +166,7 @@ export function Station2WealthManagement({
             gap: "var(--tellian-stapel-schmal)",
           }}
         >
-          <Kapitelmarke nr="03" name="Wealth Management" />
+          <Kapitelmarke nr="04" name="Wealth Management" hell />
           <Aufgang>{titel}</Aufgang>
           <Aufgang stufe={1}>{absaetze}</Aufgang>
           <Aufgang stufe={1}>
@@ -176,7 +182,11 @@ export function Station2WealthManagement({
     <div
       ref={panelRef}
       className="flex-shrink-0 h-screen relative"
-      style={{ width: SECTION_WIDTH, backgroundColor: "var(--tellian-s2-bg)" }}
+      style={{
+        width: SECTION_WIDTH,
+        backgroundColor: "var(--tellian-s2-bg)",
+        backgroundImage: "var(--tellian-flaeche-dunkel)",
+      }}
     >
       <div
         style={{

@@ -1372,7 +1372,16 @@ export default function App() {
           onAdvisory={adv.openDetail}
         />
 
-        {/* ── WEALTH MANAGEMENT (hell, Überarbeitung folgt) ── */}
+        {/* ── IHRE VORTEILE (hell) — TAUSCH 14.09: mit Wealth
+            Management getauscht, Farbwelten mitgedreht. ── */}
+        <Station4Rad
+          isVertical
+          domId="section-anlagestrategien"
+          sprache={sprache}
+          istAktiv={SECTIONS[activeIndex]?.key === "strategien"}
+        />
+
+        {/* ── WEALTH MANAGEMENT (dunkel, getauscht s. o.) ── */}
         <Station2WealthManagement isVertical sprache={sprache} onMandat={man.openDetail} />
         <SubpageOverlay
           isOpen={adv.isDetail}
@@ -1403,13 +1412,6 @@ export default function App() {
           onContactClick={navigateToContact}
         />
 
-        {/* ── IHRE VORTEILE ── */}
-        <Station4Rad
-          isVertical
-          domId="section-anlagestrategien"
-          sprache={sprache}
-          istAktiv={SECTIONS[activeIndex]?.key === "strategien"}
-        />
         {/* Unterseite /anlagestrategien, schmale Fassung. */}
         <Section4Anlagestrategien
           nurUnterseite
@@ -1544,10 +1546,36 @@ export default function App() {
           </SubpageOverlay>
         </SectionEnteredProvider>
 
-        {/* CHAPTER 3 — WEALTH MANAGEMENT (hell, Überarbeitung folgt) */}
+        {/* CHAPTER 3 — IHRE VORTEILE (hell)
+            TAUSCH 14.09: mit Wealth Management getauscht — die
+            Vorteile stehen vor dem Wealth Management. Damit der
+            Hell/Dunkel-Takt hält, tauschen beide auch die Farbwelt:
+            das Rad steht neu auf der hellen Fläche. */}
         <SectionEnteredProvider value={entered[2]}>
-          <Station2WealthManagement
+          <Station4Rad
             panelRef={panelRef(2)}
+            sprache={sprache}
+            istAktiv={SECTIONS[activeIndex]?.key === "strategien"}
+          />
+          {/* Die Station ist ersetzt; die Unterseite /anlagestrategien
+              liegt weiterhin in diesem Bauteil und wird von der
+              Mandat-Karte aus verlinkt. */}
+          <Section4Anlagestrategien
+            nurUnterseite
+            scrollX={0}
+            breakpoint={breakpoint}
+            viewMode={ast.mode}
+            onOpenDetail={ast.openDetail}
+            onCloseDetail={ast.closeDetail}
+            onContactClick={navigateToContact}
+            onNavigateToProcess={pm.openDetail}
+          />
+        </SectionEnteredProvider>
+
+        {/* CHAPTER 4 — WEALTH MANAGEMENT (dunkel, getauscht s. o.) */}
+        <SectionEnteredProvider value={entered[3]}>
+          <Station2WealthManagement
+            panelRef={panelRef(3)}
             sprache={sprache}
             onMandat={man.openDetail}
           />
@@ -1561,28 +1589,6 @@ export default function App() {
             onOpenDetail={vvw.openDetail}
             onCloseDetail={vvw.closeDetail}
             onContactClick={navigateToContact}
-          />
-        </SectionEnteredProvider>
-
-        {/* CHAPTER 4 — IHRE VORTEILE */}
-        <SectionEnteredProvider value={entered[3]}>
-          <Station4Rad
-            panelRef={panelRef(3)}
-            sprache={sprache}
-            istAktiv={SECTIONS[activeIndex]?.key === "strategien"}
-          />
-          {/* Die Station ist ersetzt; die Unterseite /anlagestrategien
-              liegt weiterhin in diesem Bauteil und wird von der
-              Mandat-Karte in Station 3 aus verlinkt. */}
-          <Section4Anlagestrategien
-            nurUnterseite
-            scrollX={0}
-            breakpoint={breakpoint}
-            viewMode={ast.mode}
-            onOpenDetail={ast.openDetail}
-            onCloseDetail={ast.closeDetail}
-            onContactClick={navigateToContact}
-            onNavigateToProcess={pm.openDetail}
           />
         </SectionEnteredProvider>
 

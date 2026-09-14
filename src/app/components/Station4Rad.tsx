@@ -6,7 +6,12 @@ import { useSectionEntered } from "./SectionEntry";
 import { useTitelHoehe } from "./useTitelHoehe";
 
 /* ═══════════════════════════════════════════════════════════
-   STATION 4 — IHRE VORTEILE
+   STATION 03 — IHRE VORTEILE (hell)
+
+   TAUSCH 14.09: mit Wealth Management getauscht, steht neu an
+   Position 03 auf HELLER Fläche — die Farbwerte hängen zentral an
+   den r4-Tokens (theme.css), die Akzentspur an der tiefen
+   Goldstufe.
 
    Acht Punkte auf einem Ring um das Monogramm.
 
@@ -22,7 +27,7 @@ import { useTitelHoehe } from "./useTitelHoehe";
    und geben dem Rad zugleich einen Rahmen.
 
    WARUM DIE SEGMENTE IN DER STÄRKE WACHSEN
-   Auf dunklem Grund trägt eine Farbänderung allein zu wenig. Die
+   Eine Farbänderung allein trägt zu wenig. Die
    Fläche ist der Unterschied, den man aus dem Augenwinkel sieht.
    ═══════════════════════════════════════════════════════════ */
 
@@ -311,9 +316,9 @@ export function Station4Rad({
               fontWeight: 300,
               lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
               /* P1: der Name des aktiven Punkts in Gold — das dritte
-                 Glied der Akzentspur. Auf dem Boxgrund (7 % Mushroom
-                 über Purpur) misst Gold über 5.4:1. */
-              color: "var(--tellian-gold)",
+                 Glied der Akzentspur. Auf hellem Grund die TIEFE
+                 Goldstufe (4.78:1 auf Archive White, AA). */
+              color: "var(--tellian-gold-tief)",
             }}
           >
             {p.titel}
@@ -360,15 +365,15 @@ export function Station4Rad({
       </h2>
       {/* Untertitel — Zwischentitel-Stufe. P1 (12.09): Gold statt
           Mushroom — er eröffnet die Akzentspur der Station (Bogen,
-          Untertitel, Boxtitel). Der Haupttitel bleibt Archive
-          White: Gold ist Akzent, nicht Titelfarbe. */}
+          Untertitel, Boxtitel). Seit dem Tausch auf hellem Grund
+          die TIEFE Goldstufe; der Haupttitel bleibt Tinte. */}
       <p
         style={{
           margin: "12px 0 0",
           fontFamily: serif,
           fontSize: "var(--tellian-r4-unter-size)",
           lineHeight: 1.3,
-          color: "var(--tellian-gold)",
+          color: "var(--tellian-gold-tief)",
         }}
       >
         {inhalt.untertitel}
@@ -405,8 +410,6 @@ export function Station4Rad({
         id={domId}
         style={{
           backgroundColor: "var(--tellian-r4-bg)",
-          backgroundImage:
-            "var(--tellian-flaeche-dunkel-schmal)",
           paddingTop: "var(--tellian-abschnitt-luft-schmal)",
           paddingBottom: "var(--tellian-abschnitt-luft-schmal)",
           paddingLeft: "clamp(20px, 6vw, 48px)",
@@ -414,7 +417,7 @@ export function Station4Rad({
         }}
       >
         <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
-          <Kapitelmarke nr="04" name="Ihre Vorteile" hell />
+          <Kapitelmarke nr="03" name="Ihre Vorteile" />
         </div>
         <Aufgang>{kopf}</Aufgang>
 
@@ -432,7 +435,7 @@ export function Station4Rad({
             <li
               key={p.titel}
               style={{
-                borderTop: i === 0 ? "none" : "1px solid rgba(249, 249, 247, 0.14)",
+                borderTop: i === 0 ? "none" : "1px solid rgba(25, 23, 24, 0.12)",
                 paddingTop: i === 0 ? 0 : "clamp(26px, 3.6vh, 40px)",
               }}
             >
@@ -515,20 +518,17 @@ export function Station4Rad({
       className="flex-shrink-0 h-screen relative"
       style={{ width: "var(--tellian-r4-section-width)", backgroundColor: C.bg }}
     >
-      {/* ══ Die dunkle Fläche ══
+      {/* ══ Die Stationsfläche ══
           Läuft über die VOLLE Stationshöhe, auch hinter beiden
-          Bändern — die Station soll randlos wirken. Vorher endete sie
-          an der Oberkante der Leiste, weil die damals ein deckendes
-          Band war; heute ist sie ein Verlauf und trägt die Schrift
-          selbst. */}
+          Bändern — die Station soll randlos wirken. Seit dem Tausch
+          (14.09) HELL und flach: der Glanzverlauf gehört den
+          dunklen Stationen. */}
       <div
         aria-hidden
         style={{
           position: "absolute",
           inset: 0,
           backgroundColor: "var(--tellian-r4-bg)",
-          backgroundImage:
-            "var(--tellian-flaeche-dunkel)",
         }}
       />
 

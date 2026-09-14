@@ -75,16 +75,20 @@ export const SECTIONS: readonly SectionDef[] = [
     imageIds: [],
   },
   {
-    /* KORREKTUR: an Position 03 getauscht, jetzt HELLE Fläche.
-       Inhaltlich unverändert; die Überarbeitung folgt separat. */
-    key: "philosophie", label: "Wealth Management", labelKurz: "Wealth", dunkel: false,
-    domId: "section-anlagephilosophie",
-    imageIds: ["sardona"],
-  },
-  {
-    key: "strategien", label: "Ihre Vorteile", labelKurz: "Vorteile", dunkel: true,
+    /* TAUSCH 14.09: «Ihre Vorteile» steht neu VOR dem Wealth
+       Management (Position 03). Die Nachbarn sind fix (02 dunkel,
+       05 hell) — damit der alternierende Hell/Dunkel-Takt hält,
+       tauschen beide Stationen auch die Farbwelt: das Rad steht
+       neu auf der HELLEN Fläche. */
+    key: "strategien", label: "Ihre Vorteile", labelKurz: "Vorteile", dunkel: false,
     domId: "section-anlagestrategien",
     imageIds: [],
+  },
+  {
+    /* Position 04, seit dem Tausch die DUNKLE Fläche (s. o.). */
+    key: "philosophie", label: "Wealth Management", labelKurz: "Wealth", dunkel: true,
+    domId: "section-anlagephilosophie",
+    imageIds: ["sardona"],
   },
   /* Team-Filmstrip, inhaltsabgeleitet ~194vw breit (60vw Padding +
      6 × 21vw + 5 × 24px) und damit die einzige Sektion, die breiter
