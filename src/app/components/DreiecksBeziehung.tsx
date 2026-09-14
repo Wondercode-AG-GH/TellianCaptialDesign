@@ -308,22 +308,35 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
     linienPRef.current = -1;
 
     let laeuft = false;
+    let anzeigeP = 0;
+    let letzteZeit = 0;
+    /* Zeichengeschwindigkeit des Zugs: ein voller Umlauf braucht
+       mindestens ~1.4s. OHNE diese Bremse lief der Zug komplett ab,
+       während die Grafik noch hereinschob — am Rastpunkt war längst
+       alles fertig und «es passierte nichts mehr» (Kundenbefund
+       14.09). So zieht der Umlauf dem Scroll-Ziel SICHTBAR Schritt
+       für Schritt nach (Sie → Tellian → Depotbank → Sie), und im
+       Stand konvergiert er immer aufs Ziel: steht die Grafik ganz
+       im Bild, schliesst sich das Dreieck garantiert — nur eben
+       gezeichnet statt schlagartig. Zurückscrollen öffnet mit
+       derselben Geschwindigkeit. */
+    const ZUG_PRO_S = 0.7;
     const tick = () => {
       if (!laeuft) return;
+      const jetzt = performance.now();
+      const dt = letzteZeit ? Math.min(0.1, (jetzt - letzteZeit) / 1000) : 0;
+      letzteZeit = jetzt;
       const r = svg.getBoundingClientRect();
-      /* Fenster des Zugs (Korrekturen 13./14.09):
-         START erst, wenn rund 45 % der Grafik sichtbar sind — die
-         erste Kante (Sie → Tellian) liegt links im Grafikfeld und
-         wäre bei der ersten Randberührung noch gar nicht im Bild.
-         ENDE, sobald die Grafik VOLLSTÄNDIG sichtbar ist: der
-         Kunde sah beim freien Stehen zwischen den Rastpunkten ein
-         offenes Dreieck — steht die Grafik ganz im Bild, ist der
-         Umlauf Sie → Tellian → Depotbank → Sie jetzt garantiert
-         geschlossen (das frühere 115 %-Ende schloss erst nach dem
-         Ankommen). */
+      /* Fenster des Ziels (Korrekturen 13./14.09): START erst, wenn
+         rund 45 % der Grafik sichtbar sind — die erste Kante liegt
+         links im Grafikfeld. ZIEL ist voll, sobald die Grafik ganz
+         im Bild steht. */
       const sichtbar = window.innerWidth - r.left;
-      const P = Math.max(0, Math.min(1, (sichtbar - r.width * 0.45) / (r.width * 0.55)));
-      schreibe(P);
+      const zielP = Math.max(0, Math.min(1, (sichtbar - r.width * 0.45) / (r.width * 0.55)));
+      const delta = zielP - anzeigeP;
+      const schritt = Math.max(-ZUG_PRO_S * dt, Math.min(ZUG_PRO_S * dt, delta));
+      anzeigeP += schritt;
+      schreibe(anzeigeP);
       linienRafRef.current = requestAnimationFrame(tick);
     };
     const io = new IntersectionObserver(
@@ -331,6 +344,7 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         const nah = eintraege.some((e) => e.isIntersecting);
         if (nah && !laeuft) {
           laeuft = true;
+          letzteZeit = 0;
           linienRafRef.current = requestAnimationFrame(tick);
         } else if (!nah && laeuft) {
           laeuft = false;
