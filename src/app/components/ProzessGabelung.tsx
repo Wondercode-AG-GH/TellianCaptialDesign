@@ -19,7 +19,10 @@ import { C, cormorant, sans, serif } from "../tokens";
 
 interface Karte {
   id: "mandat" | "advisory";
-  punkt: "purple" | "muted";
+  /* Kundenwunsch 14.09: der Farbpunkt folgt der CTA-Welt seiner
+     Karte — Gold für das Mandat, Nacht (Imperial Purple) für
+     Advisory. Er liest sich als Vorschau auf den Knopf unten. */
+  punkt: "gold" | "nacht";
   eyebrow: string;
   name: string;
   text: string;
@@ -38,7 +41,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
     karten: [
       {
         id: "mandat",
-        punkt: "purple",
+        punkt: "gold",
         eyebrow: "Wir verwalten",
         name: "Mandat",
         text: "Sie übertragen uns die Verwaltung Ihres Portfolios. Wir treffen die Anlageentscheide innerhalb Ihrer definierten Strategie und Ihres Risikoprofils.",
@@ -47,7 +50,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
       },
       {
         id: "advisory",
-        punkt: "muted",
+        punkt: "nacht",
         eyebrow: "Sie entscheiden",
         name: "Advisory",
         text: "Wir analysieren Ihr Portfolio auf Basis Ihrer Ziele und Ihres Risikoprofils und beraten Sie unter Berücksichtigung des aktuellen Marktumfelds.",
@@ -63,7 +66,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
     karten: [
       {
         id: "mandat",
-        punkt: "purple",
+        punkt: "gold",
         eyebrow: "We manage",
         name: "Discretionary Mandate",
         text: "You entrust us with the management of your portfolio. We make investment decisions within your agreed strategy and risk profile.",
@@ -72,7 +75,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
       },
       {
         id: "advisory",
-        punkt: "muted",
+        punkt: "nacht",
         eyebrow: "You decide",
         name: "Advisory",
         text: "We analyse your portfolio in the context of your objectives, risk profile and the current market environment, and translate this into specific investment recommendations.",
@@ -87,7 +90,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
     karten: [
       {
         id: "mandat",
-        punkt: "purple",
+        punkt: "gold",
         eyebrow: "Wir verwalten",
         name: "Mandat",
         text: "Sie übertragen uns die Verwaltung Ihres Portfolios. Wir treffen die Anlageentscheide innerhalb Ihrer definierten Strategie und Ihres Risikoprofils.",
@@ -96,7 +99,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
       },
       {
         id: "advisory",
-        punkt: "muted",
+        punkt: "nacht",
         eyebrow: "Sie entscheiden",
         name: "Advisory",
         text: "Wir analysieren Ihr Portfolio auf Basis Ihrer Ziele und Ihres Risikoprofils und beraten Sie unter Berücksichtigung des aktuellen Marktumfelds.",
@@ -262,12 +265,13 @@ export function ProzessGabelung({
                   gap: "8px",
                   fontFamily: sans,
                   fontSize: "var(--tellian-pm-card-eyebrow-size)",
-                  letterSpacing: "var(--tellian-pm-card-eyebrow-tracking)",
+                  /* Kundenwunsch 14.09: Satzschreibweise statt
+                     Versalien — wie die Knotennamen des Dreiecks
+                     (bewusste Abweichung vom Versal-Standard,
+                     12.09). Die Marker-Laufweite entfällt mit den
+                     Versalien; 0.04em wie dort. */
+                  letterSpacing: "0.04em",
                   lineHeight: "var(--tellian-pm-card-eyebrow-leading)",
-                  /* Ebene 1 (12.09): Kartenkopf ist ein Marker —
-                     Versalien per CSS, der String bleibt in
-                     Satzschreibweise. */
-                  textTransform: "uppercase",
                   color: C.accent,
                 }}
               >
@@ -278,7 +282,11 @@ export function ProzessGabelung({
                     width: "7px",
                     height: "7px",
                     borderRadius: "50%",
-                    backgroundColor: k.punkt === "purple" ? C.purple : C.muted,
+                    /* Farbwelt des Karten-CTAs (s. Typ Karte). */
+                    backgroundColor:
+                      k.punkt === "gold"
+                        ? "var(--tellian-pm-knopf-gold)"
+                        : "var(--tellian-pm-knopf-nacht)",
                   }}
                 />
                 {k.eyebrow}
