@@ -270,6 +270,15 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
     const svg = linienSvgRef.current;
     if (!svg) return;
 
+    /* Dash in ECHTEN Pfadlängen: die frühere pathLength-Normierung
+       kollidierte mit vector-effect: non-scaling-stroke — Chrome
+       rechnet das Dash-Muster dann im Screenraum, und «1» wurde zur
+       1px-Punktlinie (Kundenbefund 14.09: «Linien gebrochen»). */
+    const laengen = linienRefs.current.map((el) => (el ? el.getTotalLength() : 0));
+    linienRefs.current.forEach((el, i) => {
+      if (el) el.style.strokeDasharray = String(laengen[i]);
+    });
+
     /* Zugfolge ums Dreieck: Linie 0 (Sie→Tellian) vorwärts,
        Linie 2 (Tellian→Depotbank) vorwärts, Linie 1 (Sie→Depotbank)
        RÜCKWÄRTS — zusammen eine Umrundung. */
@@ -281,14 +290,22 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         const el = linienRefs.current[index];
         if (!el) return;
         const p = Math.max(0, Math.min(1, P * 3 - k));
-        el.style.strokeDashoffset = String(rueckwaerts ? -(1 - p) : 1 - p);
+        const rest = (1 - p) * laengen[index];
+        el.style.strokeDashoffset = String(rueckwaerts ? -rest : rest);
       });
     };
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      schreibe(1);
+      linienRefs.current.forEach((el) => {
+        if (el) el.style.strokeDasharray = "none";
+      });
       return;
     }
+
+    /* Startzustand VOR dem ersten Tick: leer. */
+    linienPRef.current = -1;
+    schreibe(0);
+    linienPRef.current = -1;
 
     let laeuft = false;
     const tick = () => {
@@ -855,17 +872,6 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
             stroke={C.purple}
             strokeWidth={1}
             vectorEffect="non-scaling-stroke"
-            /* Scrub-Zeichnen (nur breit): pathLength normiert auf 1,
-               der Effekt schreibt den dashoffset. Startwert leer —
-               Linie 1 von ihrem Ende her (negativ), s. Effekt.
-               Kompakt bleiben die Linien ohne Dash statisch voll. */
-            {...(kompakt
-              ? null
-              : {
-                  pathLength: 1,
-                  strokeDasharray: "1",
-                  strokeDashoffset: i === 1 ? -1 : 1,
-                })}
           />
         ))}
       </svg>
