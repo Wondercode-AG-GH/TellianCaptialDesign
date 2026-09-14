@@ -349,6 +349,18 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         } else if (!nah && laeuft) {
           laeuft = false;
           cancelAnimationFrame(linienRafRef.current);
+          /* RESET beim Verlassen (Volldebug 14.09): ohne ihn fror
+             der Zug hier FAST GESCHLOSSEN ein — die Öffnung lief
+             nur, solange die Schleife lebte, und die stirbt eine
+             halbe Fensterbreite neben der Station. Beim Wieder-
+             kommen gab es nichts mehr zu zeichnen: die Sequenz war
+             genau EINMAL pro Seitenladung zu sehen («funktioniert
+             nicht»). Jetzt beginnt jeder Besuch der Station mit
+             leeren Linien, und der Umlauf zeichnet erneut. */
+          anzeigeP = 0;
+          linienPRef.current = -1;
+          schreibe(0);
+          linienPRef.current = -1;
         }
       },
       { rootMargin: "0px 50% 0px 50%" },
@@ -886,8 +898,15 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
             }}
             {...kante(a, b)}
             stroke={C.purple}
+            /* KEIN vector-effect mehr: non-scaling-stroke ×
+               strokeDasharray ist browserübergreifend eine bekannte
+               Bug-Klasse (das Muster wird im falschen Koordinaten-
+               raum interpretiert — Chrome zeigte Punktlinien, Safari
+               rechnet wieder anders). Der Strich skaliert nun mit
+               der Grafik: 640er-Feld bei ~680px Darstellung ergibt
+               ~1.06px statt 1px — unsichtbar, dafür ist das
+               Dash-Zeichnen überall deterministisch. */
             strokeWidth={1}
-            vectorEffect="non-scaling-stroke"
           />
         ))}
       </svg>
