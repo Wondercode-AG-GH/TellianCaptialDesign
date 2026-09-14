@@ -5,7 +5,6 @@ import {
   useRef,
   useState,
   type FormEvent,
-  type ReactNode,
 } from "react";
 
 import { cormorant, sans } from "../tokens";
@@ -291,12 +290,16 @@ function KontaktFeld({
     fontSize: "var(--tellian-field-size)",
     lineHeight: 1.5,
     color: "var(--tellian-field-ink)",
-    /* Im Fehler zusätzlich dicker, damit der Zustand nicht allein an
-       der Farbe hängt. */
-    border: `${fehler ? "2px" : "1px"} solid ${kontur}`,
+    /* GRUNDLINIE statt Kasten (Kundenrückmeldung 14.09): die
+       umrandeten Felder lasen sich wie Formular-Baukasten. Nur die
+       Unterlinie trägt das Feld — wie eine Zeile auf Briefpapier.
+       Im Fehler dicker (Innenabstand gleicht die Höhe aus), damit
+       der Zustand nicht allein an der Farbe hängt. */
+    border: "none",
+    borderBottom: `${fehler ? "2px" : "1px"} solid ${kontur}`,
     borderRadius: 0,
-    backgroundColor: "var(--tellian-field-bg)",
-    padding: fehler ? "11px 13px" : "12px 14px",
+    backgroundColor: "transparent",
+    padding: fehler ? "12px 2px 11px" : "12px 2px",
     width: "100%",
     boxSizing: "border-box",
     appearance: "none",
@@ -324,7 +327,10 @@ function KontaktFeld({
           fontFamily: sans,
           fontSize: "var(--tellian-field-label-size)",
           lineHeight: 1.3,
-          color: "var(--tellian-k6-ink)",
+          /* Gedämpft (6.32:1): das Feld ist die Bühne, nicht die
+             Beschriftung — volle Tinte liess die Namen lauter
+             sprechen als die Eingaben. */
+          color: "var(--tellian-field-label)",
         }}
       >
         {beschriftung}
@@ -879,124 +885,72 @@ export function Station6Kontakt({
     </a>
   );
 
-  /* ── SCHMAL: zwei grosse Bedienflächen ── */
+  /* ── SCHMAL: Kontaktwege als redaktionelle Zeilen ──
+     Kundenrückmeldung 14.09: die zwei umrandeten Icon-Kacheln und
+     der zentrierte «Oder schreiben Sie uns»-Trenner lasen sich wie
+     Baukasten-Bausteine. Die Wege stehen jetzt als Zeilen einer
+     Haarlinien-Liste im Vokabular der Seite — Marker-Zeile, Wert
+     in der Serife der breiten Fassung, Meta-Zeile; ohne Icons,
+     ohne Kästen. Das Formular schliesst die Liste als dritter Weg
+     mit derselben Grammatik. */
 
-  const kachel = (
+  const weg = (
     href: string,
-    zeichen: ReactNode,
     ueberschrift: string,
     wert: string,
     zusatz?: string,
   ) => (
     <a
       href={href}
-      className="tellian-k6-kachel"
+      className="tellian-k6-weg"
       style={{
-        display: "flex",
-        alignItems: "flex-start",
-        gap: "14px",
-        padding: "var(--tellian-k6-kachel-pad)",
-        border: "1px solid var(--tellian-k6-kachel-line)",
-        backgroundColor: "var(--tellian-k6-kachel-bg)",
+        display: "block",
+        padding: "clamp(18px, 2.6vh, 26px) 0",
+        borderTop: "1px solid var(--tellian-k6-line)",
         textDecoration: "none",
-        minHeight: "var(--tellian-tippziel)",
-        boxSizing: "border-box",
-        transition: "background-color 200ms ease, border-color 200ms ease",
       }}
     >
       <span
-        aria-hidden
+        className="tellian-marker"
         style={{
-          display: "flex",
-          flexShrink: 0,
-          marginTop: "3px",
-          color: "var(--tellian-k6-ink)",
+          display: "block",
+          fontFamily: sans,
+          fontSize: "11px",
+          color: "var(--tellian-k6-dim)",
         }}
       >
-        {zeichen}
+        {ueberschrift}
       </span>
-      <span style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+      <span
+        className="tellian-k6-weg-wert"
+        style={{
+          display: "block",
+          marginTop: "10px",
+          fontFamily: cormorant,
+          fontSize: "clamp(24px, 6.4vw, 32px)",
+          fontWeight: 300,
+          lineHeight: 1.1,
+          color: "var(--tellian-k6-ink)",
+          wordBreak: "break-word",
+        }}
+      >
+        {wert}
+      </span>
+      {zusatz && (
         <span
           style={{
+            display: "block",
+            marginTop: "8px",
             fontFamily: sans,
             fontSize: "13px",
-            letterSpacing: "var(--tellian-ls-marker)",
-            textTransform: "uppercase",
+            lineHeight: 1.45,
             color: "var(--tellian-k6-dim)",
           }}
         >
-          {ueberschrift}
+          {zusatz}
         </span>
-        <span
-          style={{
-            marginTop: "6px",
-            fontFamily: cormorant,
-            fontSize: "clamp(24px, 6.4vw, 32px)",
-            fontWeight: 300,
-            lineHeight: 1.1,
-            color: "var(--tellian-k6-ink)",
-            wordBreak: "break-word",
-          }}
-        >
-          {wert}
-        </span>
-        {zusatz && (
-          <span
-            style={{
-              marginTop: "8px",
-              fontFamily: sans,
-              fontSize: "13px",
-              lineHeight: 1.45,
-              color: "var(--tellian-k6-dim)",
-            }}
-          >
-            {zusatz}
-          </span>
-        )}
-      </span>
+      )}
     </a>
-  );
-
-  const zeichenTelefon = (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden focusable="false">
-      <path
-        d="M6.3 2.8 8 6.1l-1.7 1.6c.9 2 2.3 3.4 4.3 4.3l1.6-1.7 3.3 1.7-.6 3c-.2.7-.8 1.1-1.5 1C8.1 15.3 4.7 11.9 3.2 5.9c-.1-.7.3-1.3 1-1.5l2.1-.6z"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-
-  const zeichenMail = (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden focusable="false">
-      <rect x="2.2" y="4.4" width="15.6" height="11.2" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M2.6 5.1 10 10.7l7.4-5.6" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
-    </svg>
-  );
-
-  const trennzeile = (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "14px",
-      }}
-    >
-      <span aria-hidden style={{ flex: 1, height: "1px", backgroundColor: "var(--tellian-k6-line)" }} />
-      <span
-        style={{
-          fontFamily: sans,
-          fontSize: "13px",
-          letterSpacing: "0.08em",
-          color: "var(--tellian-k6-dim)",
-          whiteSpace: "nowrap",
-        }}
-      >
-        Oder schreiben Sie uns
-      </span>
-      <span aria-hidden style={{ flex: 1, height: "1px", backgroundColor: "var(--tellian-k6-line)" }} />
-    </div>
   );
 
   const firma = (
@@ -1177,9 +1131,11 @@ export function Station6Kontakt({
       .tellian-k6-primaer:hover:not(:disabled),
       .tellian-k6-primaer:focus-visible:not(:disabled) { background-color: var(--tellian-gold-aktiv); }
       .tellian-k6-primaer:disabled { opacity: 0.8; }
-      .tellian-k6-kachel:hover {
-        background-color: var(--tellian-k6-kachel-bg-hover);
-        border-color: var(--tellian-k6-kachel-line-hover);
+      .tellian-k6-weg:hover .tellian-k6-weg-wert {
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 5px;
+        text-decoration-color: var(--tellian-k6-line);
       }
       .tellian-k6-feld { outline: none; }
       .tellian-k6-feld::placeholder { color: transparent; }
@@ -1193,7 +1149,7 @@ export function Station6Kontakt({
       .tellian-k6-tel:focus-visible,
       .tellian-k6-still:focus-visible,
       .tellian-k6-primaer:focus-visible,
-      .tellian-k6-kachel:focus-visible,
+      .tellian-k6-weg:focus-visible,
       .tellian-k6-feld:focus-visible {
         outline: 2px solid var(--tellian-k6-focus);
         outline-offset: 3px;
@@ -1223,8 +1179,8 @@ export function Station6Kontakt({
   );
 
   /* ── SCHMAL ──
-     Titel, ein Satz, die beiden Bedienflächen, Trennzeile, Formular,
-     Adressblock, Fussband. */
+     Titel, ein Satz, die Wegliste (Anrufen, E-Mail, Schreiben mit
+     Formular), Adressblock, Fussband. */
   if (isVertical) {
     return (
       <section
@@ -1258,22 +1214,32 @@ export function Station6Kontakt({
           <Aufgang>{titel}</Aufgang>
           {lead(false)}
 
-          <div
-            style={{
-              marginTop: "clamp(26px, 3.4vh, 40px)",
-              display: "flex",
-              flexDirection: "column",
-              gap: "14px",
-            }}
-          >
-            {kachel(TELEFON_LINK, zeichenTelefon, "Anrufen", TELEFON_ANZEIGE, OEFFNUNG)}
-            {kachel(`mailto:${MAIL}`, zeichenMail, "E-Mail", MAIL)}
-          </div>
-
-          <div style={{ marginTop: "clamp(30px, 4vh, 46px)" }}>{trennzeile}</div>
-
-          <div style={{ marginTop: "clamp(22px, 3vh, 32px)" }}>
-            <Formular gestapelt sprache={sprache} />
+          <div style={{ marginTop: "clamp(26px, 3.4vh, 40px)" }}>
+            {weg(TELEFON_LINK, "Anrufen", TELEFON_ANZEIGE, OEFFNUNG)}
+            {weg(`mailto:${MAIL}`, "E-Mail", MAIL)}
+            {/* Der Nachrichtenweg schliesst die Liste — gleiche
+                Grammatik statt eines zentrierten Trenners. */}
+            <div
+              style={{
+                borderTop: "1px solid var(--tellian-k6-line)",
+                paddingTop: "clamp(18px, 2.6vh, 26px)",
+              }}
+            >
+              <span
+                className="tellian-marker"
+                style={{
+                  display: "block",
+                  fontFamily: sans,
+                  fontSize: "11px",
+                  color: "var(--tellian-k6-dim)",
+                }}
+              >
+                Schreiben Sie uns
+              </span>
+              <div style={{ marginTop: "clamp(20px, 2.6vh, 30px)" }}>
+                <Formular gestapelt sprache={sprache} />
+              </div>
+            </div>
           </div>
 
           <div style={{ marginTop: "clamp(30px, 4vh, 46px)" }}>{firma}</div>

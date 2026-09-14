@@ -888,11 +888,6 @@
   /* Grosse Bedienflächen für Anrufen und E-Mail — nur schmal.
      Die Kontur ist ein Bedienelement und braucht 3 : 1; 45 % Weiss
      auf Imperial Purple trägt 4.03 : 1. */
-  --tellian-k6-kachel-line: rgba(244, 244, 240, 0.45);
-  --tellian-k6-kachel-line-hover: rgba(244, 244, 240, 0.72);
-  --tellian-k6-kachel-bg: rgba(244, 244, 240, 0.05);
-  --tellian-k6-kachel-bg-hover: rgba(244, 244, 240, 0.10);
-  --tellian-k6-kachel-pad: clamp(16px, 4vw, 22px);
 
   /* ══ DIE BEIDEN BÄNDER ══
      Kopfzeile oben, Stationsleiste unten, beide über die volle
