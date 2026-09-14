@@ -174,7 +174,21 @@ export function Station4Rad({
      Refs. Ein IntersectionObserver (±50 % Fensterbreite) startet
      und stoppt die rAF-Schleife — abseits der Station läuft
      nichts, schmal (isVertical) gar nichts. prefers-reduced-motion
-     zeigt den Ring sofort vollständig. */
+     zeigt den Ring sofort vollständig.
+
+     KORREKTUR 14.09 (Kundenrückmeldung, wie zuvor beim Dreieck):
+     die reine Scroll-Kopplung zeichnete den Ring komplett während
+     der ANFAHRT — wer normal scrollte, sah nie eine Animation, und
+     beim Wiederbesuch stand er sofort voll. Drei Massnahmen aus
+     der Dreieck-Lösung übernommen:
+     1. Das Fenster beginnt erst bei 45 % sichtbarer Radbreite und
+        endet mit dem vollständigen Sichtbarwerden — der Schluss
+        fällt weiter mit dem Ankommen zusammen.
+     2. Die ANZEIGE jagt dem Scroll-Ziel mit begrenzter
+        Geschwindigkeit hinterher (ZUG_PRO_S) — auch ein schneller
+        Scroll oder Leistensprung zeigt den Zug als Sequenz.
+     3. Beim Verlassen (IO) fällt der Ring auf leer zurück — jeder
+        Besuch zeichnet neu, nicht nur der erste. */
   const ringRef = useRef<SVGSVGElement | null>(null);
   const zeichenRefs = useRef<(SVGPathElement | null)[]>([]);
   const scrubRafRef = useRef(0);
@@ -201,16 +215,32 @@ export function Station4Rad({
       return;
     }
 
+    /* Obergrenze der Zeichengeschwindigkeit in P je Sekunde — der
+       Wert des Dreiecks: vier Segmente brauchen so mindestens
+       ~1.4 s, die Sequenz bleibt als solche erkennbar. */
+    const ZUG_PRO_S = 0.7;
     let laeuft = false;
-    const tick = () => {
+    let anzeigeP = 0;
+    let letzteZeit = 0;
+    const tick = (jetzt: number) => {
       if (!laeuft) return;
+      const dt = letzteZeit ? Math.min((jetzt - letzteZeit) / 1000, 0.1) : 0;
+      letzteZeit = jetzt;
       const r = svg.getBoundingClientRect();
-      /* 0, wenn der Ring rechts ins Bild tritt; 1, wenn er ganz im
-         Bild steht plus einem kurzen Nachlauf (15 % seiner Breite) —
-         der Schluss des Kreises fällt so mit dem Ankommen der
-         Station zusammen. */
-      const P = Math.max(0, Math.min(1, (window.innerWidth - r.left) / (r.width * 1.15)));
-      schreibe(P);
+      /* Ziel: 0 bei 45 % sichtbarer Radbreite, 1 wenn das Rad ganz
+         im Bild steht — der Schluss des Kreises fällt mit dem
+         Ankommen der Station zusammen. */
+      const sichtbar = window.innerWidth - r.left;
+      const zielP = Math.max(
+        0,
+        Math.min(1, (sichtbar - r.width * 0.45) / (r.width * 0.55)),
+      );
+      const delta = Math.max(
+        -ZUG_PRO_S * dt,
+        Math.min(ZUG_PRO_S * dt, zielP - anzeigeP),
+      );
+      anzeigeP += delta;
+      schreibe(anzeigeP);
       scrubRafRef.current = requestAnimationFrame(tick);
     };
     const io = new IntersectionObserver(
@@ -218,10 +248,18 @@ export function Station4Rad({
         const nah = eintraege.some((e) => e.isIntersecting);
         if (nah && !laeuft) {
           laeuft = true;
+          letzteZeit = 0;
           scrubRafRef.current = requestAnimationFrame(tick);
         } else if (!nah && laeuft) {
           laeuft = false;
           cancelAnimationFrame(scrubRafRef.current);
+          /* Rückstellung auf leer: ohne sie stünde der Ring beim
+             nächsten Besuch auf dem eingefrorenen Stand — die
+             Sequenz wäre nur einmal je Seitenaufruf zu sehen
+             (derselbe Defekt wie beim Dreieck, Volldebug 13.09). */
+          anzeigeP = 0;
+          scrubPRef.current = -1;
+          schreibe(0);
         }
       },
       { rootMargin: "0px 50% 0px 50%" },
