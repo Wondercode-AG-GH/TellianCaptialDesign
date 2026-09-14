@@ -752,7 +752,7 @@ export function Station4Rad({
                 fontSize="66"
                 letterSpacing="0.06em"
                 fill="var(--tellian-r4-ink)"
-                fontVariantNumeric="tabular-nums"
+                style={{ fontVariantNumeric: "tabular-nums" }}
               />
             </svg>
           </div>
