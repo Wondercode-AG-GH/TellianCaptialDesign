@@ -185,7 +185,13 @@ const SOURCES = [
      nicht her. Alles vom Original gerechnet. */
   ...[
     /* id, Datei, links, oben, Breite — Anteile der Quelle. */
-    ["olivier-bill",      "Olivier-Bill.JPG",     0.002, 0.100, 0.996],
+    /* Neues Foto 14.09 (Hochformat 1024x1536; das alte Querformat
+       liegt als OLD_ daneben). Augenlinie auf 22 % kalibriert.
+       HINWEIS: die Quelle traegt nur 1024px Breite — die 1080er-
+       Stufe entfaellt (Skript ueberspringt > Ausschnitt), Retina-
+       Desktops erhalten die 620er leicht weicher als die uebrigen
+       Portraets. Hoeher aufgeloeste Fassung willkommen. */
+    ["olivier-bill",      "Olivier-Bill.JPG",     0.003, 0.147, 0.996],
     ["marco-ludescher",   "Marco-Ludescher.JPG",  0.002, 0.122, 0.996],
     ["rolf-schneider",    "Rolf-Schneider.JPG",   0.000, 0.010, 0.996],
     ["bryan-honegger",    "Bryan-Honegger.png",   0.002, 0.014, 0.996],
