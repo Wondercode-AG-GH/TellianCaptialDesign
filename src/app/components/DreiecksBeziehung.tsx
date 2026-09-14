@@ -152,9 +152,9 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
       "Vermögensverwaltungsvollmacht",
     ],
     kantenZeilen: [
-      ["Vermögensverwaltungs-", "auftrag"],
-      ["Depot- / Kontobeziehung"],
-      ["Vermögensverwaltungs-", "vollmacht"],
+      ["Vermögens-", "verwaltungsauftrag"],
+      ["Depot- /", "Kontobeziehung"],
+      ["Vermögens-", "verwaltungsvollmacht"],
     ],
     prosa: {
       sie: "Sie haben einen persönlichen Ansprechpartner und jederzeit vollständige Transparenz. Ihr Portfolio wird laufend überwacht, und Sie werden regelmässig darüber informiert.",
@@ -175,7 +175,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
     ],
     kantenZeilen: [
       ["Asset management", "mandate"],
-      ["Custody/account relationship"],
+      ["Custody/account", "relationship"],
       ["Asset management", "authority"],
     ],
     prosa: {
@@ -198,9 +198,9 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", Inhalt>> = {
       "Vermögensverwaltungsvollmacht",
     ],
     kantenZeilen: [
-      ["Vermögensverwaltungs-", "auftrag"],
-      ["Depot- / Kontobeziehung"],
-      ["Vermögensverwaltungs-", "vollmacht"],
+      ["Vermögens-", "verwaltungsauftrag"],
+      ["Depot- /", "Kontobeziehung"],
+      ["Vermögens-", "verwaltungsvollmacht"],
     ],
     prosa: {
       sie: "Sie haben einen persönlichen Ansprechpartner und jederzeit vollständige Transparenz. Ihr Portfolio wird laufend überwacht, und Sie werden regelmässig darüber informiert.",
