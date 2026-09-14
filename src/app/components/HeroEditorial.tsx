@@ -155,9 +155,10 @@ export function HeroEditorial({
       style={{
         display: "block",
         /* Referenz 900er Fenster: 44/36 — flachere Fenster geben
-           anteilig Luft ab (P4; der EN-Hero brauchte sie unten). */
-        marginTop: "clamp(24px, 4.9vh, 44px)",
-        marginBottom: "clamp(20px, 4vh, 36px)",
+           anteilig Luft ab (P4; der EN-Hero brauchte sie unten).
+           Schmal (Ein-Screen-Bühne, 14.09) eine kompaktere Stufe. */
+        marginTop: isVertical ? "clamp(16px, 2.4vh, 26px)" : "clamp(24px, 4.9vh, 44px)",
+        marginBottom: isVertical ? "clamp(14px, 2vh, 22px)" : "clamp(20px, 4vh, 36px)",
         width: "100%",
         height: "1px",
         backgroundColor: "rgba(184, 174, 163, 0.5)",
@@ -200,18 +201,31 @@ export function HeroEditorial({
   /* ── SCHMAL: Kopfzeile auf Archive White, Text zuerst, Bild
      darunter volle Breite (~56vh), randlos links/rechts. ── */
   if (isVertical) {
+    /* EINE BÜHNE (Kundenwunsch 14.09): der Hero endet mit dem
+       sichtbaren Viewport. Der Textblock steht oben (kompaktere
+       Lüfte als zuvor), das Bild nimmt den RESTRAUM der Bühne ein
+       — vorher stand es fix auf 56vh unter dem Ergebnistext und
+       brach zwangsläufig an der Falz. minHeight statt fester
+       Bildhöhe: läuft der Text auf kleinen Geräten oder in der
+       EN-Fassung länger, wächst die Bühne und scrollt normal,
+       statt das Bild auf einen Streifen zu quetschen. */
     return (
-      <section id={domId} style={{ backgroundColor: ARCHIVE_WHITE }}>
+      <section
+        id={domId}
+        className="tellian-hero-schmal"
+        style={{ backgroundColor: ARCHIVE_WHITE }}
+      >
         <div
           style={{
-            paddingTop: "calc(var(--tellian-kopfzeile-schmal) + clamp(28px, 4vh, 48px))",
-            paddingBottom: "clamp(32px, 5vh, 56px)",
+            flexShrink: 0,
+            paddingTop: "calc(var(--tellian-kopfzeile-schmal) + clamp(16px, 2.4vh, 28px))",
+            paddingBottom: "clamp(18px, 2.6vh, 32px)",
             paddingLeft: "var(--tellian-rand-schmal)",
             paddingRight: "var(--tellian-rand-schmal)",
           }}
         >
           {marke && (
-            <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
+            <div style={{ marginBottom: "clamp(18px, 2.6vh, 32px)" }}>
               <Kapitelmarke nr={marke.nr} name={marke.name} />
             </div>
           )}
@@ -222,15 +236,25 @@ export function HeroEditorial({
             {textEl(false)}
           </Aufgang>
         </div>
-        <div style={{ height: "56vh", overflow: "hidden" }}>
+        <div
+          style={{
+            flex: "1 1 auto",
+            minHeight: "200px",
+            overflow: "hidden",
+            /* Das Bild liegt ABSOLUT im Restraum: die Bühne hat nur
+               min-height, damit gilt die Flex-Höhe für Prozent-
+               Kinder als unbestimmt — ein height:100% lief auf die
+               intrinsische Bildhöhe hinaus und liess die Falz offen. */
+            position: "relative",
+          }}
+        >
           <ResponsiveImage
             id={imageId}
             alt={imageAlt}
             sizes="100vw"
             priority
             objectPosition={fokus}
-            className="w-full h-full"
-            style={{ display: "block", width: "100%", height: "100%" }}
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
           />
         </div>
       </section>

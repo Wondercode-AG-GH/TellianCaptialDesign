@@ -65,7 +65,11 @@ export function ResponsiveImage({
   const fallback = image.jpg[image.jpg.length - 1];
 
   return (
-    <picture>
+    /* Das picture-Element füllt seinen Kasten selbst: ohne eigene
+       Masse (inline, auto-hoch) liefe ein height:100% am img ins
+       Leere — im schmalen Hero endete das Bild vor der Bühnenkante
+       (14.09). In auto-hohen Kontexten wird 100% wie zuvor zu auto. */
+    <picture style={{ display: "block", width: "100%", height: "100%" }}>
       <source type="image/avif" srcSet={srcSet(image.avif)} sizes={sizes} />
       <source type="image/webp" srcSet={srcSet(image.webp)} sizes={sizes} />
       <img

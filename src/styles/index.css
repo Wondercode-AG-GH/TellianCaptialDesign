@@ -47,6 +47,18 @@
   }
 }
 
+/* ── HERO SCHMAL: EINE BÜHNE (14.09) ──
+   Der schmale Hero endet mit dem sichtbaren Viewport: Text oben,
+   das Bild füllt den Rest — nichts bricht an der Falz. svh nimmt
+   die mobilen Browserleisten aus der Rechnung; Browser ohne svh
+   fallen auf vh zurück. */
+.tellian-hero-schmal {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
 /* ── PRIMÄRER CTA (Gold-Akzent, 12.09) ──
    EINE Fläche für alle gefüllten Handlungs-CTAs beider Welten:
    Gold mit Imperial Purple, Gewicht 500, Hover/Fokus dunkelt auf
