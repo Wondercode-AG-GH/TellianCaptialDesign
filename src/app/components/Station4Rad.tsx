@@ -96,6 +96,8 @@ const MITTE = VB / 2;
 const RADIUS = 88;              /* Mittellinie des Rings */
 
 const winkel = (i: number) => -90 + i * SCHRITT;
+/* Grad zwischen den Segmenten; deckt sich mit --tellian-r4-arc-gap. */
+const LUECKE = 7;
 const rad = (g: number) => (g * Math.PI) / 180;
 const punktAuf = (r: number, g: number) => ({
   x: MITTE + r * Math.cos(rad(g)),
@@ -279,6 +281,132 @@ export function Station4Rad({
   useEffect(() => {
     if (istAktiv) setAktiv(RUHE);
   }, [istAktiv]);
+
+  /* ── SCHMAL: der Ring auch hier (Kundenwunsch 14.09) ──
+     Das Rad mit seinen Beschriftungen passt nicht auf schmale
+     Bildschirme — der RING schon. Er steht zwischen Kopf und
+     Punkteliste, zeichnet sich am VERTIKALEN Scroll zu (gleiche
+     Grammatik wie breit: Fenster, Tempolimit 0.7 P/s, Rückstellung
+     beim Verlassen), und beim Lesen führt er mit: das Segment des
+     Punktes, der gerade in der Lesezone steht (55 % Fensterhöhe),
+     trägt Gold — die Grafik zeigt die Leseposition.
+     prefers-reduced-motion: Ring sofort voll, die Lesezonen-
+     Kopplung bleibt (reine Farbänderung, keine Bewegung). */
+  const ringSchmalRef = useRef<SVGSVGElement | null>(null);
+  const zeichenSchmalRefs = useRef<(SVGPathElement | null)[]>([]);
+  const ziffernSchmalRefs = useRef<(SVGTextElement | null)[]>([]);
+  const liRefs = useRef<(HTMLLIElement | null)[]>([]);
+  const schmalRafRef = useRef(0);
+
+  useEffect(() => {
+    if (!isVertical) return;
+    const svg = ringSchmalRef.current;
+    if (!svg) return;
+
+    let P = -1;
+    const schreibe = (p: number) => {
+      if (Math.abs(p - P) < 0.0005) return;
+      P = p;
+      for (let i = 0; i < N; i++) {
+        const el = zeichenSchmalRefs.current[i];
+        if (!el) continue;
+        const q = Math.max(0, Math.min(1, p * N - i));
+        el.style.strokeDashoffset = String(1 - q);
+      }
+    };
+    let letztesAktiv = -2;
+    const male = (aktivI: number) => {
+      for (let i = 0; i < N; i++) {
+        const an = i === aktivI;
+        const el = zeichenSchmalRefs.current[i];
+        if (el) {
+          el.style.stroke = an
+            ? "var(--tellian-r4-arc-active-color)"
+            : "var(--tellian-r4-arc-idle-color)";
+          el.style.strokeWidth = an
+            ? "var(--tellian-r4-arc-active)"
+            : "var(--tellian-r4-arc-idle)";
+        }
+        const z = ziffernSchmalRefs.current[i];
+        if (z) {
+          z.style.fill = an
+            ? "var(--tellian-r4-arc-active-color)"
+            : "var(--tellian-r4-accent)";
+        }
+      }
+    };
+
+    const rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const ZUG_PRO_S = 0.7;
+    let laeuft = false;
+    let anzeigeP = rm ? 1 : 0;
+    let letzteZeit = 0;
+    if (rm) schreibe(1);
+
+    const tick = (jetzt: number) => {
+      if (!laeuft) return;
+      const vh = window.innerHeight;
+      if (!rm) {
+        const dt = letzteZeit ? Math.min((jetzt - letzteZeit) / 1000, 0.1) : 0;
+        letzteZeit = jetzt;
+        const r = svg.getBoundingClientRect();
+        /* 0, wenn der Ring unten eintritt; 1, wenn er im oberen
+           Drittel angekommen ist — der Schluss fällt mit der
+           bequemen Leseposition zusammen. */
+        const ziel = Math.max(0, Math.min(1, (vh - r.top) / (vh * 0.65)));
+        const delta = Math.max(
+          -ZUG_PRO_S * dt,
+          Math.min(ZUG_PRO_S * dt, ziel - anzeigeP),
+        );
+        anzeigeP += delta;
+        schreibe(anzeigeP);
+      }
+      /* Lesezonen-Kopplung: der letzte Punkt, dessen Oberkante die
+         Lesezone passiert hat. -1 = noch keiner (Ring über der
+         Liste im Bild) — dann bleibt alles ruhig. */
+      const lesezone = vh * 0.55;
+      let aktivI = -1;
+      for (let i = 0; i < N; i++) {
+        const li = liRefs.current[i];
+        if (li && li.getBoundingClientRect().top < lesezone) aktivI = i;
+      }
+      if (aktivI !== letztesAktiv) {
+        male(aktivI);
+        letztesAktiv = aktivI;
+      }
+      schmalRafRef.current = requestAnimationFrame(tick);
+    };
+
+    const io = new IntersectionObserver(
+      (eintraege) => {
+        const nah = eintraege.some((e) => e.isIntersecting);
+        if (nah && !laeuft) {
+          laeuft = true;
+          letzteZeit = 0;
+          schmalRafRef.current = requestAnimationFrame(tick);
+        } else if (!nah && laeuft) {
+          laeuft = false;
+          cancelAnimationFrame(schmalRafRef.current);
+          if (!rm) {
+            /* Rückstellung wie breit: jeder Besuch zeichnet neu. */
+            anzeigeP = 0;
+            P = -1;
+            schreibe(0);
+          }
+        }
+      },
+      /* Die Kopplung läuft, solange irgendein Teil der SEKTION in
+         Reichweite ist — der Ring allein wäre beim Lesen der
+         unteren Punkte längst aus dem Bild. */
+      { rootMargin: "30% 0px 30% 0px" },
+    );
+    io.observe(svg.closest("section") ?? svg);
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(schmalRafRef.current);
+      laeuft = false;
+    };
+  }, [isVertical]);
 
   /* Pfeiltasten wandern durch die Punkte — ein Tabstopp für alle acht
      statt acht einzelner. Das ist das übliche Muster für eine Gruppe
@@ -466,6 +594,73 @@ export function Station4Rad({
         </div>
         <Aufgang>{kopf}</Aufgang>
 
+        {/* Der Ring — zeichnet am Scroll, führt beim Lesen mit
+            (s. Effekt oben). Ziffern an den Ankerpunkten binden
+            die Segmente an die Listenpunkte darunter. */}
+        <div
+          style={{
+            marginTop: "clamp(30px, 4.5vh, 48px)",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <svg
+            ref={ringSchmalRef}
+            viewBox={`0 0 ${VB} ${VB}`}
+            aria-hidden
+            focusable="false"
+            style={{
+              width: "clamp(190px, 56vw, 270px)",
+              height: "auto",
+              overflow: "visible",
+            }}
+          >
+            {PUNKTE.map((p, i) => (
+              <path
+                key={p.titel}
+                ref={(el) => {
+                  zeichenSchmalRefs.current[i] = el;
+                }}
+                className="tellian-r4-seg"
+                d={bogen(i, LUECKE)}
+                fill="none"
+                strokeLinecap="butt"
+                pointerEvents="none"
+                pathLength={1}
+                strokeDasharray="1"
+                strokeDashoffset={1}
+                stroke="var(--tellian-r4-arc-idle-color)"
+                strokeWidth="var(--tellian-r4-arc-idle)"
+                style={{
+                  transition: "stroke 220ms ease, stroke-width 220ms ease",
+                }}
+              />
+            ))}
+            {PUNKTE.map((p, i) => {
+              const pos = punktAuf(RADIUS + 26, winkel(i));
+              return (
+                <text
+                  key={`ziffer-${p.titel}`}
+                  ref={(el) => {
+                    ziffernSchmalRefs.current[i] = el;
+                  }}
+                  x={pos.x.toFixed(2)}
+                  y={pos.y.toFixed(2)}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fontFamily={cormorant}
+                  fontSize="13"
+                  letterSpacing="0.08em"
+                  fill="var(--tellian-r4-accent)"
+                  style={{ transition: "fill 220ms ease" }}
+                >
+                  {ziffer(i)}
+                </text>
+              );
+            })}
+          </svg>
+        </div>
+
         <ol
           style={{
             listStyle: "none",
@@ -479,6 +674,9 @@ export function Station4Rad({
           {PUNKTE.map((p, i) => (
             <li
               key={p.titel}
+              ref={(el) => {
+                liRefs.current[i] = el;
+              }}
               style={{
                 borderTop: i === 0 ? "none" : "1px solid rgba(25, 23, 24, 0.12)",
                 paddingTop: i === 0 ? 0 : "clamp(26px, 3.6vh, 40px)",
@@ -531,7 +729,7 @@ export function Station4Rad({
   }
 
   /* ── BREIT ── */
-  const luecke = 7; /* Grad; deckt sich mit --tellian-r4-arc-gap */
+  const luecke = LUECKE;
   const bogenlaenge = (RADIUS * rad(SCHRITT - luecke)).toFixed(2);
 
   /* Beschriftungen auf EINEM Radius statt in zwei festen Spalten.
