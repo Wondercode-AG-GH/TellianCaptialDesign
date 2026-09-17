@@ -1,5 +1,5 @@
 import { C, sans, serif } from "../tokens";
-import { SECTION_WIDTH } from "../sections";
+import { SECTION_WIDTH, stationsName } from "../sections";
 import { useSectionEntered } from "./SectionEntry";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 import { DreiecksBeziehung } from "./DreiecksBeziehung";
@@ -166,7 +166,7 @@ export function Station2WealthManagement({
             gap: "var(--tellian-stapel-schmal)",
           }}
         >
-          <Kapitelmarke nr="04" name="Geschäftsbeziehungen" hell />
+          <Kapitelmarke nr="04" name={stationsName("philosophie", sprache)} hell />
           <Aufgang>{titel}</Aufgang>
           <Aufgang stufe={1}>{absaetze}</Aufgang>
           <Aufgang stufe={1}>

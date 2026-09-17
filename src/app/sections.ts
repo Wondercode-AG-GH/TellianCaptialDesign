@@ -86,10 +86,10 @@ export const SECTIONS: readonly SectionDef[] = [
   },
   {
     /* Position 04, seit dem Tausch die DUNKLE Fläche (s. o.).
-       Kundenwunsch 14.09: heisst in der Leiste
-       «Geschäftsbeziehungen» statt «Wealth Management» — deckt
-       sich mit dem Stationstitel «Bewährte Geschäftsbeziehungen». */
-    key: "philosophie", label: "Geschäftsbeziehungen", labelKurz: "Beziehungen", dunkel: true,
+       Benennung 17.09 (Kundenwunsch): «Dreiecksbeziehung» —
+       benennt die Grafik, die die Station trägt; EN
+       «Three-Way Relationship» (s. LEISTE). */
+    key: "philosophie", label: "Dreiecksbeziehung", labelKurz: "Dreieck", dunkel: true,
     domId: "section-anlagephilosophie",
     imageIds: ["sardona"],
   },
@@ -121,6 +121,78 @@ export const SECTIONS: readonly SectionDef[] = [
 ];
 
 export const SECTION_COUNT = SECTIONS.length;
+
+/* ── STATIONSNAMEN JE SPRACHE (17.09) ──
+   Bis dahin war die Leiste einsprachig DE. Mit dem englischen
+   Namen für Station 04 («Three-Way Relationship», Kundenvorgabe)
+   braucht sie eine Sprachauflösung — gebaut wie auf Solutions
+   (SOLUTIONS_LEISTE + solutionsLeisteSektionen).
+
+   Die englischen Namen sind KEINE Neutexte: sie stammen aus den
+   bereits freigegebenen EN-Fassungen der Stationen selbst
+   («Wealth Management», «Your Advantages») bzw. aus der Solutions-
+   Leiste («Introduction», «Contact»). Nur Station 04 ist neu
+   gesetzt. Die Kurzform greift, wenn die Leiste eng wird.
+
+   SECTIONS selbst bleibt DE — die Registry ist referenzstabil und
+   versorgt Scroll-Engine, Bandzonen und Hash-Anker; sprachabhängig
+   sind nur die BESCHRIFTUNGEN in Leiste, Menü und Kapitelmarke. */
+export interface LeisteName {
+  label: string;
+  labelKurz: string;
+}
+
+/* TODO-FR: französische Stationsnamen stehen aus — bis dahin
+   zeigt FR die DE-Fassung, wie überall auf der Hauptseite. */
+export const LEISTE: Readonly<
+  Record<"DE" | "EN" | "FR", readonly LeisteName[]>
+> = {
+  DE: [
+    { label: "Einstieg", labelKurz: "Einstieg" },
+    { label: "Vermögensverwaltung", labelKurz: "Vermögen" },
+    { label: "Ihre Vorteile", labelKurz: "Vorteile" },
+    { label: "Dreiecksbeziehung", labelKurz: "Dreieck" },
+    { label: "Team", labelKurz: "Team" },
+    { label: "Kontakt", labelKurz: "Kontakt" },
+  ],
+  EN: [
+    { label: "Introduction", labelKurz: "Introduction" },
+    { label: "Wealth Management", labelKurz: "Wealth" },
+    { label: "Your Advantages", labelKurz: "Advantages" },
+    { label: "Three-Way Relationship", labelKurz: "Three-Way" },
+    { label: "Team", labelKurz: "Team" },
+    { label: "Contact", labelKurz: "Contact" },
+  ],
+  FR: [
+    { label: "Einstieg", labelKurz: "Einstieg" },
+    { label: "Vermögensverwaltung", labelKurz: "Vermögen" },
+    { label: "Ihre Vorteile", labelKurz: "Vorteile" },
+    { label: "Dreiecksbeziehung", labelKurz: "Dreieck" },
+    { label: "Team", labelKurz: "Team" },
+    { label: "Kontakt", labelKurz: "Kontakt" },
+  ],
+};
+
+function leisteSprache(sprache: string | undefined): "DE" | "EN" | "FR" {
+  return sprache === "EN" || sprache === "FR" ? sprache : "DE";
+}
+
+/** Sektionsliste mit sprachaufgelösten Namen — für Leiste und Menü. */
+export function leisteSektionen(sprache: string | undefined): readonly SectionDef[] {
+  const namen = LEISTE[leisteSprache(sprache)];
+  return SECTIONS.map((s, i) => ({
+    ...s,
+    label: namen[i]?.label ?? s.label,
+    labelKurz: namen[i]?.labelKurz ?? s.labelKurz,
+  }));
+}
+
+/** Name einer Station in der gewählten Sprache — für Kapitelmarken. */
+export function stationsName(key: string, sprache: string | undefined): string {
+  const i = indexOfSection(key);
+  if (i < 0) return "";
+  return LEISTE[leisteSprache(sprache)][i]?.label ?? SECTIONS[i].label;
+}
 
 /** Laufende Nummer für die Anzeige — "01" … "06". */
 export function sectionOrdinal(index: number): string {

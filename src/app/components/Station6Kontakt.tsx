@@ -9,7 +9,7 @@ import {
 
 import { cormorant, sans } from "../tokens";
 import { Aufgang, Kapitelmarke } from "./MobilSektion";
-import { SECTION_WIDTH_LAST } from "../sections";
+import { SECTION_WIDTH_LAST, stationsName } from "../sections";
 import { MapOverlay } from "./Section6Kontakt";
 import { kontaktSenden, ZIEL_KONFIGURIERT } from "../kontaktZiel";
 import type { LegalPath } from "./LegalOverlay";
@@ -785,10 +785,14 @@ export function Station6Kontakt({
   domId,
   onOpenLegal,
   markeNr = "06",
-  markeName = "Kontakt",
+  markeName,
   sprache = "DE",
   fussMarke = "Tellian Capital",
 }: Props) {
+  /* Ohne übergebenen Namen folgt die Kapitelmarke der Sprache
+     (Kontakt / Contact); Solutions übergibt weiterhin seinen
+     eigenen Namen. */
+  const markeNameAufgeloest = markeName ?? stationsName("kontakt", sprache);
   const [karteOffen, setKarteOffen] = useState(false);
   const karteBtn = useRef<HTMLButtonElement | null>(null);
 
@@ -1208,7 +1212,7 @@ export function Station6Kontakt({
         >
           {markeNr !== null && (
             <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
-              <Kapitelmarke nr={markeNr} name={markeName} hell />
+              <Kapitelmarke nr={markeNr} name={markeNameAufgeloest} hell />
             </div>
           )}
           <Aufgang>{titel}</Aufgang>

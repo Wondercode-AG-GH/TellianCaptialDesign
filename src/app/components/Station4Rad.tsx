@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { C, cormorant, sans, serif } from "../tokens";
 import { Aufgang, Kapitelmarke } from "./MobilSektion";
+import { stationsName } from "../sections";
 import { useSectionEntered } from "./SectionEntry";
 import { useTitelHoehe } from "./useTitelHoehe";
 
@@ -663,7 +664,7 @@ export function Station4Rad({
         }}
       >
         <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
-          <Kapitelmarke nr="03" name="Ihre Vorteile" />
+          <Kapitelmarke nr="03" name={stationsName("strategien", sprache)} />
         </div>
         <Aufgang>{kopf}</Aufgang>
 

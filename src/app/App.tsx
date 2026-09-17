@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef, FormEvent } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef, FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import { useSubpageMode } from "./components/useSubpageMode";
@@ -37,7 +37,13 @@ import { Station2WealthManagement } from "./components/Station2WealthManagement"
 import { StationPortfolioManagement } from "./components/StationPortfolioManagement";
 import { Station4Rad } from "./components/Station4Rad";
 import { LAYOUT, TEXT_COLUMN_STYLE, getLayout, getTextColumnStyle, SPACING } from "./layout";
-import { SECTION_WIDTH, SECTIONS, SUBPAGE_SECTION_KEY, indexOfSection } from "./sections";
+import {
+  SECTION_WIDTH,
+  SECTIONS,
+  SUBPAGE_SECTION_KEY,
+  indexOfSection,
+  leisteSektionen,
+} from "./sections";
 import { SectionEnteredProvider } from "./components/SectionEntry";
 import { Station1Einstieg } from "./components/Station1Einstieg";
 import { prefetchImages } from "./components/ResponsiveImage";
@@ -1222,6 +1228,12 @@ export default function App() {
   const [sprache, setSprache] = useState<"DE" | "EN">("DE");
   const [menueOffen, setMenueOffen] = useState(false);
 
+  /* Stationsnamen in der gewählten Sprache — Leiste und mobiles
+     Menü lesen daraus; SECTIONS selbst bleibt referenzstabil DE
+     (Scroll-Engine, Bandzonen, Hash-Anker). Steht NACH `sprache`:
+     davor lief die Seite in die temporale Totzone und blieb weiss. */
+  const leisteNamen = useMemo(() => leisteSektionen(sprache), [sprache]);
+
   /* Sprachwechsel setzt die Scrub-Position an den Anfang (Briefing
      12.09, 2.4) — ohne Fahrt, der Track steht sofort auf Station 1.
      Nicht beim ersten Aufbau: dort gilt der Deep-Link. */
@@ -1338,6 +1350,7 @@ export default function App() {
           offen={menueOffen}
           onSchliessen={() => setMenueOffen(false)}
           activeIndex={activeIndex}
+          sektionen={leisteNamen}
           onNavigate={navigateToSection}
           onOpenLegal={legal.open}
           welt="capital"
@@ -1646,6 +1659,7 @@ export default function App() {
             activeIndex={activeIndex}
             onNavigate={navigateToSection}
             zonen={bandZonen}
+            sektionen={leisteNamen}
           />
         )}
       </div>
