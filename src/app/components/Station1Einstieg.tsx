@@ -28,14 +28,14 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", HeroInhalt>> = {
     titel: ["Weiterdenken", "mit Erfahrung"],
     lead: [
       "Tellian Capital AG begleitet Privatpersonen, Unternehmerfamilien und Stiftungen bei der langfristigen Entwicklung ihres Vermögens. Wir sind seit 1996 in Zürich verwurzelt, unabhängig und FINMA-lizenziert.",
-      "Wir verbinden 30 Jahre fundierte Markterfahrung mit einer zukunftsorientierten Ausrichtung. Wir stehen für eine moderne und transparente Vermögensverwaltung, die Tradition und neue Impulse nahtlos miteinander vereint.",
+      "Wir verbinden über 30 Jahre fundierte Markterfahrung mit einer zukunftsorientierten Ausrichtung. Wir stehen für eine moderne und transparente Vermögensverwaltung, die Tradition und neue Impulse nahtlos miteinander vereint.",
     ],
   },
   EN: {
     titel: ["Looking Ahead.", "Built on Experience."],
     lead: [
       "Tellian Capital AG provides independent wealth management for private clients, entrepreneurial families and foundations. With deep roots in Zurich since 1996, we are an independent, FINMA-licensed asset manager.",
-      "With 30 years of investment experience, we support our clients in preserving, developing and successfully positioning their wealth for the long term. Our approach combines proven investment principles with a forward-looking perspective on markets and opportunities. Personal service, transparency and sound decision-making are at the heart of everything we do.",
+      "With over 30 years of investment experience, we support our clients in preserving, developing and successfully positioning their wealth for the long term. Our approach combines proven investment principles with a forward-looking perspective on markets and opportunities. Personal service, transparency and sound decision-making are at the heart of everything we do.",
     ],
   },
   /* TODO-FR: Übersetzung folgt — bis dahin steht der DE-Text als
@@ -45,7 +45,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", HeroInhalt>> = {
     titel: ["Weiterdenken", "mit Erfahrung"],
     lead: [
       "Tellian Capital AG begleitet Privatpersonen, Unternehmerfamilien und Stiftungen bei der langfristigen Entwicklung ihres Vermögens. Wir sind seit 1996 in Zürich verwurzelt, unabhängig und FINMA-lizenziert.",
-      "Wir verbinden 30 Jahre fundierte Markterfahrung mit einer zukunftsorientierten Ausrichtung. Wir stehen für eine moderne und transparente Vermögensverwaltung, die Tradition und neue Impulse nahtlos miteinander vereint.",
+      "Wir verbinden über 30 Jahre fundierte Markterfahrung mit einer zukunftsorientierten Ausrichtung. Wir stehen für eine moderne und transparente Vermögensverwaltung, die Tradition und neue Impulse nahtlos miteinander vereint.",
     ],
   },
 };
