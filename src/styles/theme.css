@@ -459,7 +459,10 @@
      94vw der übrigen. */
   --tellian-r4-pad-left: var(--tellian-station-pad-x);   /* P2 */
   --tellian-r4-title-col: clamp(150px, 14vw, 210px);
-  --tellian-r4-mid-gap: clamp(36px, 4vw, 90px);
+  /* Aufgeweitet 17.09: mit den grösseren Beschriftungen (s. u.)
+     reichte die linke Beschriftung bis an die Titelspalte — bei
+     1024px gemessene 8px Überlappung mit «Ihre Vorteile». */
+  --tellian-r4-mid-gap: clamp(58px, 5.4vw, 108px);
   --tellian-r4-edge: var(--tellian-station-pad-x);       /* P2 */
   --tellian-r4-block: calc(
     var(--tellian-r4-wheel)
@@ -484,13 +487,17 @@
      Inhalt des Rades und standen zu klein da. Die Ziffern noch eine
      Spur grösser, weil Cormorant eine kleine x-Höhe hat und bei
      gleichem Grad optisch zurückfällt. */
-  --tellian-r4-label-size: clamp(14px, 1.06vw, 17px);
-  --tellian-r4-numeral-size: clamp(15px, 1.16vw, 19px);
-  --tellian-r4-title-size: clamp(18px, 1.6vw, 24px);   /* P2.3: eine Stufe kleiner */
+  /* Vergrössert 17.09 (Kundenwunsch): Beschriftungen am Kreis und
+     Inhalt der Box standen zu klein. Rund +12 % auf allen vier
+     Graden; die Boxhöhe rechnet sich aus Titel- und Textgrad und
+     geht von selbst mit (s. --tellian-r4-box-h). */
+  --tellian-r4-label-size: clamp(15px, 1.2vw, 19px);
+  --tellian-r4-numeral-size: clamp(16px, 1.3vw, 21px);
+  --tellian-r4-title-size: clamp(20px, 1.8vw, 27px);
   /* Mitlaufend, damit der längste Text (152 Zeichen) auch auf
      schmalen Fenstern in ZWEI Zeilen bleibt. Bei festen 14px waren
      es bei 1024px Fensterbreite gemessene drei. Untergrenze 12px. */
-  --tellian-r4-body-size: clamp(12px, 0.98vw, 14px);
+  --tellian-r4-body-size: clamp(14px, 1.1vw, 16px);
   --tellian-r4-body-leading: 1.65;
   --tellian-r4-body-measure: 60em;
 
@@ -598,10 +605,18 @@
      fünf Zeilen bei der an den Radbereich gekoppelten Breite). Die
      Texte liegen ohnehin gestapelt im selben Rasterfeld — die Höhe
      springt beim Wechsel nicht. */
+  /* Reservierung seit der Vergrösserung (17.09): 2.6 Textzeilen
+     statt zwei. Mit dem grösseren Grad läuft der längste Text
+     (Transparenz DE) eine Zeile weiter, und die Box stiess bei
+     1440x900 gemessene 5px in die Stationsleiste. Nachgemessen bei
+     1024x768 / 1280x800 / 1440x900 / 1728x1080: 34 / 32 / 17 / 26px
+     Luft zur Leiste, 43-54px über der obersten Beschriftung. Der
+     Bruchwert ist bewusst — bei drei vollen Zeilen schrumpfte das
+     Rad um weitere 30px, ohne dass die Luft gebraucht würde. */
   --tellian-r4-box-h: calc(
     2 * var(--tellian-r4-box-pad-y)
     + 1.15 * var(--tellian-r4-title-size)
-    + 2 * var(--tellian-r4-body-leading) * var(--tellian-r4-body-size)
+    + 2.6 * var(--tellian-r4-body-leading) * var(--tellian-r4-body-size)
     + 18px
   );
   /* Die ECHTE Boxhöhe (fünf Zeilen) steckt im Versatz, nicht in der
