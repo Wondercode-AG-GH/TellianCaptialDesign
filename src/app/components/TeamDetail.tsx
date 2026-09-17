@@ -21,10 +21,10 @@ import type { ImageId } from "../../assets/generated";
    ═══════════════════════════════════════════════════════════ */
 
 const UI = {
-  DE: { schliessen: "Schliessen" },
-  EN: { schliessen: "Close" },
+  DE: { schliessen: "Schliessen", mail: "E-Mail schreiben" },
+  EN: { schliessen: "Close", mail: "Write an e-mail" },
   /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
-  FR: { schliessen: "Schliessen" },
+  FR: { schliessen: "Schliessen", mail: "E-Mail schreiben" },
 } as const;
 
 interface Props {
@@ -34,6 +34,8 @@ interface Props {
   bild?: ImageId;
   /** Absätze — Struktur exakt wie geliefert (2 bzw. 3). */
   absaetze: readonly string[];
+  /** mailto-Ziel der Person; fehlt es, steht kein Verweis. */
+  mailto?: string;
   sprache?: "DE" | "EN" | "FR";
   isMobile?: boolean;
   onClose: () => void;
@@ -46,6 +48,7 @@ export function TeamDetail({
   rolle,
   bild,
   absaetze,
+  mailto,
   sprache = "DE",
   isMobile = false,
   onClose,
@@ -198,6 +201,54 @@ export function TeamDetail({
       >
         {rolle}
       </p>
+      {/* Kontaktweg im geöffneten Porträt (Auftrag 17.09): öffnet
+          das Mailprogramm mit der Person als Empfängerin. Steht
+          unter der Rolle — wer den Text gelesen hat, will von hier
+          aus schreiben. */}
+      {mailto && (
+        <a
+          href={mailto}
+          className="tellian-td-mail"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            marginTop: "12px",
+            fontFamily: sans,
+            fontSize: "13px",
+            letterSpacing: "var(--tellian-ls-cta-klein)",
+            color: C.ink,
+            textDecoration: "none",
+          }}
+        >
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            aria-hidden
+            focusable="false"
+            style={{ flexShrink: 0 }}
+          >
+            <rect
+              x="2.1"
+              y="4.6"
+              width="19.8"
+              height="14.8"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.9"
+            />
+            <path
+              d="M2.9 5.4 12 12.6l9.1-7.2"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.9"
+              strokeLinejoin="round"
+            />
+          </svg>
+          {UI[sprache].mail}
+        </a>
+      )}
       <div
         style={{
           marginTop: "clamp(20px, 3vh, 32px)",
@@ -313,9 +364,20 @@ export function TeamDetail({
           outline: 2px solid var(--tellian-muted);
           outline-offset: 3px;
         }
+        .tellian-td-mail { transition: color 180ms ease; }
+        .tellian-td-mail:hover {
+          text-decoration: underline;
+          text-underline-offset: 4px;
+          text-decoration-color: var(--tellian-muted);
+        }
+        .tellian-td-mail:focus-visible {
+          outline: 2px solid var(--tellian-muted);
+          outline-offset: 3px;
+        }
         @media (prefers-reduced-motion: reduce) {
           .tellian-team-schliessen, .tellian-team-schliessen svg { transition: none; }
           .tellian-team-schliessen:hover svg { transform: none; }
+          .tellian-td-mail { transition: none; }
         }
       `}</style>
     </div>,

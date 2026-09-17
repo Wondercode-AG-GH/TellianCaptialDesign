@@ -29,10 +29,17 @@ interface Person {
   id: string;
   name: string;
   rolle: string;
+  /** Englische Fassung der Rolle, wo sie abweicht — die übrigen
+      Rollen sind international gleich geschrieben (CEO, Relationship
+      Manager, Risk Management …) und brauchen keine. */
+  rolleEn?: string;
   bild?: ImageId;
   /** Persönliches LinkedIn-Profil. Fehlt es, führt das Icon
       übergangsweise auf die Firmenseite (TODO-LINKEDIN). */
   linkedin?: string;
+  /** Persönliche Mailadresse. Fehlt sie, schreibt das Icon an die
+      Hausadresse und nennt die Person im Betreff (TODO-MAIL). */
+  mail?: string;
 }
 
 /* TODO-LINKEDIN: für KEINE Person liegt bisher eine persönliche
@@ -45,6 +52,28 @@ interface Person {
    niemanden auf ein fremdes Profil. Sobald eine Person ihre eigene
    Adresse trägt, gilt diese. */
 const LINKEDIN_FIRMA = "https://www.linkedin.com/company/tellian-capital";
+
+/* TODO-MAIL: für KEINE Person liegt bisher eine persönliche
+   Mailadresse vor. Das Icon steht trotzdem (Auftrag 17.09) und
+   öffnet solange eine Nachricht an die Hausadresse, mit der Person
+   im Betreff — so landet die Anfrage bei Tellian und ist der
+   Person zugeordnet. Sobald hier eine Adresse eingetragen wird,
+   gilt sie für diese Person; sonst ist nichts zu tun. */
+const MAIL_FIRMA = "info@telliancapital.ch";
+
+/* Wilhelm Tell ist Namensgeber, keine erreichbare Person — er
+   trägt kein Mail-Icon. */
+const OHNE_MAIL: readonly string[] = ["wilhelm"];
+
+/** mailto-Ziel einer Person: eigene Adresse, sonst Haus + Betreff. */
+function mailZiel(person: Person, sprache: "DE" | "EN" | "FR"): string {
+  if (person.mail) return `mailto:${person.mail}`;
+  const betreff =
+    sprache === "EN"
+      ? `Enquiry for ${person.name}`
+      : `Anfrage an ${person.name}`;
+  return `mailto:${MAIL_FIRMA}?subject=${encodeURIComponent(betreff)}`;
+}
 
 /* LinkedIn-Glyph als Vektor: das vorhandene Asset ist ein weisses
    PNG und trägt auf der hellen Kachel nicht. Die Grösse hängt an
@@ -61,13 +90,44 @@ function LinkedInGlyph({ farbe }: { farbe: string }) {
   );
 }
 
+/* Briefumschlag im Mass des LinkedIn-Zeichens. Gezeichnet statt
+   gefüllt, dafür mit kräftigerem Strich (1.9 von 24) — bei 17px
+   Darstellung trägt er damit dasselbe Gewicht wie der gefüllte
+   LinkedIn-Block daneben. */
+function MailGlyph({ farbe }: { farbe: string }) {
+  return (
+    <svg
+      width="1.2em"
+      height="1.2em"
+      viewBox="0 0 24 24"
+      aria-hidden
+      focusable="false"
+    >
+      <rect
+        x="2.1"
+        y="4.6"
+        width="19.8"
+        height="14.8"
+        fill="none"
+        stroke={farbe}
+        strokeWidth="1.9"
+      />
+      <path
+        d="M2.9 5.4 12 12.6l9.1-7.2"
+        fill="none"
+        stroke={farbe}
+        strokeWidth="1.9"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 const PERSONEN: readonly Person[] = [
-  /* TODO-TEXT-WILHELM-TELL: kein persönlicher Text geliefert. */
-  { id: "wilhelm", name: "Wilhelm Tell", rolle: "Namensgeber", bild: "wilhelm-tell" },
+  { id: "wilhelm", name: "Wilhelm Tell", rolle: "Namensgeber", rolleEn: "Namesake", bild: "wilhelm-tell" },
   { id: "olivier", name: "Olivier M. Bill", rolle: "CEO", bild: "olivier-bill" },
   { id: "marco", name: "Marco Ludescher", rolle: "Head of Portfolio Management", bild: "marco-ludescher" },
   { id: "rolf", name: "Rolf Schneider", rolle: "Relationship Manager", bild: "rolf-schneider" },
-  /* TODO-TEXT-BRYAN: kein persönlicher Text geliefert. */
   { id: "bryan", name: "Bryan Anthony Honegger", rolle: "Relationship Manager", bild: "bryan-honegger" },
   { id: "andreas", name: "Andreas Trümpler", rolle: "Risk Management", bild: "andreas-truempler" },
   { id: "jasmina", name: "Jasmina Rukavina", rolle: "Back-Office / Office Management", bild: "jasmina-rukavina" },
@@ -88,6 +148,48 @@ const PERSONEN: readonly Person[] = [
 type L = "DE" | "EN" | "FR";
 
 const TEXTE: Readonly<Record<string, Readonly<Record<L, readonly string[]>>>> = {
+  wilhelm: {
+    /* Lieferung 17.09. Der Namensgeber spricht in der ersten Person —
+       bewusst, wie im Briefing geliefert */
+    DE: [
+      "Unabhängigkeit war für mich nie nur eine Frage der Freiheit, sondern immer auch der Verantwortung. Den eigenen Weg zu wählen, sich nicht von äusserem Druck leiten zu lassen und im entscheidenden Moment ruhig zu bleiben – dafür stehe ich bis heute.",
+      "Damit passe ich ganz gut zu Tellian Capital – einer Vermögensverwaltung, in deren Namen sich auch meiner wiederfindet. Auch an den Finanzmärkten braucht es einen klaren Blick, eine ruhige Hand und die Überzeugung, nicht jedem Trend folgen zu müssen. Das Ziel sollte man dabei nie aus den Augen verlieren.",
+      "Meine Heimat sind die Schweizer Berge. Sie stehen für mich für Beständigkeit, Weitsicht und Bodenhaftung – Werte, die auch nach mehr als 700 Jahren erstaunlich aktuell geblieben sind.",
+    ],
+    EN: [
+      "Independence has never been simply a question of freedom for me, but also one of responsibility. Choosing your own path, not allowing yourself to be swayed by outside pressure, and remaining calm when it matters most – these are values I still stand for today.",
+      "That makes me a natural fit for Tellian Capital – a wealth management firm whose name carries an echo of my own. The financial markets, too, call for a clear view, a steady hand and the conviction not to follow every trend. And throughout, one should never lose sight of the goal.",
+      "The Swiss mountains are my home. To me, they represent stability, foresight and staying grounded – values that, even after more than 700 years, remain remarkably relevant today.",
+    ],
+    /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
+    FR: [
+      "Unabhängigkeit war für mich nie nur eine Frage der Freiheit, sondern immer auch der Verantwortung. Den eigenen Weg zu wählen, sich nicht von äusserem Druck leiten zu lassen und im entscheidenden Moment ruhig zu bleiben – dafür stehe ich bis heute.",
+      "Damit passe ich ganz gut zu Tellian Capital – einer Vermögensverwaltung, in deren Namen sich auch meiner wiederfindet. Auch an den Finanzmärkten braucht es einen klaren Blick, eine ruhige Hand und die Überzeugung, nicht jedem Trend folgen zu müssen. Das Ziel sollte man dabei nie aus den Augen verlieren.",
+      "Meine Heimat sind die Schweizer Berge. Sie stehen für mich für Beständigkeit, Weitsicht und Bodenhaftung – Werte, die auch nach mehr als 700 Jahren erstaunlich aktuell geblieben sind.",
+    ],
+  },
+  bryan: {
+    /* Lieferung 17.09 */
+    DE: [
+      "Einen Teil meiner Kindheit habe ich in Uganda, Kolumbien und England verbracht. Dabei habe ich früh erlebt, wie unterschiedlich Menschen leben und was ihnen wichtig ist. Die Neugier auf andere Perspektiven ist mir geblieben und begleitet mich bis heute.",
+      "Mein Weg in die Vermögensverwaltung war nicht geradlinig. Genau das hat meinen Blick auf Menschen und Beratung geprägt.",
+      "Bei Tellian Capital schätze ich die Verbindung aus Erfahrung und Offenheit für neue Ideen. Bewährtes hat für mich seinen Wert, gleichzeitig hinterfrage ich Bestehendes gerne und bringe neue Perspektiven ein. «Das haben wir immer so gemacht» war für mich noch nie ein überzeugendes Argument.",
+      "Privat steht meine junge Familie im Mittelpunkt. Den Kopf bekomme ich am besten auf dem Tennisplatz frei. Auf Reisen probiere ich gerne neue Restaurants und lokale Spezialitäten aus. Über das Essen und die Menschen lerne ich einen Ort oft am besten kennen.",
+    ],
+    EN: [
+      "I spent part of my childhood in Uganda, Colombia and England. From an early age, I experienced how differently people live and what matters to them. That curiosity about different perspectives has stayed with me ever since.",
+      "My path into wealth management was not a conventional one. It has shaped the way I understand clients and approach wealth management.",
+      "At Tellian Capital, I value the combination of experience and openness to new ideas. I believe in what has proven its worth, while also questioning established approaches and bringing in fresh perspectives. “We’ve always done it this way” has never been a convincing argument to me.",
+      "Outside of work, my young family is at the centre of my life. Tennis is where I best clear my head. When travelling, I enjoy discovering new restaurants and local specialities. For me, food and the people behind it are often the best way to get to know a place.",
+    ],
+    /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
+    FR: [
+      "Einen Teil meiner Kindheit habe ich in Uganda, Kolumbien und England verbracht. Dabei habe ich früh erlebt, wie unterschiedlich Menschen leben und was ihnen wichtig ist. Die Neugier auf andere Perspektiven ist mir geblieben und begleitet mich bis heute.",
+      "Mein Weg in die Vermögensverwaltung war nicht geradlinig. Genau das hat meinen Blick auf Menschen und Beratung geprägt.",
+      "Bei Tellian Capital schätze ich die Verbindung aus Erfahrung und Offenheit für neue Ideen. Bewährtes hat für mich seinen Wert, gleichzeitig hinterfrage ich Bestehendes gerne und bringe neue Perspektiven ein. «Das haben wir immer so gemacht» war für mich noch nie ein überzeugendes Argument.",
+      "Privat steht meine junge Familie im Mittelpunkt. Den Kopf bekomme ich am besten auf dem Tennisplatz frei. Auf Reisen probiere ich gerne neue Restaurants und lokale Spezialitäten aus. Über das Essen und die Menschen lerne ich einen Ort oft am besten kennen.",
+    ],
+  },
   rolf: {
     DE: [
       "Seit der Jahrtausendwende habe ich als Gründungspartner die Entwicklung von Blumer & Partner bis zur heutigen Tellian Capital mitgeprägt. Quantitative Anlagestrategien waren dabei schon immer meine Passion. Die Verbindung von Daten, klaren Modellen und konsequenten Anlageentscheidungen fasziniert mich bis heute. Ebenso wichtig ist mir der persönliche Austausch mit unseren Kunden und das Vertrauen, das daraus gewachsen ist. Mit der nächsten Generation beginnt nun ein neues Kapitel, das ich gerne mit meiner Erfahrung begleite, ohne dabei die Nähe zum Markt und zum täglichen Geschehen zu verlieren.",
@@ -294,6 +396,10 @@ export function Station5Team({
      steht «Mehr erfahren». Ohne Text: kein Bedienelement. */
   const karte = (person: Person, breit: boolean) => {
     const hatText = person.id in TEXTE;
+    /* «Namensgeber» heisst englisch «Namesake»; die übrigen Rollen
+       sind in beiden Sprachen gleich geschrieben. */
+    const rolleText =
+      sprache === "EN" && person.rolleEn ? person.rolleEn : person.rolle;
     const innen = (
       <>
         <span
@@ -324,10 +430,15 @@ export function Station5Team({
             marginTop: "var(--tellian-t5-label-gap)",
             /* Nur das breite Band braucht die feste Zeilenhöhe für
                die Kachelflucht; schmal dürfen Name und Rolle
-               umbrechen — abgeschnittene Namen sind keine Option. */
+               umbrechen — abgeschnittene Namen sind keine Option.
+
+               Schmal steht die Zeichenreihe UNTER den Texten; der
+               Streifen dafür ist hier reserviert. Ohne ihn lief der
+               Name (gemessen «Olivier M. Bill» bei 375px) unter den
+               Briefumschlag. */
             ...(breit
               ? { height: "var(--tellian-t5-label-row)", overflow: "hidden" }
-              : {}),
+              : { paddingBottom: "34px" }),
           }}
         >
           <span
@@ -358,7 +469,7 @@ export function Station5Team({
                   : {}),
               }}
             >
-              {person.rolle}
+              {rolleText}
             </span>
           )}
           {hatText && (
@@ -387,41 +498,75 @@ export function Station5Team({
        wäre ungültiges Markup und für Tastatur und Screenreader
        zweideutig. Absolut in der Beschriftungszone unten rechts —
        die Namen stehen links, es gibt keine Kollision. */
-    const linkedin = (
-      <a
-        href={person.linkedin ?? LINKEDIN_FIRMA}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`${person.name} auf LinkedIn`}
-        className="tellian-t5-linkedin"
+    /* Beide Zeichen in EINER Reihe. Der Klickbereich wächst nach
+       innen (Padding), nicht über die Kachelkante hinaus; das
+       Padding ist von 15 auf 12px gekürzt, damit zwei Zeichen
+       nebeneinander nicht in die Namenszeile laufen. */
+    const zeichenStil: React.CSSProperties = {
+      /* Auf Solutions laufen die Kacheln 33 % grösser — die Zeichen
+         gehen mit, sonst wirken sie dort verloren. */
+      fontSize: personenIds
+        ? `calc(var(--tellian-t5-name-size) * ${GROSS})`
+        : "var(--tellian-t5-name-size)",
+      padding: "12px",
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      lineHeight: 0,
+    };
+
+    /* WO DIE ZEICHENREIHE STEHT
+       Breit: auf Höhe der NAMENSZEILE — am Fuss der Karte stand sie
+       zwischen zwei Kacheln und las sich als Zeichen der
+       nachbarschaftlichen. Die Beschriftung beginnt bei
+       (Kartenhöhe − label-row); klar INNERHALB der eigenen Kachel,
+       denn mittig in der Lücke stünde sie gleich weit von beiden
+       Nachbarn und liesse offen, zu wem sie gehört.
+
+       Schmal: auf der UNTERSTEN Zeile, neben «Mehr erfahren». Zwei
+       Zeichen brauchen rund 80px — auf der 150px-Kachel des
+       Telefons lief der Name (gemessen «Olivier M. Bill») sonst
+       unter den Briefumschlag. Unten ist der Platz frei. */
+    const zeichen = (
+      <span
         style={{
           position: "absolute",
-          /* Auf Höhe der NAMENSZEILE, nicht an der Kachelkante: am
-             Fuss der Karte stand es zwischen zwei Kacheln und las
-             sich als Zeichen der nachbarschaftlichen. Die
-             Beschriftung beginnt bei (Kartenhöhe − label-row). */
-          top: `calc(100% - var(--tellian-t5-label-row) - 2px)`,
+          ...(breit
+            ? { top: `calc(100% - var(--tellian-t5-label-row) - 2px)`, margin: "-12px 0 0 0" }
+            : { bottom: 0, margin: "0 0 -10px 0" }),
           right: 0,
-          /* Klar INNERHALB der eigenen Kachel: mittig in der Lücke
-             stünde das Zeichen gleich weit von beiden Nachbarn und
-             liesse offen, zu wem es gehört. Der Klickbereich wächst
-             nach innen (Padding), nicht über die Kante hinaus.
-
-             Auf Solutions laufen die Kacheln 33 % grösser — das
-             Zeichen geht mit, sonst wirkt es dort verloren. */
-          fontSize: personenIds
-            ? `calc(var(--tellian-t5-name-size) * ${GROSS})`
-            : "var(--tellian-t5-name-size)",
-          padding: "15px",
-          margin: "-15px 0 0 0",
           display: "inline-flex",
           alignItems: "center",
-          justifyContent: "center",
-          lineHeight: 0,
         }}
       >
-        <LinkedInGlyph farbe={C.accent} />
-      </a>
+        {/* Mail zuerst, LinkedIn bleibt an der rechten Kante —
+            die gewachsene Reihe wandert nach innen, nicht über
+            den Rand. */}
+        {!OHNE_MAIL.includes(person.id) && (
+          <a
+            href={mailZiel(person, sprache)}
+            aria-label={
+              sprache === "EN"
+                ? `Write an e-mail to ${person.name}`
+                : `${person.name} eine E-Mail schreiben`
+            }
+            className="tellian-t5-zeichen tellian-t5-mail"
+            style={zeichenStil}
+          >
+            <MailGlyph farbe={C.accent} />
+          </a>
+        )}
+        <a
+          href={person.linkedin ?? LINKEDIN_FIRMA}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${person.name} auf LinkedIn`}
+          className="tellian-t5-zeichen tellian-t5-linkedin"
+          style={zeichenStil}
+        >
+          <LinkedInGlyph farbe={C.accent} />
+        </a>
+      </span>
     );
 
     const huelle = (kind: React.ReactNode) => (
@@ -435,7 +580,7 @@ export function Station5Team({
         }}
       >
         {kind}
-        {linkedin}
+        {zeichen}
       </div>
     );
 
@@ -454,7 +599,7 @@ export function Station5Team({
         }}
         onClick={() => oeffnen(person)}
         aria-haspopup="dialog"
-        aria-label={`${person.name}${person.rolle ? ", " + person.rolle : ""} — ${UI[sprache].mehr}`}
+        aria-label={`${person.name}${rolleText ? ", " + rolleText : ""} — ${UI[sprache].mehr}`}
         className="tellian-t5-kachel"
         style={{
           display: "flex",
@@ -480,9 +625,10 @@ export function Station5Team({
         outline: 2px solid var(--tellian-t5-focus);
         outline-offset: 3px;
       }
-      .tellian-t5-kachel:hover .tellian-t5-linkedin { opacity: 0.75; transition: opacity 180ms ease; }
-      .tellian-t5-linkedin:hover, .tellian-t5-linkedin:focus-visible { opacity: 1; }
-      .tellian-t5-linkedin:focus-visible {
+      .tellian-t5-kachel:hover ~ span .tellian-t5-zeichen,
+      .tellian-t5-kachel:hover .tellian-t5-zeichen { opacity: 0.75; transition: opacity 180ms ease; }
+      .tellian-t5-zeichen:hover, .tellian-t5-zeichen:focus-visible { opacity: 1; }
+      .tellian-t5-zeichen:focus-visible {
         outline: 2px solid var(--tellian-accent);
         outline-offset: 2px;
       }
@@ -496,9 +642,18 @@ export function Station5Team({
     <TeamDetail
       offen
       name={offenPerson.name}
-      rolle={offenPerson.rolle}
+      rolle={
+        sprache === "EN" && offenPerson.rolleEn
+          ? offenPerson.rolleEn
+          : offenPerson.rolle
+      }
       bild={offenPerson.bild}
       absaetze={TEXTE[offenPerson.id][sprache]}
+      mailto={
+        OHNE_MAIL.includes(offenPerson.id)
+          ? undefined
+          : mailZiel(offenPerson, sprache)
+      }
       sprache={sprache}
       isMobile={isVertical}
       onClose={schliessen}
