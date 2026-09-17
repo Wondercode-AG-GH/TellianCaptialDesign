@@ -36,14 +36,14 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", MandatInhalt>> = {
   DE: {
     titel: ["Sie geben den Rahmen.", "Wir übernehmen die Verantwortung."],
     lead: [
-      "Mit einem Vermögensverwaltungsmandat übertragen Sie Tellian Capital die Verwaltung Ihres Portfolios innerhalb der gemeinsam definierten Anlagestrategie. Sie erteilen uns eine Verwaltungsvollmacht – wir treffen die Anlageentscheide und setzen diese für Sie um.",
+      "Mit einem Vermögensverwaltungsmandat übertragen Sie Tellian Capital die Verwaltung Ihres Portfolios innerhalb der gemeinsam definierten Anlagestrategie. Sie erteilen uns eine Verwaltungsvollmacht, wir treffen die Anlageentscheide und setzen diese für Sie um.",
       "Ihre persönlichen Ziele, Ihre Risikobereitschaft und Ihre finanzielle Situation bilden dabei den verbindlichen Rahmen.",
     ],
     zwischentitel: "Mit Methode gemeinsam zum Ziel.",
     schritte: [
       { titel: "Ziele", zeile: "Wir definieren Ihre Anlageziele, Bedürfnisse und den passenden Anlagehorizont." },
       { titel: "Risikoprofil", zeile: "Wir bestimmen Ihr Risikoprofil als Grundlage für Ihre persönliche Anlagestrategie." },
-      { titel: "Selektion", zeile: "Unsere Modelle und Investmentexpertise identifizieren passende Anlagen aus den globalen Märkten." },
+      { titel: "Selektion", zeile: "Unser Anlageausschuss identifiziert auf Basis hauseigener Anlagemodelle gezielte Investmentmöglichkeiten an den globalen Kapitalmärkten." },
       { titel: "Allokation", zeile: "Wir strukturieren Ihr Portfolio nach Risikoprofil und Anlageausrichtung und passen es laufend an." },
       { titel: "Verwaltung", zeile: "Wir überwachen und steuern Ihr Portfolio kontinuierlich und informieren Sie transparent über die Entwicklung." },
     ],
@@ -69,7 +69,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", MandatInhalt>> = {
     schritte: [
       { titel: "Objectives", zeile: "We define your investment objectives, individual needs and appropriate investment horizon." },
       { titel: "Risk Profile", zeile: "We establish your risk profile as the foundation for your individual investment strategy." },
-      { titel: "Selection", zeile: "Our models and investment expertise identify suitable opportunities across global markets." },
+      { titel: "Selection", zeile: "Our investment committee identifies targeted investment opportunities in global capital markets based on proprietary investment models." },
       { titel: "Allocation", zeile: "We structure your portfolio in line with your risk profile and investment strategy and adjust it as markets evolve." },
       { titel: "Management", zeile: "We continuously monitor and manage your portfolio and keep you transparently informed of its development." },
     ],
@@ -92,14 +92,14 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", MandatInhalt>> = {
   FR: {
     titel: ["Sie geben den Rahmen.", "Wir übernehmen die Verantwortung."],
     lead: [
-      "Mit einem Vermögensverwaltungsmandat übertragen Sie Tellian Capital die Verwaltung Ihres Portfolios innerhalb der gemeinsam definierten Anlagestrategie. Sie erteilen uns eine Verwaltungsvollmacht – wir treffen die Anlageentscheide und setzen diese für Sie um.",
+      "Mit einem Vermögensverwaltungsmandat übertragen Sie Tellian Capital die Verwaltung Ihres Portfolios innerhalb der gemeinsam definierten Anlagestrategie. Sie erteilen uns eine Verwaltungsvollmacht, wir treffen die Anlageentscheide und setzen diese für Sie um.",
       "Ihre persönlichen Ziele, Ihre Risikobereitschaft und Ihre finanzielle Situation bilden dabei den verbindlichen Rahmen.",
     ],
     zwischentitel: "Mit Methode gemeinsam zum Ziel.",
     schritte: [
       { titel: "Ziele", zeile: "Wir definieren Ihre Anlageziele, Bedürfnisse und den passenden Anlagehorizont." },
       { titel: "Risikoprofil", zeile: "Wir bestimmen Ihr Risikoprofil als Grundlage für Ihre persönliche Anlagestrategie." },
-      { titel: "Selektion", zeile: "Unsere Modelle und Investmentexpertise identifizieren passende Anlagen aus den globalen Märkten." },
+      { titel: "Selektion", zeile: "Unser Anlageausschuss identifiziert auf Basis hauseigener Anlagemodelle gezielte Investmentmöglichkeiten an den globalen Kapitalmärkten." },
       { titel: "Allokation", zeile: "Wir strukturieren Ihr Portfolio nach Risikoprofil und Anlageausrichtung und passen es laufend an." },
       { titel: "Verwaltung", zeile: "Wir überwachen und steuern Ihr Portfolio kontinuierlich und informieren Sie transparent über die Entwicklung." },
     ],
