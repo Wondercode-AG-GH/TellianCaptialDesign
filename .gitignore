@@ -30,3 +30,8 @@ pnpm-debug.log*
 # Vite / testing caches
 .vite/
 coverage/
+
+# Finder-Dubletten aus der Cloud-Synchronisierung («Datei 2.tsx»).
+# Sie sind veraltete Kopien versionierter Dateien, werden von
+# nichts importiert (geprüft 18.09) und gehören nicht ins Repository.
+* [0-9].*
