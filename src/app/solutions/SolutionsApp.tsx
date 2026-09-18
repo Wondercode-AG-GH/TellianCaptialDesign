@@ -14,6 +14,7 @@ import { useHorizontalScroll } from "../components/useHorizontalScroll";
 import { useVerticalSectionIndex } from "../components/useVerticalSectionIndex";
 import { useBandZonen } from "../components/useBandTon";
 import { SOLUTIONS_SEKTIONEN, solutionsLeisteSektionen } from "./inhalt";
+import { useSeo } from "../useSeo";
 import { NEBEN_VERWEISE } from "../sections";
 import { SolutionsEinstieg } from "./SolutionsEinstieg";
 import { SolutionsWasWirTun } from "./SolutionsWasWirTun";
@@ -38,6 +39,8 @@ export function SolutionsApp() {
      Haupt-App startet frisch mit DE. FR kann dort nie ankommen,
      ein Mischzustand mit Platzhaltern ist ausgeschlossen. */
   const [sprache, setSprache] = useState<"DE" | "EN" | "FR">("DE");
+  /* Eigene Kopfdaten für die Solutions-Welt (18.09). */
+  useSeo("/solutions", sprache);
   const [loginOpen, setLoginOpen] = useState(false);
   const [menueOffen, setMenueOffen] = useState(false);
   /* Dieselbe Lade-Animation wie die Hauptseite; bis sie ausläuft,

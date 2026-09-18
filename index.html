@@ -1,11 +1,98 @@
 
   <!DOCTYPE html>
-  <html lang="en">
+  <html lang="de">
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <link rel="icon" type="image/svg+xml" href="/public/favicon.svg" />
-      <title>Tellian Capital</title>
+      <!-- Dateien aus public/ liegen an der Wurzel. Der frühere Pfad
+           /public/favicon.svg traf ins Leere: die SPA-Regel lieferte
+           dort index.html zurück, der Tab blieb ohne Zeichen. -->
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+      <!-- ══ Grundbestand für Suchmaschinen und geteilte Links ══
+           Diese Seite ist eine Einzelseiten-Anwendung: Titel und
+           Beschreibung werden je Ansicht nachgeführt (src/app/useSeo.ts).
+           Was hier steht, ist der Stand, den Dienste OHNE JavaScript
+           sehen — LinkedIn, WhatsApp, Mailvorschauen. Deshalb trägt
+           er die Startseite, nicht einen leeren Platzhalter. -->
+      <title>Unabhängige Vermögensverwaltung in Zürich | Tellian Capital AG</title>
+      <meta
+        name="description"
+        content="Tellian Capital AG begleitet Privatpersonen, Unternehmerfamilien und Stiftungen bei der langfristigen Entwicklung ihres Vermögens. Unabhängig, FINMA-lizenziert und seit 1996 in Zürich verwurzelt."
+      />
+      <link rel="canonical" href="https://telliancapital.ch" />
+
+      <meta property="og:type" content="website" />
+      <meta property="og:site_name" content="Tellian Capital" />
+      <meta property="og:locale" content="de_CH" />
+      <meta property="og:url" content="https://telliancapital.ch" />
+      <meta
+        property="og:title"
+        content="Unabhängige Vermögensverwaltung in Zürich | Tellian Capital AG"
+      />
+      <meta
+        property="og:description"
+        content="Unabhängig, FINMA-lizenziert und seit 1996 in Zürich verwurzelt: Tellian Capital AG begleitet Privatpersonen, Unternehmerfamilien und Stiftungen."
+      />
+      <meta
+        property="og:image"
+        content="https://telliancapital.ch/img/hero-tellian/hero-tellian-1536.jpg"
+      />
+      <meta property="og:image:width" content="1536" />
+      <meta property="og:image:height" content="1024" />
+      <meta property="og:image:alt" content="Opernhaus Zürich zur blauen Stunde" />
+      <meta name="twitter:card" content="summary_large_image" />
+
+      <!-- ══ Strukturierte Daten ══
+           Macht Firmierung, Adresse, Telefon und Öffnungszeiten
+           maschinenlesbar — die Grundlage dafür, in der lokalen
+           Suche («Vermögensverwaltung Zürich») und im Wissenspanel
+           aufzutauchen. Die Angaben decken sich mit Station 6 und
+           dem Impressum; bei Änderungen dort hier mitziehen. -->
+      <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "FinancialService",
+          "name": "Tellian Capital AG",
+          "url": "https://telliancapital.ch",
+          "logo": "https://telliancapital.ch/favicon.svg",
+          "image": "https://telliancapital.ch/img/hero-tellian/hero-tellian-1536.jpg",
+          "description": "Unabhängige, FINMA-lizenzierte Vermögensverwaltung in Zürich für Privatpersonen, Unternehmerfamilien und Stiftungen.",
+          "email": "info@telliancapital.ch",
+          "telephone": "+41442244024",
+          "foundingDate": "1996",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Beethovenstrasse 7",
+            "postalCode": "8002",
+            "addressLocality": "Zürich",
+            "addressCountry": "CH"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 47.3667,
+            "longitude": 8.5346
+          },
+          "areaServed": { "@type": "Country", "name": "Schweiz" },
+          "openingHoursSpecification": [
+            {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday"
+              ],
+              "opens": "08:00",
+              "closes": "18:00"
+            }
+          ],
+          "sameAs": [
+            "https://www.linkedin.com/company/dr-blumer-partner-verm%C3%B6gensverwaltung-z%C3%BCrich-ag/"
+          ]
+        }
+      </script>
 
     <!-- Hero-Bild vorladen. Es ist das einzige Bild, das beim Aufbau
          sichtbar ist; der Browser findet es sonst erst, wenn React

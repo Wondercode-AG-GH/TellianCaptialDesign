@@ -1,0 +1,5 @@
+# Tellian Capital — alles darf indexiert werden.
+User-agent: *
+Allow: /
+
+Sitemap: https://telliancapital.ch/sitemap.xml

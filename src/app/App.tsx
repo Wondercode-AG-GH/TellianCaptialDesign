@@ -44,6 +44,7 @@ import {
   indexOfSection,
   leisteSektionen,
 } from "./sections";
+import { useSeo } from "./useSeo";
 import { SectionEnteredProvider } from "./components/SectionEntry";
 import { Station1Einstieg } from "./components/Station1Einstieg";
 import { prefetchImages } from "./components/ResponsiveImage";
@@ -1249,6 +1250,27 @@ export default function App() {
      (Scroll-Engine, Bandzonen, Hash-Anker). Steht NACH `sprache`:
      davor lief die Seite in die temporale Totzone und blieb weiss. */
   const leisteNamen = useMemo(() => leisteSektionen(sprache), [sprache]);
+
+  /* ── KOPFDATEN DER ANSICHT (18.09) ──
+     Titel, Beschreibung, Sprachkennung und Vorschau folgen der
+     gerade gezeigten Ansicht. Der Pfad kommt aus dem Zustand der
+     Unterseiten, nicht aus window.location: die Navigation läuft
+     über pushState, das kein Ereignis auslöst — der Zustand ist
+     die verlässliche Quelle. */
+  const ansichtsPfad = legal.activePath
+    ? legal.activePath
+    : man.isDetail
+      ? "/mandat"
+      : adv.isDetail
+        ? "/advisory"
+        : vvw.mode === "detail"
+          ? "/vermoegensverwaltung"
+          : ast.mode === "detail"
+            ? "/anlagestrategien"
+            : pm.isDetail
+              ? "/portfolio-management"
+              : "/";
+  useSeo(ansichtsPfad, sprache);
 
   /* Sprachwechsel setzt die Scrub-Position an den Anfang (Briefing
      12.09, 2.4) — ohne Fahrt, der Track steht sofort auf Station 1.
