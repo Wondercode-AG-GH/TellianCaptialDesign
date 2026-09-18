@@ -83,8 +83,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", AdvisoryInhalt>> = {
     /* TODO-EN-BUTTON: Es existiert kein englisches Pendant des
        Knopfs «Gespräch vereinbaren» — bis zur Klärung steht der
        deutsche Text. */
-    /* UI-LABEL-REVIEW: englische Fassung vorgeschlagen 18.09. */
-    knopf: "Arrange a meeting",
+    knopf: "Gespräch vereinbaren",
   },
   /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
   FR: {

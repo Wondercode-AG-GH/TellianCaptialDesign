@@ -5,11 +5,12 @@ import {
   useRef,
   useState,
   type FormEvent,
+  type ReactNode,
 } from "react";
 
 import { cormorant, sans } from "../tokens";
 import { Aufgang, Kapitelmarke } from "./MobilSektion";
-import { SECTION_WIDTH_LAST, stationsName } from "../sections";
+import { SECTION_WIDTH_LAST } from "../sections";
 import { MapOverlay } from "./Section6Kontakt";
 import { kontaktSenden, ZIEL_KONFIGURIERT } from "../kontaktZiel";
 import type { LegalPath } from "./LegalOverlay";
@@ -38,104 +39,22 @@ import inBugWeiss from "../../assets/logo/InBug-White.png";
 const TELEFON_ANZEIGE = "+41 44 224 40 24";
 const TELEFON_LINK = "tel:+41442244024";
 const MAIL = "info@telliancapital.ch";
-/* ── Stationstexte je Sprache (EN vervollständigt 18.09) ──
-   Bis dahin stand die Station auch in der englischen Fassung
-   durchgehend deutsch: Titel, Lead, Öffnungszeiten, Wegnamen,
-   Kartenknopf, Fusszeile und das ganze Formular. Für eine Seite,
-   deren Kontaktstation der Abschluss ist, war das die auffälligste
-   Lücke. UI-LABEL-REVIEW: die englischen Fassungen sind Vorschläge
-   und brauchen die Freigabe von Tellian. */
-interface StationTexte {
-  titel: readonly [string, string];
-  lead: readonly [string, string];
-  oeffnung: string;
-  wegAnrufen: string;
-  wegMail: string;
-  wegSchreiben: string;
-  karte: string;
-  fussZusatz: string;
-  fussAria: string;
-  dankeTitel: string;
-  dankeText: string;
-  sendefehler: readonly [string, string];
-}
+const OEFFNUNG = "Montag bis Freitag, 8 bis 18 Uhr";
 
-const STATION_TEXTE: Readonly<Record<"DE" | "EN" | "FR", StationTexte>> = {
-  DE: {
-    titel: ["Sprechen", "wir."],
-    lead: [
-      "Ein erstes Gespräch ist unverbindlich.",
-      "Persönlich an der Beethovenstrasse, oder digital.",
-    ],
-    oeffnung: "Montag bis Freitag, 8 bis 18 Uhr",
-    wegAnrufen: "Anrufen",
-    wegMail: "E-Mail",
-    wegSchreiben: "Schreiben Sie uns",
-    karte: "Auf Karte anzeigen",
-    fussZusatz: "FINMA-lizenziert · © 2026",
-    fussAria: "Rechtliches und weitere Seiten",
-    dankeTitel: "Vielen Dank.",
-    dankeText:
-      "Ihre Anfrage ist bei uns. Wir melden uns bei Ihnen, in der Regel innerhalb eines Arbeitstages.",
-    sendefehler: [
-      "Das Absenden hat nicht geklappt. Ihre Eingaben sind erhalten — versuchen Sie es nochmals, oder erreichen Sie uns direkt unter",
-      ".",
-    ],
-  },
-  EN: {
-    titel: ["Let’s", "talk."],
-    lead: [
-      "A first conversation is entirely without obligation.",
-      "In person at Beethovenstrasse, or digitally.",
-    ],
-    oeffnung: "Monday to Friday, 8 am to 6 pm",
-    wegAnrufen: "Call us",
-    wegMail: "E-mail",
-    wegSchreiben: "Write to us",
-    karte: "Show on map",
-    fussZusatz: "FINMA-licensed · © 2026",
-    fussAria: "Legal and further pages",
-    dankeTitel: "Thank you.",
-    dankeText:
-      "Your enquiry has reached us. We will get back to you, usually within one working day.",
-    sendefehler: [
-      "Sending did not work. Your entries have been kept — please try again, or reach us directly on",
-      ".",
-    ],
-  },
-  /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
-  FR: {
-    titel: ["Sprechen", "wir."],
-    lead: [
-      "Ein erstes Gespräch ist unverbindlich.",
-      "Persönlich an der Beethovenstrasse, oder digital.",
-    ],
-    oeffnung: "Montag bis Freitag, 8 bis 18 Uhr",
-    wegAnrufen: "Anrufen",
-    wegMail: "E-Mail",
-    wegSchreiben: "Schreiben Sie uns",
-    karte: "Auf Karte anzeigen",
-    fussZusatz: "FINMA-lizenziert · © 2026",
-    fussAria: "Rechtliches und weitere Seiten",
-    dankeTitel: "Vielen Dank.",
-    dankeText:
-      "Ihre Anfrage ist bei uns. Wir melden uns bei Ihnen, in der Regel innerhalb eines Arbeitstages.",
-    sendefehler: [
-      "Das Absenden hat nicht geklappt. Ihre Eingaben sind erhalten — versuchen Sie es nochmals, oder erreichen Sie uns direkt unter",
-      ".",
-    ],
-  },
-};
-
-/* Firmenname und Adresse — Kundenkorrektur 13.09. */
-const FIRMA = [
-  "Beethovenstrasse 7, CH-8002 Zürich",
+const TITEL = ["Sprechen", "wir."] as const;
+const LEAD = [
+  "Ein erstes Gespräch ist unverbindlich.",
+  "Persönlich an der Löwenstrasse, oder digital.",
 ] as const;
 
-/* 4.1 (12.09): die Marke der Fusszeile gehört der WELT, nicht der
-   Komponente — die Hauptseite trug fälschlich den Solutions-Namen.
-   Standard ist die Hauptseite; Solutions übergibt seinen Namen.
-   Der Zusatz dahinter steht je Sprache in STATION_TEXTE. */
+/* Der frühere Firmenname steht bewusst hier und nirgends sonst auf
+   der Seite. */
+const FIRMA = [
+  "Vermögensverwaltung Zürich AG, vormals Dr. Blumer & Partner",
+  "Löwenstrasse 1, CH-8001 Zürich",
+] as const;
+
+const FUSS_LINKS = "Tellian Capital Solutions · FINMA-lizenziert · © 2026";
 
 interface FussVerweis {
   text: string;
@@ -162,7 +81,7 @@ const FUSS_RECHTS: readonly FussVerweis[] = [
   { text: "Solutions", href: "https://solutions.telliancapital.ch", extern: true },
   {
     text: "LinkedIn",
-    href: "https://www.linkedin.com/company/dr-blumer-partner-verm%C3%B6gensverwaltung-z%C3%BCrich-ag/",
+    href: "https://www.linkedin.com/company/tellian-capital",
     extern: true,
     marke: inBugWeiss,
     vorlesen: "Tellian Capital auf LinkedIn",
@@ -228,28 +147,9 @@ const FORM_DE: FormTexte = {
   fehlerNachricht: "Bitte schreiben Sie uns kurz, worum es geht.",
 };
 
-const FORM_EN: FormTexte = {
-  /* UI-LABEL-REVIEW (alle Einträge dieses Blocks): Vorschlag,
-     Freigabe durch Tellian ausstehend. */
-  feldName: "Name",
-  feldMail: "E-mail",
-  feldTelefon: "Phone",
-  feldNachricht: "Your message",
-  optionalWort: "— optional",
-  zustimmung: "By submitting this form you agree to our privacy policy.",
-  senden: "Send enquiry",
-  sendet: "Sending …",
-  fehlerName: "Please enter your name.",
-  fehlerMailLeer: "Please enter your e-mail address so that we can reply.",
-  fehlerMailAt: "The @ is still missing, for example name@example.ch",
-  fehlerMailDomain: "The domain after the @ is still missing, for example example.ch",
-  fehlerTelefon: "The number looks incomplete. You may also leave this field empty.",
-  fehlerNachricht: "Please tell us briefly what this is about.",
-};
-
 const FORM_TEXTE: Readonly<Record<"DE" | "EN" | "FR", FormTexte>> = {
   DE: FORM_DE,
-  EN: FORM_EN,
+  EN: FORM_DE,
   FR: {
     /* UI-LABEL-REVIEW (alle Einträge dieses Blocks) */
     feldName: "Nom",
@@ -390,16 +290,12 @@ function KontaktFeld({
     fontSize: "var(--tellian-field-size)",
     lineHeight: 1.5,
     color: "var(--tellian-field-ink)",
-    /* GRUNDLINIE statt Kasten (Kundenrückmeldung 14.09): die
-       umrandeten Felder lasen sich wie Formular-Baukasten. Nur die
-       Unterlinie trägt das Feld — wie eine Zeile auf Briefpapier.
-       Im Fehler dicker (Innenabstand gleicht die Höhe aus), damit
-       der Zustand nicht allein an der Farbe hängt. */
-    border: "none",
-    borderBottom: `${fehler ? "2px" : "1px"} solid ${kontur}`,
+    /* Im Fehler zusätzlich dicker, damit der Zustand nicht allein an
+       der Farbe hängt. */
+    border: `${fehler ? "2px" : "1px"} solid ${kontur}`,
     borderRadius: 0,
-    backgroundColor: "transparent",
-    padding: fehler ? "12px 2px 11px" : "12px 2px",
+    backgroundColor: "var(--tellian-field-bg)",
+    padding: fehler ? "11px 13px" : "12px 14px",
     width: "100%",
     boxSizing: "border-box",
     appearance: "none",
@@ -427,10 +323,7 @@ function KontaktFeld({
           fontFamily: sans,
           fontSize: "var(--tellian-field-label-size)",
           lineHeight: 1.3,
-          /* Gedämpft (6.32:1): das Feld ist die Bühne, nicht die
-             Beschriftung — volle Tinte liess die Namen lauter
-             sprechen als die Eingaben. */
-          color: "var(--tellian-field-label)",
+          color: "var(--tellian-k6-ink)",
         }}
       >
         {beschriftung}
@@ -499,7 +392,6 @@ function Formular({
   sprache?: "DE" | "EN" | "FR";
 }) {
   const t = FORM_TEXTE[sprache];
-  const st = STATION_TEXTE[sprache];
   const [felder, setFelder] = useState<Felder>(LEER);
   const [fehler, setFehler] = useState<Fehlerliste>({});
   const [zustand, setZustand] = useState<Zustand>("bereit");
@@ -614,7 +506,7 @@ function Formular({
             color: "var(--tellian-k6-ink)",
           }}
         >
-          {st.dankeTitel}
+          Vielen Dank.
         </span>
         <span
           style={{
@@ -622,20 +514,21 @@ function Formular({
             marginTop: "14px",
             maxWidth: "34em",
             fontFamily: sans,
-            fontSize: "var(--tellian-lauf-size)",
-            lineHeight: "var(--tellian-lauf-lh)" as unknown as number,
+            fontSize: "15px",
+            lineHeight: 1.65,
             color: "var(--tellian-k6-dim)",
           }}
         >
-          {st.dankeText}
+          Ihre Anfrage ist bei uns. Wir melden uns bei Ihnen, in der Regel
+          innerhalb eines Arbeitstages.
         </span>
         <span
           style={{
             display: "block",
             marginTop: "20px",
             fontFamily: sans,
-            fontSize: "var(--tellian-lauf-size)",
-            lineHeight: "var(--tellian-lauf-lh)" as unknown as number,
+            fontSize: "15px",
+            lineHeight: 1.65,
             color: "var(--tellian-k6-dim)",
           }}
         >
@@ -651,7 +544,7 @@ function Formular({
           >
             {TELEFON_ANZEIGE}
           </a>
-          {st.sendefehler[1]} {st.oeffnung}.
+          . {OEFFNUNG}.
         </span>
       </div>
     );
@@ -778,7 +671,8 @@ function Formular({
             <FehlerZeichen />
           </span>
           <span>
-            {st.sendefehler[0]}{" "}
+            Das Absenden hat nicht geklappt. Ihre Eingaben sind erhalten —
+            versuchen Sie es nochmals, oder erreichen Sie uns direkt unter{" "}
             <a
               href={TELEFON_LINK}
               className="tellian-k6-tel"
@@ -818,15 +712,12 @@ function Formular({
           fontFamily: sans,
           fontSize: "13px",
           fontWeight: 500,
-          /* Ebene 2 (12.09): Formular-CTA im Inhalt — Satzschreib-
-             weise, Laufweite der Inhalt-CTA-Rolle. */
-          letterSpacing: "var(--tellian-ls-cta-klein)",
-          /* Rückbau 14.09: Mushroom mit Tinte (8.17:1, aktiv
-             ~6.9:1) — konsistent zum Mandat-CTA der Station 02.
-             Die FLÄCHE steht in der CSS-Regel, nicht hier: inline
-             hätte sie jede Hover-Regel überstimmt — genau daran war
-             der frühere Mushroom-Hover immer schon gescheitert. */
-          color: "var(--tellian-ink)",
+          letterSpacing: "0.16em",
+          textTransform: "uppercase",
+          /* Dunkel auf Mushroom — 8.17 : 1. Hell auf Mushroom wären
+             1.6 : 1 gewesen. */
+          color: "var(--tellian-dark)",
+          backgroundColor: "var(--tellian-button)",
           border: "none",
           borderRadius: 0,
           padding: "17px 26px",
@@ -873,9 +764,6 @@ interface Props {
       rendern den bestehenden Wortlaut unverändert; die Hauptseite
       übergibt nichts und bleibt beim Standard DE. */
   sprache?: "DE" | "EN" | "FR";
-  /** Marke der Fusszeile (4.1): Hauptseite «Tellian Capital»,
-      Solutions übergibt «Tellian Capital Solutions». */
-  fussMarke?: string;
 }
 
 export function Station6Kontakt({
@@ -884,15 +772,9 @@ export function Station6Kontakt({
   domId,
   onOpenLegal,
   markeNr = "06",
-  markeName,
+  markeName = "Kontakt",
   sprache = "DE",
-  fussMarke = "Tellian Capital",
 }: Props) {
-  const stText = STATION_TEXTE[sprache];
-  /* Ohne übergebenen Namen folgt die Kapitelmarke der Sprache
-     (Kontakt / Contact); Solutions übergibt weiterhin seinen
-     eigenen Namen. */
-  const markeNameAufgeloest = markeName ?? stationsName("kontakt", sprache);
   const [karteOffen, setKarteOffen] = useState(false);
   const karteBtn = useRef<HTMLButtonElement | null>(null);
 
@@ -907,8 +789,8 @@ export function Station6Kontakt({
         color: "var(--tellian-k6-ink)",
       }}
     >
-      {stText.titel[0]}{" "}
-      <em style={{ fontStyle: "italic", fontWeight: "inherit" }}>{stText.titel[1]}</em>
+      {TITEL[0]}{" "}
+      <em style={{ fontStyle: "italic", fontWeight: "inherit" }}>{TITEL[1]}</em>
     </h2>
   );
 
@@ -920,17 +802,14 @@ export function Station6Kontakt({
         fontFamily: sans,
         fontSize: "var(--tellian-k6-lead-size)",
         lineHeight: "var(--tellian-k6-lead-leading)" as unknown as number,
-        /* Die Unterzeile folgt dem Untertitel der Vorteile-Station —
-           seit dem Rückbau 14.09 Mushroom, auf Imperial Purple
-           6.7:1. */
-        color: "var(--tellian-muted)",
+        color: "var(--tellian-k6-dim)",
       }}
     >
-      {stText.lead[0]}
+      {LEAD[0]}
       {zweizeilig && (
         <>
           <br />
-          {stText.lead[1]}
+          {LEAD[1]}
         </>
       )}
     </p>
@@ -965,7 +844,7 @@ export function Station6Kontakt({
         color: "var(--tellian-k6-dim)",
       }}
     >
-      {stText.oeffnung}
+      {OEFFNUNG}
     </p>
   );
 
@@ -990,71 +869,124 @@ export function Station6Kontakt({
     </a>
   );
 
-  /* ── SCHMAL: Kontaktwege als redaktionelle Zeilen ──
-     Kundenrückmeldung 14.09: die zwei umrandeten Icon-Kacheln und
-     der zentrierte «Oder schreiben Sie uns»-Trenner lasen sich wie
-     Baukasten-Bausteine. Die Wege stehen jetzt als Zeilen einer
-     Haarlinien-Liste im Vokabular der Seite — Marker-Zeile, Wert
-     in der Serife der breiten Fassung, Meta-Zeile; ohne Icons,
-     ohne Kästen. Das Formular schliesst die Liste als dritter Weg
-     mit derselben Grammatik. */
+  /* ── SCHMAL: zwei grosse Bedienflächen ── */
 
-  const weg = (
+  const kachel = (
     href: string,
+    zeichen: ReactNode,
     ueberschrift: string,
     wert: string,
     zusatz?: string,
   ) => (
     <a
       href={href}
-      className="tellian-k6-weg"
+      className="tellian-k6-kachel"
       style={{
-        display: "block",
-        padding: "clamp(18px, 2.6vh, 26px) 0",
-        borderTop: "1px solid var(--tellian-k6-line)",
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "14px",
+        padding: "var(--tellian-k6-kachel-pad)",
+        border: "1px solid var(--tellian-k6-kachel-line)",
+        backgroundColor: "var(--tellian-k6-kachel-bg)",
         textDecoration: "none",
+        minHeight: "var(--tellian-tippziel)",
+        boxSizing: "border-box",
+        transition: "background-color 200ms ease, border-color 200ms ease",
       }}
     >
       <span
-        className="tellian-marker"
+        aria-hidden
         style={{
-          display: "block",
-          fontFamily: sans,
-          color: "var(--tellian-k6-dim)",
-        }}
-      >
-        {ueberschrift}
-      </span>
-      <span
-        className="tellian-k6-weg-wert"
-        style={{
-          display: "block",
-          marginTop: "10px",
-          fontFamily: cormorant,
-          fontSize: "clamp(24px, 6.4vw, 32px)",
-          fontWeight: 300,
-          lineHeight: 1.1,
+          display: "flex",
+          flexShrink: 0,
+          marginTop: "3px",
           color: "var(--tellian-k6-ink)",
-          wordBreak: "break-word",
         }}
       >
-        {wert}
+        {zeichen}
       </span>
-      {zusatz && (
+      <span style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
         <span
           style={{
-            display: "block",
-            marginTop: "8px",
             fontFamily: sans,
             fontSize: "13px",
-            lineHeight: 1.45,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
             color: "var(--tellian-k6-dim)",
           }}
         >
-          {zusatz}
+          {ueberschrift}
         </span>
-      )}
+        <span
+          style={{
+            marginTop: "6px",
+            fontFamily: cormorant,
+            fontSize: "clamp(24px, 6.4vw, 32px)",
+            fontWeight: 300,
+            lineHeight: 1.1,
+            color: "var(--tellian-k6-ink)",
+            wordBreak: "break-word",
+          }}
+        >
+          {wert}
+        </span>
+        {zusatz && (
+          <span
+            style={{
+              marginTop: "8px",
+              fontFamily: sans,
+              fontSize: "13px",
+              lineHeight: 1.45,
+              color: "var(--tellian-k6-dim)",
+            }}
+          >
+            {zusatz}
+          </span>
+        )}
+      </span>
     </a>
+  );
+
+  const zeichenTelefon = (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden focusable="false">
+      <path
+        d="M6.3 2.8 8 6.1l-1.7 1.6c.9 2 2.3 3.4 4.3 4.3l1.6-1.7 3.3 1.7-.6 3c-.2.7-.8 1.1-1.5 1C8.1 15.3 4.7 11.9 3.2 5.9c-.1-.7.3-1.3 1-1.5l2.1-.6z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
+  const zeichenMail = (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden focusable="false">
+      <rect x="2.2" y="4.4" width="15.6" height="11.2" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M2.6 5.1 10 10.7l7.4-5.6" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+    </svg>
+  );
+
+  const trennzeile = (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "14px",
+      }}
+    >
+      <span aria-hidden style={{ flex: 1, height: "1px", backgroundColor: "var(--tellian-k6-line)" }} />
+      <span
+        style={{
+          fontFamily: sans,
+          fontSize: "13px",
+          letterSpacing: "0.08em",
+          color: "var(--tellian-k6-dim)",
+          whiteSpace: "nowrap",
+        }}
+      >
+        Oder schreiben Sie uns
+      </span>
+      <span aria-hidden style={{ flex: 1, height: "1px", backgroundColor: "var(--tellian-k6-line)" }} />
+    </div>
   );
 
   const firma = (
@@ -1068,7 +1000,7 @@ export function Station6Kontakt({
           color: "var(--tellian-k6-ink)",
         }}
       >
-        Tellian Capital AG
+        Tellian Capital
       </span>
       {FIRMA.map((zeile) => (
         <span
@@ -1101,7 +1033,7 @@ export function Station6Kontakt({
           color: "var(--tellian-k6-ink)",
         }}
       >
-        {stText.karte} <span aria-hidden>→</span>
+        Auf Karte anzeigen <span aria-hidden>→</span>
       </button>
     </div>
   );
@@ -1125,11 +1057,11 @@ export function Station6Kontakt({
           color: "var(--tellian-k6-foot-color)",
         }}
       >
-        {`${fussMarke} · ${stText.fussZusatz}`}
+        {FUSS_LINKS}
       </span>
 
       <nav
-        aria-label={stText.fussAria}
+        aria-label="Rechtliches und weitere Seiten"
         /* Die Trenner standen beim Umbruch als führendes Zeichen am
            Zeilenanfang — auf dem Telefon brach die Liste immer um.
            Statt Trennern ein klarer Abstand. */
@@ -1206,16 +1138,6 @@ export function Station6Kontakt({
     <style>{`
       .tellian-k6-tel:hover,
       .tellian-k6-still:hover { text-decoration: underline; text-underline-offset: 4px; }
-      /* Tippziele (12.09): die Fussverweise messen ~26px Höhe —
-         eine unsichtbare Zone hebt sie Richtung 44px-Richtwert,
-         ohne Layout oder Optik zu ändern. Senkrecht grosszügig,
-         waagrecht knapp (Nachbarn ab 16px Spaltenabstand). */
-      .tellian-k6-still { position: relative; }
-      .tellian-k6-still::before {
-        content: "";
-        position: absolute;
-        inset: -9px -7px;
-      }
       /* TREFFERFLÄCHEN
          Gemessen waren die Fussverweise 18px hoch, Telefon 29,
          E-Mail 24. Der Zuwachs kommt aus dem Innenabstand und wird
@@ -1231,15 +1153,11 @@ export function Station6Kontakt({
         margin-top: -12px;
         margin-bottom: -12px;
       }
-      .tellian-k6-primaer { background-color: var(--tellian-muted); }
-      .tellian-k6-primaer:hover:not(:disabled),
-      .tellian-k6-primaer:focus-visible:not(:disabled) { background-color: var(--tellian-button-hover); }
+      .tellian-k6-primaer:hover:not(:disabled) { background-color: var(--tellian-button-hover); }
       .tellian-k6-primaer:disabled { opacity: 0.8; }
-      .tellian-k6-weg:hover .tellian-k6-weg-wert {
-        text-decoration: underline;
-        text-decoration-thickness: 1px;
-        text-underline-offset: 5px;
-        text-decoration-color: var(--tellian-k6-line);
+      .tellian-k6-kachel:hover {
+        background-color: var(--tellian-k6-kachel-bg-hover);
+        border-color: var(--tellian-k6-kachel-line-hover);
       }
       .tellian-k6-feld { outline: none; }
       .tellian-k6-feld::placeholder { color: transparent; }
@@ -1253,7 +1171,7 @@ export function Station6Kontakt({
       .tellian-k6-tel:focus-visible,
       .tellian-k6-still:focus-visible,
       .tellian-k6-primaer:focus-visible,
-      .tellian-k6-weg:focus-visible,
+      .tellian-k6-kachel:focus-visible,
       .tellian-k6-feld:focus-visible {
         outline: 2px solid var(--tellian-k6-focus);
         outline-offset: 3px;
@@ -1279,13 +1197,12 @@ export function Station6Kontakt({
       open={karteOffen}
       onClose={() => setKarteOffen(false)}
       returnFocusRef={karteBtn}
-      sprache={sprache}
     />
   );
 
   /* ── SCHMAL ──
-     Titel, ein Satz, die Wegliste (Anrufen, E-Mail, Schreiben mit
-     Formular), Adressblock, Fussband. */
+     Titel, ein Satz, die beiden Bedienflächen, Trennzeile, Formular,
+     Adressblock, Fussband. */
   if (isVertical) {
     return (
       <section
@@ -1313,37 +1230,28 @@ export function Station6Kontakt({
         >
           {markeNr !== null && (
             <div style={{ marginBottom: "clamp(28px, 4vh, 44px)" }}>
-              <Kapitelmarke nr={markeNr} name={markeNameAufgeloest} hell />
+              <Kapitelmarke nr={markeNr} name={markeName} hell />
             </div>
           )}
           <Aufgang>{titel}</Aufgang>
           {lead(false)}
 
-          <div style={{ marginTop: "clamp(26px, 3.4vh, 40px)" }}>
-            {weg(TELEFON_LINK, stText.wegAnrufen, TELEFON_ANZEIGE, stText.oeffnung)}
-            {weg(`mailto:${MAIL}`, stText.wegMail, MAIL)}
-            {/* Der Nachrichtenweg schliesst die Liste — gleiche
-                Grammatik statt eines zentrierten Trenners. */}
-            <div
-              style={{
-                borderTop: "1px solid var(--tellian-k6-line)",
-                paddingTop: "clamp(18px, 2.6vh, 26px)",
-              }}
-            >
-              <span
-                className="tellian-marker"
-                style={{
-                  display: "block",
-                  fontFamily: sans,
-                  color: "var(--tellian-k6-dim)",
-                }}
-              >
-                {stText.wegSchreiben}
-              </span>
-              <div style={{ marginTop: "clamp(20px, 2.6vh, 30px)" }}>
-                <Formular gestapelt sprache={sprache} />
-              </div>
-            </div>
+          <div
+            style={{
+              marginTop: "clamp(26px, 3.4vh, 40px)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "14px",
+            }}
+          >
+            {kachel(TELEFON_LINK, zeichenTelefon, "Anrufen", TELEFON_ANZEIGE, OEFFNUNG)}
+            {kachel(`mailto:${MAIL}`, zeichenMail, "E-Mail", MAIL)}
+          </div>
+
+          <div style={{ marginTop: "clamp(30px, 4vh, 46px)" }}>{trennzeile}</div>
+
+          <div style={{ marginTop: "clamp(22px, 3vh, 32px)" }}>
+            <Formular gestapelt sprache={sprache} />
           </div>
 
           <div style={{ marginTop: "clamp(30px, 4vh, 46px)" }}>{firma}</div>

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { ReactNode } from "react";
 
@@ -31,6 +31,27 @@ export function SubpageOverlay({
   headline,
   children,
 }: SubpageOverlayProps) {
+  /* ── INHALT NUR, WENN GEBRAUCHT (18.09) ──
+     Das Overlay blieb geschlossen im Baum stehen und brachte seinen
+     eigenen H1 mit: gemessen SECHS H1 auf einer Seite, fünf davon
+     unsichtbar. Für Suchmaschinen ist die Gliederung damit unklar,
+     Screenreader lasen fünf verborgene Unterseiten mit, und die
+     Tastatur konnte in unsichtbare Felder springen.
+
+     Der Inhalt hängt jetzt am Zustand — bleibt aber während des
+     Ausblendens (400ms Überblendung, 800ms bis visibility) stehen,
+     sonst verschwände er schlagartig und zurück bliebe eine weisse
+     Fläche. Dasselbe Muster wie im Porträt-Overlay. */
+  const [zeigtInhalt, setZeigtInhalt] = useState(isOpen);
+  useEffect(() => {
+    if (isOpen) {
+      setZeigtInhalt(true);
+      return;
+    }
+    const t = window.setTimeout(() => setZeigtInhalt(false), 850);
+    return () => window.clearTimeout(t);
+  }, [isOpen]);
+
   /* Scroll to top each time overlay opens so long-scroll content starts fresh */
   useEffect(() => {
     if (!isOpen) return;
@@ -53,6 +74,7 @@ export function SubpageOverlay({
   return createPortal(
     <div
       id="tellian-subpage-overlay"
+      aria-hidden={!isOpen}
       style={{
         position: "fixed",
         inset: 0,
@@ -117,7 +139,7 @@ export function SubpageOverlay({
           Vermögensverwaltung bringt ihren Titel selbst mit und
           übergibt hier null — der Block stand trotzdem und belegte
           gemessene 120px Innenabstand plus zwei leere Zeilen. */}
-      {(eyebrow || headline) && (
+      {zeigtInhalt && (eyebrow || headline) && (
       <div
         style={{
           textAlign: "center",
@@ -150,7 +172,7 @@ export function SubpageOverlay({
       )}
 
       {/* ═══ Custom per-subpage content ═══ */}
-      {children}
+      {zeigtInhalt && children}
     </div>,
     document.body
   );

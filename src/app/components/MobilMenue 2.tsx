@@ -37,16 +37,6 @@ interface Props {
       hier oben, nicht in der Kopfzeile). */
   welt?: "capital" | "solutions";
   onWelt?: (ziel: "capital" | "solutions") => void;
-  /** Sprachwahl (Feature 12.09): schmal lebt sie HIER statt fix im
-      Band — Capital DE/EN, Solutions DE/EN/FR. Ohne onSprache
-      erscheint keine Gruppe (Rückfall aufs alte Verhalten). */
-  sprache?: string;
-  sprachen?: readonly string[];
-  onSprache?: (sprache: string) => void;
-  /** Kundenportal (Feature 12.09): schmal lebt auch das Portalfeld
-      hier statt im Band. Ohne onPortal erscheint kein Feld. */
-  onPortal?: () => void;
-  portalLabel?: string;
 }
 
 export function MobilMenue({
@@ -59,35 +49,8 @@ export function MobilMenue({
   nebenVerweise = NEBEN_VERWEISE,
   welt = "capital",
   onWelt,
-  sprache,
-  sprachen,
-  onSprache,
-  onPortal,
-  portalLabel,
 }: Props) {
   const panelRef = useRef<HTMLDivElement | null>(null);
-
-  const portalText =
-    portalLabel ?? (sprache === "EN" ? "Client portal" : "Kundenportal");
-
-  /* Vorlese-Beschriftungen folgen der Seitensprache (18.09) — sie
-     standen auch in der englischen Fassung deutsch. */
-  const m =
-    sprache === "EN"
-      ? {
-          menue: "Menu",
-          schliessen: "Close menu",
-          stationen: "Sections",
-          bereich: "Area",
-          sprachwahl: "Language",
-        }
-      : {
-          menue: "Menü",
-          schliessen: "Menü schliessen",
-          stationen: "Stationen",
-          bereich: "Bereich",
-          sprachwahl: "Sprache",
-        };
 
   /* Solange das Menü offen ist, scrollt die Seite darunter nicht. */
   useEffect(() => {
@@ -160,7 +123,7 @@ export function MobilMenue({
       ref={panelRef}
       role="dialog"
       aria-modal="true"
-      aria-label={m.menue}
+      aria-label="Menü"
       className="tellian-menue"
       style={{
         position: "fixed",
@@ -196,7 +159,7 @@ export function MobilMenue({
         <button
           type="button"
           onClick={onSchliessen}
-          aria-label={m.schliessen}
+          aria-label="Menü schliessen"
           className="tellian-menue-ziel"
           style={{
             background: "transparent",
@@ -219,7 +182,7 @@ export function MobilMenue({
 
       {/* ── Die sechs Stationen ── */}
       <nav
-        aria-label={m.stationen}
+        aria-label="Stationen"
         style={{
           flex: 1,
           minHeight: 0,
@@ -241,7 +204,7 @@ export function MobilMenue({
             «Solutions» in allen Sprachen gleich. */}
         <div
           role="group"
-          aria-label={m.bereich}
+          aria-label="Bereich"
           /* Genug Luft zum Ebenen-Trenner: die aktive Mushroom-
              Hairline und der Trenner sind beide vollbreit und
              lägen sonst als Doppellinie beieinander. */
@@ -272,7 +235,7 @@ export function MobilMenue({
                   cursor: istAktiv ? "default" : "pointer",
                   fontFamily: sans,
                   fontSize: "16px",
-                  letterSpacing: "var(--tellian-ls-marker)",
+                  letterSpacing: "0.14em",
                   textTransform: "uppercase",
                   fontWeight: istAktiv ? 500 : 400,
                   color: istAktiv ? C.ink : "rgba(26, 23, 32, 0.58)",
@@ -352,124 +315,11 @@ export function MobilMenue({
           );
         })}
 
-        {/* ── Kundenportal (Feature 12.09) ──
-            Die Hauptaktion des Bandes, schmal hierher verlegt —
-            vollbreit als Tippziel, öffnet den Login und schliesst
-            das Menü. FARBE (Korrektur 12.09): die Gold-Fläche der
-            Primär-CTAs (.tellian-cta-primaer) statt der Kontur —
-            im Menü ist das Feld eine Hauptaktion wie «Anfrage
-            senden», kein Band-Chrome. Beschriftung bleibt Marker
-            (Versalien + Schloss). */}
-        {onPortal && (
-          <button
-            type="button"
-            onClick={() => {
-              onPortal();
-              onSchliessen();
-            }}
-            className="tellian-menue-ziel tellian-cta-primaer"
-            style={{
-              marginTop: "auto",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              width: "100%",
-              minHeight: "var(--tellian-tippziel)",
-              padding: "0 16px",
-              border: "none",
-              borderRadius: 0,
-              cursor: "pointer",
-              fontFamily: sans,
-              fontSize: "12px",
-              letterSpacing: "var(--tellian-ls-marker)",
-              textTransform: "uppercase",
-            }}
-          >
-            <svg
-              width="11"
-              height="13"
-              viewBox="0 0 11 13"
-              fill="none"
-              aria-hidden="true"
-              focusable="false"
-              style={{ flexShrink: 0, display: "block" }}
-            >
-              <rect x="0.6" y="5.2" width="9.8" height="7.2" rx="1" stroke="currentColor" strokeWidth="1.1" />
-              <path d="M2.9 5.2V3.4a2.6 2.6 0 0 1 5.2 0v1.8" stroke="currentColor" strokeWidth="1.1" />
-            </svg>
-            {portalText}
-          </button>
-        )}
-
-        {/* ── Sprachwahl (Feature 12.09) ──
-            Unter den Stationen, über den Nebenverweisen: eine
-            Einstellung, keine Navigation. Dasselbe Vokabular wie im
-            Desktop-Band — aktive Sprache voll und eine Stufe
-            kräftiger, die anderen gedämpft, Schrägstriche
-            dazwischen. Die Wahl schliesst das Menü, damit der
-            Wechsel sichtbar wird. */}
-        {onSprache && sprachen && sprachen.length > 1 && (
-          <div
-            role="group"
-            aria-label={m.sprachwahl}
-            style={{
-              marginTop: onPortal ? 0 : "auto",
-              paddingTop: "clamp(18px, 3vh, 32px)",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            {sprachen.map((s, i) => (
-              <span key={s} style={{ display: "flex", alignItems: "center" }}>
-                {i > 0 && (
-                  <span
-                    aria-hidden
-                    style={{
-                      ...nebenStil,
-                      padding: "13px 10px",
-                      minHeight: 0,
-                      cursor: "default",
-                      color: C.line,
-                    }}
-                  >
-                    /
-                  </span>
-                )}
-                <button
-                  type="button"
-                  onClick={() => {
-                    onSprache(s);
-                    onSchliessen();
-                  }}
-                  aria-pressed={sprache === s}
-                  className="tellian-menue-ziel"
-                  style={{
-                    ...nebenStil,
-                    fontSize: "14px",
-                    letterSpacing: "var(--tellian-ls-marker)",
-                    textTransform: "uppercase",
-                    fontWeight: sprache === s ? 500 : 400,
-                    color: sprache === s ? C.ink : "rgba(26, 23, 32, 0.58)",
-                    padding: "13px 6px",
-                    margin: "0 -6px",
-                  }}
-                >
-                  {s}
-                </button>
-              </span>
-            ))}
-          </div>
-        )}
-
         {/* ── Solutions und Rechtliches ── */}
         <div
           style={{
-            marginTop:
-              onPortal || (onSprache && sprachen && sprachen.length > 1)
-                ? 0
-                : "auto",
-            paddingTop: "clamp(16px, 2.6vh, 28px)",
+            marginTop: "auto",
+            paddingTop: "clamp(28px, 5vh, 52px)",
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
             columnGap: "16px",

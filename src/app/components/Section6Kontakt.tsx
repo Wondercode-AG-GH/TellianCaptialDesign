@@ -171,7 +171,17 @@ interface MapOverlayProps {
 
 /* Wird von Station6Kontakt weiterverwendet — die Karte selbst
    (Mapbox, Stil, Marker) bleibt unverändert. */
-export function MapOverlay({ open, onClose, returnFocusRef }: MapOverlayProps) {
+export function MapOverlay({
+  open,
+  onClose,
+  returnFocusRef,
+  sprache = "DE",
+}: MapOverlayProps & { sprache?: "DE" | "EN" | "FR" }) {
+  /* Vorlese-Beschriftungen folgen der Seitensprache (18.09). */
+  const kartenText =
+    sprache === "EN"
+      ? { flaeche: "Location on map", schliessen: "Close map" }
+      : { flaeche: "Standort auf Karte", schliessen: "Karte schliessen" };
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const isAnimatingRef = useRef(false);
   const [rendered, setRendered] = useState(open);
@@ -227,7 +237,7 @@ export function MapOverlay({ open, onClose, returnFocusRef }: MapOverlayProps) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Standort auf Karte"
+      aria-label={kartenText.flaeche}
       className={open ? "tellian-map-overlay open" : "tellian-map-overlay"}
       style={{
         position: "fixed",
@@ -281,7 +291,7 @@ export function MapOverlay({ open, onClose, returnFocusRef }: MapOverlayProps) {
         <button
           ref={closeBtnRef}
           onClick={handleClose}
-          aria-label="Karte schliessen"
+          aria-label={kartenText.schliessen}
           style={{
             position: "absolute",
             top: "16px",

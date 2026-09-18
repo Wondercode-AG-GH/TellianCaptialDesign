@@ -19,10 +19,7 @@ import { C, cormorant, sans, serif } from "../tokens";
 
 interface Karte {
   id: "mandat" | "advisory";
-  /* Kundenwunsch 14.09 (Rückbau): der Mandat-Punkt trägt Mushroom
-     aus dem Brandbook, Advisory die Nacht (Imperial Purple) seines
-     Knopfs — die kurzlebige Gold-Fassung ist abgelöst. */
-  punkt: "mushroom" | "nacht";
+  punkt: "purple" | "muted";
   eyebrow: string;
   name: string;
   text: string;
@@ -41,7 +38,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
     karten: [
       {
         id: "mandat",
-        punkt: "mushroom",
+        punkt: "purple",
         eyebrow: "Wir verwalten",
         name: "Mandat",
         text: "Sie übertragen uns die Verwaltung Ihres Portfolios. Wir treffen die Anlageentscheide innerhalb Ihrer definierten Strategie und Ihres Risikoprofils.",
@@ -50,7 +47,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
       },
       {
         id: "advisory",
-        punkt: "nacht",
+        punkt: "muted",
         eyebrow: "Sie entscheiden",
         name: "Advisory",
         text: "Wir analysieren Ihr Portfolio auf Basis Ihrer Ziele und Ihres Risikoprofils und beraten Sie unter Berücksichtigung des aktuellen Marktumfelds.",
@@ -60,13 +57,13 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
     ],
   },
   EN: {
-    /* UI-LABEL-REVIEW: englische Fassung vorgeschlagen 18.09,
-       Freigabe ausstehend (löst TODO-EN-TITEL ab). */
-    wegeTitel: "Two paths, one standard",
+    /* TODO-EN-TITEL: Ein englischer Titel für den Auswahlbereich
+       liegt nicht vor; bis dahin steht der bestehende deutsche. */
+    wegeTitel: "Zwei Wege, ein Anspruch",
     karten: [
       {
         id: "mandat",
-        punkt: "mushroom",
+        punkt: "purple",
         eyebrow: "We manage",
         name: "Discretionary Mandate",
         text: "You entrust us with the management of your portfolio. We make investment decisions within your agreed strategy and risk profile.",
@@ -75,7 +72,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
       },
       {
         id: "advisory",
-        punkt: "nacht",
+        punkt: "muted",
         eyebrow: "You decide",
         name: "Advisory",
         text: "We analyse your portfolio in the context of your objectives, risk profile and the current market environment, and translate this into specific investment recommendations.",
@@ -90,7 +87,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
     karten: [
       {
         id: "mandat",
-        punkt: "mushroom",
+        punkt: "purple",
         eyebrow: "Wir verwalten",
         name: "Mandat",
         text: "Sie übertragen uns die Verwaltung Ihres Portfolios. Wir treffen die Anlageentscheide innerhalb Ihrer definierten Strategie und Ihres Risikoprofils.",
@@ -99,7 +96,7 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", GabelungInhalt>> = {
       },
       {
         id: "advisory",
-        punkt: "nacht",
+        punkt: "muted",
         eyebrow: "Sie entscheiden",
         name: "Advisory",
         text: "Wir analysieren Ihr Portfolio auf Basis Ihrer Ziele und Ihres Risikoprofils und beraten Sie unter Berücksichtigung des aktuellen Marktumfelds.",
@@ -163,7 +160,7 @@ export function ProzessGabelung({
           fontFamily: serif,
           fontSize: "var(--tellian-pm-wege-size)",
           fontWeight: 400,
-          lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
+          lineHeight: 1.2,
           color: aufDunkel ? "var(--tellian-pm-wege-color)" : C.ink,
           /* In der gestapelten Spur steht der Titel auf der linken
              Kante wie alles andere — zentriert war er nur über dem
@@ -181,8 +178,8 @@ export function ProzessGabelung({
             /* v5: 40px auf Standardhöhe; flache Fenster atmen mit. */
             margin: "0 0 clamp(26px, 4.4vh, 40px)",
             fontFamily: sans,
-            fontSize: "var(--tellian-lauf-size)",
-            lineHeight: "var(--tellian-lauf-lh)" as unknown as number,
+            fontSize: "15.5px",
+            lineHeight: 1.65,
             maxWidth: "66ch",
             color: aufDunkel ? "var(--tellian-pm-dunkel-dim)" : C.accent,
           }}
@@ -265,12 +262,7 @@ export function ProzessGabelung({
                   gap: "8px",
                   fontFamily: sans,
                   fontSize: "var(--tellian-pm-card-eyebrow-size)",
-                  /* Kundenwunsch 14.09: Satzschreibweise statt
-                     Versalien — wie die Knotennamen des Dreiecks
-                     (bewusste Abweichung vom Versal-Standard,
-                     12.09). Die Marker-Laufweite entfällt mit den
-                     Versalien; 0.04em wie dort. */
-                  letterSpacing: "0.04em",
+                  letterSpacing: "var(--tellian-pm-card-eyebrow-tracking)",
                   lineHeight: "var(--tellian-pm-card-eyebrow-leading)",
                   color: C.accent,
                 }}
@@ -282,11 +274,7 @@ export function ProzessGabelung({
                     width: "7px",
                     height: "7px",
                     borderRadius: "50%",
-                    /* s. Typ Karte (Rückbau 14.09). */
-                    backgroundColor:
-                      k.punkt === "mushroom"
-                        ? "var(--tellian-muted)"
-                        : "var(--tellian-pm-knopf-nacht)",
+                    backgroundColor: k.punkt === "purple" ? C.purple : C.muted,
                   }}
                 />
                 {k.eyebrow}
@@ -304,10 +292,7 @@ export function ProzessGabelung({
                   fontFamily: serif,
                   fontSize: "var(--tellian-pm-card-name-size)",
                   fontWeight: 400,
-                  lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
-                  /* P3: gemeinsames Token statt Einzelwerte — beide
-                     Kartentitel laufen zwingend gleich weit. */
-                  letterSpacing: "var(--tellian-pm-card-name-tracking)",
+                  lineHeight: 1.15,
                   color: C.ink,
                 }}
               >
@@ -351,7 +336,7 @@ export function ProzessGabelung({
                     fontFamily: cormorant,
                     fontStyle: "italic",
                     fontSize: "var(--tellian-pm-card-fuer-size)",
-                    lineHeight: "var(--tellian-kursiv-lh)" as unknown as number,
+                    lineHeight: 1.4,
                     color: "var(--tellian-pm-card-fuer-color)",
                   }}
                 >
@@ -363,23 +348,19 @@ export function ProzessGabelung({
 
             {/* Zeile 5 — CTA am Kartenfuss */}
             {zeile(
-              /* P1: die Farbwelt hängt an der Karte (Gold für das
-                 Mandat, Imperial Purple für Advisory), die FORM an
-                 der gemeinsamen Klasse — Masse, Schriftgrad,
-                 Laufweite und Gewicht sind für beide identisch und
-                 stehen in EINEM Regelblock. */
               <span
-                className={`tellian-pm-knopf tellian-pm-knopf--${k.id}`}
+                className="tellian-pm-knopf"
                 style={{
                   display: "inline-block",
                   fontFamily: sans,
                   fontSize: "var(--tellian-pm-card-link-size)",
-                  letterSpacing: "var(--tellian-ls-cta-klein)",
+                  letterSpacing: "0.06em",
                 }}
               >
                 <span
                   style={{
                     display: "inline-block",
+                    color: "var(--tellian-pm-knopf-ink)",
                     padding: "var(--tellian-pm-knopf-pad)",
                     borderRadius: 0,
                     whiteSpace: "nowrap",
@@ -390,7 +371,7 @@ export function ProzessGabelung({
               </span>,
               {
                 padding:
-                  "var(--tellian-pm-cta-pad-oben) var(--tellian-pm-dip-pad-x) var(--tellian-pm-dip-pad-unten)",
+                  "22px var(--tellian-pm-dip-pad-x) var(--tellian-pm-dip-pad-unten)",
                 ...(gestapelt ? { marginTop: "auto" } : { alignSelf: "end" }),
               },
             )}
@@ -422,33 +403,15 @@ export function ProzessGabelung({
           transform: translateY(var(--tellian-pm-card-hub));
           box-shadow: var(--tellian-pm-card-schatten);
         }
-        /* Der Knopf reagiert mit der Karte — er ist Teil von ihr,
-           kein eigenes Ziel, also hat er auch keinen eigenen Hover.
-           Fokus: die ganze Karte ist DAS Bedienelement, ihr
-           :focus-visible-Ring (unten) ist der Fokusring des Knopfs.
-           P1: Gewicht 500 und Übergänge gemeinsam, die Farbwelt je
-           Karte — Gold dunkelt ab, Purpur hellt auf. */
+        /* Der Knopf dunkelt mit der Karte nach — er ist Teil von ihr,
+           kein eigenes Ziel, also hat er auch keinen eigenen Hover. */
         .tellian-pm-knopf > span {
-          font-weight: var(--tellian-pm-knopf-weight);
-          transition:
-            background-color var(--tellian-pm-card-ms) ease,
-            color var(--tellian-pm-card-ms) ease;
+          background-color: var(--tellian-pm-knopf-bg);
+          transition: background-color var(--tellian-pm-card-ms) ease;
         }
-        .tellian-pm-knopf--mandat > span {
-          background-color: var(--tellian-pm-knopf-mandat);
-          color: var(--tellian-pm-knopf-mandat-ink);
-        }
-        .tellian-pm-karte:hover .tellian-pm-knopf--mandat > span,
-        .tellian-pm-karte:focus-visible .tellian-pm-knopf--mandat > span {
-          background-color: var(--tellian-pm-knopf-mandat-aktiv);
-        }
-        .tellian-pm-knopf--advisory > span {
-          background-color: var(--tellian-pm-knopf-nacht);
-          color: var(--tellian-pm-knopf-nacht-ink);
-        }
-        .tellian-pm-karte:hover .tellian-pm-knopf--advisory > span,
-        .tellian-pm-karte:focus-visible .tellian-pm-knopf--advisory > span {
-          background-color: var(--tellian-pm-knopf-nacht-aktiv);
+        .tellian-pm-karte:hover .tellian-pm-knopf > span,
+        .tellian-pm-karte:focus-visible .tellian-pm-knopf > span {
+          background-color: var(--tellian-pm-knopf-bg-aktiv);
         }
         .tellian-pm-karte:focus-visible {
           outline: 2px solid var(--tellian-pm-focus-ring);

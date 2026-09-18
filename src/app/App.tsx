@@ -541,9 +541,20 @@ function Section3Vermoegensverwaltung({
     </div>
   );
 
+  /* Inhalt bleibt während der 800ms-Überblendung stehen. */
+  const [zeigtProzess, setZeigtProzess] = useState(isDetail);
+  useEffect(() => {
+    if (isDetail) { setZeigtProzess(true); return; }
+    const id = window.setTimeout(() => setZeigtProzess(false), 850);
+    return () => window.clearTimeout(id);
+  }, [isDetail]);
+
   /* ── DETAIL overlay (rendered via Portal to body) ── */
   const detailOverlay = typeof document !== "undefined" && createPortal(
     <div
+      /* Geschlossen aus dem Vorlese-Baum (18.09) — s. Kommentar am
+         Inhalt unten. */
+      aria-hidden={!isDetail}
       style={{
         position: "fixed",
         inset: 0,
@@ -610,8 +621,13 @@ function Section3Vermoegensverwaltung({
 
       {/* Der Inhalt der Unterseite. Die Kopfzeile darüber bleibt
           unverändert; ersetzt wird alles darunter — vorher Titel,
-          waagrechter Stepper und fünf lange Abschnitte. */}
-      <UnterseiteAnlageprozess aktiv={isDetail} />
+          waagrechter Stepper und fünf lange Abschnitte.
+
+          Nur wenn gebraucht: geschlossen brachte die Unterseite
+          ihren eigenen H1 dauerhaft in den Baum (18.09, s.
+          SubpageOverlay). `zeigtProzess` hält ihn während des
+          Ausblendens. */}
+      {zeigtProzess && <UnterseiteAnlageprozess aktiv={isDetail} />}
     </div>,
     document.body
   );
@@ -1447,7 +1463,12 @@ export default function App() {
         />
 
         {/* ── KONTAKT (mobile/tablet — 5-field form, MapOverlay trigger) ── */}
-        <Station6Kontakt isVertical domId="section-kontakt" onOpenLegal={legal.open} />
+        <Station6Kontakt
+          isVertical
+          domId="section-kontakt"
+          onOpenLegal={legal.open}
+          sprache={sprache}
+        />
 
         <LoginOverlay
           open={loginOpen}
@@ -1615,6 +1636,7 @@ export default function App() {
           <Station6Kontakt
             onOpenLegal={legal.open}
             panelRef={panelRef(5)}
+            sprache={sprache}
           />
         </SectionEnteredProvider>
       </div>

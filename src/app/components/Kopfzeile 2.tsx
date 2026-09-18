@@ -123,15 +123,10 @@ export function Kopfzeile({
   logoHref,
   logoLabel,
   sprachen = SPRACHEN_STANDARD,
-  portalLabel,
+  portalLabel = "Kundenportal",
   bildScrim = "rgba(40, 31, 51, 0.22)",
   bildSchatten = false,
 }: Props) {
-  /* Ohne Vorgabe folgt die Beschriftung der Sprache (18.09) — sie
-     stand auch in der englischen Fassung deutsch. */
-  const portalText =
-    portalLabel ?? (sprache === "EN" ? "Client portal" : "Kundenportal");
-
   /* ── DECKENDE FLÄCHE, NUR IM SCHMALEN ZWEIG ──
      Dort scrollt die Seite senkrecht unter der festen Kopfzeile
      durch. Erst AB DEM SCROLLEN: am Anfang steht der Hero, und ein
@@ -209,14 +204,6 @@ export function Kopfzeile({
       : aufDunkel
         ? "var(--tellian-kopf-portal-ink-fuell-dunkel)"
         : "var(--tellian-kopf-portal-ink-fuell-hell)";
-    /* Ruhezustand: auf dunklem Grund schreibt das Feld in Mushroom
-       (Rückbau 14.09) — hell in der Schichtfarbe wie gehabt.
-       Das Schloss folgt über currentColor. */
-    const portalInkRuhe = griff
-      ? "transparent"
-      : aufDunkel
-        ? "var(--tellian-muted)"
-        : ink;
 
     const klein: React.CSSProperties = {
       fontFamily: sans,
@@ -347,17 +334,21 @@ export function Kopfzeile({
             aria-label={griff ? "Bereich" : undefined}
             aria-hidden={!griff}
             className="tellian-kopf-welten"
-            style={{ display: "flex", alignItems: "center", gap: "var(--tellian-kopf-gap-innen)" }}
+            style={{ display: "flex", alignItems: "center", gap: "8px" }}
           >
             {(["capital", "solutions"] as const).map((ziel, i) => {
               const aktiv = welt === ziel;
               return (
-                <span key={ziel} style={{ display: "flex", alignItems: "center", gap: "var(--tellian-kopf-gap-innen)" }}>
+                <span key={ziel} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   {i > 0 && (
                     <span
                       aria-hidden
-                      className="tellian-kopf-trenner"
-                      style={{ backgroundColor: trenner }}
+                      style={{
+                        display: "block",
+                        width: "1px",
+                        height: "10px",
+                        backgroundColor: trenner,
+                      }}
                     />
                   )}
                   <button
@@ -372,28 +363,42 @@ export function Kopfzeile({
                     tabIndex={griff ? undefined : -1}
                     className={
                       "tellian-kopf-ziel tellian-kopf-welt" +
-                      (aktiv && !griff ? " tellian-kopf-welt-aktiv" : "")
+                      (aktiv ? " tellian-kopf-welt-aktiv" : "")
                     }
                     style={{
                       ...klein,
+                      letterSpacing: "0.12em",
                       /* P1 Variante A: der aktive Eintrag steht in
                          voller Textfarbe und eine Gewichtsstufe
                          kräftiger; der inaktive ist deutlich
-                         gedimmt. Beim Zeigen hellt der inaktive zur
+                         gedimmt. */
+                      /* Beim Zeigen hellt der inaktive Eintrag zur
                          vollen Textfarbe auf — die Hairline bleibt
-                         dem aktiven vorbehalten (P1.2).
-                         AUSRICHTUNG (12.09): der Knopf ist wieder
-                         EINZEILIG — die Hairline lebt als absolutes
-                         ::after (s. Stilblock) und belegt keinen
-                         Layoutraum mehr. Vorher schob die Spalte
-                         (Text + 6px + 1px) die Grundlinie des
-                         Umschalters über die der Nachbarn. */
+                         dem aktiven vorbehalten (P1.2). */
                       color: aktiv || weltAn === ziel ? ink : weltDim,
                       fontWeight: aktiv ? 500 : 400,
                       cursor: griff && !aktiv ? "pointer" : "default",
+                      display: "inline-flex",
+                      flexDirection: "column",
+                      alignItems: "stretch",
+                      gap: "6px",
                     }}
                   >
                     {ziel === "capital" ? "Capital" : "Solutions"}
+                    {/* Mushroom-Hairline unter dem aktiven Eintrag.
+                        Der inaktive trägt sie transparent in
+                        gleicher Höhe — so springt beim Wechsel
+                        nichts. Beim Zeigen erscheint sie NICHT
+                        (sonst mit dem aktiven Zustand verwechselbar). */}
+                    <span
+                      aria-hidden
+                      style={{
+                        display: "block",
+                        height: "1px",
+                        backgroundColor:
+                          aktiv && !griff ? "#B8AEA3" : "transparent",
+                      }}
+                    />
                   </button>
                 </span>
               );
@@ -407,18 +412,23 @@ export function Kopfzeile({
           {!isVertical && (
           <span
             aria-hidden
-            className="tellian-kopf-trenner"
-            style={{ backgroundColor: trenner }}
+            style={{
+              display: "block",
+              width: "1px",
+              height: "var(--tellian-kopf-trenner-h)",
+              backgroundColor: trenner,
+              flexShrink: 0,
+              /* P1.3: der Umschalter liest als eigene Einheit —
+                 mehr Luft als zwischen den übrigen Elementen. */
+              marginLeft: "var(--tellian-kopf-welt-gap)",
+              marginRight: "var(--tellian-kopf-welt-gap)",
+            }}
           />
           )}
 
           {/* ── Sprachwahl ── leiser als das Portal. Ein Schalter,
               keine Handlung: aktive Sprache in voller Stärke, die
-              andere gedämpft, dazwischen ein Schrägstrich.
-              SCHMAL entfällt sie hier: die Wahl lebt dort im Menü
-              (Feature 12.09) — das Band trägt nur noch Logo,
-              Portal und Menüknopf. */}
-          {!isVertical && (
+              andere gedämpft, dazwischen ein Schrägstrich. */}
           <div
             role={griff ? "group" : undefined}
             aria-label={griff ? "Sprache" : undefined}
@@ -445,24 +455,22 @@ export function Kopfzeile({
               </span>
             ))}
           </div>
-          )}
 
           {/* ── Senkrechter Trenner ──
               Trennt Nebensache von Hauptsache, ohne eine Linie unter
-              das ganze Band zu ziehen. Schmal entfällt er mit der
-              Sprachwahl. */}
-          {!isVertical && (
+              das ganze Band zu ziehen. */}
           <span
             aria-hidden
-            className="tellian-kopf-trenner"
-            style={{ backgroundColor: trenner }}
+            style={{
+              display: "block",
+              width: "1px",
+              height: "var(--tellian-kopf-trenner-h)",
+              backgroundColor: trenner,
+              flexShrink: 0,
+            }}
           />
-          )}
 
-          {/* ── Kundenportal ── das einzige Feld im Band. SCHMAL
-              lebt es im Menü (Feature 12.09): das Band trägt dort
-              nur noch Logo und Menüknopf. */}
-          {!isVertical && (
+          {/* ── Kundenportal ── das einzige Feld im Band. */}
           <button
             type="button"
             onClick={() => griff && onPortal()}
@@ -479,7 +487,7 @@ export function Kopfzeile({
               letterSpacing: "var(--tellian-kopf-tracking)",
               textTransform: "uppercase",
               lineHeight: 1,
-              color: portalAn ? portalInkGefuellt : portalInkRuhe,
+              color: portalAn ? portalInkGefuellt : ink,
               backgroundColor: portalAn
                 ? portalFuellung
                 : schicht === "bild"
@@ -498,9 +506,8 @@ export function Kopfzeile({
             }}
           >
             <Schloss />
-            {portalText}
+            {portalLabel}
           </button>
-          )}
 
           {isVertical && onMenue && (
             <button
@@ -607,47 +614,6 @@ export function Kopfzeile({
 
       <style>{`
         .tellian-kopf-ziel { text-decoration: none; outline: none; position: relative; }
-        /* EIN Trennermass für alle drei Linien der Kopfgruppe —
-           mittig zur Textzeile über align-items:center des
-           Containers; nur die Farbe kommt je Schicht inline. */
-        .tellian-kopf-trenner {
-          display: block;
-          width: 1px;
-          height: var(--tellian-kopf-trenner-h);
-          flex-shrink: 0;
-        }
-        /* TIPPZIELE (12.09): die Textknöpfe messen nur ihre Textbox
-           (~19x12px) — weit unter dem 44px-Richtwert
-           (--tellian-tippziel). Eine unsichtbare Trefferzone hebt
-           die Fläche, ohne die Optik zu ändern. Waagrecht knapp
-           gehalten, damit Nachbarziele nicht überlappen (der
-           Schrägstrich dazwischen ist kein Ziel). Wirkt nur auf der
-           Griffschicht — die Farbschichten stehen auf
-           pointer-events:none. */
-        .tellian-kopf-sprache::before,
-        .tellian-kopf-welt::before {
-          content: "";
-          position: absolute;
-          inset: -14px -6px;
-        }
-        .tellian-kopf-menue::before {
-          content: "";
-          position: absolute;
-          inset: -10px;
-        }
-        /* Aktiv-Hairline des Welten-Umschalters: absolut, ~6px
-           unter der Grundlinie, Breite des Labels — belegt keinen
-           Layoutraum, aktiver und inaktiver Eintrag teilen exakt
-           dieselbe Grundlinie. Farbe wie gehabt (Mushroom). */
-        .tellian-kopf-welt-aktiv::after {
-          content: "";
-          position: absolute;
-          left: 0;
-          right: 0;
-          bottom: -6px;
-          height: 1px;
-          background-color: var(--tellian-muted);
-        }
         /* TREFFERFLÄCHEN
            Der Zuwachs kommt aus einer unsichtbaren Auflage, nicht aus
            Innenabstand: die drei Schichten müssen deckungsgleich
@@ -666,17 +632,29 @@ export function Kopfzeile({
         }
         .tellian-kopf-sprache::after { left: -6px; right: -6px; }
         .tellian-kopf-menue::after { left: -10px; right: -10px; }
-        /* EIN Logo auf allen Breiten (Kundenwunsch 13.09): die
-           volle Wortmarke — samt SOLUTIONS-Zusatz — steht auch
-           schmal im Band. Die früheren Weich-Schwellen (420/500/560)
-           stammten aus der Zeit, als das Band dort noch Sprachwahl
-           und Portalfeld trug; seit beide im Menü leben, teilen
-           sich nur Logo und Menüknopf die Zeile — die Wortmarke
-           (~115px) hat selbst bei 320px reichlich Platz. Das
-           Monogramm bleibt als Markup für einen künftigen Rückfall,
-           gezeigt wird es nirgends. */
         .tellian-kopf-wortmarke { display: block; }
         .tellian-kopf-monogramm { display: none; }
+        @media (max-width: 419px) {
+          .tellian-kopf-wortmarke { display: none; }
+          .tellian-kopf-monogramm { display: block; }
+
+        }
+                /* Die dritte Lockup-Zeile gehört zur Wortmarke und braucht
+           deren Platz: unter 560px stehen Logo, Sprache, Portal und
+           Menüknopf sonst nicht mehr zusammen im Bild (gemessen bei
+           430px). Funktion vor Beischrift — die Welt steht dort im
+           Menü. */
+        @media (max-width: 559px) {
+          .tellian-kopf-zusatz { display: none !important; }
+        }
+        /* Solutions trägt drei Spracheinträge statt zwei — dort
+           weicht die Wortmarke dem Monogramm schon unter 500px,
+           sonst schöbe sie den Menüknopf aus dem Bild (gemessen bei
+           430px). Die Hauptseite behält ihre 420er-Schwelle. */
+        @media (max-width: 499px) {
+          .tellian-kopfzeile-solutions .tellian-kopf-wortmarke { display: none; }
+          .tellian-kopfzeile-solutions .tellian-kopf-monogramm { display: block; }
+        }
         .tellian-kopf-welt { transition: color 180ms ease; }
         .tellian-kopf-ziel:focus-visible {
           outline: 2px solid var(--tellian-muted);
