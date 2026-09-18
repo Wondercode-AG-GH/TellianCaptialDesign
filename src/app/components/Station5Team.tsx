@@ -298,7 +298,9 @@ const UI = {
   FR: { mehr: "Mehr erfahren" },
 } as const;
 
-const TITEL = ["Das", "Team."] as const;
+/* Ohne Schlusspunkt (Kundenwunsch 18.09): kein anderer
+   Stationstitel trägt einen. */
+const TITEL = ["Das", "Team"] as const;
 
 const initialen = (name: string) =>
   name.split(/\s+/).slice(0, 2).map((t) => t[0]).join("");

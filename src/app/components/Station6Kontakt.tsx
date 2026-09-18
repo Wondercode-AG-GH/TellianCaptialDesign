@@ -44,7 +44,10 @@ const MAIL = "info@telliancapital.ch";
    Kartenknopf, Fusszeile und das ganze Formular. Für eine Seite,
    deren Kontaktstation der Abschluss ist, war das die auffälligste
    Lücke. UI-LABEL-REVIEW: die englischen Fassungen sind Vorschläge
-   und brauchen die Freigabe von Tellian. */
+   und brauchen die Freigabe von Tellian.
+
+   Kein Schlusspunkt im Titel (Kundenwunsch 18.09) — kein anderer
+   Stationstitel trägt einen. */
 interface StationTexte {
   titel: readonly [string, string];
   lead: readonly [string, string];
@@ -62,7 +65,7 @@ interface StationTexte {
 
 const STATION_TEXTE: Readonly<Record<"DE" | "EN" | "FR", StationTexte>> = {
   DE: {
-    titel: ["Sprechen", "wir."],
+    titel: ["Sprechen", "wir"],
     lead: [
       "Ein erstes Gespräch ist unverbindlich.",
       "Persönlich an der Beethovenstrasse, oder digital.",
@@ -83,7 +86,7 @@ const STATION_TEXTE: Readonly<Record<"DE" | "EN" | "FR", StationTexte>> = {
     ],
   },
   EN: {
-    titel: ["Let’s", "talk."],
+    titel: ["Let’s", "talk"],
     lead: [
       "A first conversation is entirely without obligation.",
       "In person at Beethovenstrasse, or digitally.",
@@ -105,7 +108,7 @@ const STATION_TEXTE: Readonly<Record<"DE" | "EN" | "FR", StationTexte>> = {
   },
   /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
   FR: {
-    titel: ["Sprechen", "wir."],
+    titel: ["Sprechen", "wir"],
     lead: [
       "Ein erstes Gespräch ist unverbindlich.",
       "Persönlich an der Beethovenstrasse, oder digital.",
