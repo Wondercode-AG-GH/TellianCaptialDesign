@@ -227,7 +227,11 @@ export interface NebenVerweis {
 
 export const NEBEN_VERWEISE: readonly NebenVerweis[] = [
   { text: "Solutions", href: "https://solutions.telliancapital.ch", extern: true },
-  { text: "LinkedIn", href: "https://www.linkedin.com/company/tellian-capital", extern: true },
+  /* Die Firmenseite läuft noch unter der früheren Firmierung (Dr.
+     Blumer & Partner); die Umbenennung auf Tellian Capital steht
+     bei LinkedIn aus — die Adresse ändert sich dabei nicht
+     zwingend, beim Umzug hier nachziehen. */
+  { text: "LinkedIn", href: "https://www.linkedin.com/company/dr-blumer-partner-verm%C3%B6gensverwaltung-z%C3%BCrich-ag/", extern: true },
   { text: "FAQ", href: "/faq" },
   { text: "Datenschutz", href: "/datenschutz", legal: true },
   { text: "Kundeninformation", href: "/kundeninformation", legal: true },

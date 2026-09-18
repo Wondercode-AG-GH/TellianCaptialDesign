@@ -81,7 +81,7 @@ const FUSS_RECHTS: readonly FussVerweis[] = [
   { text: "Solutions", href: "https://solutions.telliancapital.ch", extern: true },
   {
     text: "LinkedIn",
-    href: "https://www.linkedin.com/company/tellian-capital",
+    href: "https://www.linkedin.com/company/dr-blumer-partner-verm%C3%B6gensverwaltung-z%C3%BCrich-ag/",
     extern: true,
     marke: inBugWeiss,
     vorlesen: "Tellian Capital auf LinkedIn",

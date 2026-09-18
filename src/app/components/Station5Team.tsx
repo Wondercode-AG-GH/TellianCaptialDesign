@@ -42,16 +42,17 @@ interface Person {
   mail?: string;
 }
 
-/* TODO-LINKEDIN: für KEINE Person liegt bisher eine persönliche
-   Profiladresse vor. Die Icons stehen trotzdem (Auftrag 09.09) und
-   führen so lange auf die Firmenseite; sobald hier eine Adresse
-   eingetragen wird, gilt sie für diese Person — sonst ist nichts
-   zu tun. */
-/* Übergangsziel, solange die persönlichen Profile fehlen: die
-   Firmenseite. Sie ist belegt (sections.ts, Fussband) und führt
-   niemanden auf ein fremdes Profil. Sobald eine Person ihre eigene
-   Adresse trägt, gilt diese. */
-const LINKEDIN_FIRMA = "https://www.linkedin.com/company/tellian-capital";
+/* TODO-LINKEDIN: persönliche Profile liegen für Olivier, Marco und
+   Bryan vor (Lieferung 18.09) und stehen unten bei der Person. Für
+   die übrigen fehlen sie weiterhin; ihr Icon führt so lange auf die
+   Firmenseite. Sobald eine Adresse eingetragen wird, gilt sie für
+   diese Person — sonst ist nichts zu tun. */
+/* Übergangsziel, solange ein persönliches Profil fehlt: die
+   Firmenseite. Sie führt niemanden auf ein fremdes Profil. Die
+   Adresse trägt noch die frühere Firmierung — die Umbenennung auf
+   Tellian Capital steht bei LinkedIn aus (s. sections.ts). */
+const LINKEDIN_FIRMA =
+  "https://www.linkedin.com/company/dr-blumer-partner-verm%C3%B6gensverwaltung-z%C3%BCrich-ag/";
 
 /* TODO-MAIL: für KEINE Person liegt bisher eine persönliche
    Mailadresse vor. Das Icon steht trotzdem (Auftrag 17.09) und
@@ -125,10 +126,21 @@ function MailGlyph({ farbe }: { farbe: string }) {
 
 const PERSONEN: readonly Person[] = [
   { id: "wilhelm", name: "Wilhelm Tell", rolle: "Namensgeber", rolleEn: "Namesake", bild: "wilhelm-tell" },
-  { id: "olivier", name: "Olivier M. Bill", rolle: "CEO", bild: "olivier-bill" },
-  { id: "marco", name: "Marco Ludescher", rolle: "Head of Portfolio Management", bild: "marco-ludescher" },
+  {
+    id: "olivier", name: "Olivier M. Bill", rolle: "CEO", bild: "olivier-bill",
+    linkedin: "https://www.linkedin.com/in/olivier-bill/",
+  },
+  {
+    id: "marco", name: "Marco Ludescher", rolle: "Head of Portfolio Management",
+    bild: "marco-ludescher",
+    linkedin: "https://www.linkedin.com/in/marco-ludescher-5807b0344/",
+  },
   { id: "rolf", name: "Rolf Schneider", rolle: "Relationship Manager", bild: "rolf-schneider" },
-  { id: "bryan", name: "Bryan Anthony Honegger", rolle: "Relationship Manager", bild: "bryan-honegger" },
+  {
+    id: "bryan", name: "Bryan Anthony Honegger", rolle: "Relationship Manager",
+    bild: "bryan-honegger",
+    linkedin: "https://www.linkedin.com/in/bryan-anthony-honegger-b7b535135/",
+  },
   { id: "andreas", name: "Andreas Trümpler", rolle: "Risk Management", bild: "andreas-truempler" },
   { id: "jasmina", name: "Jasmina Rukavina", rolle: "Back-Office / Office Management", bild: "jasmina-rukavina" },
   /* TODO-TEXT-JOERG-BODE: kein persönlicher Text geliefert.
