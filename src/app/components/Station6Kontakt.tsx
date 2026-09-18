@@ -169,7 +169,14 @@ const FUSS_RECHTS: readonly FussVerweis[] = [
   },
   { text: "Datenschutz", legal: "/datenschutz" },
   { text: "Kundeninformation", legal: "/kundeninformation" },
-  { text: "Impressum", legal: "/impressum" },
+  /* Kein «Impressum» (Entscheid 18.09): eine eigene Impressumseite
+     gibt es nicht, und sie ist auch nicht nötig — sämtliche
+     Pflichtangaben stehen in der KUNDENINFORMATION (Firma, Adresse,
+     UID/Handelsregisternummer CHE-108.439.825, MWST, LEI, Bewilligung
+     nach Art. 17 FINIG, Aufsichtsorganisation AOOS, Ombudsstelle
+     Ombud Finance Switzerland). Der Verweis führte ins Leere und ist
+     deshalb entfernt; die Pflicht hängt an den Angaben, nicht an der
+     Überschrift darüber. */
 ];
 
 /* ── Prüfung ──────────────────────────────────────────────────

@@ -182,13 +182,12 @@ const SEITEN: Readonly<Record<string, Readonly<Record<Sprache, SeitenDaten>>>> =
    /faq ist seit dem 18.09 eine eigene Unterseite (UnterseiteFaq)
    und hat einen eigenen Titel samt Beschreibung — sie soll ranken.
 
-   ACHTUNG: /impressum ist im Fussband verlinkt, es gibt die Seite
-   aber NICHT — die Adresse wechselt, und es öffnet sich nichts
-   (gemessen 18.09). Umgesetzt sind /datenschutz und
-   /kundeninformation (LEGAL_PATHS). Der Titel steht bereit, sobald
-   die Seite da ist; in der Sitemap ist sie bewusst nicht gelistet. */
+   /impressum gibt es bewusst NICHT (Entscheid 18.09): die
+   Pflichtangaben stehen vollständig in der Kundeninformation, und
+   der ins Leere führende Verweis ist aus Fussband und Menü
+   entfernt. Umgesetzt sind /datenschutz und /kundeninformation
+   (LEGAL_PATHS). */
 const RECHTSSEITEN: Readonly<Record<string, string>> = {
-  "/impressum": "Impressum",
   "/datenschutz": "Datenschutz",
   "/kundeninformation": "Kundeninformation",
 };

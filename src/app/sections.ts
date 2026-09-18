@@ -235,7 +235,14 @@ export const NEBEN_VERWEISE: readonly NebenVerweis[] = [
   { text: "FAQ", href: "/faq" },
   { text: "Datenschutz", href: "/datenschutz", legal: true },
   { text: "Kundeninformation", href: "/kundeninformation", legal: true },
-  { text: "Impressum", href: "/impressum", legal: true },
+  /* Kein «Impressum» (Entscheid 18.09): eine eigene Impressumseite
+     gibt es nicht, und sie ist auch nicht nötig — sämtliche
+     Pflichtangaben stehen in der KUNDENINFORMATION (Firma, Adresse,
+     UID/Handelsregisternummer CHE-108.439.825, MWST, LEI, Bewilligung
+     nach Art. 17 FINIG, Aufsichtsorganisation AOOS, Ombudsstelle
+     Ombud Finance Switzerland). Der Verweis führte ins Leere und ist
+     deshalb entfernt; die Pflicht hängt an den Angaben, nicht an der
+     Überschrift darüber. */
 ];
 
 export const SUBPAGE_SECTION_KEY: Readonly<Record<string, string>> = {
