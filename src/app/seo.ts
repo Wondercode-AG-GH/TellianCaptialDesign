@@ -140,6 +140,23 @@ const SEITEN: Readonly<Record<string, Readonly<Record<Sprache, SeitenDaten>>>> =
         "Wie wir Ihr Portfolio führen — von den Zielen bis zur laufenden Überwachung.",
     },
   },
+  "/faq": {
+    DE: {
+      titel: `Häufige Fragen zur Vermögensverwaltung | ${MARKE}`,
+      beschreibung:
+        "Unabhängiger Vermögensverwalter, Sicherheit des Vermögens, Kosten, Mandat oder Beratung: Antworten auf die zehn Fragen, die uns am häufigsten gestellt werden.",
+    },
+    EN: {
+      titel: `Frequently asked questions | ${MARKE}`,
+      beschreibung:
+        "Independent asset management, safety of your assets, costs, mandate or advice: answers to the ten questions we are asked most often.",
+    },
+    FR: {
+      titel: `Häufige Fragen zur Vermögensverwaltung | ${MARKE}`,
+      beschreibung:
+        "Antworten auf die zehn Fragen, die uns am häufigsten gestellt werden.",
+    },
+  },
   "/solutions": {
     DE: {
       titel: "Investmentlösungen für Finanzintermediäre | Tellian Capital Solutions",
@@ -162,16 +179,18 @@ const SEITEN: Readonly<Record<string, Readonly<Record<Sprache, SeitenDaten>>>> =
 /* Rechtsseiten: eigener Titel, aber bewusst ohne Beschreibung —
    sie sollen nicht als Einstieg ranken.
 
-   ACHTUNG: /impressum und /faq sind im Fussband verlinkt, es gibt
-   sie aber NICHT — die Adresse wechselt, und es öffnet sich nichts
-   (gemessen 18.09). Nur /datenschutz und /kundeninformation sind
-   umgesetzt (LEGAL_PATHS). Die Titel hier stehen bereit, sobald die
-   Seiten da sind; in der Sitemap sind sie bewusst nicht gelistet. */
+   /faq ist seit dem 18.09 eine eigene Unterseite (UnterseiteFaq)
+   und hat einen eigenen Titel samt Beschreibung — sie soll ranken.
+
+   ACHTUNG: /impressum ist im Fussband verlinkt, es gibt die Seite
+   aber NICHT — die Adresse wechselt, und es öffnet sich nichts
+   (gemessen 18.09). Umgesetzt sind /datenschutz und
+   /kundeninformation (LEGAL_PATHS). Der Titel steht bereit, sobald
+   die Seite da ist; in der Sitemap ist sie bewusst nicht gelistet. */
 const RECHTSSEITEN: Readonly<Record<string, string>> = {
   "/impressum": "Impressum",
   "/datenschutz": "Datenschutz",
   "/kundeninformation": "Kundeninformation",
-  "/faq": "Häufige Fragen",
 };
 
 export function seitenDaten(pfad: string, sprache: string): SeitenDaten {

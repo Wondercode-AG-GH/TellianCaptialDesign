@@ -864,6 +864,10 @@ interface Props {
   isVertical?: boolean;
   domId?: string;
   onOpenLegal?: (path: LegalPath) => void;
+  /** Öffnet die FAQ-Unterseite. Ohne Handler bleibt der Verweis ein
+      gewöhnlicher Link — er führte dann allerdings ins Leere, weil
+      /faq eine Ansicht dieser Anwendung ist, keine Datei. */
+  onFaq?: () => void;
   /** Kapitelmarke des schmalen Zweigs — Solutions führt die Station
       als «04 Kontakt/Contact», die Hauptseite als «06 Kontakt». */
   /** null blendet die Kapitelmarke aus (Solutions). */
@@ -883,6 +887,7 @@ export function Station6Kontakt({
   isVertical = false,
   domId,
   onOpenLegal,
+  onFaq,
   markeNr = "06",
   markeName,
   sprache = "DE",
@@ -1143,7 +1148,26 @@ export function Station6Kontakt({
       >
         {FUSS_RECHTS.map((v) => (
           <span key={v.text} style={{ display: "flex", alignItems: "center" }}>
-            {v.legal ? (
+            {v.href === "/faq" && onFaq ? (
+              <button
+                type="button"
+                onClick={() => onFaq()}
+                className="tellian-k6-still"
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                  fontFamily: sans,
+                  fontSize: "var(--tellian-k6-foot-size)",
+                  letterSpacing: "var(--tellian-k6-foot-tracking)",
+                  textTransform: "uppercase",
+                  color: "var(--tellian-k6-foot-color)",
+                }}
+              >
+                {v.text}
+              </button>
+            ) : v.legal ? (
               <button
                 type="button"
                 onClick={() => onOpenLegal?.(v.legal!)}

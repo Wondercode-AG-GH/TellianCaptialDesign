@@ -78,7 +78,12 @@ export function SubpageOverlay({
       style={{
         position: "fixed",
         inset: 0,
-        zIndex: 90,
+        /* Über Kopfzeile (160) und Stationsleiste (150): das Overlay
+           bringt Logo und Rückweg selbst mit, die Chrome der
+           Hauptseite darunter schien sonst durch — gemessen 18.09
+           standen zwei Logos übereinander. Unter dem mobilen Menü
+           (200) und den Dialogen (220+). */
+        zIndex: 180,
         backgroundColor: C.bg,
         overflowY: "auto",
         WebkitOverflowScrolling: "touch",

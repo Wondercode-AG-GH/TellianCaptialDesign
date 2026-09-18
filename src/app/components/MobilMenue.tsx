@@ -28,6 +28,8 @@ interface Props {
   activeIndex: number;
   onNavigate: (index: number) => void;
   onOpenLegal?: (path: LegalPath) => void;
+  /** Öffnet die FAQ-Unterseite (s. Station6Kontakt). */
+  onFaq?: () => void;
   /** Eigene Einträge (Solutions); ohne Angabe die Hauptseite. */
   sektionen?: readonly SectionDef[];
   /** Eigene Nebenverweise (Solutions blendet den Verweis auf sich
@@ -55,6 +57,7 @@ export function MobilMenue({
   activeIndex,
   onNavigate,
   onOpenLegal,
+  onFaq,
   sektionen = SECTIONS,
   nebenVerweise = NEBEN_VERWEISE,
   welt = "capital",
@@ -476,7 +479,20 @@ export function MobilMenue({
           }}
         >
           {nebenVerweise.map((v) =>
-            v.legal ? (
+            v.href === "/faq" && onFaq ? (
+              <button
+                key={v.text}
+                type="button"
+                onClick={() => {
+                  onFaq();
+                  onSchliessen();
+                }}
+                className="tellian-menue-ziel"
+                style={nebenStil}
+              >
+                {v.text}
+              </button>
+            ) : v.legal ? (
               <button
                 key={v.text}
                 type="button"

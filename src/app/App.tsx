@@ -6,6 +6,7 @@ import { SubpageOverlay } from "./components/SubpageOverlay";
 import { UnterseiteAnlageprozess } from "./components/UnterseiteAnlageprozess";
 import { UnterseiteAdvisory } from "./components/UnterseiteAdvisory";
 import { UnterseiteMandat } from "./components/UnterseiteMandat";
+import { UnterseiteFaq } from "./components/UnterseiteFaq";
 import logoHorizontal from "../assets/logo/Tellian__Imperial purple logo.svg";
 import { AnlagestrategienDetail } from "./components/AnlagestrategienDetail";
 import { PortfolioManagementDetail } from "./components/PortfolioManagementDetail";
@@ -559,7 +560,8 @@ function Section3Vermoegensverwaltung({
       style={{
         position: "fixed",
         inset: 0,
-        zIndex: 90,
+        /* s. SubpageOverlay — über der Chrome der Hauptseite. */
+        zIndex: 180,
         backgroundColor: C.bg,
         /* Die Seite passt auf einen Bildschirm. `auto` bleibt als
            Notausgang für Fenster, die kleiner sind als jedes hier
@@ -1124,6 +1126,9 @@ export default function App() {
   const man = useSubpageMode("/mandat");
   const ast = useSubpageMode("/anlagestrategien");
   const pm  = useSubpageMode("/portfolio-management");
+  /* FAQ-Unterseite (18.09): der Verweis stand seit je im Fussband,
+     die Seite dahinter gab es nicht. */
+  const faq = useSubpageMode("/faq");
   /* Detail mode is active when any subpage is open */
   const isDetailMode = vvw.isDetail || ast.isDetail || pm.isDetail || adv.isDetail || man.isDetail;
 
@@ -1145,7 +1150,13 @@ export default function App() {
   const { containerRef, spacerRef, viewportRef, panelRef: panelRefRoh, jumpToIndex, resetToStart, scrollDirection, activeIndex: horizontalIndex, visibleRange, debugRef } =
     useHorizontalScroll({
       disabled: isVertical,
-      locked: isDetailMode || teamDetailOffen || loginOpen || !!legal.activePath || !introComplete,
+      locked:
+        isDetailMode ||
+        faq.isDetail ||
+        teamDetailOffen ||
+        loginOpen ||
+        !!legal.activePath ||
+        !introComplete,
       initialIndex: initialSectionIndex,
     });
 
@@ -1259,7 +1270,9 @@ export default function App() {
      die verlässliche Quelle. */
   const ansichtsPfad = legal.activePath
     ? legal.activePath
-    : man.isDetail
+    : faq.isDetail
+      ? "/faq"
+      : man.isDetail
       ? "/mandat"
       : adv.isDetail
         ? "/advisory"
@@ -1384,11 +1397,46 @@ export default function App() {
           menueOffen={menueOffen}
           onMenue={() => setMenueOffen((o) => !o)}
         />
+        {/* FAQ-Unterseite — eine Ansicht dieser Anwendung, kein
+            eigenes Dokument. Sie hängt im schmalen Zweig; der breite
+            Zweig hat seine eigene Einbindung weiter unten. */}
+        <SubpageOverlay
+          isOpen={faq.isDetail}
+          onClose={faq.closeDetail}
+          eyebrow={sprache === "EN" ? "Frequently asked questions" : "Häufige Fragen"}
+          headline={
+            sprache === "EN" ? (
+              <>
+                Questions,
+                <br />
+                <em style={{ fontStyle: "italic", fontWeight: 400 }}>answered.</em>
+              </>
+            ) : (
+              <>
+                Fragen,
+                <br />
+                <em style={{ fontStyle: "italic", fontWeight: 400 }}>beantwortet.</em>
+              </>
+            )
+          }
+        >
+          <UnterseiteFaq
+            isMobile
+            aktiv={faq.isDetail}
+            sprache={sprache}
+            onContactClick={() => {
+              faq.closeDetail();
+              navigateToContact();
+            }}
+          />
+        </SubpageOverlay>
+
         <MobilMenue
           offen={menueOffen}
           onSchliessen={() => setMenueOffen(false)}
           activeIndex={activeIndex}
           sektionen={leisteNamen}
+          onFaq={faq.openDetail}
           onNavigate={navigateToSection}
           onOpenLegal={legal.open}
           welt="capital"
@@ -1489,6 +1537,7 @@ export default function App() {
           isVertical
           domId="section-kontakt"
           onOpenLegal={legal.open}
+          onFaq={faq.openDetail}
           sprache={sprache}
         />
 
@@ -1657,9 +1706,41 @@ export default function App() {
         <SectionEnteredProvider value={entered[5]}>
           <Station6Kontakt
             onOpenLegal={legal.open}
+            onFaq={faq.openDetail}
             panelRef={panelRef(5)}
             sprache={sprache}
           />
+
+          {/* FAQ-Unterseite, breiter Zweig. */}
+          <SubpageOverlay
+            isOpen={faq.isDetail}
+            onClose={faq.closeDetail}
+            eyebrow={sprache === "EN" ? "Frequently asked questions" : "Häufige Fragen"}
+            headline={
+              sprache === "EN" ? (
+                <>
+                  Questions,
+                  <br />
+                  <em style={{ fontStyle: "italic", fontWeight: 400 }}>answered.</em>
+                </>
+              ) : (
+                <>
+                  Fragen,
+                  <br />
+                  <em style={{ fontStyle: "italic", fontWeight: 400 }}>beantwortet.</em>
+                </>
+              )
+            }
+          >
+            <UnterseiteFaq
+              aktiv={faq.isDetail}
+              sprache={sprache}
+              onContactClick={() => {
+                faq.closeDetail();
+                navigateToContact();
+              }}
+            />
+          </SubpageOverlay>
         </SectionEnteredProvider>
       </div>
       </div>
