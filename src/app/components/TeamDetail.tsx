@@ -21,10 +21,10 @@ import type { ImageId } from "../../assets/generated";
    ═══════════════════════════════════════════════════════════ */
 
 const UI = {
-  DE: { schliessen: "Schliessen", mail: "E-Mail schreiben" },
-  EN: { schliessen: "Close", mail: "Write an e-mail" },
+  DE: { schliessen: "Schliessen" },
+  EN: { schliessen: "Close" },
   /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
-  FR: { schliessen: "Schliessen", mail: "E-Mail schreiben" },
+  FR: { schliessen: "Schliessen" },
 } as const;
 
 interface Props {
@@ -34,8 +34,6 @@ interface Props {
   bild?: ImageId;
   /** Absätze — Struktur exakt wie geliefert (2 bzw. 3). */
   absaetze: readonly string[];
-  /** mailto-Ziel der Person; fehlt es, steht kein Verweis. */
-  mailto?: string;
   sprache?: "DE" | "EN" | "FR";
   isMobile?: boolean;
   onClose: () => void;
@@ -48,7 +46,6 @@ export function TeamDetail({
   rolle,
   bild,
   absaetze,
-  mailto,
   sprache = "DE",
   isMobile = false,
   onClose,
@@ -170,9 +167,14 @@ export function TeamDetail({
         /* Der lange Text scrollt HIER — das Bild bleibt stehen. */
         overflowY: "auto",
         WebkitOverflowScrolling: "touch",
+        /* Oben und unten knapper (18.09): auf grossen Fenstern
+           standen 64px Luft über und unter dem Text, während Bryans
+           vier Absätze über die Panelhöhe hinausliefen. 44px reichen
+           für die Ruhe und geben 40px an den Text zurück — das Bild
+           bleibt unangetastet. */
         padding: isMobile
           ? "clamp(20px, 5vw, 32px)"
-          : "clamp(36px, 4vw, 64px) clamp(32px, 3.6vw, 60px)",
+          : "clamp(32px, 3.2vw, 44px) clamp(32px, 3.6vw, 60px)",
         boxSizing: "border-box",
       }}
     >
@@ -201,60 +203,18 @@ export function TeamDetail({
       >
         {rolle}
       </p>
-      {/* Kontaktweg im geöffneten Porträt (Auftrag 17.09): öffnet
-          das Mailprogramm mit der Person als Empfängerin. Steht
-          unter der Rolle — wer den Text gelesen hat, will von hier
-          aus schreiben. */}
-      {mailto && (
-        <a
-          href={mailto}
-          className="tellian-td-mail"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-            marginTop: "12px",
-            fontFamily: sans,
-            fontSize: "13px",
-            letterSpacing: "var(--tellian-ls-cta-klein)",
-            color: C.ink,
-            textDecoration: "none",
-          }}
-        >
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            aria-hidden
-            focusable="false"
-            style={{ flexShrink: 0 }}
-          >
-            <rect
-              x="2.1"
-              y="4.6"
-              width="19.8"
-              height="14.8"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.9"
-            />
-            <path
-              d="M2.9 5.4 12 12.6l9.1-7.2"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.9"
-              strokeLinejoin="round"
-            />
-          </svg>
-          {UI[sprache].mail}
-        </a>
-      )}
+      {/* KEIN Mailverweis mehr (18.09): Bryans Text lief über die
+          Panelhöhe hinaus und verlangte Scrollen. Der Verweis kostete
+          32px — zu wenig allein, aber er ist der entbehrlichste Teil:
+          das Mail-Zeichen steht weiter auf jeder Teamkachel. */}
       <div
         style={{
           marginTop: "clamp(20px, 3vh, 32px)",
           display: "flex",
           flexDirection: "column",
-          gap: "1em",
+          /* 0.8em statt 1em: bei vier Absätzen spart das rund 12px,
+             ohne dass die Absätze zusammenrücken. */
+          gap: "0.8em",
           maxWidth: "60ch",
         }}
       >
@@ -265,7 +225,9 @@ export function TeamDetail({
               margin: 0,
               fontFamily: sans,
               fontSize: "var(--tellian-lauf-size)",
-              lineHeight: "var(--tellian-lauf-lh)" as unknown as number,
+              /* 1.62 statt 1.75: im Porträt stehen bis zu 24 Zeilen,
+                 das spart rund 50px und bleibt bequem lesbar. */
+              lineHeight: 1.62,
               color: C.accent,
             }}
           >
@@ -341,7 +303,7 @@ export function TeamDetail({
                    doppelte Dichte. 620px Höhe und ein Bildanteil
                    von 38 % bringen Rahmen und Bild zur Deckung. */
                 width: "min(1060px, calc(100vw - 64px))",
-                height: "min(620px, calc(100vh - 96px))",
+                height: "min(680px, calc(100vh - 96px))",
                 display: "flex",
               }),
           backgroundColor: C.bg,
@@ -370,20 +332,9 @@ export function TeamDetail({
           outline: 2px solid var(--tellian-muted);
           outline-offset: 3px;
         }
-        .tellian-td-mail { transition: color 180ms ease; }
-        .tellian-td-mail:hover {
-          text-decoration: underline;
-          text-underline-offset: 4px;
-          text-decoration-color: var(--tellian-muted);
-        }
-        .tellian-td-mail:focus-visible {
-          outline: 2px solid var(--tellian-muted);
-          outline-offset: 3px;
-        }
         @media (prefers-reduced-motion: reduce) {
           .tellian-team-schliessen, .tellian-team-schliessen svg { transition: none; }
           .tellian-team-schliessen:hover svg { transform: none; }
-          .tellian-td-mail { transition: none; }
         }
       `}</style>
     </div>,

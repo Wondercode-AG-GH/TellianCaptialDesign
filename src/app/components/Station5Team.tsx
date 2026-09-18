@@ -667,11 +667,6 @@ export function Station5Team({
       }
       bild={offenPerson.bild}
       absaetze={TEXTE[offenPerson.id][sprache]}
-      mailto={
-        OHNE_MAIL.includes(offenPerson.id)
-          ? undefined
-          : mailZiel(offenPerson, sprache)
-      }
       sprache={sprache}
       isMobile={isVertical}
       onClose={schliessen}
