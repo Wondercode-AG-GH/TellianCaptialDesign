@@ -980,6 +980,9 @@
   /* A2-Grad des Hero-Titels (beide Welten). Flache Fenster eine
      Stufe zurück — siehe Media-Block unten. */
   --tellian-hero-titel-size: clamp(54px, 4.9vw, 80px);
+  /* Hälften-Aufteilung (18.09): in der halbierten Textzone nimmt der
+     Titel eine Stufe zurück, sonst drängt er gegen die Bildkante. */
+  --tellian-hero-titel-size-halb: clamp(50px, 4.6vw, 74px);
   --tellian-titel-ls: -0.015em;
   --tellian-zwischen-lh: 1.15;     /* H3, Karten- und Wegtitel */
   --tellian-lauf-size: 16px;       /* Stations-Fliesstext (v5) */

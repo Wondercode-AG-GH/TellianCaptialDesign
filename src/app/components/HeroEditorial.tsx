@@ -15,16 +15,17 @@ import { Aufgang, Kapitelmarke } from "./MobilSektion";
 
    STRUKTUR (Briefing 07.09; der Mock hero_alt_A2_editorial.html lag
    nicht im Repo — Masse nach der schriftlichen Spezifikation):
-   — Zweispalter 42/58: links Textzone auf Archive White, rechts das
+   — Zweispalter: Hauptseite 50/50, Solutions 42/58; links
+     Textzone auf Archive White, rechts das
      Bildpanel RANDLOS an Ober-, Unter- und rechter Stationskante,
      volle Stationshöhe, object-fit cover mit Fokuspunkt.
    — Textgruppe vertikal zentriert: [Eyebrow →] Titel (Lustria,
      clamp(54px, 4.9vw, 80px)) → Hairline (1px, Mushroom 50 %, 44px
      unter dem Titel, 36px über dem Text) → Fliesstext (Inter 15px,
-     1.75, Ink), ein- oder zweispaltig.
+     1.75, Ink), einspaltig.
    — Das Bildpanel trägt data-tellian-bildzone: Kopfzeile und
      Stationsleiste zeichnen darüber ihre ON-IMAGE-Schicht (Archive
-     White, Portal-Scrim) — die Zuordnung folgt der 42/58-Kante und
+     White, Portal-Scrim) — die Zuordnung folgt der Spaltenkante und
      jedem Resize (useBandTon misst die Panels je Frame).
    — MOBILE: Kopfzeile auf Archive White (Standard-Schicht, keine
      Bildzone), Textgruppe zuerst, darunter das Bild volle Breite,
@@ -44,8 +45,12 @@ interface Props {
   /** Der Titel kommt fertig gesetzt (Umbruch/Kursiv beim Aufrufer). */
   titel: React.ReactNode;
   absaetze: readonly string[];
-  /** Fliesstext zweispaltig (Hauptseite) oder einspaltig (Solutions). */
-  zweispaltig?: boolean;
+  /** 50/50 statt 42/58 (Hauptseite seit 18.09). Textzone und
+      Bildpanel sind dann gleichberechtigt; der Titel nimmt in der
+      schmaleren Zone eine Stufe zurück, das Bild lädt die
+      passende Stufe. Solutions bleibt ohne dieses Merkmal bei
+      42/58 — die Station ist dort nicht beauftragt. */
+  haelften?: boolean;
   imageId: ImageId;
   imageAlt: string;
   /** object-position des Panels, z. B. "center 42%". */
@@ -70,7 +75,7 @@ export function HeroEditorial({
   eyebrow,
   titel,
   absaetze,
-  zweispaltig = false,
+  haelften = false,
   imageId,
   imageAlt,
   fokus = "center 50%",
@@ -137,7 +142,11 @@ export function HeroEditorial({
         /* Der A2-Grad gilt dem Desktop; auf dem Telefon wären 54px
            Minimum breiter als die Spalte («Weiterdenken» ~370px bei
            335px Platz) — dort eine eigene, kleinere Treppe. */
-        fontSize: isVertical ? "clamp(38px, 10.8vw, 54px)" : "var(--tellian-hero-titel-size)",
+        fontSize: isVertical
+          ? "clamp(38px, 10.8vw, 54px)"
+          : haelften
+            ? "var(--tellian-hero-titel-size-halb)"
+            : "var(--tellian-hero-titel-size)",
         fontWeight: 400,
         lineHeight: "var(--tellian-titel-lh)" as unknown as number,
         letterSpacing: "var(--tellian-titel-ls)",
@@ -166,17 +175,52 @@ export function HeroEditorial({
       }}
     />
   ) : (
-    <span aria-hidden style={{ display: "block", height: "36px" }} />
+    /* Ohne Linie trennt allein der Abstand. Er kommt aus der
+       Abstandsskala (Titel → Fliesstext, 32-48px) plus dem
+       Blockmass für die Hälften-Aufteilung: gemessen rund 56px auf
+       einem 900er Fenster, wie beauftragt. */
+    <span
+      aria-hidden
+      style={{
+        display: "block",
+        /* Titel → Fliesstext: die Summe aus Titelabstand und
+           Absatzabstand der Skala ergibt auf einem 900er Fenster
+           gemessene 56px — der beauftragte Wert, ohne eine neue
+           Einzelzahl einzuführen. */
+        height: haelften && !isVertical
+          ? "calc(var(--tellian-abstand-titel) + var(--tellian-abstand-absatz))"
+          : "var(--tellian-abstand-titel)",
+      }}
+    />
   );
 
+  /* Fliesstext einspaltig (18.09). Zwei Spalten waren bei 42/58
+     noch vertretbar; bei halber Stationsbreite blieben unter 35
+     Zeichen je Zeile — das erzeugt zerrissene Umbrüche.
+
+     LESEBREITE: Der Auftrag nennt 62ch. Die ch-Einheit misst die
+     Breite der Null, und die ist in Inter deutlich breiter als das
+     Durchschnittszeichen — 62ch ergäben gemessen bis zu 78 Zeichen
+     je Zeile. Bindend ist die Prüfgrösse des Auftrags: 55-70
+     Zeichen. Der Deckel steht deshalb bei 52ch.
+
+     NACHGEMESSEN (wortgenau, 1440px): DE 62-68, EN 61-71 Zeichen je
+     voller Zeile. Die eine EN-Zeile mit 71 ist bewusst in Kauf
+     genommen: bei 49ch läge sie bei 67, dafür bräche die DEUTSCHE
+     Fassung dann mit «und FINMA-lizenziert.» allein auf der
+     Schlusszeile — genau der Umbruch, den der Auftrag ausschliesst.
+     Eine Breite kann nicht beide Sprachen optimal brechen; die
+     Waisenzeile wiegt schwerer als ein Zeichen Überlänge.
+
+     text-wrap: pretty verhindert die Waisenzeile — in der EN-Fassung
+     stand «manager.» allein am Absatzende. Browser ohne Unterstützung
+     ignorieren die Angabe; der Umbruch bleibt dort wie bisher. */
   const textEl = (breit: boolean) => (
     <div
       lang={lang}
       style={{
-        display: breit && zweispaltig ? "grid" : "block",
-        gridTemplateColumns:
-          breit && zweispaltig ? "repeat(2, minmax(0, 1fr))" : undefined,
-        columnGap: "28px",
+        display: "block",
+        maxWidth: breit && haelften ? "52ch" : undefined,
         ...enter(STEP.text),
       }}
     >
@@ -184,12 +228,14 @@ export function HeroEditorial({
         <p
           key={a.slice(0, 24)}
           style={{
-            margin:
-              breit && zweispaltig ? 0 : i === 0 ? 0 : "1em 0 0",
+            margin: i === 0 ? 0 : breit && haelften ? "22px 0 0" : "1em 0 0",
             fontFamily: sans,
             fontSize: "var(--tellian-lauf-size)",
             lineHeight: "var(--tellian-lauf-lh)" as unknown as number,
             color: "var(--tellian-ink)",
+            ...(breit && haelften
+              ? ({ textWrap: "pretty" } as React.CSSProperties)
+              : null),
           }}
         >
           {a}
@@ -261,7 +307,8 @@ export function HeroEditorial({
     );
   }
 
-  /* ── BREIT: 42/58, Bild randlos an drei Kanten. ── */
+  /* ── BREIT: 50/50 (Hauptseite) bzw. 42/58 (Solutions), Bild
+     randlos an drei Kanten. ── */
   return (
     <div
       ref={panelRef}
@@ -271,7 +318,7 @@ export function HeroEditorial({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "42fr 58fr",
+          gridTemplateColumns: haelften ? "50fr 50fr" : "42fr 58fr",
           height: "100%",
         }}
       >
@@ -306,7 +353,7 @@ export function HeroEditorial({
           <ResponsiveImage
             id={imageId}
             alt={imageAlt}
-            sizes="58vw"
+            sizes={haelften ? "50vw" : "58vw"}
             priority
             objectPosition={fokus}
             className="w-full h-full"
