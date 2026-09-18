@@ -33,14 +33,31 @@ const OUT_DIR = join(ROOT, "src/assets/generated");
    das Bild ein zweites Mal laden. */
 const PUBLIC_DIR = join(ROOT, "public/img");
 
-/** Zielgrösse je Datei. Überschreitungen werden einzeln gemeldet. */
-const SIZE_BUDGET_KB = 250;
+/** Zielgrösse je Datei. Überschreitungen werden einzeln gemeldet.
+    Mit der höheren Qualität (s. AVIF) wiegen die grossen Stufen der
+    Bühnenmotive mehr; sie werden nur einmal und in der jeweils
+    passenden Stufe geladen. 420 kB deckt die grösste Heldenstufe
+    bei 3110px, ohne die kleinen Ableitungen aus dem Blick zu
+    verlieren. */
+const SIZE_BUDGET_KB = 420;
 
 /* Kodierung. AVIF trägt die Hauptlast, WebP fängt Safari < 16 und
-   ältere Firefox ab, JPEG ist die letzte Stufe. */
-const AVIF = { quality: 52, effort: 6, chromaSubsampling: "4:2:0" };
-const WEBP = { quality: 74, effort: 5 };
-const JPEG = { quality: 78, mozjpeg: true, progressive: true };
+   ältere Firefox ab, JPEG ist die letzte Stufe.
+
+   ANGEHOBEN 18.09 (Kundenwunsch «beste Schärfe»): AVIF stand auf
+   Qualität 52 mit 4:2:0 — das ergab für das Hero bei 1536px
+   gerade 75 kB, also 0.05 Byte je Pixel. Bei Architektur mit
+   feinen Ornamenten verschmieren dort zuerst die Details, und
+   4:2:0 wirft zusätzlich drei Viertel der Farbinformation weg
+   (sichtbar an den warmen Lichtern vor blauer Stunde).
+
+   Neu Qualität 64 bei voller Farbauflösung (4:4:4). Gemessen am
+   Hero: 75 kB → rund 135 kB bei 1536px. Gegenüber dem
+   JavaScript-Bündel (663 kB gepackt) fällt das nicht ins Gewicht,
+   der Schärfegewinn ist unmittelbar sichtbar. */
+const AVIF = { quality: 64, effort: 6, chromaSubsampling: "4:4:4" };
+const WEBP = { quality: 82, effort: 5 };
+const JPEG = { quality: 84, mozjpeg: true, progressive: true };
 
 /**
  * Gemessene Anzeigeräume (CSS-Pixel):
@@ -76,8 +93,10 @@ const SOURCES = [
        Deshalb formatweise Leitern: AVIF trägt die volle Schärfe,
        die Ausweichformate enden bei 720px, wo sie unter 250 kB
        bleiben. Betroffen sind nur Browser ohne AVIF. */
+    /* Die Sonderqualität 30 ist mit der neuen Grundeinstellung
+       entfallen (18.09) — sie war der Grund, warum dieses Motiv
+       am weichsten wirkte. */
     widths: { avif: [420, 720, 1080, 1440], webp: [420, 720], jpg: [420, 720] },
-    quality: { avif: 30 },
   },
   {
     id: "hero-tellian",
@@ -102,21 +121,34 @@ const SOURCES = [
   },
   {
     id: "hero-solutions",
-    src: "src/redesign/Tellian Capital Solutions Hero Image.jpg",
-    /* SOLUTIONS S1 (Zuerich/Limmat). Quelle 1388x755 (~1.84:1),
-       GANZES BILD — die Leiter endet an der Quellbreite, hochskaliert
-       wird nicht. 1.84 = 46/25: naechstes ganzzahlig darstellbares
-       Verhaeltnis zur Quelle (1.8384), kostet <0.1% Hoehe.
+    /* NEUE QUELLE 18.09: 4277x2328 statt 1388x755. Geliefert wurden
+       zwei Fassungen, XL und XXL (9584x5217). Gemessen trägt XL
+       MEHR echte Details je Pixel — XXL ist offensichtlich
+       hochgerechnet: bei gleicher Zielbreite liegt seine
+       Hochfrequenzenergie unter der von XL (2160px: 10.91 zu
+       11.25). Mehr Pixel, aber keine zusätzliche Information, dafür
+       21 MB im Repository. Deshalb XL. */
+    src: "src/assets/Solutions_Hero_XL.jpg",
+    /* SOLUTIONS S1 (Zuerich/Limmat). GANZES BILD. 1.84 = 46/25:
+       naechstes ganzzahlig darstellbares Verhaeltnis zur Quelle,
+       kostet <0.1% Hoehe.
        TODO-BILD-TONUNG: finale dunkle Tonung folgt von der
        Brand-Designerin; bis dahin unveraendert, KEINE CSS-Filter im
        Produktivcode. */
     crop: {
       left: 0,
       top: 0,
-      width: 0.999,
+      /* 0.989 statt 0.999: das Verhältnis 46/25 geht nur in Schritten
+         von 46px auf; der grösste passende Kasten in der 4277px
+         breiten Quelle misst 4232x2300. Bei 0.999 rechnete exactBox
+         4278px und lief aus dem Original. */
+      width: 0.989,
       ratio: 1.84,
     },
-    widths: { avif: [432, 768, 1080, 1386], webp: [432, 768, 1080], jpg: [432, 768, 1080] },
+    /* Leiter wie beim Haupt-Hero: 2160 deckt 1080 CSS-Pixel bei
+       doppelter Dichte, 3110 die Spitze. Die Quelle trägt 4277px,
+       hochskaliert wird nichts. */
+    widths: { avif: [432, 768, 1080, 1536, 2160, 3110], webp: [432, 768, 1080, 1536], jpg: [432, 768, 1080] },
   },
   {
     id: "opernhaus",
@@ -336,6 +368,15 @@ async function build() {
       const quality = source.quality?.[ext];
       const row = [];
       for (const rawWidth of widthsFor(source, ext)) {
+        /* QUALITÄTSRAMPE (18.09): Die Grundqualität 64 gilt den
+           Stufen, die tatsächlich auf Bildschirmen landen. Ab
+           2000px liegt die Pixeldichte so hoch, dass die Artefakte
+           unter der Sichtbarkeitsschwelle verschwinden — dort
+           genügen 54, und die grössten Stufen bleiben unter einem
+           halben Megabyte. Eine ausdrückliche Sonderqualität am
+           Bild schlägt die Rampe. */
+        const stufenQualitaet =
+          quality ?? (ext === "avif" && rawWidth >= 2000 ? 54 : undefined);
         /* Bei festem Verhältnis werden beide Masse vorgegeben, statt die
            Höhe von sharp ableiten und runden zu lassen. */
         const box = cropBox ? exactBox(rawWidth, source.crop.ratio) : null;
@@ -348,7 +389,7 @@ async function build() {
         const info = await ENCODERS[ext](
           applyCrop(sharp(absSrc).rotate(), { width: nativeW, height: nativeH }, source.crop, cropBox)
             .resize(box ?? { width, withoutEnlargement: true }),
-          quality
+          stufenQualitaet
         ).toFile(join(dir, name));
 
         formats[ext].push({
