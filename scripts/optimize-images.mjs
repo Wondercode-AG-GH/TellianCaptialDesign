@@ -240,8 +240,17 @@ const SOURCES = [
     id,
     src: `src/assets/team/${file}`,
     crop: { left, top, width, ratio: 0.9 },
-    /* 167 · 302 · 538 CSS-Pixel, verdoppelt */
-    widths: [340, 620, 1080],
+    /* 167 · 302 · 538 CSS-Pixel, verdoppelt. Die 1080er Stufe
+       entfiel bei allen Porträts, weil die Quellen nur 1024px breit
+       sind — im geöffneten Porträt blieb damit die 620er Stufe für
+       einen 612x680 grossen Rahmen, also die halbe Auflösung bei
+       doppelter Dichte. 1000px liegt knapp unter jedem Ausschnitt
+       (1017-1020px) und holt aus den vorhandenen Quellen heraus,
+       was drin ist (18.09). */
+    /* 960 zusätzlich für Wilhelm Tell: sein Ausschnitt ist knapper
+       (0.96 statt 0.996 der Quellbreite), die 1000er Stufe fiele
+       dort weg und liesse ihn bei 620px zurück. */
+    widths: [340, 620, 960, 1000],
   })),
 ];
 

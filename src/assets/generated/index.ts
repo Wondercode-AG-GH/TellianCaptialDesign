@@ -51,46 +51,85 @@ import i46 from "./opernhaus-band/opernhaus-band-1548.jpg";
 import i47 from "./opernhaus-band/opernhaus-band-2106.jpg";
 import i48 from "./olivier-bill/olivier-bill-342.avif";
 import i49 from "./olivier-bill/olivier-bill-621.avif";
-import i50 from "./olivier-bill/olivier-bill-342.webp";
-import i51 from "./olivier-bill/olivier-bill-621.webp";
-import i52 from "./olivier-bill/olivier-bill-342.jpg";
-import i53 from "./olivier-bill/olivier-bill-621.jpg";
-import i54 from "./marco-ludescher/marco-ludescher-342.avif";
-import i55 from "./marco-ludescher/marco-ludescher-621.avif";
-import i56 from "./marco-ludescher/marco-ludescher-342.webp";
-import i57 from "./marco-ludescher/marco-ludescher-621.webp";
-import i58 from "./marco-ludescher/marco-ludescher-342.jpg";
-import i59 from "./marco-ludescher/marco-ludescher-621.jpg";
-import i60 from "./rolf-schneider/rolf-schneider-342.avif";
-import i61 from "./rolf-schneider/rolf-schneider-621.avif";
-import i62 from "./rolf-schneider/rolf-schneider-342.webp";
-import i63 from "./rolf-schneider/rolf-schneider-621.webp";
-import i64 from "./rolf-schneider/rolf-schneider-342.jpg";
-import i65 from "./rolf-schneider/rolf-schneider-621.jpg";
-import i66 from "./bryan-honegger/bryan-honegger-342.avif";
-import i67 from "./bryan-honegger/bryan-honegger-621.avif";
-import i68 from "./bryan-honegger/bryan-honegger-342.webp";
-import i69 from "./bryan-honegger/bryan-honegger-621.webp";
-import i70 from "./bryan-honegger/bryan-honegger-342.jpg";
-import i71 from "./bryan-honegger/bryan-honegger-621.jpg";
-import i72 from "./andreas-truempler/andreas-truempler-342.avif";
-import i73 from "./andreas-truempler/andreas-truempler-621.avif";
-import i74 from "./andreas-truempler/andreas-truempler-342.webp";
-import i75 from "./andreas-truempler/andreas-truempler-621.webp";
-import i76 from "./andreas-truempler/andreas-truempler-342.jpg";
-import i77 from "./andreas-truempler/andreas-truempler-621.jpg";
-import i78 from "./jasmina-rukavina/jasmina-rukavina-342.avif";
-import i79 from "./jasmina-rukavina/jasmina-rukavina-621.avif";
-import i80 from "./jasmina-rukavina/jasmina-rukavina-342.webp";
-import i81 from "./jasmina-rukavina/jasmina-rukavina-621.webp";
-import i82 from "./jasmina-rukavina/jasmina-rukavina-342.jpg";
-import i83 from "./jasmina-rukavina/jasmina-rukavina-621.jpg";
-import i84 from "./wilhelm-tell/wilhelm-tell-342.avif";
-import i85 from "./wilhelm-tell/wilhelm-tell-621.avif";
-import i86 from "./wilhelm-tell/wilhelm-tell-342.webp";
-import i87 from "./wilhelm-tell/wilhelm-tell-621.webp";
-import i88 from "./wilhelm-tell/wilhelm-tell-342.jpg";
-import i89 from "./wilhelm-tell/wilhelm-tell-621.jpg";
+import i50 from "./olivier-bill/olivier-bill-963.avif";
+import i51 from "./olivier-bill/olivier-bill-999.avif";
+import i52 from "./olivier-bill/olivier-bill-342.webp";
+import i53 from "./olivier-bill/olivier-bill-621.webp";
+import i54 from "./olivier-bill/olivier-bill-963.webp";
+import i55 from "./olivier-bill/olivier-bill-999.webp";
+import i56 from "./olivier-bill/olivier-bill-342.jpg";
+import i57 from "./olivier-bill/olivier-bill-621.jpg";
+import i58 from "./olivier-bill/olivier-bill-963.jpg";
+import i59 from "./olivier-bill/olivier-bill-999.jpg";
+import i60 from "./marco-ludescher/marco-ludescher-342.avif";
+import i61 from "./marco-ludescher/marco-ludescher-621.avif";
+import i62 from "./marco-ludescher/marco-ludescher-963.avif";
+import i63 from "./marco-ludescher/marco-ludescher-999.avif";
+import i64 from "./marco-ludescher/marco-ludescher-342.webp";
+import i65 from "./marco-ludescher/marco-ludescher-621.webp";
+import i66 from "./marco-ludescher/marco-ludescher-963.webp";
+import i67 from "./marco-ludescher/marco-ludescher-999.webp";
+import i68 from "./marco-ludescher/marco-ludescher-342.jpg";
+import i69 from "./marco-ludescher/marco-ludescher-621.jpg";
+import i70 from "./marco-ludescher/marco-ludescher-963.jpg";
+import i71 from "./marco-ludescher/marco-ludescher-999.jpg";
+import i72 from "./rolf-schneider/rolf-schneider-342.avif";
+import i73 from "./rolf-schneider/rolf-schneider-621.avif";
+import i74 from "./rolf-schneider/rolf-schneider-963.avif";
+import i75 from "./rolf-schneider/rolf-schneider-999.avif";
+import i76 from "./rolf-schneider/rolf-schneider-342.webp";
+import i77 from "./rolf-schneider/rolf-schneider-621.webp";
+import i78 from "./rolf-schneider/rolf-schneider-963.webp";
+import i79 from "./rolf-schneider/rolf-schneider-999.webp";
+import i80 from "./rolf-schneider/rolf-schneider-342.jpg";
+import i81 from "./rolf-schneider/rolf-schneider-621.jpg";
+import i82 from "./rolf-schneider/rolf-schneider-963.jpg";
+import i83 from "./rolf-schneider/rolf-schneider-999.jpg";
+import i84 from "./bryan-honegger/bryan-honegger-342.avif";
+import i85 from "./bryan-honegger/bryan-honegger-621.avif";
+import i86 from "./bryan-honegger/bryan-honegger-963.avif";
+import i87 from "./bryan-honegger/bryan-honegger-999.avif";
+import i88 from "./bryan-honegger/bryan-honegger-342.webp";
+import i89 from "./bryan-honegger/bryan-honegger-621.webp";
+import i90 from "./bryan-honegger/bryan-honegger-963.webp";
+import i91 from "./bryan-honegger/bryan-honegger-999.webp";
+import i92 from "./bryan-honegger/bryan-honegger-342.jpg";
+import i93 from "./bryan-honegger/bryan-honegger-621.jpg";
+import i94 from "./bryan-honegger/bryan-honegger-963.jpg";
+import i95 from "./bryan-honegger/bryan-honegger-999.jpg";
+import i96 from "./andreas-truempler/andreas-truempler-342.avif";
+import i97 from "./andreas-truempler/andreas-truempler-621.avif";
+import i98 from "./andreas-truempler/andreas-truempler-963.avif";
+import i99 from "./andreas-truempler/andreas-truempler-999.avif";
+import i100 from "./andreas-truempler/andreas-truempler-342.webp";
+import i101 from "./andreas-truempler/andreas-truempler-621.webp";
+import i102 from "./andreas-truempler/andreas-truempler-963.webp";
+import i103 from "./andreas-truempler/andreas-truempler-999.webp";
+import i104 from "./andreas-truempler/andreas-truempler-342.jpg";
+import i105 from "./andreas-truempler/andreas-truempler-621.jpg";
+import i106 from "./andreas-truempler/andreas-truempler-963.jpg";
+import i107 from "./andreas-truempler/andreas-truempler-999.jpg";
+import i108 from "./jasmina-rukavina/jasmina-rukavina-342.avif";
+import i109 from "./jasmina-rukavina/jasmina-rukavina-621.avif";
+import i110 from "./jasmina-rukavina/jasmina-rukavina-963.avif";
+import i111 from "./jasmina-rukavina/jasmina-rukavina-999.avif";
+import i112 from "./jasmina-rukavina/jasmina-rukavina-342.webp";
+import i113 from "./jasmina-rukavina/jasmina-rukavina-621.webp";
+import i114 from "./jasmina-rukavina/jasmina-rukavina-963.webp";
+import i115 from "./jasmina-rukavina/jasmina-rukavina-999.webp";
+import i116 from "./jasmina-rukavina/jasmina-rukavina-342.jpg";
+import i117 from "./jasmina-rukavina/jasmina-rukavina-621.jpg";
+import i118 from "./jasmina-rukavina/jasmina-rukavina-963.jpg";
+import i119 from "./jasmina-rukavina/jasmina-rukavina-999.jpg";
+import i120 from "./wilhelm-tell/wilhelm-tell-342.avif";
+import i121 from "./wilhelm-tell/wilhelm-tell-621.avif";
+import i122 from "./wilhelm-tell/wilhelm-tell-963.avif";
+import i123 from "./wilhelm-tell/wilhelm-tell-342.webp";
+import i124 from "./wilhelm-tell/wilhelm-tell-621.webp";
+import i125 from "./wilhelm-tell/wilhelm-tell-963.webp";
+import i126 from "./wilhelm-tell/wilhelm-tell-342.jpg";
+import i127 from "./wilhelm-tell/wilhelm-tell-621.jpg";
+import i128 from "./wilhelm-tell/wilhelm-tell-963.jpg";
 
 export interface ImageSource {
   /** Breite in Pixeln — Wert des w-Deskriptors im srcset. */
@@ -246,110 +285,149 @@ export const IMAGES = {
     avif: [
       { w: 342, h: 380, url: i48 },
       { w: 621, h: 690, url: i49 },
+      { w: 963, h: 1070, url: i50 },
+      { w: 999, h: 1110, url: i51 },
     ],
     webp: [
-      { w: 342, h: 380, url: i50 },
-      { w: 621, h: 690, url: i51 },
-    ],
-    jpg: [
       { w: 342, h: 380, url: i52 },
       { w: 621, h: 690, url: i53 },
+      { w: 963, h: 1070, url: i54 },
+      { w: 999, h: 1110, url: i55 },
+    ],
+    jpg: [
+      { w: 342, h: 380, url: i56 },
+      { w: 621, h: 690, url: i57 },
+      { w: 963, h: 1070, url: i58 },
+      { w: 999, h: 1110, url: i59 },
     ],
   },
   "marco-ludescher": {
     nativeWidth: 1017,
     nativeHeight: 1130,
     avif: [
-      { w: 342, h: 380, url: i54 },
-      { w: 621, h: 690, url: i55 },
+      { w: 342, h: 380, url: i60 },
+      { w: 621, h: 690, url: i61 },
+      { w: 963, h: 1070, url: i62 },
+      { w: 999, h: 1110, url: i63 },
     ],
     webp: [
-      { w: 342, h: 380, url: i56 },
-      { w: 621, h: 690, url: i57 },
+      { w: 342, h: 380, url: i64 },
+      { w: 621, h: 690, url: i65 },
+      { w: 963, h: 1070, url: i66 },
+      { w: 999, h: 1110, url: i67 },
     ],
     jpg: [
-      { w: 342, h: 380, url: i58 },
-      { w: 621, h: 690, url: i59 },
+      { w: 342, h: 380, url: i68 },
+      { w: 621, h: 690, url: i69 },
+      { w: 963, h: 1070, url: i70 },
+      { w: 999, h: 1110, url: i71 },
     ],
   },
   "rolf-schneider": {
     nativeWidth: 1017,
     nativeHeight: 1130,
     avif: [
-      { w: 342, h: 380, url: i60 },
-      { w: 621, h: 690, url: i61 },
+      { w: 342, h: 380, url: i72 },
+      { w: 621, h: 690, url: i73 },
+      { w: 963, h: 1070, url: i74 },
+      { w: 999, h: 1110, url: i75 },
     ],
     webp: [
-      { w: 342, h: 380, url: i62 },
-      { w: 621, h: 690, url: i63 },
+      { w: 342, h: 380, url: i76 },
+      { w: 621, h: 690, url: i77 },
+      { w: 963, h: 1070, url: i78 },
+      { w: 999, h: 1110, url: i79 },
     ],
     jpg: [
-      { w: 342, h: 380, url: i64 },
-      { w: 621, h: 690, url: i65 },
+      { w: 342, h: 380, url: i80 },
+      { w: 621, h: 690, url: i81 },
+      { w: 963, h: 1070, url: i82 },
+      { w: 999, h: 1110, url: i83 },
     ],
   },
   "bryan-honegger": {
     nativeWidth: 1017,
     nativeHeight: 1130,
     avif: [
-      { w: 342, h: 380, url: i66 },
-      { w: 621, h: 690, url: i67 },
+      { w: 342, h: 380, url: i84 },
+      { w: 621, h: 690, url: i85 },
+      { w: 963, h: 1070, url: i86 },
+      { w: 999, h: 1110, url: i87 },
     ],
     webp: [
-      { w: 342, h: 380, url: i68 },
-      { w: 621, h: 690, url: i69 },
+      { w: 342, h: 380, url: i88 },
+      { w: 621, h: 690, url: i89 },
+      { w: 963, h: 1070, url: i90 },
+      { w: 999, h: 1110, url: i91 },
     ],
     jpg: [
-      { w: 342, h: 380, url: i70 },
-      { w: 621, h: 690, url: i71 },
+      { w: 342, h: 380, url: i92 },
+      { w: 621, h: 690, url: i93 },
+      { w: 963, h: 1070, url: i94 },
+      { w: 999, h: 1110, url: i95 },
     ],
   },
   "andreas-truempler": {
     nativeWidth: 1017,
     nativeHeight: 1130,
     avif: [
-      { w: 342, h: 380, url: i72 },
-      { w: 621, h: 690, url: i73 },
+      { w: 342, h: 380, url: i96 },
+      { w: 621, h: 690, url: i97 },
+      { w: 963, h: 1070, url: i98 },
+      { w: 999, h: 1110, url: i99 },
     ],
     webp: [
-      { w: 342, h: 380, url: i74 },
-      { w: 621, h: 690, url: i75 },
+      { w: 342, h: 380, url: i100 },
+      { w: 621, h: 690, url: i101 },
+      { w: 963, h: 1070, url: i102 },
+      { w: 999, h: 1110, url: i103 },
     ],
     jpg: [
-      { w: 342, h: 380, url: i76 },
-      { w: 621, h: 690, url: i77 },
+      { w: 342, h: 380, url: i104 },
+      { w: 621, h: 690, url: i105 },
+      { w: 963, h: 1070, url: i106 },
+      { w: 999, h: 1110, url: i107 },
     ],
   },
   "jasmina-rukavina": {
     nativeWidth: 1017,
     nativeHeight: 1130,
     avif: [
-      { w: 342, h: 380, url: i78 },
-      { w: 621, h: 690, url: i79 },
+      { w: 342, h: 380, url: i108 },
+      { w: 621, h: 690, url: i109 },
+      { w: 963, h: 1070, url: i110 },
+      { w: 999, h: 1110, url: i111 },
     ],
     webp: [
-      { w: 342, h: 380, url: i80 },
-      { w: 621, h: 690, url: i81 },
+      { w: 342, h: 380, url: i112 },
+      { w: 621, h: 690, url: i113 },
+      { w: 963, h: 1070, url: i114 },
+      { w: 999, h: 1110, url: i115 },
     ],
     jpg: [
-      { w: 342, h: 380, url: i82 },
-      { w: 621, h: 690, url: i83 },
+      { w: 342, h: 380, url: i116 },
+      { w: 621, h: 690, url: i117 },
+      { w: 963, h: 1070, url: i118 },
+      { w: 999, h: 1110, url: i119 },
     ],
   },
   "wilhelm-tell": {
     nativeWidth: 981,
     nativeHeight: 1090,
     avif: [
-      { w: 342, h: 380, url: i84 },
-      { w: 621, h: 690, url: i85 },
+      { w: 342, h: 380, url: i120 },
+      { w: 621, h: 690, url: i121 },
+      { w: 963, h: 1070, url: i122 },
     ],
     webp: [
-      { w: 342, h: 380, url: i86 },
-      { w: 621, h: 690, url: i87 },
+      { w: 342, h: 380, url: i123 },
+      { w: 621, h: 690, url: i124 },
+      { w: 963, h: 1070, url: i125 },
     ],
     jpg: [
-      { w: 342, h: 380, url: i88 },
-      { w: 621, h: 690, url: i89 },
+      { w: 342, h: 380, url: i126 },
+      { w: 621, h: 690, url: i127 },
+      { w: 963, h: 1070, url: i128 },
     ],
   },
 } as const satisfies Record<string, GeneratedImage>;

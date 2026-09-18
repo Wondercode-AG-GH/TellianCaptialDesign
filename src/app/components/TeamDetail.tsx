@@ -281,7 +281,7 @@ export function TeamDetail({
       style={{
         ...(isMobile
           ? { height: "40vh", width: "100%" }
-          : { flex: "0 0 42%", height: "100%" }),
+          : { flex: "0 0 38%", height: "100%" }),
         flexShrink: 0,
         overflow: "hidden",
         backgroundColor: "var(--tellian-t5-placeholder-bg)",
@@ -292,7 +292,7 @@ export function TeamDetail({
         <ResponsiveImage
           id={bild}
           alt=""
-          sizes={isMobile ? "100vw" : "42vw"}
+          sizes={isMobile ? "100vw" : "38vw"}
           /* Oben ankern wie die Kacheln (14.09): die mobile
              40vh-Fläche beschneidet ~11 % der Bildhöhe — mittig
              geankert fiel genau der Kopfraum weg und der Scheitel
@@ -334,8 +334,14 @@ export function TeamDetail({
                 top: "50%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
-                width: "min(1120px, calc(100vw - 64px))",
-                height: "min(680px, calc(100vh - 96px))",
+                /* Etwas kompakter (18.09): Die Bildfläche wuchs
+                   mit dem Panel, die Quellauflösung der Porträts
+                   aber nicht — bei 680px Rahmenhöhe fehlte einem
+                   690px hohen Bild die Hälfte der Punkte für
+                   doppelte Dichte. 620px Höhe und ein Bildanteil
+                   von 38 % bringen Rahmen und Bild zur Deckung. */
+                width: "min(1060px, calc(100vw - 64px))",
+                height: "min(620px, calc(100vh - 96px))",
                 display: "flex",
               }),
           backgroundColor: C.bg,
