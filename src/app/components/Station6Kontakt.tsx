@@ -1135,19 +1135,49 @@ export function Station6Kontakt({
 
       <nav
         aria-label={stText.fussAria}
+        className={isVertical ? "tellian-k6-fussraster" : undefined}
         /* Die Trenner standen beim Umbruch als führendes Zeichen am
            Zeilenanfang — auf dem Telefon brach die Liste immer um.
-           Statt Trennern ein klarer Abstand. */
+           Statt Trennern ein klarer Abstand.
+
+           SCHMAL: RASTER STATT UMBRUCH (Kundenwunsch 18.09).
+           Gemessen lagen die sechs Verweise in Zeilen mit 20px
+           Abstand, während ihre Trefferflächen 44px hoch sind — die
+           Zonen überlappten sich vollständig, und wer «FAQ» antippte,
+           traf ebenso gut «Datenschutz». Zwei Spalten mit 48px hohen
+           Zeilen trennen sie sauber; die Zeilenhöhe trägt die
+           Trefferfläche, nicht mehr ein Überhang. */
         style={{
-          display: "flex",
+          display: isVertical ? "grid" : "flex",
+          ...(isVertical
+            ? {
+                /* Zwei Spalten, solange «Kundeninformation» hineinpasst
+                   (gemessen 160px breit). auto-fit fällt darunter von
+                   selbst auf eine Spalte — bei 320px standen die
+                   Wörter sonst ineinander. */
+                gridTemplateColumns: "repeat(auto-fit, minmax(164px, 1fr))",
+                columnGap: "clamp(12px, 4vw, 24px)",
+                /* Etwas Luft zwischen den Zeilen: berührende Zellen
+                   wären zulässig, ein sichtbarer Abstand macht aber
+                   klar, wo ein Ziel endet. */
+                rowGap: "6px",
+                width: "100%",
+              }
+            : { columnGap: "clamp(16px, 4vw, 28px)", rowGap: "0px" }),
           flexWrap: "wrap",
           alignItems: "center",
-          columnGap: "clamp(16px, 4vw, 28px)",
-          rowGap: "0px",
         }}
       >
         {FUSS_RECHTS.map((v) => (
-          <span key={v.text} style={{ display: "flex", alignItems: "center" }}>
+          <span
+            key={v.text}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              /* Schmal trägt die Rasterzelle die Trefferfläche. */
+              ...(isVertical ? { minHeight: "48px" } : null),
+            }}
+          >
             {v.href === "/faq" && onFaq ? (
               <button
                 type="button"
@@ -1255,6 +1285,19 @@ export function Station6Kontakt({
         margin-top: -12px;
         margin-bottom: -12px;
       }
+      /* Im Fussraster (schmal) liegt die Trefferfläche in der
+         Zeilenhöhe. Der Überhang aus Innenabstand und negativem
+         Aussenabstand muss hier weg — er war es, der die Zonen
+         übereinanderschob (18px Text, 44px Zone, 20px Zeilenabstand). */
+      .tellian-k6-fussraster .tellian-k6-still {
+        width: 100%;
+        min-height: 48px;
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+      .tellian-k6-fussraster .tellian-k6-still::before { inset: 0; }
       .tellian-k6-primaer { background-color: var(--tellian-muted); }
       .tellian-k6-primaer:hover:not(:disabled),
       .tellian-k6-primaer:focus-visible:not(:disabled) { background-color: var(--tellian-button-hover); }

@@ -476,6 +476,12 @@ export function MobilMenue({
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
             columnGap: "16px",
+            /* Die Zeilen standen 45px auseinander, die Trefferflächen
+               sind 46px hoch — sie überlappten sich um einen Pixel
+               (gemessen 18.09). Ein Zeilenabstand trennt sie
+               sichtbar und sicher; dieselbe Korrektur wie im
+               Fussband der Kontaktstation. */
+            rowGap: "8px",
           }}
         >
           {nebenVerweise.map((v) =>
