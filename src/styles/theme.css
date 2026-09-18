@@ -493,11 +493,19 @@
      geht von selbst mit (s. --tellian-r4-box-h). */
   --tellian-r4-label-size: clamp(15px, 1.2vw, 19px);
   --tellian-r4-numeral-size: clamp(16px, 1.3vw, 21px);
-  --tellian-r4-title-size: clamp(20px, 1.8vw, 27px);
+  /* Der Boxtext folgt jetzt auch der FENSTERHÖHE (Korrektur 18.09).
+     Auf flachen Fenstern — gemessen 1512x823, ein verbreitetes
+     MacBook-Format — stiess der Kasten 29px in die Stationsleiste:
+     die Breite gab ihm den grossen Grad, die Höhe aber nicht den
+     Platz dafür. min(vw, vh) nimmt die knappere der beiden. */
+  --tellian-r4-title-size: clamp(20px, min(1.8vw, 2.9vh), 26px);
   /* Mitlaufend, damit der längste Text (152 Zeichen) auch auf
      schmalen Fenstern in ZWEI Zeilen bleibt. Bei festen 14px waren
      es bei 1024px Fensterbreite gemessene drei. Untergrenze 12px. */
-  --tellian-r4-body-size: clamp(14px, 1.1vw, 16px);
+  /* Untergrenzen unverändert bei 20/14px: schmal greift die Höhe
+     (1.72vh bei 812px = 14px), und der mobile Zweig soll von der
+     Korrektur für flache Desktop-Fenster nichts merken. */
+  --tellian-r4-body-size: clamp(14px, min(1.1vw, 1.72vh), 16px);
   --tellian-r4-body-leading: 1.65;
   --tellian-r4-body-measure: 60em;
 
@@ -628,6 +636,9 @@
      unten exakt die zwei fehlenden Zeilen. Nachgemessen: Behälter
      endet bei 900/800/768er Fenstern 1–10px über der Leiste. */
   --tellian-r4-mitte-versatz: 104px;
+  /* Flache Fenster: der Radblock rückt höher, damit der Kasten
+     darunter Platz hat. Über dem Rad bleiben gemessen 41px Luft
+     zur Kopfzeile — genug für die oberste Beschriftung. */
   --tellian-r4-box-gap: clamp(14px, 2vh, 26px);
 
   /* ── UNTERSEITE ANLAGEPROZESS ──
@@ -1467,5 +1478,16 @@
 @media (max-width: 1023px) {
   :root {
     --tellian-s2-title-size: clamp(30px, 8.2vw, 44px);
+  }
+}
+
+/* ── FLACHE FENSTER (18.09) ──
+   Bei Höhen bis 880px reicht der Raum unter dem Rad nicht für den
+   Erklärkasten: gemessen stiess er bei 1512x823 um 29px in die
+   Stationsleiste. Der Block rückt hier 12px höher; zusammen mit dem
+   höhenabhängigen Schriftgrad (s. r4-body-size) hält der Abstand. */
+@media (max-height: 880px) {
+  :root {
+    --tellian-r4-mitte-versatz: 116px;
   }
 }
