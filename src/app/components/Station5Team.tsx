@@ -42,17 +42,15 @@ interface Person {
   mail?: string;
 }
 
-/* TODO-LINKEDIN: persönliche Profile liegen für Olivier, Marco und
-   Bryan vor (Lieferung 18.09) und stehen unten bei der Person. Für
-   die übrigen fehlen sie weiterhin; ihr Icon führt so lange auf die
-   Firmenseite. Sobald eine Adresse eingetragen wird, gilt sie für
-   diese Person — sonst ist nichts zu tun. */
-/* Übergangsziel, solange ein persönliches Profil fehlt: die
-   Firmenseite. Sie führt niemanden auf ein fremdes Profil. Die
-   Adresse trägt noch die frühere Firmierung — die Umbenennung auf
-   Tellian Capital steht bei LinkedIn aus (s. sections.ts). */
-const LINKEDIN_FIRMA =
-  "https://www.linkedin.com/company/dr-blumer-partner-verm%C3%B6gensverwaltung-z%C3%BCrich-ag/";
+/* LINKEDIN NUR, WO ES EIN PROFIL GIBT (Entscheid 22.09).
+   Persönliche Profile liegen für Olivier M. Bill, Marco Ludescher
+   und Bryan Anthony Honegger vor; sie stehen unten bei der Person.
+   Alle übrigen tragen KEIN Zeichen mehr.
+
+   Vorher führte es ersatzweise auf die Firmenseite — das versprach
+   ein Profil, das es nicht gibt, und liess jede Kachel gleich
+   aussehen. Die Firmenseite bleibt dort, wo sie hingehört: im
+   Fussband und im mobilen Menü (s. sections.ts). */
 
 /* TODO-MAIL: für KEINE Person liegt bisher eine persönliche
    Mailadresse vor. Das Icon steht trotzdem (Auftrag 17.09) und
@@ -570,20 +568,22 @@ export function Station5Team({
             <MailGlyph farbe={C.accent} />
           </a>
         )}
-        <a
-          href={person.linkedin ?? LINKEDIN_FIRMA}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={
-            sprache === "EN"
-              ? `${person.name} on LinkedIn`
-              : `${person.name} auf LinkedIn`
-          }
-          className="tellian-t5-zeichen tellian-t5-linkedin"
-          style={zeichenStil}
-        >
-          <LinkedInGlyph farbe={C.accent} />
-        </a>
+        {person.linkedin && (
+          <a
+            href={person.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={
+              sprache === "EN"
+                ? `${person.name} on LinkedIn`
+                : `${person.name} auf LinkedIn`
+            }
+            className="tellian-t5-zeichen tellian-t5-linkedin"
+            style={zeichenStil}
+          >
+            <LinkedInGlyph farbe={C.accent} />
+          </a>
+        )}
       </span>
     );
 
