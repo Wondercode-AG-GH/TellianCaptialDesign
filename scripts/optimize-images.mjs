@@ -252,6 +252,42 @@ const SOURCES = [
        dort weg und liesse ihn bei 620px zurück. */
     widths: [340, 620, 960, 1000],
   })),
+
+  /* ══ PORTRÄTS FÜRS GEÖFFNETE DETAIL (22.09) ══
+     Dieselben Quellen, aber OHNE Zuschnitt: das ganze Foto im
+     Originalverhältnis (1024x1536, also 0.667).
+
+     Warum ein zweiter Satz: Die Kacheln brauchen das ruhigere
+     Verhältnis 0.9, damit die Augenlinien im Raster auf gleicher
+     Höhe sitzen. Dieser Zuschnitt kostet 26 % der Bildhöhe. Im
+     Detailrahmen (403x680, Verhältnis 0.592) wurde davon nochmals
+     34 % der Breite abgeschnitten — zusammen sah man noch rund die
+     Hälfte des Fotos, und genau das wirkte herangezoomt.
+
+     Ungeschnitten liegt die Quelle mit 0.667 nahe am Rahmen: es
+     fehlen noch 11 % der Breite statt 34 %. Und weil der Rahmen bei
+     doppelter Dichte 806x1360 Punkte braucht, deckt die volle
+     Quelle (1024x1536) ihn vollständig ab.
+
+     Die Kacheln bleiben unberührt — sie nutzen weiterhin den
+     zugeschnittenen Satz oben. */
+  ...[
+    ["olivier-bill-voll",      "Olivier-Bill.JPG"],
+    ["marco-ludescher-voll",   "Marco-Ludescher.JPG"],
+    ["rolf-schneider-voll",    "Rolf-Schneider.JPG"],
+    ["bryan-honegger-voll",    "Bryan-Honegger.png"],
+    ["andreas-truempler-voll", "Andreas-Trümpler.JPG"],
+    ["jasmina-rukavina-voll",  "Jasmina-Rukavina.JPG"],
+    ["wilhelm-tell-voll",      "WilhelmTell_2.png"],
+  ].map(([id, file]) => ({
+    id,
+    src: `src/assets/team/${file}`,
+    /* Kein crop: das Bauteil bekommt das Original, wie es ist. */
+    /* 456 CSS-Pixel breiter Rahmen, verdoppelt 912 — 1020 deckt das
+       mit Reserve. Die kleineren Stufen fangen schmale Fenster und
+       den mobilen Zweig ab. */
+    widths: [480, 760, 1020],
+  })),
 ];
 
 /** Breitenliste je Format — einheitlich, wenn nur ein Array angegeben ist. */

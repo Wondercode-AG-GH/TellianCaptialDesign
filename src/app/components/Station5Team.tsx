@@ -34,6 +34,11 @@ interface Person {
       Manager, Risk Management …) und brauchen keine. */
   rolleEn?: string;
   bild?: ImageId;
+  /** Ungeschnittene Fassung für das geöffnete Porträt. Die Kachel
+      zeigt den 0.9-Zuschnitt (Augenlinien auf einer Höhe), das
+      Detail das ganze Foto im Originalverhältnis — sonst sah man
+      dort nur rund die Hälfte des Bildes (Analyse 22.09). */
+  bildDetail?: ImageId;
   /** Persönliches LinkedIn-Profil. Fehlt es, führt das Icon
       übergangsweise auf die Firmenseite (TODO-LINKEDIN). */
   linkedin?: string;
@@ -123,24 +128,37 @@ function MailGlyph({ farbe }: { farbe: string }) {
 }
 
 const PERSONEN: readonly Person[] = [
-  { id: "wilhelm", name: "Wilhelm Tell", rolle: "Namensgeber", rolleEn: "Namesake", bild: "wilhelm-tell" },
+  {
+    id: "wilhelm", name: "Wilhelm Tell", rolle: "Namensgeber", rolleEn: "Namesake",
+    bild: "wilhelm-tell", bildDetail: "wilhelm-tell-voll",
+  },
   {
     id: "olivier", name: "Olivier M. Bill", rolle: "CEO", bild: "olivier-bill",
+    bildDetail: "olivier-bill-voll",
     linkedin: "https://www.linkedin.com/in/olivier-bill/",
   },
   {
     id: "marco", name: "Marco Ludescher", rolle: "Head of Portfolio Management",
-    bild: "marco-ludescher",
+    bild: "marco-ludescher", bildDetail: "marco-ludescher-voll",
     linkedin: "https://www.linkedin.com/in/marco-ludescher-5807b0344/",
   },
-  { id: "rolf", name: "Rolf Schneider", rolle: "Relationship Manager", bild: "rolf-schneider" },
+  {
+    id: "rolf", name: "Rolf Schneider", rolle: "Relationship Manager",
+    bild: "rolf-schneider", bildDetail: "rolf-schneider-voll",
+  },
   {
     id: "bryan", name: "Bryan Anthony Honegger", rolle: "Relationship Manager",
-    bild: "bryan-honegger",
+    bild: "bryan-honegger", bildDetail: "bryan-honegger-voll",
     linkedin: "https://www.linkedin.com/in/bryan-anthony-honegger-b7b535135/",
   },
-  { id: "andreas", name: "Andreas Trümpler", rolle: "Risk Management", bild: "andreas-truempler" },
-  { id: "jasmina", name: "Jasmina Rukavina", rolle: "Back-Office / Office Management", bild: "jasmina-rukavina" },
+  {
+    id: "andreas", name: "Andreas Trümpler", rolle: "Risk Management",
+    bild: "andreas-truempler", bildDetail: "andreas-truempler-voll",
+  },
+  {
+    id: "jasmina", name: "Jasmina Rukavina", rolle: "Back-Office / Office Management",
+    bild: "jasmina-rukavina", bildDetail: "jasmina-rukavina-voll",
+  },
   /* TODO-TEXT-JOERG-BODE: kein persönlicher Text geliefert.
      TODO-ROLLE-JOERG: Rolle unbestätigt — Zeile bleibt leer. */
   { id: "joerg", name: "Jörg Bode", rolle: "" },
@@ -665,7 +683,7 @@ export function Station5Team({
           ? offenPerson.rolleEn
           : offenPerson.rolle
       }
-      bild={offenPerson.bild}
+      bild={offenPerson.bildDetail ?? offenPerson.bild}
       absaetze={TEXTE[offenPerson.id][sprache]}
       sprache={sprache}
       isMobile={isVertical}
