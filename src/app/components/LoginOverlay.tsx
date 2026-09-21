@@ -4,21 +4,19 @@ import { createPortal } from "react-dom";
 import { C, serif, sans } from "../tokens";
 import { EASE } from "../../styles/motion";
 
+/* NUR DAS KUNDENPORTAL (Entscheid 21.09). «Partner» und
+   «Mitarbeiter» sind entfallen: beide Zugänge richten sich nicht an
+   Besucher der öffentlichen Seite, und ein Verweis auf das interne
+   Backoffice legt die eigene Infrastruktur offen.
+
+   TODO-PORTAL-ADRESSE: kunde.telliancapital.ch antwortet nicht
+   (geprüft 21.09) — wie die Hauptdomäne ist sie noch nicht
+   verbunden. Sobald die richtige Adresse feststeht, steht sie hier. */
 const PORTALS = [
   {
-    label: "Kunde",
+    label: "Kundenportal",
     subtitle: "Portfolio, Reporting, Dokumente",
     href: "https://kunde.telliancapital.ch",
-  },
-  {
-    label: "Partner",
-    subtitle: "Beraterbereich und Referral",
-    href: "https://partner.telliancapital.ch",
-  },
-  {
-    label: "Mitarbeiter",
-    subtitle: "Internes Backoffice",
-    href: "https://intern.telliancapital.ch",
   },
 ] as const;
 
