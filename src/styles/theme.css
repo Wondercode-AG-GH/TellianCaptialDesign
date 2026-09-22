@@ -767,14 +767,28 @@
   /* P4: Kachelform = Ausschnittform (0.96) — der Ausschnitt steht
      vollständig im Bild, nichts wird doppelt beschnitten. */
   --tellian-t5-tile-ratio: 0.9;   /* P3: Kachelform = neue Ausschnittform */
-  /* Eigene Grösse: schmal steht unter dem Namen noch die Rolle, das
-     Band trägt dort also fünf Zeilen statt zwei. */
-  --tellian-t5-name-size-schmal: 13px;
-  --tellian-t5-label-height-schmal: calc(
-    2 * var(--tellian-t5-name-size-schmal) * var(--tellian-t5-name-leading)
-    + 3 * var(--tellian-t5-role-size) * var(--tellian-t5-role-leading)
-    + 11px
+  /* Schmal ein deutliches Hochformat (Referenzvergleich 22.09):
+     0.72 statt 0.9 — ein Porträt soll als Porträt lesbar sein. */
+  --tellian-t5-tile-ratio-schmal: 0.72;
+  /* Bildhöhe der schmalen Kachel — Grundlage für die Lage der
+     Zeichenreihe auf der Namenszeile. Spaltenbreite = (100vw
+     − 2 × Rand − Spaltenabstand) / 2, geteilt durch das Verhältnis. */
+  --tellian-t5-bildhoehe-schmal: calc(
+    (100vw - 2 * clamp(18px, 4.6vw, 40px) - 8px) / 2 / 0.72
   );
+  /* Reserve rechts im Namen, damit er nie unter die Zeichen läuft.
+     Gerechnet aus der TREFFERFLÄCHE (17px Zeichen + 2x8px Polster =
+     33px) plus 6px Fuge — nicht aus der Zeichengrösse; genau dieser
+     Unterschied hat beim ersten Versuch zu Überlappungen geführt. */
+  --tellian-t5-zeichen-hoehe: 33px;
+  --tellian-t5-zeichen-reserve-eins: 39px;
+  --tellian-t5-zeichen-reserve-zwei: 72px;
+  /* Eigene Grösse: schmal steht unter dem Namen noch die Rolle. */
+  --tellian-t5-name-size-schmal: 13px;
+  /* Wieviele Zeilen das Namensfeld freihält. Zwei reichen ab 360px;
+     darunter braucht der längste Name drei, und ohne festen Wert
+     wären die Karten einer Reihe unterschiedlich hoch. */
+  --tellian-t5-name-zeilen: 2;
 
   /* ── STATION 5 — TEAM: TITELSPALTE UND BREITE ──
      Der Titel steht links neben den Reihen, auf der Höhe des Titels
@@ -1492,5 +1506,14 @@
 @media (max-height: 880px) {
   :root {
     --tellian-r4-mitte-versatz: 116px;
+  }
+}
+
+/* Sehr schmale Geräte (iPhone SE der ersten Reihe): der längste Name
+   bricht neben den Zeichen auf drei Zeilen. Alle Karten halten den
+   Platz frei, damit die Reihe bündig bleibt. */
+@media (max-width: 359px) {
+  :root {
+    --tellian-t5-name-zeilen: 3;
   }
 }

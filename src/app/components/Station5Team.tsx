@@ -443,9 +443,19 @@ export function Station5Team({
                Auf Solutions (Teilmenge) bekommt die Kachel das
                FORMAT des Motivs — dort ist Platz, und das Porträt
                steht vollständig. */
+            /* SCHMAL: Hochformat (0.72) statt fast quadratisch.
+               Vermessen an der Referenz (Moxion/Rejouice, 390x844):
+               dort 0.71 — ein Porträt soll als Porträt lesbar sein.
+               Die Datei bleibt der 0.9-Zuschnitt mit kalibrierter
+               Augenlinie; cover nimmt 20 % von den Seiten, die
+               Augenhöhe im Raster bleibt damit erhalten. */
             ...(breit && !personenIds
               ? { flex: 1, minHeight: 0 }
-              : { aspectRatio: "var(--tellian-t5-tile-ratio)" }),
+              : {
+                  aspectRatio: breit
+                    ? "var(--tellian-t5-tile-ratio)"
+                    : "var(--tellian-t5-tile-ratio-schmal)",
+                }),
             overflow: "hidden",
             alignItems: "center",
             justifyContent: "center",
@@ -468,24 +478,59 @@ export function Station5Team({
                Briefumschlag. */
             ...(breit
               ? { height: "var(--tellian-t5-label-row)", overflow: "hidden" }
-              : { paddingBottom: "34px" }),
+              : null),
           }}
         >
           <span
             style={{
               display: "block",
               fontFamily: sans,
-              fontSize: "var(--tellian-t5-name-size)",
+              fontSize: breit
+                ? "var(--tellian-t5-name-size)"
+                : "var(--tellian-t5-name-size-schmal)",
+              fontWeight: breit ? undefined : 500,
               lineHeight: "var(--tellian-t5-name-leading)" as unknown as number,
               color: C.ink,
               ...(breit
                 ? { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
-                : {}),
+                : {
+                    /* Zwei Zeilen fest — zusammen mit der ebenso
+                       gedeckelten Rollenzeile stehen alle Kacheln
+                       gleich hoch, egal wie lang der Name ist. */
+                    minHeight:
+                      "calc(var(--tellian-t5-name-zeilen) * var(--tellian-t5-name-size-schmal) * var(--tellian-t5-name-leading))",
+                  }),
             }}
           >
+            {/* PLATZHALTER FÜR DIE ZEICHEN, nur in der ERSTEN Zeile.
+                Ein Innenabstand hätte jede Zeile verschmälert — bei
+                320px blieben dann 66px, und «Bryan Anthony Honegger»
+                brauchte drei Zeilen statt zwei (gemessen). Der
+                gefloatete Block schiebt nur die erste Zeile zur
+                Seite; die zweite nutzt die volle Spaltenbreite. */}
+            {!breit && (person.linkedin || !OHNE_MAIL.includes(person.id)) && (
+              <span
+                aria-hidden
+                style={{
+                  float: "right",
+                  /* So hoch wie der Zeichenblock (33px): ein 1px
+                     hoher Platzhalter schob nur die erste Zeile zur
+                     Seite, die zweite lief dann unter die Zeichen
+                     (gemessen bei «Bryan Anthony Honegger»). */
+                  height: "var(--tellian-t5-zeichen-hoehe)",
+                  width: person.linkedin
+                    ? "var(--tellian-t5-zeichen-reserve-zwei)"
+                    : "var(--tellian-t5-zeichen-reserve-eins)",
+                }}
+              />
+            )}
             {person.name}
           </span>
-          {person.rolle !== "" && (
+          {/* Schmal steht der Platz auch ohne Rollentext: drei
+              Personen haben keine Angabe, ihre Kacheln waren
+              sonst 35px kürzer als die Nachbarin in derselben
+              Reihe. */}
+          {(person.rolle !== "" || !breit) && (
             <span
               style={{
                 display: "block",
@@ -496,13 +541,24 @@ export function Station5Team({
                 color: C.accent,
                 ...(breit
                   ? { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
-                  : {}),
+                  : {
+                      /* Zwei Zeilen fest: sonst schiebt «Head of
+                         Portfolio Management» seine Reihe nach unten
+                         und die Kacheln stehen ungleich (gemessen
+                         289 gegen 307px). */
+                      minHeight: "calc(2 * var(--tellian-t5-role-size) * var(--tellian-t5-role-leading))",
+                    }),
               }}
             >
               {rolleText}
             </span>
           )}
-          {hatText && (
+          {/* «Mehr erfahren» nur im breiten Band. Schmal ist die
+              Kachel selbst das Ziel — so hält es auch die Referenz,
+              und die Zeile kostete dort eine von vier. Für Tastatur
+              und Screenreader ändert sich nichts: die Kachel bleibt
+              ein Schalter mit vollständiger Vorlese-Beschriftung. */}
+          {hatText && breit && (
             <span
               className="tellian-t5-mehr"
               style={{
@@ -538,7 +594,12 @@ export function Station5Team({
       fontSize: personenIds
         ? `calc(var(--tellian-t5-name-size) * ${GROSS})`
         : "var(--tellian-t5-name-size)",
-      padding: "12px",
+      /* Schmal 8px statt 12: die Zeichen stehen jetzt auf der
+         Namenszeile, und «Ludescher» (gemessen 66px, das längste
+         unteilbare Wort) braucht bei 320px Schirmbreite jeden
+         Punkt. Trefferfläche damit 33px — über der Mindestgrösse
+         von 24px, und die KACHEL selbst bleibt das grosse Ziel. */
+      padding: breit ? "12px" : "8px",
       display: "inline-flex",
       alignItems: "center",
       justifyContent: "center",
@@ -561,9 +622,17 @@ export function Station5Team({
       <span
         style={{
           position: "absolute",
+          /* Breit: auf Höhe der Namenszeile in der Beschriftungszone.
+             Schmal: ebenfalls auf der Namenszeile — die eigene
+             Zeile darunter ist entfallen (Referenzvergleich 22.09).
+             Der Name hält rechts eine Reserve frei, damit nichts
+             kollidiert. */
           ...(breit
             ? { top: `calc(100% - var(--tellian-t5-label-row) - 2px)`, margin: "-12px 0 0 0" }
-            : { bottom: 0, margin: "0 0 -10px 0" }),
+            : {
+                top: "calc(var(--tellian-t5-bildhoehe-schmal) + var(--tellian-t5-label-gap))",
+                margin: "-10px 0 0 0",
+              }),
           right: 0,
           display: "inline-flex",
           alignItems: "center",
@@ -703,8 +772,8 @@ export function Station5Team({
           style={{
             paddingTop: "var(--tellian-abschnitt-luft-schmal)",
             paddingBottom: "var(--tellian-abschnitt-luft-schmal)",
-            paddingLeft: "clamp(20px, 6vw, 48px)",
-            paddingRight: "clamp(20px, 6vw, 48px)",
+            paddingLeft: "clamp(18px, 4.6vw, 40px)",
+            paddingRight: "clamp(18px, 4.6vw, 40px)",
           }}
         >
           {markeNr !== null && (
@@ -720,8 +789,12 @@ export function Station5Team({
               gridTemplateColumns: "repeat(var(--tellian-t5-cols-schmal), minmax(0, 1fr))",
               /* Mehr senkrechte als waagrechte Luft: die Beschriftung
                  gehört zu IHRER Kachel, nicht zur nächsten Reihe. */
-              columnGap: "clamp(16px, 3.6vw, 24px)",
-              rowGap: "clamp(28px, 4.5vh, 40px)",
+              /* Dichter Kontaktbogen statt getrennter Karten
+                 (Referenz: 5px Spalten-, 72px Zeilenabstand). Bei
+                 uns 8px — unter den Bildern stehen zwei Textspalten
+                 nebeneinander, die brauchen eine erkennbare Fuge. */
+              columnGap: "8px",
+              rowGap: "clamp(22px, 3vh, 30px)",
             }}
           >
             {LEUTE.map((person, i) => (
