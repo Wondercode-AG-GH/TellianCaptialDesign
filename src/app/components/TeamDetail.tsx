@@ -29,6 +29,8 @@ import type { ImageId } from "../../assets/generated";
 
 const UI = {
   DE: {
+    mail: "E-Mail",
+    linkedin: "LinkedIn",
     schliessen: "Schliessen",
     vergroessern: "Porträt vergrössern",
     zurueck: "Zurück",
@@ -36,6 +38,8 @@ const UI = {
     nachOben: "Nach oben",
   },
   EN: {
+    mail: "E-mail",
+    linkedin: "LinkedIn",
     schliessen: "Close",
     vergroessern: "Enlarge portrait",
     zurueck: "Back",
@@ -44,6 +48,8 @@ const UI = {
   },
   /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
   FR: {
+    mail: "E-Mail",
+    linkedin: "LinkedIn",
     schliessen: "Schliessen",
     vergroessern: "Porträt vergrössern",
     zurueck: "Zurück",
@@ -81,6 +87,9 @@ interface Props {
   name: string;
   rolle: string;
   bild?: ImageId;
+  /** Fertiger mailto-Verweis; fehlt bei Personen ohne Adresse. */
+  mail?: string;
+  linkedin?: string;
   /** Augenlinie als Anteil der Bildhöhe — richtet die Kopfhöhe im
       Bildband aus. Fehlt sie, bleibt das Band oben geankert. */
   augenlinie?: number;
@@ -97,6 +106,8 @@ export function TeamDetail({
   name,
   rolle,
   bild,
+  mail,
+  linkedin,
   augenlinie,
   absaetze,
   sprache = "DE",
@@ -272,6 +283,54 @@ export function TeamDetail({
     </button>
   );
 
+  /* ── KONTAKTWEGE ──
+     Seit 22.09 stehen sie HIER statt auf der Teamkachel: dort
+     führte die Kachel zu zwei Zielen gleichzeitig, jetzt zu einem.
+     Wortmarken in der Setzung der Abschnittsmarken, damit sie sich
+     als Angabe lesen und nicht als Schalterreihe. */
+  const kontakt =
+    mail || linkedin ? (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "clamp(18px, 2vw, 28px)",
+          fontFamily: sans,
+          fontSize: "12px",
+          lineHeight: 1.3,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+        }}
+      >
+        {mail && (
+          <a
+            href={mail}
+            className="tellian-team-kontakt"
+            aria-label={
+              sprache === "EN"
+                ? `Write an e-mail to ${name}`
+                : `${name} eine E-Mail schreiben`
+            }
+          >
+            {UI[sprache].mail}
+          </a>
+        )}
+        {linkedin && (
+          <a
+            href={linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="tellian-team-kontakt"
+            aria-label={
+              sprache === "EN" ? `${name} on LinkedIn` : `${name} auf LinkedIn`
+            }
+          >
+            {UI[sprache].linkedin}
+          </a>
+        )}
+      </div>
+    ) : null;
+
   /* Nur noch im BREITEN Band: schmal übernimmt inhaltSchmal. */
   const textSpalte = (
     <div
@@ -316,6 +375,7 @@ export function TeamDetail({
       >
         {rolle}
       </p>
+      {kontakt && <div style={{ marginTop: "18px" }}>{kontakt}</div>}
       {/* KEIN Mailverweis mehr (18.09): Bryans Text lief über die
           Panelhöhe hinaus und verlangte Scrollen. Der Verweis kostete
           32px — zu wenig allein, aber er ist der entbehrlichste Teil:
@@ -466,6 +526,10 @@ export function TeamDetail({
         >
           {name}
         </h2>
+
+        {kontakt && (
+          <div style={{ marginTop: "clamp(18px, 2.4vw, 24px)" }}>{kontakt}</div>
+        )}
 
         {/* Haarlinie und Abschnittsmarke — der Rhythmus, der die
             Referenz trotz 3.5 Schirmen ruhig wirken lässt. */}
@@ -683,6 +747,21 @@ export function TeamDetail({
         .tellian-team-schliessen:hover { border-color: ${C.accent}; transform: scale(1.06); }
         .tellian-team-schliessen:hover svg { transform: rotate(90deg); }
         .tellian-team-schliessen:active { transform: scale(0.96); }
+        .tellian-team-kontakt {
+          color: ${C.accent};
+          text-decoration: none;
+          border-bottom: 1px solid transparent;
+          padding-bottom: 2px;
+          transition: color 180ms ease, border-color 180ms ease;
+        }
+        .tellian-team-kontakt:hover {
+          color: ${C.ink};
+          border-bottom-color: ${C.ink};
+        }
+        .tellian-team-kontakt:focus-visible {
+          outline: 2px solid var(--tellian-muted);
+          outline-offset: 3px;
+        }
         .tellian-team-schliessen:focus-visible {
           outline: 2px solid var(--tellian-muted);
           outline-offset: 3px;

@@ -749,7 +749,9 @@
      hier, nicht um die Kacheln. Zwei Zeilen sind fest reserviert:
      "Bryan Anthony Honegger" bricht auf schmalen Kacheln um, und
      ohne feste Höhe stünde die zweite Reihe versetzt. */
-  --tellian-t5-name-size: 14px;
+  /* 16 statt 14px und halbfett (22.09): der Name trägt die Kachel,
+     seit die Kontaktzeichen dort weg sind. */
+  --tellian-t5-name-size: 16px;
   --tellian-t5-name-leading: 1.3;
   /* EINE Namenszeile und ZWEI Rollenzeilen. Die Zeichen stehen auf
      der Rollenzeile, der Name hat damit die volle Kachelbreite und
@@ -761,6 +763,9 @@
   /* Luft zwischen Name und Rolle. Vorher 3px — Name und Rolle
      standen dadurch als ein Block statt als zwei Angaben. */
   --tellian-t5-name-role-gap: 9px;
+  /* Aufruf «Mehr lesen» unter der Rolle. */
+  --tellian-t5-cta-size: 12px;
+  --tellian-t5-cta-gap: 10px;
   /* Wieviele Namenszeilen die breite Beschriftung freihält. Eine
      reicht, solange neben der Zeichenspalte 155px für den längsten
      Namen bleiben — das ist ab rund 200px Kachelbreite der Fall.
@@ -771,7 +776,10 @@
     var(--tellian-t5-name-zeilen-breit)
     * var(--tellian-t5-name-size) * var(--tellian-t5-name-leading)
     + 2 * var(--tellian-t5-role-size) * var(--tellian-t5-role-leading)
-    + var(--tellian-t5-name-role-gap) + 4px
+    + var(--tellian-t5-name-role-gap)
+    + var(--tellian-t5-cta-gap)
+    + var(--tellian-t5-cta-size) * 1.3
+    + 4px
   );
 
   --tellian-t5-dim: 0.42;
@@ -800,7 +808,9 @@
   --tellian-t5-panel-ms-zu: 200ms;
   --tellian-t5-panel-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   --tellian-t5-full-name-size: clamp(15px, 1.3vw, 20px);
-  --tellian-t5-role-size: 12px;
+  /* 13 statt 12px — eine Stufe grösser, aber weiterhin unter dem
+     Namen (16px) und leichter gesetzt. */
+  --tellian-t5-role-size: 13px;
   --tellian-t5-role-leading: 1.35;
   --tellian-t5-story-size: 12.5px;
   --tellian-t5-story-leading: 1.5;
@@ -835,7 +845,7 @@
   --tellian-t5-zeichen-reserve-eins: 39px;
   --tellian-t5-zeichen-reserve-zwei: 72px;
   /* Eigene Grösse: schmal steht unter dem Namen noch die Rolle. */
-  --tellian-t5-name-size-schmal: 13px;
+  --tellian-t5-name-size-schmal: 15px;
   /* Wieviele Zeilen das Namensfeld im SCHMALEN Band freihält. Dort
      stehen die Zeichen weiterhin auf der Namenszeile, der längste
      Name braucht deshalb zwei — unter 360px drei. */
