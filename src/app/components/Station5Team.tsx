@@ -502,15 +502,14 @@ export function Station5Team({
               fontWeight: breit ? undefined : 500,
               lineHeight: "var(--tellian-t5-name-leading)" as unknown as number,
               color: C.ink,
-              ...(breit
-                ? { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
-                : {
-                    /* Zwei Zeilen fest — zusammen mit der ebenso
-                       gedeckelten Rollenzeile stehen alle Kacheln
-                       gleich hoch, egal wie lang der Name ist. */
-                    minHeight:
-                      "calc(var(--tellian-t5-name-zeilen) * var(--tellian-t5-name-size-schmal) * var(--tellian-t5-name-leading))",
-                  }),
+              /* Zwei Zeilen fest — zusammen mit der ebenso
+                 gedeckelten Rollenzeile stehen alle Kacheln gleich
+                 hoch, egal wie lang der Name ist. Breit stand hier
+                 «nowrap» mit Auslassungszeichen; auf der schmaleren
+                 Vierer-Kachel hätte das Namen gekürzt. */
+              minHeight: breit
+                ? "calc(var(--tellian-t5-name-zeilen-breit) * var(--tellian-t5-name-size) * var(--tellian-t5-name-leading))"
+                : "calc(var(--tellian-t5-name-zeilen) * var(--tellian-t5-name-size-schmal) * var(--tellian-t5-name-leading))",
             }}
           >
             {/* PLATZHALTER FÜR DIE ZEICHEN, nur in der ERSTEN Zeile.
@@ -519,15 +518,18 @@ export function Station5Team({
                 brauchte drei Zeilen statt zwei (gemessen). Der
                 gefloatete Block schiebt nur die erste Zeile zur
                 Seite; die zweite nutzt die volle Spaltenbreite. */}
-            {!breit && (person.linkedin || !OHNE_MAIL.includes(person.id)) && (
+            {(person.linkedin || !OHNE_MAIL.includes(person.id)) && (
               <span
                 aria-hidden
                 style={{
                   float: "right",
-                  /* So hoch wie der Zeichenblock (33px): ein 1px
-                     hoher Platzhalter schob nur die erste Zeile zur
-                     Seite, die zweite lief dann unter die Zeichen
-                     (gemessen bei «Bryan Anthony Honegger»). */
+                  /* So hoch wie der Zeichenblock (33px). Eine
+                     niedrigere Reserve schob nur die erste Zeile zur
+                     Seite; der Block ist aber höher als zwei
+                     Textzeilen und die zweite lief darunter durch
+                     (gemessen bei «Bryan Anthony Honegger»). Wo dann
+                     eine dritte Zeile nötig wird, hält das Namensfeld
+                     sie frei — siehe --tellian-t5-name-zeilen-breit. */
                   height: "var(--tellian-t5-zeichen-hoehe)",
                   width: person.linkedin
                     ? "var(--tellian-t5-zeichen-reserve-zwei)"
@@ -550,15 +552,13 @@ export function Station5Team({
                 fontSize: "var(--tellian-t5-role-size)",
                 lineHeight: "var(--tellian-t5-role-leading)",
                 color: C.accent,
-                ...(breit
-                  ? { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
-                  : {
-                      /* Zwei Zeilen fest: sonst schiebt «Head of
-                         Portfolio Management» seine Reihe nach unten
-                         und die Kacheln stehen ungleich (gemessen
-                         289 gegen 307px). */
-                      minHeight: "calc(2 * var(--tellian-t5-role-size) * var(--tellian-t5-role-leading))",
-                    }),
+                /* Zwei Zeilen fest: sonst schiebt «Head of Portfolio
+                   Management» seine Reihe nach unten und die Kacheln
+                   stehen ungleich (gemessen 289 gegen 307px). Breit
+                   stand hier ein Auslassungszeichen — auf der
+                   Vierer-Kachel endete «Back-Office / Office
+                   Management» darin. */
+                minHeight: "calc(2 * var(--tellian-t5-role-size) * var(--tellian-t5-role-leading))",
               }}
             >
               {rolleText}
@@ -610,7 +610,12 @@ export function Station5Team({
          unteilbare Wort) braucht bei 320px Schirmbreite jeden
          Punkt. Trefferfläche damit 33px — über der Mindestgrösse
          von 24px, und die KACHEL selbst bleibt das grosse Ziel. */
-      padding: breit ? "12px" : "8px",
+      /* In BEIDEN Bändern 8px: mit 12px war der Block 41px hoch und
+         überspannte damit beide Namenszeilen — die zweite Zeile lief
+         unter die Zeichen und «Bryan Anthony Honegger» brach
+         dreizeilig (gemessen bei 1280px). 33px sind niedriger als
+         zwei Zeilen, die zweite Zeile ist damit frei. */
+      padding: "8px",
       display: "inline-flex",
       alignItems: "center",
       justifyContent: "center",
@@ -887,7 +892,7 @@ export function Station5Team({
             justifyContent: "center",
           }}
         >
-          {(LEUTE.length > 5 ? [0, 1] : [0]).map((reihe) => (
+          {(LEUTE.length > 4 ? [0, 1] : [0]).map((reihe) => (
             <ul
               key={reihe}
               style={{
@@ -896,6 +901,9 @@ export function Station5Team({
                 padding: 0,
                 display: "flex",
                 gap: "var(--tellian-t5-gap)",
+                /* Mittig: die Kacheln haben feste Breite, eine
+                   angebrochene letzte Reihe soll trotzdem stehen. */
+                justifyContent: personenIds ? "flex-start" : "center",
                 /* Teilmenge: die Hoehe ergibt sich aus dem Bildformat,
                    nicht aus der Reihenvorgabe. */
                 height: personenIds
@@ -904,15 +912,20 @@ export function Station5Team({
                     " + var(--tellian-t5-label-gap))",
               }}
             >
-              {LEUTE.slice(reihe * 5, reihe * 5 + 5).map((person) => (
+              {LEUTE.slice(reihe * 4, reihe * 4 + 4).map((person) => (
                 <li
                   key={person.id}
                   style={{
-                    /* Teilmenge: feste Kachelbreite statt Fünftelung —
-                       zwei Kacheln würden sonst die halbe Reihe füllen. */
+                    /* FESTE Breite statt Aufteilung der Reihe. Mit
+                       "1 1 0" bekam jede Kachel denselben Anteil der
+                       REIHE — bei fünf in der ersten und drei in der
+                       zweiten Reihe also zwei verschiedene Breiten
+                       (286 gegen 483px, gemessen bei 1512px). Die
+                       Breite folgt jetzt der Reihenhöhe im Format
+                       0.72, dem gleichen wie im schmalen Band. */
                     flex: personenIds
                       ? `0 0 clamp(${240 * GROSS}px, ${21 * GROSS}vw, ${320 * GROSS}px)`
-                      : "1 1 0",
+                      : "0 0 var(--tellian-t5-tile-w-breit)",
                     minWidth: 0,
                     display: "flex",
                     flexDirection: "column",

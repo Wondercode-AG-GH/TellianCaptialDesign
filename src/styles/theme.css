@@ -711,7 +711,24 @@
         * (var(--tellian-t5-label-row) + var(--tellian-t5-label-gap)))
     / var(--tellian-t5-reihen)
   );
-  --tellian-t5-gap: clamp(6px, 0.7vw, 12px);
+  /* Vier je Reihe statt fünf: die Kacheln stehen einzeln statt die
+     Reihe zu fünfteln, deshalb darf der Abstand grosszügiger sein. */
+  --tellian-t5-gap: clamp(14px, 1.5vw, 26px);
+  /* Vorher teilte die Reihe ihre Breite unter den Kacheln auf: fünf
+     in der ersten Reihe wurden 286px breit, drei in der zweiten
+     483px — gemessen bei 1512px. Jetzt gibt die Reihenhöhe die
+     Breite vor, alle Kacheln sind damit gleich.
+
+     Das Format ist das des ZUSCHNITTS (0.9), nicht das schmale
+     Hochformat 0.72: die breite Kachel trägt zusätzlich zwei
+     Rollenzeilen und «Mehr erfahren», sie muss also breiter sein.
+     Bei 0.72 blieben 163px, und «Bryan Anthony Honegger» brach
+     dreizeilig (gemessen). 0.9 deckt sich ausserdem exakt mit der
+     Datei — die Kachel beschneidet das Porträt nicht zusätzlich. */
+  --tellian-t5-tile-ratio-breit: 0.9;
+  --tellian-t5-tile-w-breit: calc(
+    var(--tellian-t5-row-h) * var(--tellian-t5-tile-ratio-breit)
+  );
   /* Wie stark der offene Streifen wächst. Bei fünf je Reihe genügt
      2.0: der geöffnete wird dadurch quer, das Porträt bleibt links
      vollständig stehen und das Panel fährt von rechts ein. */
@@ -723,11 +740,24 @@
      ohne feste Höhe stünde die zweite Reihe versetzt. */
   --tellian-t5-name-size: 14px;
   --tellian-t5-name-leading: 1.3;
-  /* Redesign: dritte Zeile «Mehr erfahren» — die Kachelhöhe rechnet
-     sich aus der Bühne minus Beschriftung, die Reihen schrumpfen
-     also von selbst mit. */
+  /* Zwei Namenszeilen und zwei Rollenzeilen, fest reserviert. Mit
+     einer Zeile je Feld (den früheren 63px) lief «Bryan Anthony
+     Honegger» unter die Zeichen und «Back-Office / Office
+     Management» endete im Auslassungszeichen — beides gemessen auf
+     der 177px-Kachel bei 1512px. Die Kachelhöhe rechnet sich aus
+     der Bühne minus Beschriftung, die Reihen schrumpfen also von
+     selbst mit. */
+  /* Wieviele Namenszeilen die breite Kachel freihält. Zwei reichen,
+     solange die Kachel mindestens 190px breit ist; darunter bricht
+     «Bryan Anthony Honegger» neben den Zeichen dreizeilig. Die
+     Kachelbreite folgt der Bühnenhöhe, deshalb hängt der Wert an
+     der Fensterhöhe (siehe Abfrage am Ende der Datei). */
+  --tellian-t5-name-zeilen-breit: 2;
   --tellian-t5-label-row: calc(
-    2 * var(--tellian-t5-name-size) * var(--tellian-t5-name-leading) + 26px
+    var(--tellian-t5-name-zeilen-breit) * var(--tellian-t5-name-size)
+    * var(--tellian-t5-name-leading)
+    + 2 * var(--tellian-t5-role-size) * var(--tellian-t5-role-leading)
+    + 28px
   );
 
   --tellian-t5-dim: 0.42;
@@ -804,14 +834,14 @@
      flexibel, würde die Titelspalte sie schmaler machen. */
   --tellian-t5-title-col: clamp(150px, 14vw, 210px);
   --tellian-t5-mid-gap: clamp(36px, 4vw, 90px);
-  /* P4: +25 % Reihenbreite — die Kacheln werden ein Viertel
-     breiter dargestellt. Die Station ist ein Filmstreifen, ihre
-     Breite wächst einfach mit (section-width rechnet daraus). */
-  /* P3: 1.1 statt 1.25 — die Kachel wird schmaler (Form 0.9), damit
-     der höhere Ausschnitt fast vollständig ins Bild kommt; ein Teil
-     des P4-Breitenzuwachses geht dafür zurück (ausgewiesen). */
+  /* Die Reihe füllt genau den freien Platz rechts der Titelspalte —
+     nicht mehr. Vorher waren es 1.1 x 94vw; die Reihe ragte damit
+     gemessen 327px über die Stationskante hinaus und die letzte
+     Kachel stand angeschnitten. Mit acht Personen in zwei Reihen
+     zu vier ist ohnehin alles auf einen Blick da. */
   --tellian-t5-row-w: calc(
-    1.1 * (94vw - var(--tellian-rail-width) - 2 * clamp(24px, 2.8vw, 48px))
+    100vw - var(--tellian-titel-links) - var(--tellian-t5-title-col)
+    - var(--tellian-t5-mid-gap) - clamp(72px, 7vw, 128px)
   );
   /* Der letzte Summand ist die weisse Fläche NACH der letzten
      Kachel — sie trennt das Porträt von der nächsten Station.
@@ -1515,5 +1545,15 @@
 @media (max-width: 359px) {
   :root {
     --tellian-t5-name-zeilen: 3;
+  }
+}
+
+/* Flache Fenster (1280x800, 1366x768, 1024x768): die Bühne gibt der
+   Kachel dort unter 190px Breite, und der längste Name braucht neben
+   den Zeichen eine dritte Zeile. Alle Kacheln halten sie frei, damit
+   die Reihe bündig bleibt. Gemessen: bei 823px Höhe genügen zwei. */
+@media (min-width: 1024px) and (max-height: 800px) {
+  :root {
+    --tellian-t5-name-zeilen-breit: 3;
   }
 }
