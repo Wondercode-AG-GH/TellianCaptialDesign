@@ -560,32 +560,6 @@ export function Station5Team({
                 minHeight: "calc(2 * var(--tellian-t5-role-size) * var(--tellian-t5-role-leading))",
               }}
             >
-              {/* PLATZHALTER FÜR DIE ZEICHEN — NUR BREIT. Dort
-                  standen sie früher auf der Namenszeile und nahmen
-                  ihr 72px; der Name brauchte deshalb zwei Zeilen,
-                  und bei jedem kurzen Namen blieb die zweite als
-                  Lücke über der Rolle stehen. Auf der Rollenzeile
-                  stört die Reserve nicht: die Rolle darf umbrechen,
-                  es folgt nichts mehr.
-
-                  Schmal geht das NICHT: die Kachel ist dort 138 bis
-                  173px breit, neben den Zeichen blieben der Rolle
-                  66 bis 101px, und «Head of Portfolio Management»
-                  bräuchte drei bis vier Zeilen (gemessen: ungleiche
-                  Kartenhöhen 299 gegen 314px). Schmal bleiben die
-                  Zeichen deshalb auf der Namenszeile. */}
-              {breit && (person.linkedin || !OHNE_MAIL.includes(person.id)) && (
-                <span
-                  aria-hidden
-                  style={{
-                    float: "right",
-                    height: "var(--tellian-t5-zeichen-hoehe)",
-                    width: person.linkedin
-                      ? "var(--tellian-t5-zeichen-reserve-zwei)"
-                      : "var(--tellian-t5-zeichen-reserve-eins)",
-                  }}
-                />
-              )}
               {rolleText}
             </span>
           )}
@@ -651,24 +625,35 @@ export function Station5Team({
              Zeile darunter ist entfallen (Referenzvergleich 22.09).
              Der Name hält rechts eine Reserve frei, damit nichts
              kollidiert. */
-          /* Auf Höhe der ROLLENZEILE, nicht mehr der Namenszeile:
-             Bildunterkante + Luft + eine Namenszeile + der Abstand
-             zur Rolle. Der Block ist 33px hoch und damit höher als
-             eine Textzeile; er wird um die Differenz angehoben,
-             damit er auf den beiden Rollenzeilen mittig sitzt. */
+          /* BREIT: in der unteren rechten Ecke des BILDES, nicht in
+             der Textspalte. Auf der Namenszeile nahmen sie dem Namen
+             72px und zwangen ihn in die zweite Zeile; auf der
+             Rollenzeile standen sie bei kurzen Rollen («CEO») in
+             einer grossen Lücke und gehörten optisch ebenso zur
+             Nachbarkachel wie zur eigenen. Am Bild sitzen sie fest
+             an der Person, immer an derselben Stelle, und kosten
+             weder Textbreite noch Kachelhöhe. Der helle Glasgrund
+             hält sie über jedem Motiv lesbar. */
           ...(breit
             ? {
                 top:
-                  "calc(100% - var(--tellian-t5-label-row)" +
-                  " + var(--tellian-t5-name-size) * var(--tellian-t5-name-leading)" +
-                  " + var(--tellian-t5-name-role-gap))",
-                margin: "-1px 0 0 0",
+                  "calc(var(--tellian-t5-tile-w-breit) / var(--tellian-t5-tile-ratio-breit)" +
+                  " - var(--tellian-t5-zeichen-hoehe) - 10px)",
+                right: "10px",
+                margin: 0,
+                borderRadius: "999px",
+                backgroundColor: "rgba(249, 249, 247, 0.92)",
+                border: "1px solid rgba(25, 23, 24, 0.10)",
+                /* Rahmen nach innen, sonst sitzt der Block 8 statt
+                   10px über der Bildkante (gemessen). */
+                boxSizing: "border-box",
+                height: "var(--tellian-t5-zeichen-hoehe)",
               }
             : {
                 top: "calc(var(--tellian-t5-bildhoehe-schmal) + var(--tellian-t5-label-gap))",
                 margin: "-10px 0 0 0",
               }),
-          right: 0,
+          ...(breit ? null : { right: 0 }),
           display: "inline-flex",
           alignItems: "center",
         }}
