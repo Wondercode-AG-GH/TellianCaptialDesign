@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 
 import { C, sans, serif } from "../tokens";
 import { ResponsiveImage } from "./ResponsiveImage";
+import { LinkedInGlyph, MailGlyph } from "./KontaktGlyphen";
 import type { ImageId } from "../../assets/generated";
 
 /* ═══════════════════════════════════════════════════════════
@@ -312,6 +313,7 @@ export function TeamDetail({
                 : `${name} eine E-Mail schreiben`
             }
           >
+            <MailGlyph farbe="currentColor" />
             {UI[sprache].mail}
           </a>
         )}
@@ -325,6 +327,7 @@ export function TeamDetail({
               sprache === "EN" ? `${name} on LinkedIn` : `${name} auf LinkedIn`
             }
           >
+            <LinkedInGlyph farbe="currentColor" />
             {UI[sprache].linkedin}
           </a>
         )}
@@ -713,8 +716,18 @@ export function TeamDetail({
                    690px hohen Bild die Hälfte der Punkte für
                    doppelte Dichte. 620px Höhe und ein Bildanteil
                    von 38 % bringen Rahmen und Bild zur Deckung. */
-                width: "min(1060px, calc(100vw - 64px))",
-                height: "min(680px, calc(100vh - 96px))",
+                /* 1100 statt 1060: mit dem höheren Rahmen wurde die
+                   Bildspalte im Verhältnis schmaler und cover schnitt
+                   15 statt 11 % der Breite weg. Etwas mehr Panelbreite
+                   gibt beiden Spalten zurück, was die Höhe genommen
+                   hat. */
+                width: "min(1100px, calc(100vw - 64px))",
+                /* 712 statt 680 (22.09): die Kontaktzeile kostet den
+                   Text 19 bis 28px, und Bryans Absätze liefen damit
+                   über den Rahmen. Die Quelle trägt es — 1530px
+                   Bilddatei auf 712px Rahmen sind 107 % für doppelte
+                   Dichte, weiterhin über der vollen Deckung. */
+                height: "min(712px, calc(100vh - 96px))",
                 display: "flex",
               }),
           backgroundColor: C.bg,
@@ -748,15 +761,25 @@ export function TeamDetail({
         .tellian-team-schliessen:hover svg { transform: rotate(90deg); }
         .tellian-team-schliessen:active { transform: scale(0.96); }
         .tellian-team-kontakt {
+          display: inline-flex;
+          align-items: center;
+          /* Zeichen und Wort gehören zusammen; der Abstand ist
+             kleiner als die Lücke zwischen den beiden Wegen. */
+          gap: 8px;
           color: ${C.accent};
           text-decoration: none;
-          border-bottom: 1px solid transparent;
-          padding-bottom: 2px;
-          transition: color 180ms ease, border-color 180ms ease;
+          /* Polster nach aussen ausgeglichen: die Trefferfläche
+             wächst auf 37px — die Zeile misst nur 19px und wäre auf
+             dem Telefon kaum zu treffen —, die Setzung bleibt
+             davon unberührt. */
+          padding: 9px 4px;
+          margin: -9px -4px;
+          transition: color 180ms ease;
         }
         .tellian-team-kontakt:hover {
           color: ${C.ink};
-          border-bottom-color: ${C.ink};
+          text-decoration: underline;
+          text-underline-offset: 4px;
         }
         .tellian-team-kontakt:focus-visible {
           outline: 2px solid var(--tellian-muted);
