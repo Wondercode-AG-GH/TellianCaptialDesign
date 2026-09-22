@@ -169,42 +169,78 @@ export function TeamDetail({
            Schirm liegt, breit zum Panel. Ein «fixed» innerhalb der
            scrollenden Fläche ist auf iOS unzuverlässig. */
         position: "absolute",
-        top: isMobile ? "calc(12px + env(safe-area-inset-top, 0px))" : "20px",
-        right: isMobile ? "12px" : "20px",
+        /* 13/13 statt 20/20: der Knopf traegt schmal 7px
+           unsichtbare Luft, damit die Trefferflaeche 44px behaelt.
+           Die sichtbare Marke steht dadurch genau im Seitenrand
+           von 20px, wie in der Referenz. */
+        top: isMobile ? "calc(13px + env(safe-area-inset-top, 0px))" : "20px",
+        right: isMobile ? "13px" : "20px",
         zIndex: 3,
         display: isMobile && bildGross ? "none" : "inline-flex",
-        /* Schmal die Wortmarke der Referenz («RETOUR [ X ]»),
-           breit das runde Zeichen. Anders als dort scrollt sie NICHT
-           weg: im Overlay wäre man sonst mitten im Text ohne
-           sichtbaren Rückweg — Escape gibt es auf dem Telefon nicht
-           und der abgedunkelte Grund liegt unter dem Panel. Der
-           helle Glasgrund hält sie über Bild UND Text lesbar. */
         ...(isMobile
           ? {
-              height: "44px",
-              padding: "0 16px",
+              padding: "7px",
+              background: "none",
+              border: "none",
               borderRadius: "999px",
-              fontFamily: sans,
-              fontSize: "12px",
-              letterSpacing: "0.06em",
-              textTransform: "uppercase" as const,
-              gap: "8px",
             }
-          : { width: "44px", height: "44px", padding: 0, borderRadius: "50%" }),
+          : {
+              width: "44px",
+              height: "44px",
+              padding: 0,
+              borderRadius: "50%",
+              backgroundColor: "rgba(249, 249, 247, 0.85)",
+              border: `1px solid ${C.line}`,
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+            }),
         alignItems: "center",
         justifyContent: "center",
         cursor: "pointer",
         color: C.ink,
-        backgroundColor: "rgba(249, 249, 247, 0.85)",
-        border: `1px solid ${C.line}`,
-        backdropFilter: "blur(6px)",
-        WebkitBackdropFilter: "blur(6px)",
       }}
     >
-      {isMobile && UI[sprache].zurueck}
-      <svg width={isMobile ? "11" : "16"} height={isMobile ? "11" : "16"} viewBox="0 0 14 14" aria-hidden focusable="false">
-        <path d="M1.5 1.5 12.5 12.5 M12.5 1.5 1.5 12.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      </svg>
+      {isMobile ? (
+        /* Die Wortmarke der Referenz («RETOUR [ X ]»), leicht
+           gesetzt: kein Rahmen, nur ein Hauch Glas. Anders als dort
+           scrollt sie NICHT weg — im Overlay waere man sonst mitten
+           im Text ohne sichtbaren Rueckweg. Der Glasgrund haelt sie
+           ueber Bild UND Text lesbar, ohne wie ein Schalter zu
+           wirken. */
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "7px",
+            height: "30px",
+            padding: "0 11px",
+            borderRadius: "999px",
+            fontFamily: sans,
+            fontSize: "12px",
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            /* Deckend, nicht durchscheinend: beim Scrollen liegt die
+               Marke ueber dem Fliesstext, und durch Glas las man die
+               Zeilen hindurch. Auf Weichzeichner ist kein Verlass —
+               er faellt je nach Geraet aus. */
+            backgroundColor: C.bg,
+            /* Haarlinie, damit der Chip ueber dem Fliesstext als
+               eigenes Element lesbar bleibt: deckend allein
+               verschmolz er mit der Seitenfarbe und die Zeilen
+               liefen scheinbar durch die Marke. */
+            border: `1px solid ${C.line}`,
+          }}
+        >
+          {UI[sprache].zurueck}
+          <svg width="10" height="10" viewBox="0 0 14 14" aria-hidden focusable="false">
+            <path d="M1.5 1.5 12.5 12.5 M12.5 1.5 1.5 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </span>
+      ) : (
+        <svg width="16" height="16" viewBox="0 0 14 14" aria-hidden focusable="false">
+          <path d="M1.5 1.5 12.5 12.5 M12.5 1.5 1.5 12.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+        </svg>
+      )}
     </button>
   );
 
