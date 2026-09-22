@@ -11,12 +11,13 @@ import type { ImageId } from "../../assets/generated";
    BREIT: links das Foto, gross und stehend; rechts Name, Rolle und
    der Text. Der lange Text scrollt in der RECHTEN SPALTE.
 
-   SCHMAL: ein kompaktes Porträt neben Name und Rolle, darunter der
-   Text — und das Ganze scrollt als EINE Fläche. Vorher deckte das
-   Bild 55% des Schirms und der Text rollte in einem 380px-Fenster
-   darin: gemessen 202-383px Scrollweg in einem Fenster im Fenster.
-   Jetzt passen ab 844px Schirmhöhe alle Porträts auf einen Schirm.
-   Antippen des Bildes zeigt es in voller Grösse.
+   SCHMAL: nach dem Vorbild von laframboiseavocats.com/equipe —
+   randloses Bildband oben, das mitscrollt, darunter Rolle als
+   Versalmarke, grosser Name, Haarlinie, Abschnittsmarke und ein
+   ruhig gesetzter Fliesstext. Das Ganze scrollt als EINE Fläche;
+   die verschachtelte Textspalte von früher (380px-Fenster mit
+   202-383px Scrollweg darin) ist fort. Antippen des Bildes zeigt
+   das Porträt vollständig und unbeschnitten.
 
    Bewusst einfach (Zielgruppe 65+): kein Blättern zwischen
    Personen, kein Autoplay. Schliessen über den beschrifteten Knopf
@@ -27,10 +28,28 @@ import type { ImageId } from "../../assets/generated";
    ═══════════════════════════════════════════════════════════ */
 
 const UI = {
-  DE: { schliessen: "Schliessen", vergroessern: "Porträt vergrössern" },
-  EN: { schliessen: "Close", vergroessern: "Enlarge portrait" },
+  DE: {
+    schliessen: "Schliessen",
+    vergroessern: "Porträt vergrössern",
+    zurueck: "Zurück",
+    biografie: "Biografie",
+    nachOben: "Nach oben",
+  },
+  EN: {
+    schliessen: "Close",
+    vergroessern: "Enlarge portrait",
+    zurueck: "Back",
+    biografie: "Biography",
+    nachOben: "Back to top",
+  },
   /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
-  FR: { schliessen: "Schliessen", vergroessern: "Porträt vergrössern" },
+  FR: {
+    schliessen: "Schliessen",
+    vergroessern: "Porträt vergrössern",
+    zurueck: "Zurück",
+    biografie: "Biografie",
+    nachOben: "Nach oben",
+  },
 } as const;
 
 interface Props {
@@ -154,12 +173,26 @@ export function TeamDetail({
         right: isMobile ? "12px" : "20px",
         zIndex: 3,
         display: isMobile && bildGross ? "none" : "inline-flex",
-        width: "44px",
-        height: "44px",
+        /* Schmal die Wortmarke der Referenz («RETOUR [ X ]»),
+           breit das runde Zeichen. Anders als dort scrollt sie NICHT
+           weg: im Overlay wäre man sonst mitten im Text ohne
+           sichtbaren Rückweg — Escape gibt es auf dem Telefon nicht
+           und der abgedunkelte Grund liegt unter dem Panel. Der
+           helle Glasgrund hält sie über Bild UND Text lesbar. */
+        ...(isMobile
+          ? {
+              height: "44px",
+              padding: "0 16px",
+              borderRadius: "999px",
+              fontFamily: sans,
+              fontSize: "12px",
+              letterSpacing: "0.06em",
+              textTransform: "uppercase" as const,
+              gap: "8px",
+            }
+          : { width: "44px", height: "44px", padding: 0, borderRadius: "50%" }),
         alignItems: "center",
         justifyContent: "center",
-        padding: 0,
-        borderRadius: "50%",
         cursor: "pointer",
         color: C.ink,
         backgroundColor: "rgba(249, 249, 247, 0.85)",
@@ -168,7 +201,8 @@ export function TeamDetail({
         WebkitBackdropFilter: "blur(6px)",
       }}
     >
-      <svg width="16" height="16" viewBox="0 0 14 14" aria-hidden focusable="false">
+      {isMobile && UI[sprache].zurueck}
+      <svg width={isMobile ? "11" : "16"} height={isMobile ? "11" : "16"} viewBox="0 0 14 14" aria-hidden focusable="false">
         <path d="M1.5 1.5 12.5 12.5 M12.5 1.5 1.5 12.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
       </svg>
     </button>
@@ -280,40 +314,41 @@ export function TeamDetail({
     </div>
   );
 
-  /* ── SCHMAL: Kopfzeile aus kompaktem Porträt, Name und Rolle ──
-     Das Bild ist so hoch bemessen, dass der längste Text (Bryan,
-     677px bei 15px/1.5) zusammen mit ihm auf einen 844px-Schirm
-     passt: gemessen blieben dafür 167px Bildhöhe, davon zahlt das
-     Bild nur die Differenz zur Namenshöhe. Es steht NEBEN dem
-     Namen, nicht darüber — das spart die Höhe, die der Name ohnehin
-     belegt. Verhältnis 2:3 wie die Datei, also kein Beschnitt. */
-  const kopfSchmal = (
-    <div
-      style={{
-        display: "flex",
-        gap: "clamp(14px, 4vw, 20px)",
-        alignItems: "flex-start",
-      }}
-    >
+  /* ── SCHMAL: der Inhalt als EINE Scrollfläche ──
+     Masse nach der Referenz, bei 390px nachgemessen: Bildband über
+     die ganze Breite im Verhältnis 0.87, Seitenrand 20px, Rolle als
+     12px-Versalmarke ÜBER dem Namen, Name gross mit engem
+     Zeilenabstand, Haarlinie, Abschnittsmarke, Fliesstext bei rund
+     20px mit Zeilenabstand 1.3. */
+  const inhaltSchmal = (
+    <div>
+      {/* Bildband — randlos, scrollt mit. Das Verhältnis 0.87 ist
+          das der Referenz; unsere Dateien sind 2:3, das Band
+          schneidet also unten ab. Oben geankert bleibt der Kopf
+          stehen, und ein Tipp zeigt die Aufnahme vollständig. */}
       <button
         type="button"
         onClick={() => setBildGross(true)}
         aria-label={UI[sprache].vergroessern}
         style={{
+          display: "block",
+          width: "100%",
           padding: 0,
           border: "none",
           background: "none",
           cursor: "zoom-in",
-          flexShrink: 0,
-          display: "block",
         }}
       >
         <span
           className="tellian-t5-bild"
           style={{
             display: "block",
-            height: "clamp(132px, 19vh, 176px)",
-            aspectRatio: "2 / 3",
+            width: "100%",
+            aspectRatio: "0.87",
+            /* Auf kurzen Geräten deckeln: bei 320x568 nähme das
+               Verhältnis sonst 65% des Schirms statt der 53%, die
+               die Referenz bei 390x844 hält. */
+            maxHeight: "56vh",
             overflow: "hidden",
             backgroundColor: "var(--tellian-t5-placeholder-bg)",
           }}
@@ -322,7 +357,7 @@ export function TeamDetail({
             <ResponsiveImage
               id={bild}
               alt=""
-              sizes="120px"
+              sizes="100vw"
               objectPosition="50% 0%"
               className="w-full h-full"
               style={{ display: "block" }}
@@ -330,76 +365,119 @@ export function TeamDetail({
           )}
         </span>
       </button>
-      <div style={{ minWidth: 0 }}>
+
+      <div
+        style={{
+          padding: "clamp(18px, 5.1vw, 26px) clamp(20px, 5.1vw, 28px) calc(clamp(40px, 9vw, 56px) + env(safe-area-inset-bottom, 0px))",
+          boxSizing: "border-box",
+        }}
+      >
+        {rolle !== "" && (
+          <p
+            style={{
+              margin: 0,
+              fontFamily: sans,
+              fontSize: "12px",
+              lineHeight: 1.3,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              color: C.accent,
+            }}
+          >
+            {rolle}
+          </p>
+        )}
         <h2
           style={{
-            margin: 0,
+            /* Enger Zeilenabstand wie in der Referenz (dort 0.95):
+               der Name steht als Block, nicht als Fliesstext. */
+            margin: "clamp(10px, 2.4vw, 14px) 0 0",
             fontFamily: serif,
-            fontSize: "clamp(24px, 6.4vw, 30px)",
+            fontSize: "clamp(30px, 8.6vw, 38px)",
             fontWeight: 400,
-            lineHeight: "var(--tellian-zwischen-lh)" as unknown as number,
+            lineHeight: 1.02,
             color: C.ink,
             textWrap: "pretty" as React.CSSProperties["textWrap"],
           }}
         >
-          {/* Nur die Zeilen neben dem Schliessen-Knopf weichen aus,
-              nicht die ganze Spalte: mit durchgehender Reserve brach
-              «Bryan Anthony Honegger» dreizeilig. */}
-          <span
-            aria-hidden
-            style={{ float: "right", width: "52px", height: "30px" }}
-          />
           {name}
         </h2>
+
+        {/* Haarlinie und Abschnittsmarke — der Rhythmus, der die
+            Referenz trotz 3.5 Schirmen ruhig wirken lässt. */}
+        <hr
+          style={{
+            margin: "clamp(34px, 8vw, 48px) 0 0",
+            border: "none",
+            borderTop: `1px solid ${C.line}`,
+          }}
+        />
         <p
           style={{
-            margin: "8px 0 0",
+            margin: "clamp(20px, 5vw, 28px) 0 0",
             fontFamily: sans,
-            fontSize: "14px",
-            letterSpacing: "0.04em",
+            fontSize: "12px",
+            lineHeight: 1.3,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
             color: C.accent,
           }}
         >
-          {rolle}
+          {UI[sprache].biografie}
         </p>
-      </div>
-    </div>
-  );
+        <div
+          style={{
+            marginTop: "clamp(18px, 4.4vw, 26px)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.9em",
+          }}
+        >
+          {absaetze.map((absatz) => (
+            <p
+              key={absatz.slice(0, 24)}
+              style={{
+                margin: 0,
+                fontFamily: sans,
+                /* Referenz: 20.3px auf 1.30. Unsere Schrift läuft
+                   etwas breiter, deshalb 19px auf 1.38. */
+                fontSize: "clamp(17px, 4.9vw, 19px)",
+                lineHeight: 1.38,
+                color: C.ink,
+              }}
+            >
+              {absatz}
+            </p>
+          ))}
+        </div>
 
-  /* ── SCHMAL: der Inhalt als EINE Scrollfläche ── */
-  const inhaltSchmal = (
-    <div
-      style={{
-        padding: "calc(clamp(20px, 5vw, 32px) + env(safe-area-inset-top, 0px)) clamp(20px, 5vw, 32px) calc(clamp(28px, 6vw, 40px) + env(safe-area-inset-bottom, 0px))",
-        boxSizing: "border-box",
-      }}
-    >
-      {kopfSchmal}
-      <div
-        style={{
-          marginTop: "clamp(18px, 2.6vh, 26px)",
-          display: "flex",
-          flexDirection: "column",
-          /* 0.6em statt 0.8em und 15px/1.5 statt 16px/1.62: das
-             straffere Mass spart beim längsten Text 86px und ist
-             der Unterschied zwischen einem Schirm und zweien. */
-          gap: "0.6em",
-        }}
-      >
-        {absaetze.map((absatz) => (
-          <p
-            key={absatz.slice(0, 24)}
+        {/* Runder Pfeil zurück nach oben, wie am Ende der Referenz. */}
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "clamp(30px, 7vw, 44px)" }}>
+          <button
+            type="button"
+            onClick={() => panelRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
+            aria-label={UI[sprache].nachOben}
+            title={UI[sprache].nachOben}
+            className="tellian-team-schliessen"
             style={{
-              margin: 0,
-              fontFamily: sans,
-              fontSize: "15px",
-              lineHeight: 1.5,
-              color: C.accent,
+              width: "44px",
+              height: "44px",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+              borderRadius: "50%",
+              cursor: "pointer",
+              color: C.ink,
+              backgroundColor: "transparent",
+              border: `1px solid ${C.line}`,
             }}
           >
-            {absatz}
-          </p>
-        ))}
+            <svg width="15" height="15" viewBox="0 0 14 14" aria-hidden focusable="false">
+              <path d="M7 12.5 V2 M2.5 6.5 7 2 11.5 6.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );
