@@ -33,6 +33,13 @@ interface Person {
       Rollen sind international gleich geschrieben (CEO, Relationship
       Manager, Risk Management …) und brauchen keine. */
   rolleEn?: string;
+  /** Augenlinie im ungeschnittenen Bild, als Anteil der Bildhöhe.
+      Zurückgerechnet aus den Kachelzuschnitten in
+      scripts/optimize-images.mjs: dort steht oben = Augenlinie
+      − 0.22 × Ausschnitthöhe, die Ausschnitthöhe ist 0.7378 der
+      Quellhöhe (bei Wilhelm 0.7111, schmalerer Zuschnitt). Das
+      geöffnete Porträt richtet daran die Kopfhöhe aus. */
+  augenlinie?: number;
   bild?: ImageId;
   /** Ungeschnittene Fassung für das geöffnete Porträt. Die Kachel
       zeigt den 0.9-Zuschnitt (Augenlinien auf einer Höhe), das
@@ -131,33 +138,43 @@ const PERSONEN: readonly Person[] = [
   {
     id: "wilhelm", name: "Wilhelm Tell", rolle: "Namensgeber", rolleEn: "Namesake",
     bild: "wilhelm-tell", bildDetail: "wilhelm-tell-voll",
+    /* Statue, kein Gesicht: der Wert aus der Kacheleichung zeigt
+       auf keine Augenlinie. Am Bandkopf gegen die sechs Porträts
+       nachgestellt (0.351 stellte die Figur rund 15px zu hoch). */
+    augenlinie: 0.325,
   },
   {
     id: "olivier", name: "Olivier M. Bill", rolle: "CEO", bild: "olivier-bill",
     bildDetail: "olivier-bill-voll",
+    augenlinie: 0.309,
     linkedin: "https://www.linkedin.com/in/olivier-bill/",
   },
   {
     id: "marco", name: "Marco Ludescher", rolle: "Head of Portfolio Management",
     bild: "marco-ludescher", bildDetail: "marco-ludescher-voll",
+    augenlinie: 0.355,
     linkedin: "https://www.linkedin.com/in/marco-ludescher-5807b0344/",
   },
   {
     id: "rolf", name: "Rolf Schneider", rolle: "Relationship Manager",
     bild: "rolf-schneider", bildDetail: "rolf-schneider-voll",
+    augenlinie: 0.215,
   },
   {
     id: "bryan", name: "Bryan Anthony Honegger", rolle: "Relationship Manager",
     bild: "bryan-honegger", bildDetail: "bryan-honegger-voll",
+    augenlinie: 0.170, /* Bezug */
     linkedin: "https://www.linkedin.com/in/bryan-anthony-honegger-b7b535135/",
   },
   {
     id: "andreas", name: "Andreas Trümpler", rolle: "Risk Management",
     bild: "andreas-truempler", bildDetail: "andreas-truempler-voll",
+    augenlinie: 0.210,
   },
   {
     id: "jasmina", name: "Jasmina Rukavina", rolle: "Back-Office / Office Management",
     bild: "jasmina-rukavina", bildDetail: "jasmina-rukavina-voll",
+    augenlinie: 0.215,
   },
   /* TODO-TEXT-JOERG-BODE: kein persönlicher Text geliefert.
      TODO-ROLLE-JOERG: Rolle unbestätigt — Zeile bleibt leer. */
@@ -753,6 +770,7 @@ export function Station5Team({
           : offenPerson.rolle
       }
       bild={offenPerson.bildDetail ?? offenPerson.bild}
+      augenlinie={offenPerson.augenlinie}
       absaetze={TEXTE[offenPerson.id][sprache]}
       sprache={sprache}
       isMobile={isVertical}

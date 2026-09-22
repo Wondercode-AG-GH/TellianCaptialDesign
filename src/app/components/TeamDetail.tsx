@@ -52,11 +52,38 @@ const UI = {
   },
 } as const;
 
+/* ── KOPFHÖHE IM BILDBAND ──
+   Das Band zeigt einen Ausschnitt (Verhältnis 0.87) aus einer
+   2:3-Aufnahme. Ohne Ausgleich sitzt der Kopf bei jeder Person
+   anders hoch, weil die Augenlinie in jeder Quelle woanders liegt.
+
+   Gerechnet wird in BANDBREITEN: die Aufnahme ist 1.5 Bandbreiten
+   hoch, ein Augenlinien-Unterschied von e entspricht also dem Weg
+   1.5 × e. Bezug ist Bryan Anthony Honegger mit der höchsten
+   Augenlinie — er braucht keine Verschiebung, alle anderen rücken
+   nach oben.
+
+   Als LÄNGE in vw, nicht in Prozent: Prozentwerte von
+   object-position beziehen sich auf den Überhang, und der ändert
+   sich mit der gedeckelten Bandhöhe (56vh) — auf kurzen Geräten
+   wären die Linien wieder auseinandergelaufen. */
+const AUGENLINIE_BEZUG = 0.17;
+
+function bandFokus(augenlinie?: number) {
+  if (augenlinie === undefined) return "50% 0%";
+  /* Nie nach unten schieben: das risse oben eine Lücke auf. */
+  const weg = Math.max(0, 1.5 * (augenlinie - AUGENLINIE_BEZUG));
+  return `50% ${(-weg * 100).toFixed(2)}vw`;
+}
+
 interface Props {
   offen: boolean;
   name: string;
   rolle: string;
   bild?: ImageId;
+  /** Augenlinie als Anteil der Bildhöhe — richtet die Kopfhöhe im
+      Bildband aus. Fehlt sie, bleibt das Band oben geankert. */
+  augenlinie?: number;
   /** Absätze — Struktur exakt wie geliefert (2 bzw. 3). */
   absaetze: readonly string[];
   sprache?: "DE" | "EN" | "FR";
@@ -70,6 +97,7 @@ export function TeamDetail({
   name,
   rolle,
   bild,
+  augenlinie,
   absaetze,
   sprache = "DE",
   isMobile = false,
@@ -394,7 +422,7 @@ export function TeamDetail({
               id={bild}
               alt=""
               sizes="100vw"
-              objectPosition="50% 0%"
+              objectPosition={bandFokus(augenlinie)}
               className="w-full h-full"
               style={{ display: "block" }}
             />
