@@ -176,16 +176,10 @@ const PERSONEN: readonly Person[] = [
     bild: "jasmina-rukavina", bildDetail: "jasmina-rukavina-voll",
     augenlinie: 0.215,
   },
-  /* TODO-TEXT-JOERG-BODE: kein persönlicher Text geliefert.
-     TODO-ROLLE-JOERG: Rolle unbestätigt — Zeile bleibt leer. */
-  { id: "joerg", name: "Jörg Bode", rolle: "" },
   /* TODO-TEXT-THIBAUT: kein persönlicher Text geliefert.
      TODO-KONTAKT-THIBAUT: Vorname/Nachname/Tag ausstehend.
      TODO-ROLLE-THIBAUT: Rolle unbestätigt — Zeile bleibt leer. */
   { id: "thibaut", name: "Thibaut", rolle: "" },
-  /* TODO-TEXT-STEFAN-MUELLER: kein persönlicher Text geliefert.
-     TODO-ROLLE-STEFAN-MUELLER: Rolle unbestätigt — Zeile leer. */
-  { id: "stefan", name: "Stefan Müller", rolle: "" },
 ];
 
 /* ── PERSONENTEXTE — wörtlich aus dem Briefing, Absatzstruktur
