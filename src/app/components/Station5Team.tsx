@@ -86,54 +86,6 @@ function mailZiel(person: Person, sprache: "DE" | "EN" | "FR"): string {
   return `mailto:${MAIL_FIRMA}?subject=${encodeURIComponent(betreff)}`;
 }
 
-/* LinkedIn-Glyph als Vektor: das vorhandene Asset ist ein weisses
-   PNG und trägt auf der hellen Kachel nicht. Die Grösse hängt an
-   der Namenszeile (1.2em) — das Zeichen wächst und schrumpft mit
-   der Beschriftung, nicht mit der Kachel. */
-function LinkedInGlyph({ farbe }: { farbe: string }) {
-  return (
-    <svg width="1.2em" height="1.2em" viewBox="0 0 24 24" aria-hidden focusable="false">
-      <path
-        fill={farbe}
-        d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29ZM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13Zm1.78 13.02H3.55V9h3.57v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0Z"
-      />
-    </svg>
-  );
-}
-
-/* Briefumschlag im Mass des LinkedIn-Zeichens. Gezeichnet statt
-   gefüllt, dafür mit kräftigerem Strich (1.9 von 24) — bei 17px
-   Darstellung trägt er damit dasselbe Gewicht wie der gefüllte
-   LinkedIn-Block daneben. */
-function MailGlyph({ farbe }: { farbe: string }) {
-  return (
-    <svg
-      width="1.2em"
-      height="1.2em"
-      viewBox="0 0 24 24"
-      aria-hidden
-      focusable="false"
-    >
-      <rect
-        x="2.1"
-        y="4.6"
-        width="19.8"
-        height="14.8"
-        fill="none"
-        stroke={farbe}
-        strokeWidth="1.9"
-      />
-      <path
-        d="M2.9 5.4 12 12.6l9.1-7.2"
-        fill="none"
-        stroke={farbe}
-        strokeWidth="1.9"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 const PERSONEN: readonly Person[] = [
   {
     id: "wilhelm", name: "Wilhelm Tell", rolle: "Namensgeber", rolleEn: "Namesake",
@@ -317,6 +269,12 @@ const TEXTE: Readonly<Record<string, Readonly<Record<L, readonly string[]>>>> = 
     ],
   },
 };
+
+const KONTAKT = {
+  DE: { mail: "E-Mail", linkedin: "LinkedIn" },
+  EN: { mail: "E-mail", linkedin: "LinkedIn" },
+  FR: { mail: "E-Mail", linkedin: "LinkedIn" },
+} as const;
 
 const UI = {
   DE: { mehr: "Mehr erfahren" },
@@ -512,30 +470,18 @@ export function Station5Team({
                  hoch, egal wie lang der Name ist. Breit stand hier
                  «nowrap» mit Auslassungszeichen; auf der schmaleren
                  Vierer-Kachel hätte das Namen gekürzt. */
-              /* EINE Zeile. Seit die Zeichen auf der Rollenzeile
-                 stehen, hat der Name die volle Kachelbreite: der
-                 längste («Bryan Anthony Honegger», 155px bei 14px)
-                 passt auf jede Kachel ab 166px. Schmal hält das Feld
-                 unter 360px zwei Zeilen frei — dort ist die Kachel
-                 138px schmal. */
+              /* EINE Zeile. Die Zeichen stehen nicht mehr in der
+                 Textspalte, der Name hat also die volle
+                 Kachelbreite: der längste («Bryan Anthony
+                 Honegger») misst 155px bei 14px und 144px bei 13px,
+                 die schmalste Kachel 166px. Nur unter 360px ist sie
+                 mit 138px kürzer — dort hält das Feld zwei Zeilen
+                 frei. */
               minHeight: breit
                 ? "calc(var(--tellian-t5-name-size) * var(--tellian-t5-name-leading))"
                 : "calc(var(--tellian-t5-name-zeilen) * var(--tellian-t5-name-size-schmal) * var(--tellian-t5-name-leading))",
             }}
           >
-            {/* Schmal: Reserve auf der ERSTEN Namenszeile. */}
-            {!breit && (person.linkedin || !OHNE_MAIL.includes(person.id)) && (
-              <span
-                aria-hidden
-                style={{
-                  float: "right",
-                  height: "var(--tellian-t5-zeichen-hoehe)",
-                  width: person.linkedin
-                    ? "var(--tellian-t5-zeichen-reserve-zwei)"
-                    : "var(--tellian-t5-zeichen-reserve-eins)",
-                }}
-              />
-            )}
             {person.name}
           </span>
           {/* Schmal steht der Platz auch ohne Rollentext: drei
@@ -581,27 +527,16 @@ export function Station5Team({
        innen (Padding), nicht über die Kachelkante hinaus; das
        Padding ist von 15 auf 12px gekürzt, damit zwei Zeichen
        nebeneinander nicht in die Namenszeile laufen. */
+    /* WORTMARKE statt Sinnbild. Die Zeile trägt die volle
+       Zeilenhöhe als Trefferfläche (33px), damit sie auf dem
+       Telefon sicher zu treffen ist. */
     const zeichenStil: React.CSSProperties = {
-      /* Auf Solutions laufen die Kacheln 33 % grösser — die Zeichen
-         gehen mit, sonst wirken sie dort verloren. */
-      fontSize: personenIds
-        ? `calc(var(--tellian-t5-name-size) * ${GROSS})`
-        : "var(--tellian-t5-name-size)",
-      /* Schmal 8px statt 12: die Zeichen stehen jetzt auf der
-         Namenszeile, und «Ludescher» (gemessen 66px, das längste
-         unteilbare Wort) braucht bei 320px Schirmbreite jeden
-         Punkt. Trefferfläche damit 33px — über der Mindestgrösse
-         von 24px, und die KACHEL selbst bleibt das grosse Ziel. */
-      /* In BEIDEN Bändern 8px: mit 12px war der Block 41px hoch und
-         überspannte damit beide Namenszeilen — die zweite Zeile lief
-         unter die Zeichen und «Bryan Anthony Honegger» brach
-         dreizeilig (gemessen bei 1280px). 33px sind niedriger als
-         zwei Zeilen, die zweite Zeile ist damit frei. */
-      padding: "8px",
       display: "inline-flex",
       alignItems: "center",
-      justifyContent: "center",
-      lineHeight: 0,
+      height: "100%",
+      color: C.accent,
+      textDecoration: "none",
+      whiteSpace: "nowrap",
     };
 
     /* WO DIE ZEICHENREIHE STEHT
@@ -616,83 +551,62 @@ export function Station5Team({
        Zeichen brauchen rund 80px — auf der 150px-Kachel des
        Telefons lief der Name (gemessen «Olivier M. Bill») sonst
        unter den Briefumschlag. Unten ist der Platz frei. */
-    const zeichen = (
-      <span
-        style={{
-          position: "absolute",
-          /* Breit: auf Höhe der Namenszeile in der Beschriftungszone.
-             Schmal: ebenfalls auf der Namenszeile — die eigene
-             Zeile darunter ist entfallen (Referenzvergleich 22.09).
-             Der Name hält rechts eine Reserve frei, damit nichts
-             kollidiert. */
-          /* BREIT: in der unteren rechten Ecke des BILDES, nicht in
-             der Textspalte. Auf der Namenszeile nahmen sie dem Namen
-             72px und zwangen ihn in die zweite Zeile; auf der
-             Rollenzeile standen sie bei kurzen Rollen («CEO») in
-             einer grossen Lücke und gehörten optisch ebenso zur
-             Nachbarkachel wie zur eigenen. Am Bild sitzen sie fest
-             an der Person, immer an derselben Stelle, und kosten
-             weder Textbreite noch Kachelhöhe. Der helle Glasgrund
-             hält sie über jedem Motiv lesbar. */
-          ...(breit
-            ? {
-                top:
-                  "calc(var(--tellian-t5-tile-w-breit) / var(--tellian-t5-tile-ratio-breit)" +
-                  " - var(--tellian-t5-zeichen-hoehe) - 10px)",
-                right: "10px",
-                margin: 0,
-                borderRadius: "999px",
-                backgroundColor: "rgba(249, 249, 247, 0.92)",
-                border: "1px solid rgba(25, 23, 24, 0.10)",
-                /* Rahmen nach innen, sonst sitzt der Block 8 statt
-                   10px über der Bildkante (gemessen). */
-                boxSizing: "border-box",
-                height: "var(--tellian-t5-zeichen-hoehe)",
+    /* KONTAKTZEILE — Wortmarken unter der Rolle, linksbündig an
+       derselben Kante wie Name und Rolle. Vorher standen hier zwei
+       Sinnbilder: erst auf der Namenszeile, wo sie ihm 72px nahmen
+       und ihn in eine zweite Zeile zwangen; dann als Marke auf dem
+       Bild. Wortmarken lesen sich auf dieser Seite natürlicher als
+       Piktogramme und liegen bei jeder Person an derselben Stelle.
+
+       Die Zeile steht NACH dem Schalter, nicht in ihm: ein Verweis
+       innerhalb eines Schalters wäre ungültiges Markup. */
+    const zeichen =
+      person.linkedin || !OHNE_MAIL.includes(person.id) ? (
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "clamp(12px, 1.1vw, 18px)",
+            height: "var(--tellian-t5-kontakt-row)",
+            marginTop: "var(--tellian-t5-kontakt-gap)",
+            fontFamily: sans,
+            fontSize: "var(--tellian-t5-kontakt-size)",
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+          }}
+        >
+          {!OHNE_MAIL.includes(person.id) && (
+            <a
+              href={mailZiel(person, sprache)}
+              aria-label={
+                sprache === "EN"
+                  ? `Write an e-mail to ${person.name}`
+                  : `${person.name} eine E-Mail schreiben`
               }
-            : {
-                top: "calc(var(--tellian-t5-bildhoehe-schmal) + var(--tellian-t5-label-gap))",
-                margin: "-10px 0 0 0",
-              }),
-          ...(breit ? null : { right: 0 }),
-          display: "inline-flex",
-          alignItems: "center",
-        }}
-      >
-        {/* Mail zuerst, LinkedIn bleibt an der rechten Kante —
-            die gewachsene Reihe wandert nach innen, nicht über
-            den Rand. */}
-        {!OHNE_MAIL.includes(person.id) && (
-          <a
-            href={mailZiel(person, sprache)}
-            aria-label={
-              sprache === "EN"
-                ? `Write an e-mail to ${person.name}`
-                : `${person.name} eine E-Mail schreiben`
-            }
-            className="tellian-t5-zeichen tellian-t5-mail"
-            style={zeichenStil}
-          >
-            <MailGlyph farbe={C.accent} />
-          </a>
-        )}
-        {person.linkedin && (
-          <a
-            href={person.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={
-              sprache === "EN"
-                ? `${person.name} on LinkedIn`
-                : `${person.name} auf LinkedIn`
-            }
-            className="tellian-t5-zeichen tellian-t5-linkedin"
-            style={zeichenStil}
-          >
-            <LinkedInGlyph farbe={C.accent} />
-          </a>
-        )}
-      </span>
-    );
+              className="tellian-t5-zeichen tellian-t5-mail"
+              style={zeichenStil}
+            >
+              {KONTAKT[sprache].mail}
+            </a>
+          )}
+          {person.linkedin && (
+            <a
+              href={person.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={
+                sprache === "EN"
+                  ? `${person.name} on LinkedIn`
+                  : `${person.name} auf LinkedIn`
+              }
+              className="tellian-t5-zeichen tellian-t5-linkedin"
+              style={zeichenStil}
+            >
+              {KONTAKT[sprache].linkedin}
+            </a>
+          )}
+        </span>
+      ) : null;
 
     const huelle = (kind: React.ReactNode) => (
       <div
@@ -711,7 +625,7 @@ export function Station5Team({
 
     if (!hatText) {
       return huelle(
-        <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%" }}>
+        <div style={{ display: "flex", flexDirection: "column", width: "100%", flex: "1 1 auto", minHeight: 0 }}>
           {innen}
         </div>
       );
@@ -730,7 +644,9 @@ export function Station5Team({
           display: "flex",
           flexDirection: "column",
           width: "100%",
-          height: "100%",
+          /* Wachsend statt 100%: darunter steht die Kontaktzeile. */
+          flex: "1 1 auto",
+          minHeight: 0,
           textAlign: "left",
           background: "transparent",
           border: "none",
@@ -913,7 +829,8 @@ export function Station5Team({
                 height: personenIds
                   ? "auto"
                   : "calc(var(--tellian-t5-row-h) + var(--tellian-t5-label-row)" +
-                    " + var(--tellian-t5-label-gap))",
+                    " + var(--tellian-t5-label-gap)" +
+                    " + var(--tellian-t5-kontakt-row) + var(--tellian-t5-kontakt-gap))",
               }}
             >
               {LEUTE.slice(reihe * 4, reihe * 4 + 4).map((person) => (
