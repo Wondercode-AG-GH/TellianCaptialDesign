@@ -48,8 +48,8 @@ interface Props {
   /** 50/50 statt 42/58 (Hauptseite seit 18.09). Textzone und
       Bildpanel sind dann gleichberechtigt; der Titel nimmt in der
       schmaleren Zone eine Stufe zurück, das Bild lädt die
-      passende Stufe. Solutions bleibt ohne dieses Merkmal bei
-      42/58 — die Station ist dort nicht beauftragt. */
+      passende Stufe. Seit 22.09 tragen BEIDE Einstiege das
+      Merkmal — Capital und Solutions stehen gleich. */
   haelften?: boolean;
   imageId: ImageId;
   imageAlt: string;

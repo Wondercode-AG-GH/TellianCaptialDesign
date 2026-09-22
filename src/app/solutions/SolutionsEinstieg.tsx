@@ -33,6 +33,12 @@ export function SolutionsEinstieg({ panelRef, isVertical = false, bereit = true,
       eyebrow={inhalt.eyebrow}
       titel={inhalt.titel}
       absaetze={[inhalt.text]}
+      /* Gleiche Struktur wie Capital S1 (22.09): 50/50 statt 42/58
+         und keine Haarlinie unter dem Titel. Beides hängt an
+         Props — der Kommentar «Solutions bleibt unverändert» in
+         Station1Einstieg galt bis hierher. */
+      haelften
+      hairline={false}
       imageId="hero-solutions"
       imageAlt="Zürich an der Limmat"
       /* Fokus Skyline/Kirchtürme. */

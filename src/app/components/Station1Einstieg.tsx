@@ -135,8 +135,8 @@ export function Station1Einstieg({
       titel={titel}
       absaetze={inhalt.lead}
       /* 50/50 statt 42/58 und keine Haarlinie unter dem Titel
-         (Auftrag 18.09). Beides hängt an Props — Solutions S1
-         teilt das Bauteil und bleibt unverändert. */
+         (Auftrag 18.09). Beides hängt an Props; seit 22.09 setzt
+         Solutions S1 dieselben. */
       haelften
       hairline={false}
       imageId={imageId ?? "hero-tellian"}
