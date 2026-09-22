@@ -761,8 +761,15 @@
   /* Luft zwischen Name und Rolle. Vorher 3px — Name und Rolle
      standen dadurch als ein Block statt als zwei Angaben. */
   --tellian-t5-name-role-gap: 9px;
+  /* Wieviele Namenszeilen die breite Beschriftung freihält. Eine
+     reicht, solange neben der Zeichenspalte 155px für den längsten
+     Namen bleiben — das ist ab rund 200px Kachelbreite der Fall.
+     Flache Fenster geben weniger (gemessen 170px bei 1024x768,
+     184px bei 1366x768); dort brechen Name UND Rolle zweizeilig. */
+  --tellian-t5-name-zeilen-breit: 1;
   --tellian-t5-label-row: calc(
-    var(--tellian-t5-name-size) * var(--tellian-t5-name-leading)
+    var(--tellian-t5-name-zeilen-breit)
+    * var(--tellian-t5-name-size) * var(--tellian-t5-name-leading)
     + 2 * var(--tellian-t5-role-size) * var(--tellian-t5-role-leading)
     + var(--tellian-t5-name-role-gap) + 4px
   );
@@ -818,6 +825,13 @@
      33px) plus 6px Fuge — nicht aus der Zeichengrösse; genau dieser
      Unterschied hat beim ersten Versuch zu Überlappungen geführt. */
   --tellian-t5-zeichen-hoehe: 33px;
+  /* Zeichenspalte im breiten Band: quadratisch, damit die
+     Trefferfläche in beide Richtungen gleich gross ist. 26px ist der
+     Abstand der beiden Zeilenmitten (halbe Namenszeile + Luft +
+     halbe Rollenzeile) — grössere Felder würden sich überlappen und
+     Fehlgriffe erzeugen. */
+  --tellian-t5-zeichen-spalte: 26px;
+  --tellian-t5-zeichen-abstand: clamp(10px, 0.9vw, 16px);
   --tellian-t5-zeichen-reserve-eins: 39px;
   --tellian-t5-zeichen-reserve-zwei: 72px;
   /* Eigene Grösse: schmal steht unter dem Namen noch die Rolle. */
@@ -1552,5 +1566,15 @@
 @media (max-width: 359px) {
   :root {
     --tellian-t5-name-zeilen: 3;
+  }
+}
+
+/* Flache Fenster: dort ist die Kachel schmal genug, dass neben der
+   Zeichenspalte weder der längste Name noch die längste Rolle auf
+   eine Zeile passen. Die Beschriftung hält deshalb zwei Namenszeilen
+   frei, damit nichts über die Reihe hinausläuft. */
+@media (min-width: 1024px) and (max-height: 800px) {
+  :root {
+    --tellian-t5-name-zeilen-breit: 2;
   }
 }
