@@ -241,8 +241,28 @@ export function TeamDetail({
   const bildFlaeche = (
     <div
       style={{
+        /* SCHMAL: die Fläche trägt das VERHÄLTNIS DER DATEI (2:3),
+           damit cover prinzipiell nichts abschneidet — das Muster,
+           das die vermessenen Referenzen durchgehend zeigen
+           (Pentagram, IDEO, Basic Agency: Rahmen- und
+           Dateiverhältnis sind dort identisch, Beschnitt 0 %).
+
+           Die Breite ist der kleinere Wert aus voller Spaltenbreite
+           und dem, was bei 55 % der Schirmhöhe ins Verhältnis passt.
+           Damit bleibt das Porträt auf jedem Gerät vollständig UND
+           in der Grössenordnung, die dieselben Referenzen halten
+           (36-43 % der Schirmhöhe; unseres liegt bei 55 %, weil das
+           Format hochkant ist und nicht quadratisch).
+
+           Vorher: feste 40vh in einem QUERformatigen Fenster —
+           davon schnitt cover 42 % der Bildhöhe weg (53 % auf dem
+           iPhone SE). */
         ...(isMobile
-          ? { height: "40vh", width: "100%" }
+          ? {
+              width: "min(100%, calc(55vh * 2 / 3))",
+              aspectRatio: "2 / 3",
+              alignSelf: "center",
+            }
           : { flex: "0 0 38%", height: "100%" }),
         flexShrink: 0,
         overflow: "hidden",
@@ -254,12 +274,12 @@ export function TeamDetail({
         <ResponsiveImage
           id={bild}
           alt=""
-          sizes={isMobile ? "100vw" : "38vw"}
-          /* Oben ankern wie die Kacheln (14.09): die mobile
-             40vh-Fläche beschneidet ~11 % der Bildhöhe — mittig
-             geankert fiel genau der Kopfraum weg und der Scheitel
-             war angeschnitten. Breit schneidet die Fläche kaum
-             (≈1 %), der Anker ändert dort nichts Sichtbares. */
+          sizes={isMobile ? "80vw" : "38vw"}
+          /* Der Anker wirkt nur noch, falls Rahmen und Datei doch
+             einmal auseinanderlaufen (andere Bildquelle). Schmal
+             deckt sich das Verhältnis exakt, breit schneidet die
+             Fläche 11 % der Breite — oben geankert bleibt der
+             Kopfraum in beiden Fällen erhalten. */
           objectPosition="50% 0%"
           className="w-full h-full"
           style={{ display: "block" }}
