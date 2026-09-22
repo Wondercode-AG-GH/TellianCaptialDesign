@@ -707,7 +707,7 @@
   /* Unter der zweiten Reihe lagen gemessen 46px (1512x823) bis zur
      Stationsleiste brach. Ein Teil davon geht an die Kacheln; der
      Rest bleibt als Luft vor der Leiste stehen. */
-  --tellian-t5-row-bonus: clamp(8px, 1.5vh, 20px);
+  --tellian-t5-row-bonus: clamp(12px, 2.4vh, 26px);
   --tellian-t5-row-h: calc(
     var(--tellian-t5-row-bonus) +
     (var(--tellian-buehne-hoehe)
@@ -751,25 +751,18 @@
      ohne feste Höhe stünde die zweite Reihe versetzt. */
   --tellian-t5-name-size: 14px;
   --tellian-t5-name-leading: 1.3;
-  /* Zwei Namenszeilen und zwei Rollenzeilen, fest reserviert. Mit
-     einer Zeile je Feld (den früheren 63px) lief «Bryan Anthony
-     Honegger» unter die Zeichen und «Back-Office / Office
-     Management» endete im Auslassungszeichen — beides gemessen auf
-     der 177px-Kachel bei 1512px. Die Kachelhöhe rechnet sich aus
-     der Bühne minus Beschriftung, die Reihen schrumpfen also von
-     selbst mit. */
-  /* Wieviele Namenszeilen die breite Kachel freihält. Zwei reichen,
-     solange die Kachel mindestens 190px breit ist; darunter bricht
-     «Bryan Anthony Honegger» neben den Zeichen dreizeilig. Die
-     Kachelbreite folgt der Bühnenhöhe, deshalb hängt der Wert an
-     der Fensterhöhe (siehe Abfrage am Ende der Datei). */
-  --tellian-t5-name-zeilen-breit: 2;
+  /* EINE Namenszeile und ZWEI Rollenzeilen. Die Zeichen stehen auf
+     der Rollenzeile, der Name hat damit die volle Kachelbreite und
+     bleibt einzeilig; die Rolle trägt die Reserve und darf
+     umbrechen, es folgt nichts mehr. Vorher hielt das Namensfeld
+     zwei Zeilen frei, und bei jedem kurzen Namen stand die zweite
+     als Lücke über der Rolle. Die Kachelhöhe rechnet sich aus der
+     Bühne minus Beschriftung, die Reihen wachsen also mit. */
   /* Luft zwischen Name und Rolle. Vorher 3px — Name und Rolle
      standen dadurch als ein Block statt als zwei Angaben. */
   --tellian-t5-name-role-gap: 9px;
   --tellian-t5-label-row: calc(
-    var(--tellian-t5-name-zeilen-breit) * var(--tellian-t5-name-size)
-    * var(--tellian-t5-name-leading)
+    var(--tellian-t5-name-size) * var(--tellian-t5-name-leading)
     + 2 * var(--tellian-t5-role-size) * var(--tellian-t5-role-leading)
     + var(--tellian-t5-name-role-gap) + 4px
   );
@@ -829,9 +822,9 @@
   --tellian-t5-zeichen-reserve-zwei: 72px;
   /* Eigene Grösse: schmal steht unter dem Namen noch die Rolle. */
   --tellian-t5-name-size-schmal: 13px;
-  /* Wieviele Zeilen das Namensfeld freihält. Zwei reichen ab 360px;
-     darunter braucht der längste Name drei, und ohne festen Wert
-     wären die Karten einer Reihe unterschiedlich hoch. */
+  /* Wieviele Zeilen das Namensfeld im SCHMALEN Band freihält. Dort
+     stehen die Zeichen weiterhin auf der Namenszeile, der längste
+     Name braucht deshalb zwei — unter 360px drei. */
   --tellian-t5-name-zeilen: 2;
 
   /* ── STATION 5 — TEAM: TITELSPALTE UND BREITE ──
@@ -1553,21 +1546,11 @@
   }
 }
 
-/* Sehr schmale Geräte (iPhone SE der ersten Reihe): der längste Name
-   bricht neben den Zeichen auf drei Zeilen. Alle Karten halten den
-   Platz frei, damit die Reihe bündig bleibt. */
+/* Sehr schmale Geräte (iPhone SE der ersten Reihe): dort ist die
+   Kachel 138px schmal und der längste Name bricht zweizeilig. Alle
+   Karten halten den Platz frei, damit die Reihe bündig bleibt. */
 @media (max-width: 359px) {
   :root {
     --tellian-t5-name-zeilen: 3;
-  }
-}
-
-/* Flache Fenster (1280x800, 1366x768, 1024x768): die Bühne gibt der
-   Kachel dort unter 190px Breite, und der längste Name braucht neben
-   den Zeichen eine dritte Zeile. Alle Kacheln halten sie frei, damit
-   die Reihe bündig bleibt. Gemessen: bei 823px Höhe genügen zwei. */
-@media (min-width: 1024px) and (max-height: 800px) {
-  :root {
-    --tellian-t5-name-zeilen-breit: 3;
   }
 }

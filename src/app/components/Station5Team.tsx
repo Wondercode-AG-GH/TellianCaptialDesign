@@ -460,13 +460,18 @@ export function Station5Team({
                Die Datei bleibt der 0.9-Zuschnitt mit kalibrierter
                Augenlinie; cover nimmt 20 % von den Seiten, die
                Augenhöhe im Raster bleibt damit erhalten. */
-            ...(breit && !personenIds
-              ? { flex: 1, minHeight: 0 }
-              : {
-                  aspectRatio: breit
-                    ? "var(--tellian-t5-tile-ratio)"
-                    : "var(--tellian-t5-tile-ratio-schmal)",
-                }),
+            /* Das FORMAT gibt die Höhe vor, nicht die Reihe. Vorher
+               füllte die Kachel die Reihenhöhe und nahm die Breite
+               aus dem Deckel — wo der griff, wurde das Verhältnis
+               flacher (gemessen 0.67 bei 1100x900, 0.77 bei
+               1024x768). Jetzt ist es auf jeder Fenstergrösse
+               dasselbe; wo der Deckel greift, bleibt in der Reihe
+               etwas Luft statt einer gequetschten Kachel. */
+            aspectRatio: personenIds
+              ? "var(--tellian-t5-tile-ratio)"
+              : breit
+                ? "var(--tellian-t5-tile-ratio-breit)"
+                : "var(--tellian-t5-tile-ratio-schmal)",
             overflow: "hidden",
             alignItems: "center",
             justifyContent: "center",
@@ -507,29 +512,23 @@ export function Station5Team({
                  hoch, egal wie lang der Name ist. Breit stand hier
                  «nowrap» mit Auslassungszeichen; auf der schmaleren
                  Vierer-Kachel hätte das Namen gekürzt. */
+              /* EINE Zeile. Seit die Zeichen auf der Rollenzeile
+                 stehen, hat der Name die volle Kachelbreite: der
+                 längste («Bryan Anthony Honegger», 155px bei 14px)
+                 passt auf jede Kachel ab 166px. Schmal hält das Feld
+                 unter 360px zwei Zeilen frei — dort ist die Kachel
+                 138px schmal. */
               minHeight: breit
-                ? "calc(var(--tellian-t5-name-zeilen-breit) * var(--tellian-t5-name-size) * var(--tellian-t5-name-leading))"
+                ? "calc(var(--tellian-t5-name-size) * var(--tellian-t5-name-leading))"
                 : "calc(var(--tellian-t5-name-zeilen) * var(--tellian-t5-name-size-schmal) * var(--tellian-t5-name-leading))",
             }}
           >
-            {/* PLATZHALTER FÜR DIE ZEICHEN, nur in der ERSTEN Zeile.
-                Ein Innenabstand hätte jede Zeile verschmälert — bei
-                320px blieben dann 66px, und «Bryan Anthony Honegger»
-                brauchte drei Zeilen statt zwei (gemessen). Der
-                gefloatete Block schiebt nur die erste Zeile zur
-                Seite; die zweite nutzt die volle Spaltenbreite. */}
-            {(person.linkedin || !OHNE_MAIL.includes(person.id)) && (
+            {/* Schmal: Reserve auf der ERSTEN Namenszeile. */}
+            {!breit && (person.linkedin || !OHNE_MAIL.includes(person.id)) && (
               <span
                 aria-hidden
                 style={{
                   float: "right",
-                  /* So hoch wie der Zeichenblock (33px). Eine
-                     niedrigere Reserve schob nur die erste Zeile zur
-                     Seite; der Block ist aber höher als zwei
-                     Textzeilen und die zweite lief darunter durch
-                     (gemessen bei «Bryan Anthony Honegger»). Wo dann
-                     eine dritte Zeile nötig wird, hält das Namensfeld
-                     sie frei — siehe --tellian-t5-name-zeilen-breit. */
                   height: "var(--tellian-t5-zeichen-hoehe)",
                   width: person.linkedin
                     ? "var(--tellian-t5-zeichen-reserve-zwei)"
@@ -561,6 +560,32 @@ export function Station5Team({
                 minHeight: "calc(2 * var(--tellian-t5-role-size) * var(--tellian-t5-role-leading))",
               }}
             >
+              {/* PLATZHALTER FÜR DIE ZEICHEN — NUR BREIT. Dort
+                  standen sie früher auf der Namenszeile und nahmen
+                  ihr 72px; der Name brauchte deshalb zwei Zeilen,
+                  und bei jedem kurzen Namen blieb die zweite als
+                  Lücke über der Rolle stehen. Auf der Rollenzeile
+                  stört die Reserve nicht: die Rolle darf umbrechen,
+                  es folgt nichts mehr.
+
+                  Schmal geht das NICHT: die Kachel ist dort 138 bis
+                  173px breit, neben den Zeichen blieben der Rolle
+                  66 bis 101px, und «Head of Portfolio Management»
+                  bräuchte drei bis vier Zeilen (gemessen: ungleiche
+                  Kartenhöhen 299 gegen 314px). Schmal bleiben die
+                  Zeichen deshalb auf der Namenszeile. */}
+              {breit && (person.linkedin || !OHNE_MAIL.includes(person.id)) && (
+                <span
+                  aria-hidden
+                  style={{
+                    float: "right",
+                    height: "var(--tellian-t5-zeichen-hoehe)",
+                    width: person.linkedin
+                      ? "var(--tellian-t5-zeichen-reserve-zwei)"
+                      : "var(--tellian-t5-zeichen-reserve-eins)",
+                  }}
+                />
+              )}
               {rolleText}
             </span>
           )}
@@ -626,8 +651,19 @@ export function Station5Team({
              Zeile darunter ist entfallen (Referenzvergleich 22.09).
              Der Name hält rechts eine Reserve frei, damit nichts
              kollidiert. */
+          /* Auf Höhe der ROLLENZEILE, nicht mehr der Namenszeile:
+             Bildunterkante + Luft + eine Namenszeile + der Abstand
+             zur Rolle. Der Block ist 33px hoch und damit höher als
+             eine Textzeile; er wird um die Differenz angehoben,
+             damit er auf den beiden Rollenzeilen mittig sitzt. */
           ...(breit
-            ? { top: `calc(100% - var(--tellian-t5-label-row) - 2px)`, margin: "-12px 0 0 0" }
+            ? {
+                top:
+                  "calc(100% - var(--tellian-t5-label-row)" +
+                  " + var(--tellian-t5-name-size) * var(--tellian-t5-name-leading)" +
+                  " + var(--tellian-t5-name-role-gap))",
+                margin: "-1px 0 0 0",
+              }
             : {
                 top: "calc(var(--tellian-t5-bildhoehe-schmal) + var(--tellian-t5-label-gap))",
                 margin: "-10px 0 0 0",
