@@ -708,19 +708,12 @@
      Stationsleiste brach. Ein Teil davon geht an die Kacheln; der
      Rest bleibt als Luft vor der Leiste stehen. */
   --tellian-t5-row-bonus: clamp(12px, 2.4vh, 26px);
-  /* Kontaktzeile unter der Rolle. 33px Trefferfläche — dasselbe
-     Mass wie zuvor die Sinnbilder, damit die Wortmarke auf dem
-     Telefon sicher zu treffen ist. */
-  --tellian-t5-kontakt-row: 33px;
-  --tellian-t5-kontakt-gap: 2px;
-  --tellian-t5-kontakt-size: 12px;
   --tellian-t5-row-h: calc(
     var(--tellian-t5-row-bonus) +
     (var(--tellian-buehne-hoehe)
       - var(--tellian-t5-head-reserve) - var(--tellian-t5-row-gap)
       - var(--tellian-t5-reihen)
-        * (var(--tellian-t5-label-row) + var(--tellian-t5-label-gap)
-           + var(--tellian-t5-kontakt-row) + var(--tellian-t5-kontakt-gap)))
+        * (var(--tellian-t5-label-row) + var(--tellian-t5-label-gap)))
     / var(--tellian-t5-reihen)
   );
   /* Vier je Reihe statt fünf: die Kacheln stehen einzeln statt die
@@ -824,13 +817,15 @@
      Gerechnet aus der TREFFERFLÄCHE (17px Zeichen + 2x8px Polster =
      33px) plus 6px Fuge — nicht aus der Zeichengrösse; genau dieser
      Unterschied hat beim ersten Versuch zu Überlappungen geführt. */
+  --tellian-t5-zeichen-hoehe: 33px;
+  --tellian-t5-zeichen-reserve-eins: 39px;
+  --tellian-t5-zeichen-reserve-zwei: 72px;
   /* Eigene Grösse: schmal steht unter dem Namen noch die Rolle. */
   --tellian-t5-name-size-schmal: 13px;
-  /* Wieviele Zeilen das Namensfeld im schmalen Band freihält. Eine
-     reicht, seit die Zeichen als Wortmarke unter der Rolle stehen;
-     unter 360px ist die Kachel 138px schmal und der längste Name
-     braucht zwei. */
-  --tellian-t5-name-zeilen: 1;
+  /* Wieviele Zeilen das Namensfeld im SCHMALEN Band freihält. Dort
+     stehen die Zeichen weiterhin auf der Namenszeile, der längste
+     Name braucht deshalb zwei — unter 360px drei. */
+  --tellian-t5-name-zeilen: 2;
 
   /* ── STATION 5 — TEAM: TITELSPALTE UND BREITE ──
      Der Titel steht links neben den Reihen, auf der Höhe des Titels
@@ -1556,6 +1551,6 @@
    Karten halten den Platz frei, damit die Reihe bündig bleibt. */
 @media (max-width: 359px) {
   :root {
-    --tellian-t5-name-zeilen: 2;
+    --tellian-t5-name-zeilen: 3;
   }
 }
