@@ -547,7 +547,7 @@ export function Station5Team({
             <span
               style={{
                 display: "block",
-                marginTop: "3px",
+                marginTop: "var(--tellian-t5-name-role-gap)",
                 fontFamily: sans,
                 fontSize: "var(--tellian-t5-role-size)",
                 lineHeight: "var(--tellian-t5-role-leading)",
@@ -564,28 +564,11 @@ export function Station5Team({
               {rolleText}
             </span>
           )}
-          {/* «Mehr erfahren» nur im breiten Band. Schmal ist die
-              Kachel selbst das Ziel — so hält es auch die Referenz,
-              und die Zeile kostete dort eine von vier. Für Tastatur
-              und Screenreader ändert sich nichts: die Kachel bleibt
-              ein Schalter mit vollständiger Vorlese-Beschriftung. */}
-          {hatText && breit && (
-            <span
-              className="tellian-t5-mehr"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                marginTop: "7px",
-                fontFamily: sans,
-                fontSize: "12px",
-                letterSpacing: "var(--tellian-ls-cta-klein)",
-                color: C.ink,
-              }}
-            >
-              {UI[sprache].mehr} <span aria-hidden>→</span>
-            </span>
-          )}
+          {/* KEINE Zeile «Mehr erfahren» mehr — in keinem Band. Die
+              Kachel selbst ist der Schalter und bleibt es: Klick,
+              Tastatur und Vorlese-Beschriftung sind unverändert,
+              nur die sichtbare Zeile ist fort. Sie kostete jede
+              Kachel rund 25px Höhe. */}
         </span>
       </>
     );

@@ -704,7 +704,12 @@
   /* Luft zwischen Kachelunterkante und Namensband. */
   --tellian-t5-label-gap: 10px;
   --tellian-t5-row-gap: clamp(10px, 1.4vh, 20px);
+  /* Unter der zweiten Reihe lagen gemessen 46px (1512x823) bis zur
+     Stationsleiste brach. Ein Teil davon geht an die Kacheln; der
+     Rest bleibt als Luft vor der Leiste stehen. */
+  --tellian-t5-row-bonus: clamp(8px, 1.5vh, 20px);
   --tellian-t5-row-h: calc(
+    var(--tellian-t5-row-bonus) +
     (var(--tellian-buehne-hoehe)
       - var(--tellian-t5-head-reserve) - var(--tellian-t5-row-gap)
       - var(--tellian-t5-reihen)
@@ -726,8 +731,14 @@
      dreizeilig (gemessen). 0.9 deckt sich ausserdem exakt mit der
      Datei — die Kachel beschneidet das Porträt nicht zusätzlich. */
   --tellian-t5-tile-ratio-breit: 0.9;
-  --tellian-t5-tile-w-breit: calc(
-    var(--tellian-t5-row-h) * var(--tellian-t5-tile-ratio-breit)
+  /* Die Breite folgt der Reihenhöhe — gedeckelt durch den Platz in
+     der Reihe. Ohne den Deckel lief die Reihe bei hohen, schmalen
+     Fenstern über: bei 1100x900 gemessen 193px Überhang. Greift der
+     Deckel, wird die Kachel schmaler als 0.9 und beschneidet die
+     Seiten, wie im schmalen Band. */
+  --tellian-t5-tile-w-breit: min(
+    calc(var(--tellian-t5-row-h) * var(--tellian-t5-tile-ratio-breit)),
+    calc((var(--tellian-t5-row-w) - 3 * var(--tellian-t5-gap)) / 4)
   );
   /* Wie stark der offene Streifen wächst. Bei fünf je Reihe genügt
      2.0: der geöffnete wird dadurch quer, das Porträt bleibt links
@@ -753,11 +764,14 @@
      Kachelbreite folgt der Bühnenhöhe, deshalb hängt der Wert an
      der Fensterhöhe (siehe Abfrage am Ende der Datei). */
   --tellian-t5-name-zeilen-breit: 2;
+  /* Luft zwischen Name und Rolle. Vorher 3px — Name und Rolle
+     standen dadurch als ein Block statt als zwei Angaben. */
+  --tellian-t5-name-role-gap: 9px;
   --tellian-t5-label-row: calc(
     var(--tellian-t5-name-zeilen-breit) * var(--tellian-t5-name-size)
     * var(--tellian-t5-name-leading)
     + 2 * var(--tellian-t5-role-size) * var(--tellian-t5-role-leading)
-    + 28px
+    + var(--tellian-t5-name-role-gap) + 4px
   );
 
   --tellian-t5-dim: 0.42;

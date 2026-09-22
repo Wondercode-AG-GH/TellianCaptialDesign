@@ -234,8 +234,13 @@ const SOURCES = [
     ["bryan-honegger",    "Bryan-Honegger.png",   0.002, 0.008, 0.996],
     ["andreas-truempler", "Andreas-Trümpler.JPG", 0.002, 0.048, 0.996],
     ["jasmina-rukavina",  "Jasmina-Rukavina.JPG", 0.002, 0.053, 0.996],
-    /* Wilhelm Tell unverändert — Statue, eigene Regeln. */
-    ["wilhelm-tell",      "WilhelmTell_2.png",    0.000, 0.195, 0.960],
+    /* Wilhelm Tell — Statue, eigene Regeln: die 22-%-Augenlinie der
+       Portraets zeigt hier auf kein Gesicht. Der Wert ist am Raster
+       gegen die sechs Portraets nachgestellt: mit 0.195 stand die
+       Figur 16px zu hoch, mit 0.093 dann 23px zu tief (gemessen auf
+       der 238px-Kachel bei 1512px). Aus beiden Punkten folgt der
+       Massstab 0.00262 Quellanteil je Bildpunkt und daraus 0.153. */
+    ["wilhelm-tell",      "WilhelmTell_2.png",    0.000, 0.153, 0.960],
   ].map(([id, file, left, top, width]) => ({
     id,
     src: `src/assets/team/${file}`,
