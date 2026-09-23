@@ -114,7 +114,11 @@ const SOURCES = [
     /* Panel gemessen bis ~1550 CSS-px (45 % von 3440); 2160 deckt
        1080 CSS-px bei doppelter Dichte, 3110 die Spitze. Ausweich-
        formate enden frueher, wo sie das 250-kB-Budget reissen. */
-    widths: { avif: [432, 768, 1080, 1536, 2160, 3110], webp: [432, 768, 1080, 1536, 2160], jpg: [432, 768, 1080, 1536] },
+    /* Das Panel ist HOCHKANT, die Datei quer: cover skaliert auf die
+       Panelhoehe, gerendert wird Panelhoehe x 1.5. Bei 823px
+       Fensterhoehe sind das 1235 CSS-px, bei doppelter Dichte 2470
+       Punkte — dafuer die Stufe 2496. 4320 deckt 1440px Hoehe. */
+    widths: { avif: [432, 768, 1080, 1536, 2160, 2496, 3110, 3456, 4320], webp: [432, 768, 1080, 1536, 2160], jpg: [432, 768, 1080, 1536] },
     /* s. PUBLIC_DIR — wird in index.html vorgeladen, braucht stabile
        Namen. Löst hero-zuerich als vorgeladenes Motiv ab. */
     publicAsset: true,
@@ -148,7 +152,11 @@ const SOURCES = [
     /* Leiter wie beim Haupt-Hero: 2160 deckt 1080 CSS-Pixel bei
        doppelter Dichte, 3110 die Spitze. Die Quelle trägt 4277px,
        hochskaliert wird nichts. */
-    widths: { avif: [432, 768, 1080, 1536, 2160, 3110], webp: [432, 768, 1080, 1536], jpg: [432, 768, 1080] },
+    /* Wie beim Capital-Hero gibt die PANELHOEHE das Mass: gerendert
+       wird Panelhoehe x 1.84. Bei 1080px Fensterhoehe sind das 1989
+       CSS-px und damit 3978 Punkte — dafuer die oberste Stufe. Die
+       Quelle traegt 4277px, mehr ist nicht drin. */
+    widths: { avif: [432, 768, 1080, 1536, 2160, 2560, 3110, 4160], webp: [432, 768, 1080, 1536], jpg: [432, 768, 1080] },
   },
   {
     id: "opernhaus",

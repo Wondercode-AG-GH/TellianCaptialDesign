@@ -52,6 +52,13 @@ interface Props {
       Merkmal — Capital und Solutions stehen gleich. */
   haelften?: boolean;
   imageId: ImageId;
+  /** Breite/Höhe der BILDDATEI. Das Panel ist hochkant, die Datei
+      quer — object-fit: cover skaliert sie deshalb auf die PANELHÖHE
+      und schneidet seitlich ab. Die gerenderte Breite ist damit
+      Panelhöhe × diesem Verhältnis und nicht die Panelbreite; genau
+      das muss in sizes stehen, sonst liefert der Browser rund die
+      Hälfte der nötigen Punkte. */
+  bildVerhaeltnis?: number;
   imageAlt: string;
   /** object-position des Panels, z. B. "center 42%". */
   fokus?: string;
@@ -78,6 +85,7 @@ export function HeroEditorial({
   haelften = false,
   imageId,
   imageAlt,
+  bildVerhaeltnis = 1.5,
   fokus = "center 50%",
   hairline = true,
   lang,
@@ -297,7 +305,15 @@ export function HeroEditorial({
           <ResponsiveImage
             id={imageId}
             alt={imageAlt}
-            sizes="100vw"
+            /* Auch schmal schneidet cover seitlich ab: das Bild
+               füllt die Höhe seines Streifens und ist breiter als
+               der Schirm. 100vw beschrieb nur den Kasten — bei
+               430x932 kamen damit 58 % der nötigen Punkte an.
+               55 × Verhältnis in vh trifft den Streifen (gemessen
+               36 bis 57vh hoch) mit anderthalbfacher Deckung; volle
+               dreifache Dichte würde auf dem Telefon 337 statt
+               195 kB kosten. */
+            sizes={`max(100vw, ${Math.round(bildVerhaeltnis * 55)}vh)`}
             priority
             objectPosition={fokus}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
@@ -353,7 +369,12 @@ export function HeroEditorial({
           <ResponsiveImage
             id={imageId}
             alt={imageAlt}
-            sizes={haelften ? "50vw" : "58vw"}
+            /* NICHT die Panelbreite: bei 1512x823 war die Datei
+               1536px breit, gerendert wurden aber 1235 CSS-px —
+               Deckung 62 %. Der groessere der beiden Werte gewinnt;
+               max() faellt in alten Browsern auf 100vw zurueck, also
+               auf zu viel statt zu wenig. */
+            sizes={`max(${haelften ? 50 : 58}vw, ${Math.round(bildVerhaeltnis * 100)}vh)`}
             priority
             objectPosition={fokus}
             className="w-full h-full"

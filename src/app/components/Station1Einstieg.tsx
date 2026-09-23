@@ -140,6 +140,8 @@ export function Station1Einstieg({
       haelften
       hairline={false}
       imageId={imageId ?? "hero-tellian"}
+      /* Quelle 4992x3328 = 3:2. */
+      bildVerhaeltnis={1.5}
       imageAlt={imageAlt}
       /* Fokus auf der Fassade des Opernhauses. */
       fokus="center 42%"

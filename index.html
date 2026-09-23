@@ -99,19 +99,44 @@
          gerendert hat. Die Dateien liegen unter stabilen Namen in
          public/img/, damit dieser Verweis auch wirklich das trifft,
          was <picture> später auswählt — erzeugt von
-         scripts/optimize-images.mjs, bei Änderungen dort mitziehen. -->
-    <link
-      rel="preload"
-      as="image"
-      type="image/avif"
-      fetchpriority="high"
-      imagesrcset="/img/hero-tellian/hero-tellian-432.avif 432w,
-                   /img/hero-tellian/hero-tellian-768.avif 768w,
-                   /img/hero-tellian/hero-tellian-1080.avif 1080w,
-                   /img/hero-tellian/hero-tellian-1536.avif 1536w,
-                   /img/hero-tellian/hero-tellian-2160.avif 2160w"
-      imagesizes="34vw"
-    />
+         scripts/optimize-images.mjs, bei Änderungen dort mitziehen.
+
+         NUR AUF DER STARTSEITE. Die Datei steht in einem statischen
+         index.html, der Verweis feuerte deshalb auch auf /solutions
+         und jeder Unterseite — dort wird das Motiv nie gezeigt, der
+         Abruf lud also bis zu 457 kB mit hoher Priorität am echten
+         Bild vorbei. Das Einsetzen per Skript bleibt im <head> und
+         damit früh genug.
+
+         imagesizes MUSS dasselbe sagen wie HeroEditorial: das Panel
+         ist hochkant, die Datei quer, cover skaliert auf die
+         PANELHÖHE. Mit den früheren 34vw holte der Browser gut die
+         halbe Punktzahl — das Motiv stand damit unscharf. -->
+    <script>
+      if (location.pathname === "/" || location.pathname === "/index.html") {
+        var v = document.createElement("link");
+        v.rel = "preload";
+        v.as = "image";
+        v.type = "image/avif";
+        v.setAttribute("fetchpriority", "high");
+        v.imageSrcset =
+          "/img/hero-tellian/hero-tellian-432.avif 432w," +
+          "/img/hero-tellian/hero-tellian-768.avif 768w," +
+          "/img/hero-tellian/hero-tellian-1080.avif 1080w," +
+          "/img/hero-tellian/hero-tellian-1536.avif 1536w," +
+          "/img/hero-tellian/hero-tellian-2160.avif 2160w," +
+          "/img/hero-tellian/hero-tellian-2496.avif 2496w," +
+          "/img/hero-tellian/hero-tellian-3111.avif 3111w," +
+          "/img/hero-tellian/hero-tellian-3456.avif 3456w," +
+          "/img/hero-tellian/hero-tellian-4320.avif 4320w";
+        /* Zweigbewusst wie HeroEditorial: schmal traegt das Bild
+           einen Streifen von 36 bis 57vh Hoehe, breit die volle
+           Panelhoehe. Ohne die erste Bedingung lud das Telefon die
+           4320er Datei mit 457 kB. */
+        v.imageSizes = "(max-width: 1023px) 83vh, max(50vw, 150vh)";
+        document.head.appendChild(v);
+      }
+    </script>
       <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
     </head>
 

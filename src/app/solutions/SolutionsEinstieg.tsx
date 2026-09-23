@@ -40,6 +40,8 @@ export function SolutionsEinstieg({ panelRef, isVertical = false, bereit = true,
       haelften
       hairline={false}
       imageId="hero-solutions"
+      /* Zuschnitt 46/25 = 1.84. */
+      bildVerhaeltnis={1.84}
       imageAlt="Zürich an der Limmat"
       /* Fokus Skyline/Kirchtürme. */
       fokus="center 52%"
