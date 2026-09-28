@@ -112,51 +112,72 @@ export function SubpageVergleich({
     );
   };
 
-  /* ── SCHMAL: ein Block je Kriterium ── */
+  /* ── SCHMAL: ein Block je Kriterium ──
+     Die erste Fassung wiederholte «Mandat» und «Advisory» als
+     Serifen-Zwischentitel in jedem der vier Blöcke — achtmal
+     dasselbe Wort, und zwar grösser gesetzt als das Kriterium,
+     um das es ging. Die Gliederung stand damit auf dem Kopf.
+
+     Jetzt führt das KRITERIUM den Block als Überschrift; die
+     Seitenmarken stehen klein und in Versalien daneben, wie die
+     Eyebrows der Seite. Die eigene Seite trägt einen Balken an
+     der linken Kante statt einer ganzflächigen Tönung — auf
+     390px liest sich eine Fläche als Kasten, eine Kante als
+     Hervorhebung.
+
+     Ab 620px stehen die beiden Antworten nebeneinander: dort ist
+     Platz für den direkten Vergleich, und die Liste wird nur halb
+     so lang. */
   if (isMobile) {
     return (
       <section>
         <p style={eyebrowStil}>{inhalt.eyebrow}</p>
         <h2 style={titelStil}>{inhalt.titel}</h2>
-        <div style={{ marginTop: "clamp(24px, 4vh, 36px)" }}>
+        <div style={{ marginTop: "clamp(22px, 3.6vh, 32px)" }}>
           {inhalt.zeilen.map((z) => (
             <div
               key={z.label}
-              style={{
-                borderTop: `1px solid ${HAARLINIE}`,
-                padding: "20px 0 4px",
-              }}
+              className="tellian-vgl-block"
+              style={{ borderTop: `1px solid ${HAARLINIE}` }}
             >
-              <p style={{ ...labelStil, margin: 0 }}>{z.label}</p>
-              {(["mandat", "advisory"] as const).map((pfad) => (
-                <div
-                  key={pfad}
-                  style={{
-                    marginTop: "14px",
-                    padding: "12px 14px",
-                    backgroundColor: pfad === seite ? TOENUNG : "transparent",
-                    borderTop:
-                      pfad === seite ? `2px solid ${C.muted}` : "2px solid transparent",
-                  }}
-                >
-                  <p
-                    style={{
-                      margin: 0,
-                      fontFamily: serif,
-                      fontSize: "15px",
-                      color: C.ink,
-                    }}
+              <h3
+                style={{
+                  margin: "0 0 14px",
+                  fontFamily: serif,
+                  fontSize: "19px",
+                  fontWeight: 400,
+                  color: C.ink,
+                }}
+              >
+                {z.label}
+              </h3>
+              <div className="tellian-vgl-paar">
+                {(["mandat", "advisory"] as const).map((pfad) => (
+                  <div
+                    key={pfad}
+                    className={pfad === seite ? "tellian-vgl-seite tellian-vgl-aktiv" : "tellian-vgl-seite"}
                   >
-                    {inhalt.spalten[pfad]}
-                  </p>
-                  <p style={{ ...zellStil, margin: "6px 0 0" }}>{z[pfad]}</p>
-                </div>
-              ))}
+                    <p
+                      style={{
+                        margin: 0,
+                        fontFamily: sans,
+                        fontSize: "10px",
+                        letterSpacing: "0.14em",
+                        textTransform: "uppercase",
+                        color: pfad === seite ? C.ink : C.accent,
+                      }}
+                    >
+                      {inhalt.spalten[pfad]}
+                    </p>
+                    <p style={{ ...zellStil, margin: "6px 0 0" }}>{z[pfad]}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>
         {/* Der Weg zur anderen Seite steht schmal unter der Liste —
-            im Blockkopf wäre er zweimal zu sehen. */}
+            im Blockkopf wäre er viermal zu sehen. */}
         <div style={{ marginTop: "26px" }}>{kopf(andere)}</div>
         {stil}
       </section>
@@ -237,6 +258,21 @@ export function SubpageVergleich({
 
 const stil = (
   <style>{`
+    .tellian-vgl-block { padding: 20px 0 22px; }
+    .tellian-vgl-paar { display: grid; gap: 16px; }
+    .tellian-vgl-seite { padding-left: 14px; border-left: 2px solid transparent; }
+    .tellian-vgl-aktiv {
+      border-left-color: ${C.muted};
+      background-color: rgba(184, 174, 163, 0.12);
+      padding-top: 10px;
+      padding-bottom: 10px;
+      margin-top: -10px;
+    }
+    /* Ab 620px nebeneinander: der Vergleich wird direkt lesbar
+       und die Liste halb so lang. */
+    @media (min-width: 620px) {
+      .tellian-vgl-paar { grid-template-columns: 1fr 1fr; gap: 24px; }
+    }
     .tellian-vergleich-weg { text-decoration: none; }
     .tellian-vergleich-weg:hover { text-decoration: underline; text-underline-offset: 4px; }
     .tellian-vergleich-weg:focus-visible {
