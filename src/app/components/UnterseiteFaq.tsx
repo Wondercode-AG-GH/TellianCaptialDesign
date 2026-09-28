@@ -12,7 +12,7 @@ import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
    Aufbau wie die übrigen Unterseiten — Titel in der Serife, ein
    führender Satz, dann der Inhalt; die Chrome (Logo, Zurück) kommt
-   vom SubpageOverlay. Der Inhalt ist ein Akkordeon: zehn Fragen
+   vom SubpageOverlay. Der Inhalt ist ein Akkordeon: acht Fragen
    sind als offene Textwüste unlesbar, aufgeklappt zeigt sich immer
    nur eine Antwort. Die erste steht beim Öffnen offen, damit die
    Seite nicht als reine Linkliste beginnt.

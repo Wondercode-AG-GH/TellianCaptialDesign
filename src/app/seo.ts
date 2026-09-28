@@ -144,12 +144,12 @@ const SEITEN: Readonly<Record<string, Readonly<Record<Sprache, SeitenDaten>>>> =
     DE: {
       titel: `Häufige Fragen zur Vermögensverwaltung | ${MARKE}`,
       beschreibung:
-        "Unabhängiger Vermögensverwalter, Sicherheit des Vermögens, Kosten, Mandat oder Beratung: Antworten auf die zehn Fragen, die uns am häufigsten gestellt werden.",
+        "Unabhängiger Vermögensverwalter, Sicherheit des Vermögens, FINMA-Aufsicht, Berichte, Kunden im Ausland: Antworten auf die acht häufigsten Fragen.",
     },
     EN: {
       titel: `Frequently asked questions | ${MARKE}`,
       beschreibung:
-        "Independent asset management, safety of your assets, costs, mandate or advice: answers to the ten questions we are asked most often.",
+        "Independent wealth manager, safety of your assets, FINMA supervision, reporting, clients abroad: answers to the eight questions we are asked most often.",
     },
     FR: {
       titel: `Häufige Fragen zur Vermögensverwaltung | ${MARKE}`,
