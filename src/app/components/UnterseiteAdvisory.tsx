@@ -1,154 +1,125 @@
-import { SubpageMethode } from "./SubpageMethode";
+import { SubpageMandatAdvisory } from "./SubpageMandatAdvisory";
 
 /* ═══════════════════════════════════════════════════════════
-   UNTERSEITE — ADVISORY
+   UNTERSEITE — ADVISORY (nur Inhalt)
 
-   Die Gegenseite zum Mandat. Was die Karte in Station 3 in drei
-   Zeilen sagt, steht hier ausführlich.
+   Aufbau, Verhalten und Gestaltung stellt SubpageMandatAdvisory —
+   dieselbe Hülle trägt das Mandat. Hier stehen ausschliesslich die
+   Texte.
 
-   WARUM DER TITEL DIE AUSSAGE TRÄGT
-   "Sie entscheiden." und "Wir liefern die Grundlage." sind zwei
-   Sätze, nicht ein umbrochener. Sie stehen deshalb auf zwei Zeilen,
-   die zweite kursiv — dieselbe Form wie die Titel der Stationen.
+   PENDING – Freigabe (Lieferung 28.09): Panel «Auf einen Blick»
+   samt Titel, Labels und Werten, der Eyebrow «Vorgehen» und der
+   TITEL DES VORGEHENS — für ihn liegt noch kein Wortlaut vor, der
+   Platzhalter steht deshalb sichtbar auf der Seite.
 
-   WARUM DIE DREI SCHRITTE WIE AUF DER ANLAGEPROZESS-SEITE STEHEN
-   Beide Unterseiten erzählen einen Ablauf. Dieselbe Form — Ziffer
-   auf einer Linie, darunter Titel und eine Zeile — macht sie als
-   Paar erkennbar, statt zwei Gestaltungen für dieselbe Sache zu
-   führen.
-
-   WARUM DER UNTERSCHIED ZUM MANDAT EIGENS DASTEHT
-   Advisory ist nur im Gegensatz zu verstehen. Der letzte Block
-   nennt ihn ausdrücklich, statt ihn den Lesenden zu überlassen.
+   FR entfällt: die Seite wird nur aus dem Capital-Zweig geöffnet,
+   der DE und EN führt. Die frühere FR-Fassung war toter Code.
    ═══════════════════════════════════════════════════════════ */
 
-/* ── INHALTE, WÖRTLICH AUS DEM REDESIGN-BRIEFING ── */
-interface Schritt {
-  titel: string;
-  zeile: string;
-}
-
-interface Block {
-  titel: string;
-  text: string;
-}
-
-interface AdvisoryInhalt {
+interface Inhalt {
+  eyebrow: string;
   titel: readonly [string, string];
-  lead: string;
-  schritte: readonly Schritt[];
-  bloecke: readonly Block[];
+  lead: readonly string[];
   knopf: string;
+  panelTitel: string;
+  panelZeilen: readonly { label: string; wert: string }[];
+  vorgehenEyebrow: string;
+  vorgehenTitel: string;
+  schritte: readonly { titel: string; zeile: string }[];
+  abschlussSatz: string;
 }
 
-const INHALT: Readonly<Record<"DE" | "EN" | "FR", AdvisoryInhalt>> = {
+const INHALT: Readonly<Record<"DE" | "EN", Inhalt>> = {
   DE: {
+    eyebrow: "Advisory",
     titel: ["Sie entscheiden.", "Wir liefern die Grundlage."],
-    lead: "Advisory ist die Alternative zum Mandat. Sie erteilen keine Verwaltungsvollmacht, die finale Entscheidung über jede Anlage liegt bei Ihnen. Tellian Capital arbeitet als unabhängiger Partner: Wir analysieren, wir empfehlen, wir helfen beim Feinschliff Ihres Portfolios. Ausgeführt wird nichts ohne Ihre Zustimmung.",
+    lead: [
+      "Advisory ist die Alternative zum Mandat. Sie erteilen keine Verwaltungsvollmacht, die finale Entscheidung über jede Anlage liegt bei Ihnen. Tellian Capital arbeitet als unabhängiger Partner: Wir analysieren, wir empfehlen, wir helfen beim Feinschliff Ihres Portfolios. Ausgeführt wird nichts ohne Ihre Zustimmung.",
+    ],
+    knopf: "Gespräch vereinbaren",
+    /* PENDING – Freigabe: Titel, Labels und Werte des Panels. */
+    panelTitel: "Auf einen Blick",
+    panelZeilen: [
+      { label: "Verwaltungsvollmacht", wert: "Keine" },
+      { label: "Anlageentscheid", wert: "Liegt bei Ihnen" },
+      { label: "Umsetzung", wert: "Nur mit Ihrer Zustimmung" },
+    ],
+    /* PENDING – Freigabe */
+    vorgehenEyebrow: "Vorgehen",
+    /* PENDING – Wortlaut offen. Der Platzhalter bleibt sichtbar;
+       ein erfundener Titel waere schlechter als eine sichtbare
+       Luecke. */
+    vorgehenTitel: "[Titel Vorgehen – Wording offen]",
     schritte: [
       { titel: "Analyse", zeile: "Wir analysieren Ihr Portfolio im Kontext Ihrer Ziele, Ihres Risikoprofils und des aktuellen Marktumfelds." },
       { titel: "Empfehlung", zeile: "Auf dieser Grundlage entwickeln wir konkrete Anlageempfehlungen und erläutern Ihnen Chancen, Risiken und Auswirkungen auf Ihr Portfolio." },
       { titel: "Ihre Entscheidung", zeile: "Sie entscheiden über jede einzelne Anlage. Umgesetzt wird ausschliesslich, was Sie freigeben." },
     ],
-    bloecke: [
-      {
-        titel: "Für wen Advisory gedacht ist",
-        text: "Für Anleger, die aktiv bleiben und die Verantwortung für ihre Anlageentscheide behalten möchten.",
-      },
-      {
-        titel: "Der Unterschied zum Mandat",
-        text: "Beim Mandat erteilen Sie eine Verwaltungsvollmacht, und der Anlageausschuss entscheidet. Bei Advisory gibt es keine Vollmacht. Sie entscheiden.",
-      },
-    ],
-    knopf: "Gespräch vereinbaren",
+    abschlussSatz: "Sie entscheiden.",
   },
   EN: {
+    eyebrow: "Advisory",
     titel: ["You decide.", "We provide the foundation."],
-    lead: "Advisory is the alternative to a discretionary mandate. You retain full control, with the final decision on every investment remaining with you. Tellian Capital acts as your independent investment partner: we analyse, advise and help you refine your portfolio. Nothing is implemented without your approval.",
+    lead: [
+      "Advisory is the alternative to a discretionary mandate. You retain full control, with the final decision on every investment remaining with you. Tellian Capital acts as your independent investment partner: we analyse, advise and help you refine your portfolio. Nothing is implemented without your approval.",
+    ],
+    /* UI-LABEL-REVIEW: englische Fassung vorgeschlagen 18.09. */
+    knopf: "Arrange a meeting",
+    /* UI-LABEL-REVIEW: Panel vollständig neu formuliert. */
+    panelTitel: "At a glance",
+    panelZeilen: [
+      { label: "Discretionary authority", wert: "None" },
+      { label: "Investment decision", wert: "Remains with you" },
+      { label: "Implementation", wert: "Only with your approval" },
+    ],
+    /* UI-LABEL-REVIEW: Eyebrow neu. */
+    vorgehenEyebrow: "Approach",
+    /* PENDING – Wortlaut offen, wie in der deutschen Fassung. */
+    vorgehenTitel: "[Approach title – wording pending]",
     schritte: [
       { titel: "Analysis", zeile: "We assess your portfolio in the context of your objectives, risk profile and the current market environment." },
       { titel: "Recommendation", zeile: "Based on this analysis, we provide specific investment recommendations and explain the opportunities, risks and potential impact on your portfolio." },
       { titel: "Your Decision", zeile: "You remain in control of every investment decision. We only proceed with transactions that you have explicitly approved." },
     ],
-    bloecke: [
-      {
-        titel: "Who is Advisory for?",
-        text: "For investors who want to remain actively involved and retain control over their investment decisions.",
-      },
-      {
-        titel: "The difference from a Mandate",
-        text: "With a discretionary mandate, you grant Tellian Capital the authority to manage your portfolio and make investment decisions within the agreed framework. With Advisory, you retain that authority and make the final decision yourself.",
-      },
-    ],
-    /* TODO-EN-BUTTON: Es existiert kein englisches Pendant des
-       Knopfs «Gespräch vereinbaren» — bis zur Klärung steht der
-       deutsche Text. */
-    /* UI-LABEL-REVIEW: englische Fassung vorgeschlagen 18.09. */
-    knopf: "Arrange a meeting",
-  },
-  /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
-  FR: {
-    titel: ["Sie entscheiden.", "Wir liefern die Grundlage."],
-    lead: "Advisory ist die Alternative zum Mandat. Sie erteilen keine Verwaltungsvollmacht, die finale Entscheidung über jede Anlage liegt bei Ihnen. Tellian Capital arbeitet als unabhängiger Partner: Wir analysieren, wir empfehlen, wir helfen beim Feinschliff Ihres Portfolios. Ausgeführt wird nichts ohne Ihre Zustimmung.",
-    schritte: [
-      { titel: "Analyse", zeile: "Wir analysieren Ihr Portfolio im Kontext Ihrer Ziele, Ihres Risikoprofils und des aktuellen Marktumfelds." },
-      { titel: "Empfehlung", zeile: "Auf dieser Grundlage entwickeln wir konkrete Anlageempfehlungen und erläutern Ihnen Chancen, Risiken und Auswirkungen auf Ihr Portfolio." },
-      { titel: "Ihre Entscheidung", zeile: "Sie entscheiden über jede einzelne Anlage. Umgesetzt wird ausschliesslich, was Sie freigeben." },
-    ],
-    bloecke: [
-      {
-        titel: "Für wen Advisory gedacht ist",
-        text: "Für Anleger, die aktiv bleiben und die Verantwortung für ihre Anlageentscheide behalten möchten.",
-      },
-      {
-        titel: "Der Unterschied zum Mandat",
-        text: "Beim Mandat erteilen Sie eine Verwaltungsvollmacht, und der Anlageausschuss entscheidet. Bei Advisory gibt es keine Vollmacht. Sie entscheiden.",
-      },
-    ],
-    knopf: "Gespräch vereinbaren",
+    abschlussSatz: "You decide.",
   },
 };
-
-const ziffer = (i: number) => String(i + 1).padStart(2, "0");
-
-/* ── Eintritt ──
-   Dieselbe Staffelung wie auf der Anlageprozess-Seite: die Schritte
-   kommen nacheinander, die Linie zeichnet sich mit. */
-const STUFE_MS = 260;
-const DAUER_MS = 520;
-const VORLAUF_MS = 200;
-const SCHRITT_ABSTAND = "clamp(26px, 5vh, 48px)";
 
 interface Props {
   isMobile?: boolean;
   aktiv?: boolean;
   sprache?: "DE" | "EN";
   onContactClick?: () => void;
+  /** Weg zur Mandat-Unterseite (Spaltenkopf der Vergleichstabelle). */
+  onAndereSeite?: () => void;
 }
 
-/* Wie die Mandat-Seite nur noch Inhalt — Layout stellt die
-   geteilte SubpageMethode. Advisory führt drei Schritte und hat im
-   Bestand KEINEN Zwischentitel; es wird auch keiner erfunden. */
 export function UnterseiteAdvisory({
   isMobile = false,
   aktiv = true,
   sprache = "DE",
   onContactClick,
+  onAndereSeite,
 }: Props) {
   const inhalt = INHALT[sprache];
   return (
-    <SubpageMethode
+    <SubpageMandatAdvisory
+      seite="advisory"
+      eyebrow={inhalt.eyebrow}
       titel={inhalt.titel}
-      lead={[inhalt.lead]}
-      schritte={inhalt.schritte}
-      bloecke={inhalt.bloecke}
+      lead={inhalt.lead}
       knopf={inhalt.knopf}
-      /* Drei Schritte: Block 1 über Spalte 1, Block 2 über 2–3. */
-      blockSpalten={["1 / 2", "2 / -1"]}
+      panelTitel={inhalt.panelTitel}
+      panelZeilen={inhalt.panelZeilen}
+      vorgehenEyebrow={inhalt.vorgehenEyebrow}
+      vorgehenTitel={inhalt.vorgehenTitel}
+      schritte={inhalt.schritte}
+      abschlussSatz={inhalt.abschlussSatz}
       isMobile={isMobile}
       aktiv={aktiv}
       sprache={sprache}
       onContactClick={onContactClick}
+      onAndereSeite={onAndereSeite}
     />
   );
 }

@@ -1,45 +1,51 @@
-import { SubpageMethode } from "./SubpageMethode";
+import { SubpageMandatAdvisory } from "./SubpageMandatAdvisory";
 
 /* ═══════════════════════════════════════════════════════════
-   UNTERSEITE — MANDAT
+   UNTERSEITE — MANDAT (nur Inhalt)
 
-   1:1 die Struktur der Advisory-Unterseite, mit FÜNF Schritten
-   statt drei und einem Zwischentitel vor dem Weg. Beide Seiten
-   erzählen einen Ablauf; dieselbe Form macht sie als Paar
-   erkennbar.
+   Aufbau, Verhalten und Gestaltung stellt SubpageMandatAdvisory —
+   dieselbe Hülle trägt Advisory. Hier stehen ausschliesslich die
+   Texte.
 
-   Bis zum Redesign zeigte «Mehr zum Mandat» auf die
-   Anlagestrategien-Unterseite — ein seit langem gemeldeter
-   Platzhalter. Diese Seite löst ihn ab.
+   PENDING – Freigabe (Lieferung 28.09): Panel «Auf einen Blick»
+   samt Titel, Labels und Werten sowie der Eyebrow «Vorgehen».
+
+   FR entfällt: die Seite wird nur aus dem Capital-Zweig geöffnet,
+   der DE und EN führt. Die frühere FR-Fassung war toter Code.
    ═══════════════════════════════════════════════════════════ */
 
-interface Schritt {
-  titel: string;
-  zeile: string;
-}
-
-interface Block {
-  titel: string;
-  text: string;
-}
-
-interface MandatInhalt {
+interface Inhalt {
+  eyebrow: string;
   titel: readonly [string, string];
   lead: readonly string[];
-  zwischentitel: string;
-  schritte: readonly Schritt[];
-  bloecke: readonly Block[];
   knopf: string;
+  panelTitel: string;
+  panelZeilen: readonly { label: string; wert: string }[];
+  vorgehenEyebrow: string;
+  vorgehenTitel: string;
+  schritte: readonly { titel: string; zeile: string }[];
+  abschlussSatz: string;
 }
 
-const INHALT: Readonly<Record<"DE" | "EN" | "FR", MandatInhalt>> = {
+const INHALT: Readonly<Record<"DE" | "EN", Inhalt>> = {
   DE: {
+    eyebrow: "Mandat",
     titel: ["Sie geben den Rahmen.", "Wir übernehmen die Verantwortung."],
     lead: [
       "Mit einem Vermögensverwaltungsmandat übertragen Sie Tellian Capital die Verwaltung Ihres Portfolios innerhalb der gemeinsam definierten Anlagestrategie. Sie erteilen uns eine Verwaltungsvollmacht, wir treffen die Anlageentscheide und setzen diese für Sie um.",
       "Ihre persönlichen Ziele, Ihre Risikobereitschaft und Ihre finanzielle Situation bilden dabei den verbindlichen Rahmen.",
     ],
-    zwischentitel: "Mit Methode gemeinsam zum Ziel.",
+    knopf: "Gespräch vereinbaren",
+    /* PENDING – Freigabe: Titel, Labels und Werte des Panels. */
+    panelTitel: "Auf einen Blick",
+    panelZeilen: [
+      { label: "Verwaltungsvollmacht", wert: "Erteilt" },
+      { label: "Anlageentscheid", wert: "Tellian Capital" },
+      { label: "Umsetzung", wert: "Wir setzen für Sie um" },
+    ],
+    /* PENDING – Freigabe */
+    vorgehenEyebrow: "Vorgehen",
+    vorgehenTitel: "Mit Methode gemeinsam zum Ziel.",
     schritte: [
       { titel: "Ziele", zeile: "Wir definieren Ihre Anlageziele, Bedürfnisse und den passenden Anlagehorizont." },
       { titel: "Risikoprofil", zeile: "Wir bestimmen Ihr Risikoprofil als Grundlage für Ihre persönliche Anlagestrategie." },
@@ -47,25 +53,29 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", MandatInhalt>> = {
       { titel: "Allokation", zeile: "Wir strukturieren Ihr Portfolio nach Risikoprofil und Anlageausrichtung und passen es laufend an." },
       { titel: "Verwaltung", zeile: "Wir überwachen und steuern Ihr Portfolio kontinuierlich und informieren Sie transparent über die Entwicklung." },
     ],
-    bloecke: [
-      {
-        titel: "Für wen das Mandat gedacht ist",
-        text: "Für Anleger, die ihre täglichen Anlageentscheide in erfahrene Hände geben möchten und Wert auf eine professionelle, kontinuierliche Betreuung ihres Vermögens legen.",
-      },
-      {
-        titel: "Der Unterschied zu Advisory",
-        text: "Beim Mandat erteilen Sie Tellian Capital eine Verwaltungsvollmacht. Wir treffen und setzen die Anlageentscheide innerhalb des vereinbarten Rahmens für Sie um. Bei Advisory behalten Sie die Entscheidungsgewalt über jede einzelne Transaktion.",
-      },
-    ],
-    knopf: "Gespräch vereinbaren",
+    abschlussSatz: "Sie geben den Rahmen.",
   },
   EN: {
+    /* UI-LABEL-REVIEW: Eyebrow neu; die Tabelle führt den Pfad als
+       «Discretionary Mandate», hier steht die kurze Form. */
+    eyebrow: "Mandate",
     titel: ["You set the framework.", "We take responsibility."],
     lead: [
       "With a discretionary wealth management mandate, you entrust Tellian Capital with the management of your portfolio within the investment strategy we define together. You grant us discretionary authority to make and implement investment decisions on your behalf.",
       "Your personal objectives, risk tolerance and financial situation provide the clear framework for every decision we make.",
     ],
-    zwischentitel: "A structured approach. A shared goal.",
+    /* UI-LABEL-REVIEW: englische Fassung vorgeschlagen 18.09. */
+    knopf: "Arrange a meeting",
+    /* UI-LABEL-REVIEW: Panel vollständig neu formuliert. */
+    panelTitel: "At a glance",
+    panelZeilen: [
+      { label: "Discretionary authority", wert: "Granted" },
+      { label: "Investment decision", wert: "Tellian Capital" },
+      { label: "Implementation", wert: "We implement for you" },
+    ],
+    /* UI-LABEL-REVIEW: Eyebrow neu. */
+    vorgehenEyebrow: "Approach",
+    vorgehenTitel: "A structured approach. A shared goal.",
     schritte: [
       { titel: "Objectives", zeile: "We define your investment objectives, individual needs and appropriate investment horizon." },
       { titel: "Risk Profile", zeile: "We establish your risk profile as the foundation for your individual investment strategy." },
@@ -73,89 +83,45 @@ const INHALT: Readonly<Record<"DE" | "EN" | "FR", MandatInhalt>> = {
       { titel: "Allocation", zeile: "We structure your portfolio in line with your risk profile and investment strategy and adjust it as markets evolve." },
       { titel: "Management", zeile: "We continuously monitor and manage your portfolio and keep you transparently informed of its development." },
     ],
-    bloecke: [
-      {
-        titel: "Who is the mandate for?",
-        text: "For investors who prefer to entrust day-to-day investment decisions to experienced professionals while benefiting from continuous and professional portfolio management.",
-      },
-      {
-        titel: "The difference from Advisory",
-        text: "With a discretionary mandate, you grant Tellian Capital the authority to make and implement investment decisions within the agreed framework. With Advisory, you retain the final decision on each individual transaction.",
-      },
-    ],
-    /* UI-LABEL-REVIEW: englische Fassung vorgeschlagen 18.09,
-       Freigabe durch Tellian ausstehend (löst TODO-EN-BUTTON ab). */
-    knopf: "Arrange a meeting",
-  },
-  /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
-  FR: {
-    titel: ["Sie geben den Rahmen.", "Wir übernehmen die Verantwortung."],
-    lead: [
-      "Mit einem Vermögensverwaltungsmandat übertragen Sie Tellian Capital die Verwaltung Ihres Portfolios innerhalb der gemeinsam definierten Anlagestrategie. Sie erteilen uns eine Verwaltungsvollmacht, wir treffen die Anlageentscheide und setzen diese für Sie um.",
-      "Ihre persönlichen Ziele, Ihre Risikobereitschaft und Ihre finanzielle Situation bilden dabei den verbindlichen Rahmen.",
-    ],
-    zwischentitel: "Mit Methode gemeinsam zum Ziel.",
-    schritte: [
-      { titel: "Ziele", zeile: "Wir definieren Ihre Anlageziele, Bedürfnisse und den passenden Anlagehorizont." },
-      { titel: "Risikoprofil", zeile: "Wir bestimmen Ihr Risikoprofil als Grundlage für Ihre persönliche Anlagestrategie." },
-      { titel: "Selektion", zeile: "Unser Anlageausschuss identifiziert auf Basis hauseigener Anlagemodelle gezielte Investmentmöglichkeiten an den globalen Kapitalmärkten." },
-      { titel: "Allokation", zeile: "Wir strukturieren Ihr Portfolio nach Risikoprofil und Anlageausrichtung und passen es laufend an." },
-      { titel: "Verwaltung", zeile: "Wir überwachen und steuern Ihr Portfolio kontinuierlich und informieren Sie transparent über die Entwicklung." },
-    ],
-    bloecke: [
-      {
-        titel: "Für wen das Mandat gedacht ist",
-        text: "Für Anleger, die ihre täglichen Anlageentscheide in erfahrene Hände geben möchten und Wert auf eine professionelle, kontinuierliche Betreuung ihres Vermögens legen.",
-      },
-      {
-        titel: "Der Unterschied zu Advisory",
-        text: "Beim Mandat erteilen Sie Tellian Capital eine Verwaltungsvollmacht. Wir treffen und setzen die Anlageentscheide innerhalb des vereinbarten Rahmens für Sie um. Bei Advisory behalten Sie die Entscheidungsgewalt über jede einzelne Transaktion.",
-      },
-    ],
-    knopf: "Gespräch vereinbaren",
+    abschlussSatz: "You set the framework.",
   },
 };
 
-const ziffer = (i: number) => String(i + 1).padStart(2, "0");
-
-/* Dieselbe Staffelung wie auf der Advisory-Seite. */
-const STUFE_MS = 260;
-const DAUER_MS = 520;
-const VORLAUF_MS = 200;
-const SCHRITT_ABSTAND = "clamp(26px, 5vh, 48px)";
-
 interface Props {
   isMobile?: boolean;
-  /** true, sobald die Unterseite offen ist. */
   aktiv?: boolean;
   sprache?: "DE" | "EN";
   onContactClick?: () => void;
+  /** Weg zur Advisory-Unterseite (Spaltenkopf der Vergleichstabelle). */
+  onAndereSeite?: () => void;
 }
 
-/* Seit dem Mock-B-Umbau (08.09) ist diese Datei nur noch der
-   Inhalt: Layout und Verhalten stellt die GETEILTE Komponente
-   SubpageMethode — dieselbe, die auch Advisory trägt. */
 export function UnterseiteMandat({
   isMobile = false,
   aktiv = true,
   sprache = "DE",
   onContactClick,
+  onAndereSeite,
 }: Props) {
   const inhalt = INHALT[sprache];
   return (
-    <SubpageMethode
+    <SubpageMandatAdvisory
+      seite="mandat"
+      eyebrow={inhalt.eyebrow}
       titel={inhalt.titel}
       lead={inhalt.lead}
-      zwischentitel={inhalt.zwischentitel}
-      schritte={inhalt.schritte}
-      bloecke={inhalt.bloecke}
       knopf={inhalt.knopf}
-      /* Fünf Schritte: Block 1 über Spalten 1–2, Block 2 über 3–5. */
-      blockSpalten={["1 / 3", "3 / -1"]}
+      panelTitel={inhalt.panelTitel}
+      panelZeilen={inhalt.panelZeilen}
+      vorgehenEyebrow={inhalt.vorgehenEyebrow}
+      vorgehenTitel={inhalt.vorgehenTitel}
+      schritte={inhalt.schritte}
+      abschlussSatz={inhalt.abschlussSatz}
       isMobile={isMobile}
       aktiv={aktiv}
       sprache={sprache}
       onContactClick={onContactClick}
+      onAndereSeite={onAndereSeite}
     />
   );
 }
