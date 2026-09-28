@@ -559,8 +559,13 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
              0.04em) — bewusste Abweichung vom Versal-Standard,
              der sie als Marker führte. Die Tinte bleibt dunkler
              als die grauen Linienwörter: Namen benennen, Wörter
-             erklären. */
-          fontSize: "12px",
+             erklären.
+
+             28.09: halbfett und 14 statt 12px. Die Namen tragen die
+             drei Kreise; im Mass der Linienwörter standen sie
+             gleichrangig neben deren Erklärungen. */
+          fontSize: "14px",
+          fontWeight: 600,
           letterSpacing: "0.04em",
           whiteSpace: "nowrap",
           color: C.bg,
@@ -599,10 +604,13 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
         letterSpacing: "0.04em",
         whiteSpace: "nowrap",
         lineHeight: 1.4,
-        /* Mehrzeilig richtet sich der Block nach seinem Anker —
-           die dem Dreieck zugewandte Kante bleibt die Bezugskante. */
-        textAlign:
-          anker === "rechts" ? "right" : anker === "links" ? "left" : "center",
+        /* Mehrzeilig IMMER zentriert (28.09). Vorher richtete sich
+           der Block nach seinem Anker, «Vermögens- / verwaltungs-
+           auftrag» stand deshalb linksbündig und «Depot- /
+           Kontobeziehung» ebenso — im Bild wirkte das wie ein
+           Satzfehler. Die Ankerkante bestimmt weiterhin, WO der
+           Block sitzt, nur nicht mehr, wie er bricht. */
+        textAlign: "center",
         color: SILBER,
         /* Unterbrechungs-Lösung (kompakt): der Teller in Stations-
            farbe öffnet die Linie um das Wort — 10px je Seite. */
@@ -701,7 +709,9 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
           top: pz(zentrum.y + (oben ? -(R + 30) : R + 30), VHD),
           transform: "translate(-50%, -50%)",
           fontFamily: sans,
-          fontSize: "12px",
+          /* Wie im breiten Zweig: halbfett und 14 statt 12px. */
+          fontSize: "14px",
+          fontWeight: 600,
           letterSpacing: "0.04em",
           whiteSpace: "nowrap",
           color: C.bg,
