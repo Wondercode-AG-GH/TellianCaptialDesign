@@ -64,9 +64,12 @@ export function SubpageVergleich({
     color: C.accent,
   };
 
-  /* Spaltenkopf: der eigene steht, der andere führt weiter. */
-  const kopf = (pfad: Pfad) => {
-    const name = inhalt.spalten[pfad];
+  /* Spaltenkopf: der eigene steht, der andere führt weiter.
+     ALLEIN stehend (schmal, unter der Liste) trägt der Verweis die
+     ausführliche Beschriftung — «Advisory» allein sagt dort nicht,
+     was ein Klick bewirkt. Als Spaltenkopf genügt der Name. */
+  const kopf = (pfad: Pfad, allein = false) => {
+    const name = allein ? inhalt.wege[pfad] : inhalt.spalten[pfad];
     if (pfad === seite) {
       return (
         <span
@@ -169,7 +172,7 @@ export function SubpageVergleich({
         </div>
         {/* Der Weg zur anderen Seite steht schmal unter der Liste —
             im Blockkopf wäre er viermal zu sehen. */}
-        <div style={{ marginTop: "26px" }}>{kopf(andere)}</div>
+        <div style={{ marginTop: "26px" }}>{kopf(andere, true)}</div>
         {stil}
       </section>
     );

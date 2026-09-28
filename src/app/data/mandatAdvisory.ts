@@ -30,6 +30,10 @@ export interface VergleichZeile {
 export interface VergleichInhalt {
   titel: string;
   spalten: Readonly<Record<Pfad, string>>;
+  /** Beschriftung des Verweises, wenn er ALLEIN steht (schmal).
+      Als Spaltenkopf genügt der blosse Name — dort sagt die Tabelle
+      ringsum, was er bedeutet. */
+  wege: Readonly<Record<Pfad, string>>;
   zeilen: readonly VergleichZeile[];
 }
 
@@ -38,6 +42,10 @@ export const VERGLEICH: Readonly<Record<"DE" | "EN", VergleichInhalt>> = {
     /* PENDING – Freigabe */
     titel: "Mandat und Advisory im Vergleich",
     spalten: { mandat: "Mandat", advisory: "Advisory" },
+    /* Wörtlich die Beschriftungen der Prozess-Gabelung auf der
+       Startseite: dieselben Wege, dieselben Worte — der Leser hat
+       sie beim Öffnen der Unterseite schon einmal gelesen. */
+    wege: { mandat: "Mehr zum Mandat", advisory: "Mehr zu Advisory" },
     zeilen: [
       {
         label: "Verwaltungsvollmacht",
@@ -68,6 +76,8 @@ export const VERGLEICH: Readonly<Record<"DE" | "EN", VergleichInhalt>> = {
     titel: "Mandate and Advisory compared",
     /* Spaltennamen aus der Prozess-Gabelung übernommen. */
     spalten: { mandat: "Discretionary Mandate", advisory: "Advisory" },
+    /* Ebenfalls wörtlich aus der Prozess-Gabelung. */
+    wege: { mandat: "Learn more about our mandate", advisory: "Learn more about Advisory" },
     zeilen: [
       {
         /* UI-LABEL-REVIEW: Label und beide Zellen neu formuliert;
