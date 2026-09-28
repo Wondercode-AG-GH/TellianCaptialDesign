@@ -7,8 +7,10 @@ import { SubpageMandatAdvisory } from "./SubpageMandatAdvisory";
    dieselbe Hülle trägt Advisory. Hier stehen ausschliesslich die
    Texte.
 
-   PENDING – Freigabe (Lieferung 28.09): Panel «Auf einen Blick»
-   samt Titel, Labels und Werten sowie der Eyebrow «Vorgehen».
+   PENDING – Freigabe (Lieferung 28.09): der Eyebrow «Vorgehen».
+
+   KEIN Panel «Auf einen Blick» mehr: es stand kurzzeitig im Hero
+   und ist auf Wunsch wieder entfernt.
 
    FR entfällt: die Seite wird nur aus dem Capital-Zweig geöffnet,
    der DE und EN führt. Die frühere FR-Fassung war toter Code.
@@ -19,8 +21,6 @@ interface Inhalt {
   titel: readonly [string, string];
   lead: readonly string[];
   knopf: string;
-  panelTitel: string;
-  panelZeilen: readonly { label: string; wert: string }[];
   vorgehenEyebrow: string;
   vorgehenTitel: string;
   schritte: readonly { titel: string; zeile: string }[];
@@ -35,13 +35,6 @@ const INHALT: Readonly<Record<"DE" | "EN", Inhalt>> = {
       "Ihre persönlichen Ziele, Ihre Risikobereitschaft und Ihre finanzielle Situation bilden dabei den verbindlichen Rahmen.",
     ],
     knopf: "Gespräch vereinbaren",
-    /* PENDING – Freigabe: Titel, Labels und Werte des Panels. */
-    panelTitel: "Auf einen Blick",
-    panelZeilen: [
-      { label: "Verwaltungsvollmacht", wert: "Erteilt" },
-      { label: "Anlageentscheid", wert: "Tellian Capital" },
-      { label: "Umsetzung", wert: "Wir setzen für Sie um" },
-    ],
     /* PENDING – Freigabe */
     vorgehenEyebrow: "Vorgehen",
     vorgehenTitel: "Mit Methode gemeinsam zum Ziel.",
@@ -64,13 +57,6 @@ const INHALT: Readonly<Record<"DE" | "EN", Inhalt>> = {
     ],
     /* UI-LABEL-REVIEW: englische Fassung vorgeschlagen 18.09. */
     knopf: "Arrange a meeting",
-    /* UI-LABEL-REVIEW: Panel vollständig neu formuliert. */
-    panelTitel: "At a glance",
-    panelZeilen: [
-      { label: "Discretionary authority", wert: "Granted" },
-      { label: "Investment decision", wert: "Tellian Capital" },
-      { label: "Implementation", wert: "We implement for you" },
-    ],
     /* UI-LABEL-REVIEW: Eyebrow neu. */
     vorgehenEyebrow: "Approach",
     vorgehenTitel: "A structured approach. A shared goal.",
@@ -108,8 +94,6 @@ export function UnterseiteMandat({
       titel={inhalt.titel}
       lead={inhalt.lead}
       knopf={inhalt.knopf}
-      panelTitel={inhalt.panelTitel}
-      panelZeilen={inhalt.panelZeilen}
       vorgehenEyebrow={inhalt.vorgehenEyebrow}
       vorgehenTitel={inhalt.vorgehenTitel}
       schritte={inhalt.schritte}

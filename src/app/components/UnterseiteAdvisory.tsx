@@ -7,8 +7,10 @@ import { SubpageMandatAdvisory } from "./SubpageMandatAdvisory";
    dieselbe Hülle trägt das Mandat. Hier stehen ausschliesslich die
    Texte.
 
-   PENDING – Freigabe (Lieferung 28.09): Panel «Auf einen Blick»
-   und der Eyebrow «Vorgehen».
+   PENDING – Freigabe (Lieferung 28.09): der Eyebrow «Vorgehen».
+
+   KEIN Panel «Auf einen Blick» mehr: es stand kurzzeitig im Hero
+   und ist auf Wunsch wieder entfernt.
 
    KEIN Titel über den Schritten: die Seite führte nie einen. Ein
    sichtbarer Platzhalter stand hier kurzzeitig und ist wieder
@@ -23,8 +25,6 @@ interface Inhalt {
   titel: readonly [string, string];
   lead: readonly string[];
   knopf: string;
-  panelTitel: string;
-  panelZeilen: readonly { label: string; wert: string }[];
   vorgehenEyebrow: string;
   schritte: readonly { titel: string; zeile: string }[];
 }
@@ -37,13 +37,6 @@ const INHALT: Readonly<Record<"DE" | "EN", Inhalt>> = {
       "Advisory ist die Alternative zum Mandat. Sie erteilen keine Verwaltungsvollmacht, die finale Entscheidung über jede Anlage liegt bei Ihnen. Tellian Capital arbeitet als unabhängiger Partner: Wir analysieren, wir empfehlen, wir helfen beim Feinschliff Ihres Portfolios. Ausgeführt wird nichts ohne Ihre Zustimmung.",
     ],
     knopf: "Gespräch vereinbaren",
-    /* PENDING – Freigabe: Titel, Labels und Werte des Panels. */
-    panelTitel: "Auf einen Blick",
-    panelZeilen: [
-      { label: "Verwaltungsvollmacht", wert: "Keine" },
-      { label: "Anlageentscheid", wert: "Liegt bei Ihnen" },
-      { label: "Umsetzung", wert: "Nur mit Ihrer Zustimmung" },
-    ],
     /* PENDING – Freigabe */
     vorgehenEyebrow: "Vorgehen",
     schritte: [
@@ -60,13 +53,6 @@ const INHALT: Readonly<Record<"DE" | "EN", Inhalt>> = {
     ],
     /* UI-LABEL-REVIEW: englische Fassung vorgeschlagen 18.09. */
     knopf: "Arrange a meeting",
-    /* UI-LABEL-REVIEW: Panel vollständig neu formuliert. */
-    panelTitel: "At a glance",
-    panelZeilen: [
-      { label: "Discretionary authority", wert: "None" },
-      { label: "Investment decision", wert: "Remains with you" },
-      { label: "Implementation", wert: "Only with your approval" },
-    ],
     /* UI-LABEL-REVIEW: Eyebrow neu. */
     vorgehenEyebrow: "Approach",
     schritte: [
@@ -101,8 +87,6 @@ export function UnterseiteAdvisory({
       titel={inhalt.titel}
       lead={inhalt.lead}
       knopf={inhalt.knopf}
-      panelTitel={inhalt.panelTitel}
-      panelZeilen={inhalt.panelZeilen}
       vorgehenEyebrow={inhalt.vorgehenEyebrow}
       schritte={inhalt.schritte}
       isMobile={isMobile}

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 import { C, sans, serif } from "../tokens";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
-import { SubpageAufEinenBlick, type BlickZeile } from "./SubpageAufEinenBlick";
 import { SubpageZeitstrahl, type Schritt } from "./SubpageZeitstrahl";
 import { SubpageVergleich } from "./SubpageVergleich";
 import type { Pfad } from "../data/mandatAdvisory";
@@ -13,8 +12,7 @@ import type { Pfad } from "../data/mandatAdvisory";
    Vier Abschnitte in fester Folge, auf beiden Seiten dieselbe
    Ordnung und dieselben Bauteile:
 
-     1  Hero — links Eyebrow, Überschrift, Einleitung, Weg ins
-        Gespräch; rechts das Panel «Auf einen Blick».
+     1  Hero — Eyebrow, Überschrift, Einleitung, Weg ins Gespräch.
      2  Vorgehen — Zeitstrahl, fünf Schritte beim Mandat, drei
         bei Advisory.
      3  Einordnung — die gemeinsame Vergleichstabelle.
@@ -52,8 +50,6 @@ interface Props {
   titel: readonly [string, string];
   lead: readonly string[];
   knopf: string;
-  panelTitel: string;
-  panelZeilen: readonly BlickZeile[];
   vorgehenEyebrow: string;
   vorgehenTitel?: string;
   schritte: readonly Schritt[];
@@ -71,8 +67,6 @@ export function SubpageMandatAdvisory({
   titel,
   lead,
   knopf,
-  panelTitel,
-  panelZeilen,
   vorgehenEyebrow,
   vorgehenTitel,
   schritte,
@@ -119,14 +113,7 @@ export function SubpageMandatAdvisory({
       }
     >
       {/* ══ 1 · HERO ══ */}
-      <section
-        style={{
-          display: isMobile ? "block" : "grid",
-          gridTemplateColumns: "1.35fr 1fr",
-          columnGap: "clamp(40px, 5vw, 88px)",
-          alignItems: "start",
-        }}
-      >
+      <section>
         <div style={stufe(0)}>
           <p
             style={{
@@ -189,18 +176,10 @@ export function SubpageMandatAdvisory({
             {knopf}
           </button>
         </div>
-
-        <div style={{ marginTop: isMobile ? "clamp(28px, 4vh, 40px)" : 0, ...stufe(1) }}>
-          <SubpageAufEinenBlick
-            titel={panelTitel}
-            zeilen={panelZeilen}
-            isMobile={isMobile}
-          />
-        </div>
       </section>
 
       {/* ══ 2 · VORGEHEN ══ */}
-      <div style={{ ...TRENNER, ...stufe(2) }}>
+      <div style={{ ...TRENNER, ...stufe(1) }}>
         <SubpageZeitstrahl
           eyebrow={vorgehenEyebrow}
           titel={vorgehenTitel}
@@ -210,7 +189,7 @@ export function SubpageMandatAdvisory({
       </div>
 
       {/* ══ 3 · EINORDNUNG ══ */}
-      <div style={{ ...TRENNER, ...stufe(3) }}>
+      <div style={{ ...TRENNER, ...stufe(2) }}>
         <SubpageVergleich
           seite={seite}
           sprache={sprache}
