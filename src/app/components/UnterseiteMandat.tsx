@@ -7,7 +7,9 @@ import { SubpageMandatAdvisory } from "./SubpageMandatAdvisory";
    dieselbe Hülle trägt Advisory. Hier stehen ausschliesslich die
    Texte.
 
-   PENDING – Freigabe (Lieferung 28.09): der Eyebrow «Vorgehen».
+   KEINE Eyebrows mehr (28.09): «Mandat» bzw. «Advisory» über der
+   Überschrift und «Vorgehen» über den Schritten standen
+   kurzzeitig hier und sind wieder entfernt.
 
    KEIN Panel «Auf einen Blick» mehr: es stand kurzzeitig im Hero
    und ist auf Wunsch wieder entfernt.
@@ -17,26 +19,21 @@ import { SubpageMandatAdvisory } from "./SubpageMandatAdvisory";
    ═══════════════════════════════════════════════════════════ */
 
 interface Inhalt {
-  eyebrow: string;
   titel: readonly [string, string];
   lead: readonly string[];
   knopf: string;
-  vorgehenEyebrow: string;
   vorgehenTitel: string;
   schritte: readonly { titel: string; zeile: string }[];
 }
 
 const INHALT: Readonly<Record<"DE" | "EN", Inhalt>> = {
   DE: {
-    eyebrow: "Mandat",
     titel: ["Sie geben den Rahmen.", "Wir übernehmen die Verantwortung."],
     lead: [
       "Mit einem Vermögensverwaltungsmandat übertragen Sie Tellian Capital die Verwaltung Ihres Portfolios innerhalb der gemeinsam definierten Anlagestrategie. Sie erteilen uns eine Verwaltungsvollmacht, wir treffen die Anlageentscheide und setzen diese für Sie um.",
       "Ihre persönlichen Ziele, Ihre Risikobereitschaft und Ihre finanzielle Situation bilden dabei den verbindlichen Rahmen.",
     ],
     knopf: "Gespräch vereinbaren",
-    /* PENDING – Freigabe */
-    vorgehenEyebrow: "Vorgehen",
     vorgehenTitel: "Mit Methode gemeinsam zum Ziel.",
     schritte: [
       { titel: "Ziele", zeile: "Wir definieren Ihre Anlageziele, Bedürfnisse und den passenden Anlagehorizont." },
@@ -47,9 +44,6 @@ const INHALT: Readonly<Record<"DE" | "EN", Inhalt>> = {
     ],
   },
   EN: {
-    /* UI-LABEL-REVIEW: Eyebrow neu; die Tabelle führt den Pfad als
-       «Discretionary Mandate», hier steht die kurze Form. */
-    eyebrow: "Mandate",
     titel: ["You set the framework.", "We take responsibility."],
     lead: [
       "With a discretionary wealth management mandate, you entrust Tellian Capital with the management of your portfolio within the investment strategy we define together. You grant us discretionary authority to make and implement investment decisions on your behalf.",
@@ -57,8 +51,6 @@ const INHALT: Readonly<Record<"DE" | "EN", Inhalt>> = {
     ],
     /* UI-LABEL-REVIEW: englische Fassung vorgeschlagen 18.09. */
     knopf: "Arrange a meeting",
-    /* UI-LABEL-REVIEW: Eyebrow neu. */
-    vorgehenEyebrow: "Approach",
     vorgehenTitel: "A structured approach. A shared goal.",
     schritte: [
       { titel: "Objectives", zeile: "We define your investment objectives, individual needs and appropriate investment horizon." },
@@ -90,11 +82,9 @@ export function UnterseiteMandat({
   return (
     <SubpageMandatAdvisory
       seite="mandat"
-      eyebrow={inhalt.eyebrow}
       titel={inhalt.titel}
       lead={inhalt.lead}
       knopf={inhalt.knopf}
-      vorgehenEyebrow={inhalt.vorgehenEyebrow}
       vorgehenTitel={inhalt.vorgehenTitel}
       schritte={inhalt.schritte}
       isMobile={isMobile}

@@ -12,7 +12,14 @@ import type { Pfad } from "../data/mandatAdvisory";
    Vier Abschnitte in fester Folge, auf beiden Seiten dieselbe
    Ordnung und dieselben Bauteile:
 
-     1  Hero — Eyebrow, Überschrift, Einleitung, Weg ins Gespräch.
+     1  Hero — Überschrift, Einleitung, Weg ins Gespräch.
+
+   KEINE Eyebrows (28.09): «Mandat», «Vorgehen» und «Einordnung»
+   standen kurzzeitig über ihren Abschnitten. Auf dem Rest der
+   Seite tritt eine Eyebrow nie allein auf — sie gehört zu einer
+   Stationsmarke mit Ziffer und Haarlinie oder steht mittig über
+   einem mittigen Titel. Linksbündig und ohne Bezug über einer
+   grossen Serifenzeile las sie sich als loses Fragment.
      2  Vorgehen — Zeitstrahl, fünf Schritte beim Mandat, drei
         bei Advisory.
      3  Einordnung — die gemeinsame Vergleichstabelle.
@@ -46,11 +53,9 @@ const DAUER_MS = 520;
 
 interface Props {
   seite: Pfad;
-  eyebrow: string;
   titel: readonly [string, string];
   lead: readonly string[];
   knopf: string;
-  vorgehenEyebrow: string;
   vorgehenTitel?: string;
   schritte: readonly Schritt[];
   isMobile?: boolean;
@@ -63,11 +68,9 @@ interface Props {
 
 export function SubpageMandatAdvisory({
   seite,
-  eyebrow,
   titel,
   lead,
   knopf,
-  vorgehenEyebrow,
   vorgehenTitel,
   schritte,
   isMobile = false,
@@ -115,21 +118,9 @@ export function SubpageMandatAdvisory({
       {/* ══ 1 · HERO ══ */}
       <section>
         <div style={stufe(0)}>
-          <p
-            style={{
-              margin: 0,
-              fontFamily: sans,
-              fontSize: "11px",
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: C.accent,
-            }}
-          >
-            {eyebrow}
-          </p>
           <h1
             style={{
-              margin: "clamp(12px, 1.8vh, 20px) 0 0",
+              margin: 0,
               fontFamily: serif,
               fontSize: isMobile ? "clamp(30px, 8.4vw, 38px)" : "clamp(34px, 3.4vw, 50px)",
               fontWeight: 400,
@@ -181,7 +172,6 @@ export function SubpageMandatAdvisory({
       {/* ══ 2 · VORGEHEN ══ */}
       <div style={{ ...TRENNER, ...stufe(1) }}>
         <SubpageZeitstrahl
-          eyebrow={vorgehenEyebrow}
           titel={vorgehenTitel}
           schritte={schritte}
           isMobile={isMobile}

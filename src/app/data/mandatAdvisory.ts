@@ -10,8 +10,8 @@
    Deshalb liegt der Inhalt HIER und nicht in den Seiten: eine
    Aussage, ein Wortlaut, zwei Seiten.
 
-   PENDING – Freigabe (Lieferung 28.09): Eyebrow, Titel,
-   Zeilenlabels und alle Zellen sind noch nicht freigegeben.
+   PENDING – Freigabe (Lieferung 28.09): Titel, Zeilenlabels und
+   alle Zellen sind noch nicht freigegeben.
 
    ENGLISCH: Wo die bisherigen Seiten einen englischen Satz
    führten, steht er wörtlich. Die übrigen Zellen sind neu
@@ -28,7 +28,6 @@ export interface VergleichZeile {
 }
 
 export interface VergleichInhalt {
-  eyebrow: string;
   titel: string;
   spalten: Readonly<Record<Pfad, string>>;
   zeilen: readonly VergleichZeile[];
@@ -37,7 +36,6 @@ export interface VergleichInhalt {
 export const VERGLEICH: Readonly<Record<"DE" | "EN", VergleichInhalt>> = {
   DE: {
     /* PENDING – Freigabe */
-    eyebrow: "Einordnung",
     titel: "Mandat und Advisory im Vergleich",
     spalten: { mandat: "Mandat", advisory: "Advisory" },
     zeilen: [
@@ -66,8 +64,7 @@ export const VERGLEICH: Readonly<Record<"DE" | "EN", VergleichInhalt>> = {
     ],
   },
   EN: {
-    /* UI-LABEL-REVIEW: Eyebrow und Titel neu formuliert. */
-    eyebrow: "Comparison",
+    /* UI-LABEL-REVIEW: Titel neu formuliert. */
     titel: "Mandate and Advisory compared",
     /* Spaltennamen aus der Prozess-Gabelung übernommen. */
     spalten: { mandat: "Discretionary Mandate", advisory: "Advisory" },

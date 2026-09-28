@@ -30,7 +30,6 @@ const KREIS = 34;
 const HAARLINIE = "rgba(184, 174, 163, 0.5)";
 
 interface Props {
-  eyebrow: string;
   /** Optional: Advisory führte nie einen Titel über den Schritten.
       Ein erfundener oder ein sichtbarer Platzhalter waere beides
       schlechter als keiner. */
@@ -41,19 +40,11 @@ interface Props {
 
 const ziffer = (i: number) => String(i + 1).padStart(2, "0");
 
-export function SubpageZeitstrahl({ eyebrow, titel, schritte, isMobile = false }: Props) {
+export function SubpageZeitstrahl({ titel, schritte, isMobile = false }: Props) {
   const letzter = schritte.length - 1;
 
-  const eyebrowStil: React.CSSProperties = {
-    margin: 0,
-    fontFamily: sans,
-    fontSize: "11px",
-    letterSpacing: "0.14em",
-    textTransform: "uppercase",
-    color: C.accent,
-  };
   const titelStil: React.CSSProperties = {
-    margin: "clamp(10px, 1.4vh, 16px) 0 0",
+    margin: 0,
     fontFamily: serif,
     fontSize: isMobile ? "26px" : "clamp(28px, 2.6vw, 38px)",
     fontWeight: 400,
@@ -104,12 +95,13 @@ export function SubpageZeitstrahl({ eyebrow, titel, schritte, isMobile = false }
   if (isMobile) {
     return (
       <section>
-        <p style={eyebrowStil}>{eyebrow}</p>
         {titel && <h2 style={titelStil}>{titel}</h2>}
         <ol
           style={{
             listStyle: "none",
-            margin: "clamp(24px, 4vh, 36px) 0 0",
+            /* Ohne Titel rückt der Strahl an die Trennlinie heran —
+               sonst stünde dort eine Lücke ohne Inhalt. */
+            margin: titel ? "clamp(24px, 4vh, 36px) 0 0" : 0,
             padding: 0,
             position: "relative",
           }}
@@ -151,13 +143,12 @@ export function SubpageZeitstrahl({ eyebrow, titel, schritte, isMobile = false }
   /* ── BREIT: waagerecht, eine Linie durch alle Kreise ── */
   return (
     <section>
-      <p style={eyebrowStil}>{eyebrow}</p>
       {titel && <h2 style={titelStil}>{titel}</h2>}
 
       <ol
         style={{
           listStyle: "none",
-          margin: "clamp(28px, 4.4vh, 52px) 0 0",
+          margin: titel ? "clamp(28px, 4.4vh, 52px) 0 0" : 0,
           padding: 0,
           position: "relative",
           display: "grid",

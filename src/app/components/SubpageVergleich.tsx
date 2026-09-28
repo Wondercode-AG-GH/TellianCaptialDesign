@@ -42,16 +42,8 @@ export function SubpageVergleich({
   const inhalt = VERGLEICH[sprache];
   const andere: Pfad = seite === "mandat" ? "advisory" : "mandat";
 
-  const eyebrowStil: React.CSSProperties = {
-    margin: 0,
-    fontFamily: sans,
-    fontSize: "11px",
-    letterSpacing: "0.14em",
-    textTransform: "uppercase",
-    color: C.accent,
-  };
   const titelStil: React.CSSProperties = {
-    margin: "clamp(10px, 1.4vh, 16px) 0 0",
+    margin: 0,
     fontFamily: serif,
     fontSize: isMobile ? "26px" : "clamp(28px, 2.6vw, 38px)",
     fontWeight: 400,
@@ -131,7 +123,6 @@ export function SubpageVergleich({
   if (isMobile) {
     return (
       <section>
-        <p style={eyebrowStil}>{inhalt.eyebrow}</p>
         <h2 style={titelStil}>{inhalt.titel}</h2>
         <div style={{ marginTop: "clamp(22px, 3.6vh, 32px)" }}>
           {inhalt.zeilen.map((z) => (
@@ -188,7 +179,6 @@ export function SubpageVergleich({
   const spalten = "minmax(120px, 0.8fr) 1.6fr 1.6fr";
   return (
     <section>
-      <p style={eyebrowStil}>{inhalt.eyebrow}</p>
       <h2 style={titelStil}>{inhalt.titel}</h2>
 
       <div
