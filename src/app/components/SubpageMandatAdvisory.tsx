@@ -5,7 +5,6 @@ import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 import { SubpageAufEinenBlick, type BlickZeile } from "./SubpageAufEinenBlick";
 import { SubpageZeitstrahl, type Schritt } from "./SubpageZeitstrahl";
 import { SubpageVergleich } from "./SubpageVergleich";
-import { SubpageAbschlussband } from "./SubpageAbschlussband";
 import type { Pfad } from "../data/mandatAdvisory";
 
 /* ═══════════════════════════════════════════════════════════
@@ -19,7 +18,6 @@ import type { Pfad } from "../data/mandatAdvisory";
      2  Vorgehen — Zeitstrahl, fünf Schritte beim Mandat, drei
         bei Advisory.
      3  Einordnung — die gemeinsame Vergleichstabelle.
-     4  Abschlussband auf Imperial Purple.
 
    ABLÖSUNG von SubpageMethode (08.09): dort stand alles auf EINER
    Ansicht ohne Scrollen, dafür ohne Panel, ohne Linie und mit zwei
@@ -57,9 +55,8 @@ interface Props {
   panelTitel: string;
   panelZeilen: readonly BlickZeile[];
   vorgehenEyebrow: string;
-  vorgehenTitel: string;
+  vorgehenTitel?: string;
   schritte: readonly Schritt[];
-  abschlussSatz: string;
   isMobile?: boolean;
   aktiv?: boolean;
   sprache?: "DE" | "EN";
@@ -79,7 +76,6 @@ export function SubpageMandatAdvisory({
   vorgehenEyebrow,
   vorgehenTitel,
   schritte,
-  abschlussSatz,
   isMobile = false,
   aktiv = true,
   sprache = "DE",
@@ -117,6 +113,7 @@ export function SubpageMandatAdvisory({
           paddingLeft: rand,
           paddingRight: rand,
           paddingTop: isMobile ? "clamp(26px, 4vh, 40px)" : "clamp(30px, 4.6vh, 56px)",
+          paddingBottom: "clamp(48px, 8vh, 96px)",
           boxSizing: "border-box",
         } as React.CSSProperties
       }
@@ -222,13 +219,8 @@ export function SubpageMandatAdvisory({
         />
       </div>
 
-      {/* ══ 4 · ABSCHLUSSBAND ══ */}
-      <SubpageAbschlussband
-        satz={abschlussSatz}
-        knopf={knopf}
-        isMobile={isMobile}
-        onContactClick={onContactClick}
-      />
+      {/* KEIN Abschlussband mehr (28.09): der Weg ins Gespräch steht
+          im Hero, ein zweites Mal am Seitenfuss war eine Zutat. */}
 
       <style>{`
         .tellian-subpage-knopf:focus-visible {

@@ -24,7 +24,6 @@ interface Inhalt {
   vorgehenEyebrow: string;
   vorgehenTitel: string;
   schritte: readonly { titel: string; zeile: string }[];
-  abschlussSatz: string;
 }
 
 const INHALT: Readonly<Record<"DE" | "EN", Inhalt>> = {
@@ -53,7 +52,6 @@ const INHALT: Readonly<Record<"DE" | "EN", Inhalt>> = {
       { titel: "Allokation", zeile: "Wir strukturieren Ihr Portfolio nach Risikoprofil und Anlageausrichtung und passen es laufend an." },
       { titel: "Verwaltung", zeile: "Wir überwachen und steuern Ihr Portfolio kontinuierlich und informieren Sie transparent über die Entwicklung." },
     ],
-    abschlussSatz: "Sie geben den Rahmen.",
   },
   EN: {
     /* UI-LABEL-REVIEW: Eyebrow neu; die Tabelle führt den Pfad als
@@ -83,7 +81,6 @@ const INHALT: Readonly<Record<"DE" | "EN", Inhalt>> = {
       { titel: "Allocation", zeile: "We structure your portfolio in line with your risk profile and investment strategy and adjust it as markets evolve." },
       { titel: "Management", zeile: "We continuously monitor and manage your portfolio and keep you transparently informed of its development." },
     ],
-    abschlussSatz: "You set the framework.",
   },
 };
 
@@ -116,7 +113,6 @@ export function UnterseiteMandat({
       vorgehenEyebrow={inhalt.vorgehenEyebrow}
       vorgehenTitel={inhalt.vorgehenTitel}
       schritte={inhalt.schritte}
-      abschlussSatz={inhalt.abschlussSatz}
       isMobile={isMobile}
       aktiv={aktiv}
       sprache={sprache}

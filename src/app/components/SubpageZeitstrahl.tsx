@@ -31,7 +31,10 @@ const HAARLINIE = "rgba(184, 174, 163, 0.5)";
 
 interface Props {
   eyebrow: string;
-  titel: string;
+  /** Optional: Advisory führte nie einen Titel über den Schritten.
+      Ein erfundener oder ein sichtbarer Platzhalter waere beides
+      schlechter als keiner. */
+  titel?: string;
   schritte: readonly Schritt[];
   isMobile?: boolean;
 }
@@ -102,7 +105,7 @@ export function SubpageZeitstrahl({ eyebrow, titel, schritte, isMobile = false }
     return (
       <section>
         <p style={eyebrowStil}>{eyebrow}</p>
-        <h2 style={titelStil}>{titel}</h2>
+        {titel && <h2 style={titelStil}>{titel}</h2>}
         <ol
           style={{
             listStyle: "none",
@@ -149,7 +152,7 @@ export function SubpageZeitstrahl({ eyebrow, titel, schritte, isMobile = false }
   return (
     <section>
       <p style={eyebrowStil}>{eyebrow}</p>
-      <h2 style={titelStil}>{titel}</h2>
+      {titel && <h2 style={titelStil}>{titel}</h2>}
 
       <ol
         style={{

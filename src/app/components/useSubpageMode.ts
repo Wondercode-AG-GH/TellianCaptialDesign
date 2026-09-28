@@ -16,6 +16,14 @@ export interface SubpageModeApi {
   isDetail: boolean;
   openDetail: () => void;
   closeDetail: () => void;
+  /**
+   * Schliesst die Ansicht OHNE Eintrag im Verlauf — für den
+   * direkten Wechsel von einer Unterseite zur anderen. Sonst
+   * schöbe das Schliessen erst «/» und das Öffnen danach den
+   * neuen Pfad: zwei Einträge, und der Rückweg landete auf der
+   * Startseite statt bei der Seite, von der man kam.
+   */
+  closeSilently: () => void;
 }
 
 /**
@@ -51,5 +59,7 @@ export function useSubpageMode(path: string): SubpageModeApi {
     setMode("overview");
   }, [mode]);
 
-  return { mode, isDetail: mode === "detail", openDetail, closeDetail };
+  const closeSilently = useCallback(() => setMode("overview"), []);
+
+  return { mode, isDetail: mode === "detail", openDetail, closeDetail, closeSilently };
 }

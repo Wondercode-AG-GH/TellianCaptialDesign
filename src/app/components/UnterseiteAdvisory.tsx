@@ -8,9 +8,11 @@ import { SubpageMandatAdvisory } from "./SubpageMandatAdvisory";
    Texte.
 
    PENDING – Freigabe (Lieferung 28.09): Panel «Auf einen Blick»
-   samt Titel, Labels und Werten, der Eyebrow «Vorgehen» und der
-   TITEL DES VORGEHENS — für ihn liegt noch kein Wortlaut vor, der
-   Platzhalter steht deshalb sichtbar auf der Seite.
+   und der Eyebrow «Vorgehen».
+
+   KEIN Titel über den Schritten: die Seite führte nie einen. Ein
+   sichtbarer Platzhalter stand hier kurzzeitig und ist wieder
+   entfernt — eine Lücke im Text ist schlechter als keine.
 
    FR entfällt: die Seite wird nur aus dem Capital-Zweig geöffnet,
    der DE und EN führt. Die frühere FR-Fassung war toter Code.
@@ -24,9 +26,7 @@ interface Inhalt {
   panelTitel: string;
   panelZeilen: readonly { label: string; wert: string }[];
   vorgehenEyebrow: string;
-  vorgehenTitel: string;
   schritte: readonly { titel: string; zeile: string }[];
-  abschlussSatz: string;
 }
 
 const INHALT: Readonly<Record<"DE" | "EN", Inhalt>> = {
@@ -46,16 +46,11 @@ const INHALT: Readonly<Record<"DE" | "EN", Inhalt>> = {
     ],
     /* PENDING – Freigabe */
     vorgehenEyebrow: "Vorgehen",
-    /* PENDING – Wortlaut offen. Der Platzhalter bleibt sichtbar;
-       ein erfundener Titel waere schlechter als eine sichtbare
-       Luecke. */
-    vorgehenTitel: "[Titel Vorgehen – Wording offen]",
     schritte: [
       { titel: "Analyse", zeile: "Wir analysieren Ihr Portfolio im Kontext Ihrer Ziele, Ihres Risikoprofils und des aktuellen Marktumfelds." },
       { titel: "Empfehlung", zeile: "Auf dieser Grundlage entwickeln wir konkrete Anlageempfehlungen und erläutern Ihnen Chancen, Risiken und Auswirkungen auf Ihr Portfolio." },
       { titel: "Ihre Entscheidung", zeile: "Sie entscheiden über jede einzelne Anlage. Umgesetzt wird ausschliesslich, was Sie freigeben." },
     ],
-    abschlussSatz: "Sie entscheiden.",
   },
   EN: {
     eyebrow: "Advisory",
@@ -74,14 +69,11 @@ const INHALT: Readonly<Record<"DE" | "EN", Inhalt>> = {
     ],
     /* UI-LABEL-REVIEW: Eyebrow neu. */
     vorgehenEyebrow: "Approach",
-    /* PENDING – Wortlaut offen, wie in der deutschen Fassung. */
-    vorgehenTitel: "[Approach title – wording pending]",
     schritte: [
       { titel: "Analysis", zeile: "We assess your portfolio in the context of your objectives, risk profile and the current market environment." },
       { titel: "Recommendation", zeile: "Based on this analysis, we provide specific investment recommendations and explain the opportunities, risks and potential impact on your portfolio." },
       { titel: "Your Decision", zeile: "You remain in control of every investment decision. We only proceed with transactions that you have explicitly approved." },
     ],
-    abschlussSatz: "You decide.",
   },
 };
 
@@ -112,9 +104,7 @@ export function UnterseiteAdvisory({
       panelTitel={inhalt.panelTitel}
       panelZeilen={inhalt.panelZeilen}
       vorgehenEyebrow={inhalt.vorgehenEyebrow}
-      vorgehenTitel={inhalt.vorgehenTitel}
       schritte={inhalt.schritte}
-      abschlussSatz={inhalt.abschlussSatz}
       isMobile={isMobile}
       aktiv={aktiv}
       sprache={sprache}

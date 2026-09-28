@@ -1488,7 +1488,7 @@ export default function App() {
           eyebrow=""
           headline={null}
         >
-          <UnterseiteAdvisory isMobile aktiv={adv.isDetail} sprache={sprache} onContactClick={navigateToContact} onAndereSeite={man.openDetail} />
+          <UnterseiteAdvisory isMobile aktiv={adv.isDetail} sprache={sprache} onContactClick={navigateToContact} onAndereSeite={() => { adv.closeSilently(); man.openDetail(); }} />
         </SubpageOverlay>
         {/* Unterseite /mandat — löst den Platzhalter ab, der auf die
             Anlagestrategien-Seite zeigte. */}
@@ -1498,7 +1498,7 @@ export default function App() {
           eyebrow=""
           headline={null}
         >
-          <UnterseiteMandat isMobile aktiv={man.isDetail} sprache={sprache} onContactClick={navigateToContact} onAndereSeite={adv.openDetail} />
+          <UnterseiteMandat isMobile aktiv={man.isDetail} sprache={sprache} onContactClick={navigateToContact} onAndereSeite={() => { man.closeSilently(); adv.openDetail(); }} />
         </SubpageOverlay>
         {/* Unterseite /vermoegensverwaltung, schmale Fassung. */}
         <Section3Vermoegensverwaltung
@@ -1639,7 +1639,7 @@ export default function App() {
             eyebrow=""
             headline={null}
           >
-            <UnterseiteAdvisory aktiv={adv.isDetail} sprache={sprache} onContactClick={navigateToContact} onAndereSeite={man.openDetail} />
+            <UnterseiteAdvisory aktiv={adv.isDetail} sprache={sprache} onContactClick={navigateToContact} onAndereSeite={() => { adv.closeSilently(); man.openDetail(); }} />
           </SubpageOverlay>
           <SubpageOverlay
             isOpen={man.isDetail}
@@ -1647,7 +1647,7 @@ export default function App() {
             eyebrow=""
             headline={null}
           >
-            <UnterseiteMandat aktiv={man.isDetail} sprache={sprache} onContactClick={navigateToContact} onAndereSeite={adv.openDetail} />
+            <UnterseiteMandat aktiv={man.isDetail} sprache={sprache} onContactClick={navigateToContact} onAndereSeite={() => { man.closeSilently(); adv.openDetail(); }} />
           </SubpageOverlay>
         </SectionEnteredProvider>
 
