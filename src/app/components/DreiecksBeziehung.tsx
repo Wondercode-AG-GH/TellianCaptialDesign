@@ -427,10 +427,30 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
      eine SVG-Lücke nicht könnte). Das Vollmacht-Wort passt bei
      ~330px nirgends an seine Linie (breiter als die ganze
      Kreislücke) und steht zentriert unter den Knotennamen. */
+  /* 28.09: beide Diagonalwörter stehen auf der MITTE ihrer Linie
+     (t = 0.5 statt 0.62) und mit ihrem Mittelpunkt auf der
+     Senkrechten dazu — vorher hingen sie kantengeankert weiter
+     oben und lasen sich als Beschriftung des Zwischenraums.
+
+     Sie sitzen knapp NEBEN dem Strich, nicht darauf: die
+     Teller-Lösung des schmalen Zweigs (ein Rechteck in
+     Stationsfarbe unterbricht die Linie) zeigte sich auf dem
+     Verlauf des breiten Zweigs als sichtbarer Fleck, und die Linie
+     selbst aufzutrennen hiesse, ihre Zeichen-Animation über
+     strokeDasharray umzubauen.
+
+     Der Block hängt an seiner zugewandten KANTE, nicht an seiner
+     Mitte. Bei einer schrägen Linie zählt sonst nicht die halbe
+     Höhe, sondern die halbe Diagonale: gemessen ~72px, das Wort
+     müsste 68 Einheiten nach aussen wandern und stünde dann nicht
+     mehr bei seiner Linie. Kantengeankert genügen 17 Einheiten für
+     rund 10px Luft. */
   const NORMAL_1 = { x: -0.83, y: -0.557 };   /* Aussenseite Sie↔Tellian */
   const NORMAL_2 = { x: 0.83, y: -0.557 };    /* Aussenseite Sie↔Depotbank */
-  const m1roh = entlang(K.sie, K.tellian, kompakt ? 0.5 : 0.62);
-  const m2roh = entlang(K.sie, K.bank, kompakt ? 0.64 : 0.62);
+  const m1roh = entlang(K.sie, K.tellian, 0.5);
+  /* Schmal bleibt die zweite Marke bei 0.64 — dort stehen Ziffern
+     statt Wörter, und der Punkt war auf die Kreise abgestimmt. */
+  const m2roh = entlang(K.sie, K.bank, kompakt ? 0.64 : 0.5);
   const m1 = kompakt
     ? m1roh
     : { x: m1roh.x + 17 * NORMAL_1.x, y: m1roh.y + 17 * NORMAL_1.y };
