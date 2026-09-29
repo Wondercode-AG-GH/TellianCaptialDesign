@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { C, cormorant, sans, serif } from "../tokens";
+import { C, sans, serif } from "../tokens";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 /* Die beiden gefüllten Motive, geliefert am 12.09 — sie lösen die
    bisherigen Outline-Zeichnungen ab (gruppe-scharf.png und
@@ -1127,19 +1127,22 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
             gridArea: "1 / 1",
             margin: 0,
             textAlign: "center",
-            fontFamily: cormorant,
-            fontStyle: "italic",
-            /* Bis 18 statt fest 16px (29.09): der Hinweis stand
-               unter einer grossen Grafik und wirkte wie eine
-               Fussnote. Der Grad waechst mit dem Fenster, weil die
-               Zeile zweizeilig bleiben soll: bei 1280px ist das
-               Panel nur 555px breit, 18px braeuchten 612px und der
-               Satz bräche dreizeilig. Die Breite bleibt bei 34em —
-               in em bemessen waechst sie mit der Schrift. */
-            fontSize: "clamp(16px, 1.25vw, 18px)",
-            lineHeight: "var(--tellian-kursiv-lh)" as unknown as number,
+            /* INTER, nicht Cormorant kursiv (29.09). Cormorant ist
+               auf der Seite die Kursivzeile — die kurze, gesetzte
+               Behauptung. Dieser Satz ist ein zweizeiliger
+               Erklaerungstext, steht neben dem Fliesstext der
+               Station und wurde im schmalen Zweig ohnehin schon in
+               Inter gesetzt: ein Satz, zwei Schriften, je nach
+               Fensterbreite. Jetzt stimmt er mit beidem ueberein.
+
+               Der Grad ist der Stations-Fliesstext. Inter traegt
+               bei gleicher Groesse deutlich mehr x-Hoehe als
+               Cormorant — der Satz wirkt dadurch groesser als die
+               18px zuvor, obwohl die Zahl kleiner ist. */
+            fontSize: "var(--tellian-lauf-size)",
+            lineHeight: "var(--tellian-lauf-lh)" as unknown as number,
             color: C.bg,
-            maxWidth: "34em",
+            maxWidth: "46em",
             justifySelf: "center",
             visibility: aktiv === id ? "visible" : "hidden",
           }}
