@@ -128,10 +128,13 @@ const PERSONEN: readonly Person[] = [
     bild: "jasmina-rukavina", bildDetail: "jasmina-rukavina-voll",
     augenlinie: 0.215,
   },
-  /* TODO-TEXT-THIBAUT: kein persönlicher Text geliefert.
-     TODO-KONTAKT-THIBAUT: Vorname/Nachname/Tag ausstehend.
-     TODO-ROLLE-THIBAUT: Rolle unbestätigt — Zeile bleibt leer. */
-  { id: "thibaut", name: "Thibaut", rolle: "" },
+  /* Name und Text geliefert 29.09; die Kennung heisst seither
+     «thibault» statt «thibaut» — sie steht auch in der
+     Personenauswahl der Solutions-Seite.
+     TODO-ROLLE-THIBAULT: Rolle unbestätigt — Zeile bleibt leer.
+     TODO-BILD-THIBAULT: kein Porträt geliefert; die Kachel zeigt
+     den Platzhalter mit der Initiale. */
+  { id: "thibault", name: "Thibault Pons", rolle: "" },
 ];
 
 /* ── PERSONENTEXTE — wörtlich aus dem Briefing, Absatzstruktur
@@ -139,6 +142,23 @@ const PERSONEN: readonly Person[] = [
 type L = "DE" | "EN" | "FR";
 
 const TEXTE: Readonly<Record<string, Readonly<Record<L, readonly string[]>>>> = {
+  /* Lieferung 29.09, wörtlich. Als einzige Person mit französischer
+     Fassung — er steht auch auf der Solutions-Seite, die DE, EN und
+     FR führt. */
+  thibault: {
+    DE: [
+      "Seit fast 20 Jahren bin ich an den Finanzmärkten tätig, davon 18 Jahre in Zürich, und habe mich auf strukturierte Produkte spezialisiert. Was mir auch nach all diesen Jahren am meisten Freude bereitet, ist die Freiheit, über alle Anlageklassen hinweg zu arbeiten, neue Ideen zu verfolgen und für jeden Kunden den richtigen Ansatz zu finden. Bei Tellian Capital begleite ich Privatbanken, Family Offices und unabhängige Vermögensverwalter durch ihren gesamten Anlageprozess. Von der Identifikation von Opportunitäten bis zur Umsetzung der am besten geeigneten Strategie.",
+      "Wenn ich nur eine Leidenschaft nennen müsste, wäre es Tennis. Sobald ich den Platz betrete, spüre ich dieselbe Aufregung und Nervosität wie als Kind. Da sich die Jahre langsam bemerkbar machen, gebe ich den Staffelstab nach und nach an meine beiden Söhne weiter.",
+    ],
+    EN: [
+      "I have spent nearly 20 years in financial markets, 18 of them in Zurich, specialising in structured products. What I still enjoy most after all these years is the freedom to work across asset classes, explore different ideas and find the right investment approach for each client. At Tellian Capital, I support private banks, family offices and independent asset managers throughout their investment process, from identifying opportunities to implementing the most suitable strategy.",
+      "If I had to name just one passion, it would be tennis. The moment I step onto the court, I feel the same excitement and nerves I did as a child. With the years catching up with me, I am slowly passing the torch to my two boys.",
+    ],
+    FR: [
+      "J'ai débuté ma carrière sur les marchés financiers il y a près de 20 ans, dont 18 passés à Zurich, et me suis spécialisé dans les produits structurés. Ce qui me plaît toujours le plus après toutes ces années, c'est la liberté de travailler sur l'ensemble des classes d'actifs, d'explorer de nouvelles idées et de trouver la bonne approche pour chaque client. Chez Tellian Capital, j'accompagne les banques privées, les family offices et les gérants de fortune indépendants tout au long de leur processus d'investissement, de l'identification des opportunités à la mise en œuvre de la stratégie la plus adaptée.",
+      "Si je ne devais citer qu'une seule passion, ce serait le tennis. Dès que je mets un pied sur le court, je ressens la même excitation et la même pression que lorsque j'étais enfant. Le poids des années se faisant sentir, je passe progressivement le flambeau à mes deux garçons.",
+    ],
+  },
   wilhelm: {
     /* Lieferung 17.09. Der Namensgeber spricht in der ersten Person —
        bewusst, wie im Briefing geliefert */

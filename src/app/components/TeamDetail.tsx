@@ -284,6 +284,28 @@ export function TeamDetail({
     </button>
   );
 
+  /* Kein Porträt geliefert: dieselbe Initiale wie auf der Kachel.
+     Ohne sie stand hier eine leere Fläche, die nach einem Ladefehler
+     aussah statt nach einer bewussten Lücke. */
+  const initiale = (
+    <span
+      aria-hidden
+      style={{
+        display: "flex",
+        width: "100%",
+        height: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+        fontFamily: serif,
+        fontSize: "clamp(56px, 7vw, 104px)",
+        letterSpacing: "0.06em",
+        color: "var(--tellian-t5-placeholder-ink)",
+      }}
+    >
+      {name.trim().charAt(0)}
+    </span>
+  );
+
   /* ── KONTAKTWEGE ──
      Seit 22.09 stehen sie HIER statt auf der Teamkachel: dort
      führte die Kachel zu zwei Zielen gleichzeitig, jetzt zu einem.
@@ -426,6 +448,7 @@ export function TeamDetail({
       }}
       className="tellian-t5-bild"
     >
+      {!bild && initiale}
       {bild && (
         <ResponsiveImage
           id={bild}
@@ -480,6 +503,7 @@ export function TeamDetail({
             backgroundColor: "var(--tellian-t5-placeholder-bg)",
           }}
         >
+          {!bild && initiale}
           {bild && (
             <ResponsiveImage
               id={bild}

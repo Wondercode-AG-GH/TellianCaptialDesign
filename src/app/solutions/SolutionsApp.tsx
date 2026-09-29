@@ -200,7 +200,7 @@ export function SolutionsApp() {
           domId="solutions-team"
           sprache={sprache}
           onDetailToggle={setTeamDetailOffen}
-          personenIds={["olivier", "thibaut"]}
+          personenIds={["olivier", "thibault"]}
           markeNr={null}
         />
         {/* TODO-SOLUTIONS-FIRMA: der Kontaktblock zeigt Firmenname
@@ -257,7 +257,7 @@ export function SolutionsApp() {
             domId="solutions-team"
             sprache={sprache}
             onDetailToggle={setTeamDetailOffen}
-            personenIds={["olivier", "thibaut"]}
+            personenIds={["olivier", "thibault"]}
           />
         </SectionEnteredProvider>
         <SectionEnteredProvider value={entered[3]}>
