@@ -1129,7 +1129,14 @@ export function DreiecksBeziehung({ sprache = "DE", onMandat, kompakt = false }:
             textAlign: "center",
             fontFamily: cormorant,
             fontStyle: "italic",
-            fontSize: "16px",
+            /* Bis 18 statt fest 16px (29.09): der Hinweis stand
+               unter einer grossen Grafik und wirkte wie eine
+               Fussnote. Der Grad waechst mit dem Fenster, weil die
+               Zeile zweizeilig bleiben soll: bei 1280px ist das
+               Panel nur 555px breit, 18px braeuchten 612px und der
+               Satz bräche dreizeilig. Die Breite bleibt bei 34em —
+               in em bemessen waechst sie mit der Schrift. */
+            fontSize: "clamp(16px, 1.25vw, 18px)",
             lineHeight: "var(--tellian-kursiv-lh)" as unknown as number,
             color: C.bg,
             maxWidth: "34em",

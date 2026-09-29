@@ -281,7 +281,11 @@ export function MobilMenue({
                   color: istAktiv ? C.ink : "rgba(26, 23, 32, 0.58)",
                 }}
               >
-                {ziel === "capital" ? "Capital" : "Solutions"}
+                {ziel === "capital"
+                  ? sprache === "EN"
+                    ? "Wealth Management"
+                    : "Vermögensverwaltung"
+                  : "Solutions"}
                 <span
                   aria-hidden
                   style={{

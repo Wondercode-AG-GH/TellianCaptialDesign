@@ -393,7 +393,11 @@ export function Kopfzeile({
                       cursor: griff && !aktiv ? "pointer" : "default",
                     }}
                   >
-                    {ziel === "capital" ? "Capital" : "Solutions"}
+                    {ziel === "capital"
+                      ? sprache === "EN"
+                        ? "Wealth Management"
+                        : "Vermögensverwaltung"
+                      : "Solutions"}
                   </button>
                 </span>
               );
