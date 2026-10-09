@@ -219,18 +219,6 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
         </em>
       </h1>
 
-      {/* Intro */}
-      <p style={{
-        fontFamily: sans,
-        fontSize: 15,
-        color: C.charcoal,
-        lineHeight: 1.6,
-        margin: "16px 0 0 0",
-        maxWidth: 360,
-      }}>
-        {t.intro[lang]}
-      </p>
-
       {/* Server error banner */}
       {serverError && (
         <div

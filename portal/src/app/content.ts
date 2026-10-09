@@ -42,12 +42,8 @@ export const CONTENT = {
   backLink: { de: "Zurück zur Hauptseite", en: "Back to main site" } as L,
 
   client: {
-    eyebrow:   { de: "Mandanten-Portal", en: "Client Portal" } as L,
+    eyebrow:   { de: "Kundenportal", en: "Client Portal" } as L,
     headline:  { de: "Willkommen zurück.", en: "Welcome back." } as L,
-    intro:     {
-      de: "Melden Sie sich an, um Ihr Portfolio, Berichte und Dokumente einzusehen.",
-      en: "Sign in to view your portfolio, reports and documents.",
-    } as L,
     idLabel:   { de: "Kunden-ID", en: "Client ID" } as L,
     /* PENDING: echtes Kunden-ID-Format von Tellian bestätigen —
        evtl. erfundenes Beispiel (CUST-12345). */
@@ -58,10 +54,6 @@ export const CONTENT = {
   employee: {
     eyebrow:   { de: "Mitarbeiter-Portal", en: "Employee Portal" } as L,
     headline:  { de: "Willkommen zurück.", en: "Welcome back." } as L,
-    intro:     {
-      de: "Melden Sie sich mit Ihrer Firmen-E-Mail an.",
-      en: "Sign in with your company email.",
-    } as L,
     emailLabel: { de: "E-Mail", en: "Email" } as L,
     emailPlaceholder: { de: "name@telliancapital.ch", en: "name@telliancapital.ch" } as L,
     switchLink: { de: "Kunden-Login", en: "Client login" } as L,
@@ -75,7 +67,7 @@ export const CONTENT = {
   },
 
   setPassword: {
-    eyebrow:  { de: "Mandanten-Portal", en: "Client Portal" } as L,
+    eyebrow:  { de: "Kundenportal", en: "Client Portal" } as L,
     headline: { de: "Passwort festlegen.", en: "Set your password." } as L,
     intro:    {
       de: "Legen Sie ein persönliches Passwort für Ihr Konto fest. Das temporäre Passwort verliert danach seine Gültigkeit.",
