@@ -5,7 +5,7 @@ import { useLanguage } from "../context/LanguageContext";
 import { CONTENT, type Locale } from "../content";
 import { useBreakpoint } from "./useBreakpoint";
 import { FloatingField } from "./FloatingField";
-import loginImg from "../../assets/sardona-1.jpg";
+import loginImg from "../../assets/tellian-hero.jpg";
 import logo from "../../assets/logo/Tellian__Imperial purple logo.svg";
 
 /* PENDING: Wenn Hauptseite einen Eyebrow-Token bekommt, Portal aus
@@ -31,6 +31,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
   const [mode, setMode] = useState<LoginMode>("client");
   const [identity, setIdentity] = useState("");
   const [password, setPassword] = useState("");
+  const ready = identity.trim() !== "" && password !== "";
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState(false);
@@ -278,19 +279,21 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
           autoComplete="current-password"
         />
 
-        {/* Submit button — C.button (Mushroom), matches main site CTA */}
+        {/* Submit button — gedämpft, solange ein Feld leer ist; sobald
+            beide gefüllt sind in Imperial Purple, damit "bereit" sichtbar
+            ist. Klickbar bleibt er immer (zeigt sonst die Feldfehler). */}
         <button
           type="submit"
           disabled={loading}
           style={{
             fontFamily: sans,
-            fontSize: 11,
-            fontWeight: 500,
+            fontSize: 12,
             letterSpacing: "0.18em",
             textTransform: "uppercase",
-            color: C.dark,
-            backgroundColor: loading ? C.line : C.button,
-            border: `1px solid ${loading ? C.line : C.button}`,
+            fontWeight: 600,
+            color: ready ? C.bg : C.stoneText,
+            backgroundColor: loading ? C.line : ready ? C.purple : "transparent",
+            border: `1px solid ${loading ? C.line : ready ? C.purple : C.line}`,
             borderRadius: 0,
             padding: "16px 32px",
             cursor: loading ? "not-allowed" : "pointer",
@@ -300,12 +303,12 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
             gap: 10,
             minHeight: 52,
             width: "100%",
-            transition: reducedMotion ? "none" : `background-color ${DURATION.fast}ms ease`,
+            transition: reducedMotion ? "none" : `background-color ${DURATION.fast}ms ease, color ${DURATION.fast}ms ease, border-color ${DURATION.fast}ms ease`,
             outline: "none",
             marginTop: 8,
           }}
-          onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = C.buttonHover; }}
-          onMouseLeave={(e) => { if (!loading) e.currentTarget.style.backgroundColor = C.button; }}
+          onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = ready ? "#3A2F47" : C.bgSecondary; }}
+          onMouseLeave={(e) => { if (!loading) e.currentTarget.style.backgroundColor = ready ? C.purple : "transparent"; }}
         >
           {loading ? (
             <>
@@ -399,6 +402,21 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
         flexDirection: "column",
         padding: isMobile ? "0 24px" : "0 clamp(40px, 8vw, 80px)",
       }}>
+        {/* Bildstreifen: dasselbe Motiv wie das Desktop-Panel, randlos */}
+        <div style={{
+          margin: isMobile ? "0 -24px" : "0 calc(-1 * clamp(40px, 8vw, 80px))",
+          height: isMobile ? "max(150px, 22vh)" : "max(200px, 28vh)",
+          overflow: "hidden", flexShrink: 0,
+        }}>
+          <img
+            src={loginImg}
+            alt=""
+            style={{
+              width: "100%", height: "100%", display: "block",
+              objectFit: "cover", objectPosition: "center 18%",
+            }}
+          />
+        </div>
         {headerZone}
         {coreZone}
         {footerZone}
@@ -433,9 +451,10 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            objectPosition: "center 40%",
+            /* Hero der Capital-Seite: Fokus wie dort auf der Fassade
+               des Opernhauses, ohne Tonung. */
+            objectPosition: "center 42%",
             display: "block",
-            filter: "saturate(0.7) contrast(1.02)",
           }}
         />
       </div>

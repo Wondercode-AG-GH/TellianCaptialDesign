@@ -5,7 +5,7 @@ import { useLanguage } from "../context/LanguageContext";
 import { CONTENT, PASSWORD_RULES, type Locale } from "../content";
 import { useBreakpoint } from "./useBreakpoint";
 import { PasswordField } from "./PasswordField";
-import loginImg from "../../assets/sardona-1.jpg";
+import loginImg from "../../assets/tellian-hero.jpg";
 import logo from "../../assets/logo/Tellian__Imperial purple logo.svg";
 
 /* PENDING: Wenn Hauptseite einen Eyebrow-Token bekommt, Portal aus
@@ -429,8 +429,8 @@ export function SetPasswordPage({ onSuccess }: Props) {
           alt=""
           style={{
             width: "100%", height: "100%",
-            objectFit: "cover", objectPosition: "center 40%",
-            display: "block", filter: "saturate(0.7) contrast(1.02)",
+            objectFit: "cover", objectPosition: "center 42%",
+            display: "block",
           }}
         />
       </div>

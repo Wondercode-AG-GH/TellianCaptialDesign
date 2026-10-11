@@ -7,19 +7,22 @@ import type { L } from "./content";
 
 export const DASHBOARD = {
   nav: {
-    reports:  { de: "Ihre Berichte", en: "Your Reports" } as L,
+    reports:  { de: "Ihre Dokumente", en: "Your Documents" } as L,
     logout:   { de: "Abmelden", en: "Sign out" } as L,
+    account:  { de: "Konto", en: "Account" } as L,
+    clientId: { de: "Kunden-ID", en: "Client ID" } as L,
   },
 
   greeting: {
-    welcome: {
-      de: (firstName: string) => `Willkommen, ${firstName}.`,
-      en: (firstName: string) => `Welcome, ${firstName}.`,
+    welcome: { de: "Willkommen.", en: "Welcome." } as L,
+    lastLogin: {
+      de: (when: string) => `Letzte Anmeldung: ${when}`,
+      en: (when: string) => `Last sign-in: ${when}`,
     },
   },
 
   reports: {
-    headline:  { de: "Ihre Berichte.", en: "Your Reports." } as L,
+    headline:  { de: "Ihre Dokumente.", en: "Your Documents." } as L,
     count: {
       de: (n: number) => `${n} Dokument${n !== 1 ? "e" : ""} verfügbar`,
       en: (n: number) => `${n} document${n !== 1 ? "s" : ""} available`,

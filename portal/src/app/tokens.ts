@@ -7,6 +7,9 @@ export const C = {
   dark:         "#191718",   // Iron Veil
   charcoal:     "#191718",   // Iron Veil
   stone:        "#8A857C",
+  /* Kleine Schrift (Labels, Metazeilen) auf Archive White: #8A857C
+     erreicht nur 3.3:1, dieser Ton 5.4:1 (bzw. 5.0:1 auf bgSecondary). */
+  stoneText:    "#68635A",
   muted:        "#B8AEA3",   // Mushroom
   line:         "#D8D5CF",
   subtle:       "#E8E6E1",
