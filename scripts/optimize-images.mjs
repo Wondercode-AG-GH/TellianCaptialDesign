@@ -242,6 +242,10 @@ const SOURCES = [
     ["bryan-honegger",    "Bryan-Honegger.png",   0.002, 0.008, 0.996],
     ["andreas-truempler", "Andreas-Trümpler.JPG", 0.002, 0.048, 0.996],
     ["jasmina-rukavina",  "Jasmina-Rukavina.JPG", 0.002, 0.053, 0.996],
+    /* Thibault Pons (09.10) — Quelle 1086x1448, also 3:4 statt 2:3:
+       der 0.9-Ausschnitt nutzt damit 83 % der Höhe. Augenlinie bei
+       31.4 % der Quelle, auf 22 % gerechnet: 0.314 − 0.22 × 0.830. */
+    ["thibault-pons",     "Thibault-Pons.png",    0.002, 0.131, 0.996],
     /* Wilhelm Tell — Statue, eigene Regeln: die 22-%-Augenlinie der
        Portraets zeigt hier auf kein Gesicht. Der Wert ist am Raster
        gegen die sechs Portraets nachgestellt: mit 0.195 stand die
@@ -291,6 +295,7 @@ const SOURCES = [
     ["bryan-honegger-voll",    "Bryan-Honegger.png"],
     ["andreas-truempler-voll", "Andreas-Trümpler.JPG"],
     ["jasmina-rukavina-voll",  "Jasmina-Rukavina.JPG"],
+    ["thibault-pons-voll",     "Thibault-Pons.png"],
     ["wilhelm-tell-voll",      "WilhelmTell_2.png"],
   ].map(([id, file]) => ({
     id,

@@ -52,6 +52,8 @@ interface Person {
   /** Persönliche Mailadresse. Fehlt sie, schreibt das Icon an die
       Hausadresse und nennt die Person im Betreff (TODO-MAIL). */
   mail?: string;
+  /** Nur auf der Solutions-Seite: fehlt im ganzen Team (Capital). */
+  nurSolutions?: boolean;
 }
 
 /* LINKEDIN NUR, WO ES EIN PROFIL GIBT (Entscheid 22.09).
@@ -128,13 +130,16 @@ const PERSONEN: readonly Person[] = [
     bild: "jasmina-rukavina", bildDetail: "jasmina-rukavina-voll",
     augenlinie: 0.215,
   },
-  /* Name und Text geliefert 29.09; die Kennung heisst seither
-     «thibault» statt «thibaut» — sie steht auch in der
-     Personenauswahl der Solutions-Seite.
-     TODO-ROLLE-THIBAULT: Rolle unbestätigt — Zeile bleibt leer.
-     TODO-BILD-THIBAULT: kein Porträt geliefert; die Kachel zeigt
-     den Platzhalter mit der Initiale. */
-  { id: "thibault", name: "Thibault Pons", rolle: "" },
+  /* Name und Text geliefert 29.09, Rolle und Porträt 09.10. Die
+     Kennung heisst «thibault» — sie steht auch in der Personenauswahl
+     der Solutions-Seite. Nur dort sichtbar (Auftrag 09.10), daher
+     nurSolutions: das ganze Team der Capital-Seite lässt ihn aus. */
+  {
+    id: "thibault", name: "Thibault Pons", rolle: "Partner",
+    bild: "thibault-pons", bildDetail: "thibault-pons-voll",
+    augenlinie: 0.314,
+    nurSolutions: true,
+  },
 ];
 
 /* ── PERSONENTEXTE — wörtlich aus dem Briefing, Absatzstruktur
@@ -342,7 +347,7 @@ export function Station5Team({
     ? (personenIds
         .map((id) => PERSONEN.find((p) => p.id === id))
         .filter(Boolean) as Person[])
-    : PERSONEN;
+    : PERSONEN.filter((p) => !p.nurSolutions);
   const [offenId, setOffenId] = useState<string | null>(null);
   const kachelRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const rueckkehrRef = useRef<HTMLElement | null>(null);
