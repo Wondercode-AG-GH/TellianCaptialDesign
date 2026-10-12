@@ -111,3 +111,12 @@ html {
   background: var(--tellian-muted);
   color: var(--tellian-ink);
 }
+
+/* Fokusrahmen nur bei Tastaturbedienung (siehe main.tsx). Eingabefelder
+   behalten ihren Rahmen immer. */
+html[data-eingabe="zeiger"] :is(button, a, [role="button"], [role="dialog"], [tabindex]):not(input, textarea, select):focus-visible {
+  outline: none !important;
+}
+
+/* Grauer Tipp-Hinweis auf iPhone/Android beim Antippen ausblenden. */
+html { -webkit-tap-highlight-color: transparent; }
