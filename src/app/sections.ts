@@ -26,8 +26,14 @@ export const SECTION_WIDTH_LAST = "100vw";
 
 export interface SectionDef {
   /** Stabiler Schlüssel, unabhängig von Position und Beschriftung.
-   *  Wird auch als Hash-Fragment in der URL geführt. */
+   *  Nur intern (Code, Bezüge zwischen Komponenten). */
   key: string;
+  /** Anker in der URL (#…). Folgt seit 12.10. dem Stationsnamen, damit
+   *  URL, Stationsleiste und Überschrift dasselbe sagen. */
+  anker: string;
+  /** Frühere Anker. Bleiben als Umleitung gültig, damit geteilte Links
+   *  weiter auf die richtige Station führen. */
+  alteAnker?: readonly string[];
   /** Name der Station. EINZIGE Quelle — Stationsleiste und mobiles
    *  Menü lesen beide daraus. Vorher standen hier zusätzlich
    *  navLabel und navSub mit einer veralteten Gliederung
@@ -57,7 +63,8 @@ export interface SectionDef {
  */
 export const SECTIONS: readonly SectionDef[] = [
   {
-    key: "hero", label: "Einstieg", labelKurz: "Einstieg", dunkel: false,
+    key: "hero", anker: "einstieg", alteAnker: ["hero"],
+    label: "Einstieg", labelKurz: "Einstieg", dunkel: false,
     domId: "section-hero",
     imageIds: ["hero-tellian"],
   },
@@ -70,7 +77,8 @@ export const SECTIONS: readonly SectionDef[] = [
        KORREKTUR: Die Station steht jetzt an Position 02 und trägt die
        DUNKLE Fläche — der Tausch mit Wealth Management hält das
        alternierende Hell/Dunkel-Schema (01 hell … 06 dunkel). */
-    key: "vermoegen", label: "Vermögensverwaltung", labelKurz: "Vermögen", dunkel: true,
+    key: "vermoegen", anker: "vermoegensverwaltung", alteAnker: ["vermoegen"],
+    label: "Vermögensverwaltung", labelKurz: "Vermögen", dunkel: true,
     domId: "section-vermoegensverwaltung",
     imageIds: [],
   },
@@ -80,16 +88,19 @@ export const SECTIONS: readonly SectionDef[] = [
        05 hell) — damit der alternierende Hell/Dunkel-Takt hält,
        tauschen beide Stationen auch die Farbwelt: das Rad steht
        neu auf der HELLEN Fläche. */
-    key: "strategien", label: "Ihre Vorteile", labelKurz: "Vorteile", dunkel: false,
+    key: "strategien", anker: "vorteile", alteAnker: ["strategien"],
+    label: "Ihre Vorteile", labelKurz: "Vorteile", dunkel: false,
     domId: "section-anlagestrategien",
     imageIds: [],
   },
   {
     /* Position 04, seit dem Tausch die DUNKLE Fläche (s. o.).
-       Benennung 17.09 (Kundenwunsch): «Dreiecksbeziehung» —
-       benennt die Grafik, die die Station trägt; EN
-       «Three-Way Relationship» (s. LEISTE). */
-    key: "philosophie", label: "Dreiecksbeziehung", labelKurz: "Dreieck", dunkel: true,
+       Benennung 12.10.: «Geschäftsbeziehungen» wie die Überschrift
+       («Bewährte Geschäftsbeziehungen»); vorher «Dreiecksbeziehung»
+       (17.09), was nur die Grafik benannte. EN «Banking
+       Relationships» (s. LEISTE). */
+    key: "philosophie", anker: "geschaeftsbeziehungen", alteAnker: ["philosophie", "dreiecksbeziehung"],
+    label: "Geschäftsbeziehungen", labelKurz: "Beziehungen", dunkel: true,
     domId: "section-anlagephilosophie",
     imageIds: ["sardona"],
   },
@@ -106,7 +117,8 @@ export const SECTIONS: readonly SectionDef[] = [
      Im Redesign verliert sie den Filmstrip und schrumpft auf
      SECTION_WIDTH. Dann ändert sich hier nichts ausser der Breite. */
   {
-    key: "ueber-uns", label: "Team", labelKurz: "Team", dunkel: false,
+    key: "ueber-uns", anker: "team", alteAnker: ["ueber-uns"],
+    label: "Team", labelKurz: "Team", dunkel: false,
     domId: "section-ueber-uns",
     imageIds: [
       "olivier-bill", "marco-ludescher", "rolf-schneider",
@@ -114,7 +126,8 @@ export const SECTIONS: readonly SectionDef[] = [
     ],
   },
   {
-    key: "kontakt", label: "Kontakt", labelKurz: "Kontakt", dunkel: true,
+    key: "kontakt", anker: "kontakt",
+    label: "Kontakt", labelKurz: "Kontakt", dunkel: true,
     domId: "section-kontakt",
     imageIds: [],
   },
@@ -124,7 +137,8 @@ export const SECTION_COUNT = SECTIONS.length;
 
 /* ── STATIONSNAMEN JE SPRACHE (17.09) ──
    Bis dahin war die Leiste einsprachig DE. Mit dem englischen
-   Namen für Station 04 («Three-Way Relationship», Kundenvorgabe)
+   Namen für Station 04 (damals «Three-Way Relationship», seit 12.10.
+   «Banking Relationships» wie die EN-Überschrift)
    braucht sie eine Sprachauflösung — gebaut wie auf Solutions
    (SOLUTIONS_LEISTE + solutionsLeisteSektionen).
 
@@ -151,7 +165,7 @@ export const LEISTE: Readonly<
     { label: "Einstieg", labelKurz: "Einstieg" },
     { label: "Vermögensverwaltung", labelKurz: "Vermögen" },
     { label: "Ihre Vorteile", labelKurz: "Vorteile" },
-    { label: "Dreiecksbeziehung", labelKurz: "Dreieck" },
+    { label: "Geschäftsbeziehungen", labelKurz: "Beziehungen" },
     { label: "Team", labelKurz: "Team" },
     { label: "Kontakt", labelKurz: "Kontakt" },
   ],
@@ -159,7 +173,7 @@ export const LEISTE: Readonly<
     { label: "Introduction", labelKurz: "Introduction" },
     { label: "Wealth Management", labelKurz: "Wealth" },
     { label: "Your Advantages", labelKurz: "Advantages" },
-    { label: "Three-Way Relationship", labelKurz: "Three-Way" },
+    { label: "Banking Relationships", labelKurz: "Relationships" },
     { label: "Team", labelKurz: "Team" },
     { label: "Contact", labelKurz: "Contact" },
   ],
@@ -167,7 +181,7 @@ export const LEISTE: Readonly<
     { label: "Einstieg", labelKurz: "Einstieg" },
     { label: "Vermögensverwaltung", labelKurz: "Vermögen" },
     { label: "Ihre Vorteile", labelKurz: "Vorteile" },
-    { label: "Dreiecksbeziehung", labelKurz: "Dreieck" },
+    { label: "Geschäftsbeziehungen", labelKurz: "Beziehungen" },
     { label: "Team", labelKurz: "Team" },
     { label: "Kontakt", labelKurz: "Kontakt" },
   ],
@@ -202,7 +216,7 @@ export function sectionOrdinal(index: number): string {
 /** Index zu einem Schlüssel, -1 wenn unbekannt. */
 export function indexOfSection(key: string | null | undefined): number {
   if (!key) return -1;
-  return SECTIONS.findIndex((s) => s.key === key);
+  return SECTIONS.findIndex((s) => s.key === key || s.anker === key || (s.alteAnker ?? []).includes(key));
 }
 
 /**

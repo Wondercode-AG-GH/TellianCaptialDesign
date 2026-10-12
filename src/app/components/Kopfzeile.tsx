@@ -235,7 +235,7 @@ export function Kopfzeile({
     return (
       <>
         <a
-          href={logoHref ?? `#${SECTIONS[0].key}`}
+          href={logoHref ?? `#${SECTIONS[0].anker}`}
           onClick={(e) => {
             e.preventDefault();
             if (griff) onLogo();
