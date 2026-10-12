@@ -766,6 +766,8 @@
   /* Aufruf «Mehr lesen» unter der Rolle. */
   --tellian-t5-cta-size: 12px;
   --tellian-t5-cta-gap: 10px;
+  /* Kreis um den Pfeil (Variante B, 12.10.). Auf Touch grösser. */
+  --tellian-t5-cta-kreis: 26px;
   /* Wieviele Namenszeilen die breite Beschriftung freihält. Eine
      reicht, solange neben der Zeichenspalte 155px für den längsten
      Namen bleiben — das ist ab rund 200px Kachelbreite der Fall.
@@ -778,7 +780,7 @@
     + 2 * var(--tellian-t5-role-size) * var(--tellian-t5-role-leading)
     + var(--tellian-t5-name-role-gap)
     + var(--tellian-t5-cta-gap)
-    + var(--tellian-t5-cta-size) * 1.3
+    + max(var(--tellian-t5-cta-size) * 1.3, var(--tellian-t5-cta-kreis))
     + 4px
   );
 
@@ -1587,4 +1589,8 @@
   :root {
     --tellian-t5-name-zeilen-breit: 2;
   }
+}
+
+@media (pointer: coarse) {
+  :root { --tellian-t5-cta-kreis: 30px; }
 }

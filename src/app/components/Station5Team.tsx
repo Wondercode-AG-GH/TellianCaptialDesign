@@ -165,23 +165,24 @@ const TEXTE: Readonly<Record<string, Readonly<Record<L, readonly string[]>>>> = 
     ],
   },
   wilhelm: {
-    /* Lieferung 17.09. Der Namensgeber spricht in der ersten Person —
-       bewusst, wie im Briefing geliefert */
+    /* Lieferung 17.09, Ich-Form wie im Briefing. Am 12.10. auf Wunsch
+       sprachlich überarbeitet (ohne Gedankenstriche und Aufzählungsformeln),
+       inhaltlich unverändert. */
     DE: [
-      "Unabhängigkeit war für mich nie nur eine Frage der Freiheit, sondern immer auch der Verantwortung. Den eigenen Weg zu wählen, sich nicht von äusserem Druck leiten zu lassen und im entscheidenden Moment ruhig zu bleiben – dafür stehe ich bis heute.",
-      "Damit passe ich ganz gut zu Tellian Capital – einer Vermögensverwaltung, in deren Namen sich auch meiner wiederfindet. Auch an den Finanzmärkten braucht es einen klaren Blick, eine ruhige Hand und die Überzeugung, nicht jedem Trend folgen zu müssen. Das Ziel sollte man dabei nie aus den Augen verlieren.",
-      "Meine Heimat sind die Schweizer Berge. Sie stehen für mich für Beständigkeit, Weitsicht und Bodenhaftung – Werte, die auch nach mehr als 700 Jahren erstaunlich aktuell geblieben sind.",
+      "Unabhängig sein hiess für mich immer auch, Verantwortung zu tragen. Ich bin meinen eigenen Weg gegangen, habe mich nicht unter Druck setzen lassen und bin ruhig geblieben, als es darauf ankam. Daran hat sich nichts geändert.",
+      "Deshalb passe ich gut zu Tellian Capital. In ihrem Namen steckt auch meiner. An den Finanzmärkten braucht man ebenfalls einen klaren Blick und eine ruhige Hand, und man muss nicht jedem Trend nachlaufen. Wichtig ist, dass man das Ziel im Auge behält.",
+      "Zu Hause bin ich in den Schweizer Bergen. Dort lernt man, beständig zu sein und weit vorauszuschauen. Und mit beiden Beinen auf dem Boden zu bleiben. Das war vor über 700 Jahren so und ist heute nicht anders.",
     ],
     EN: [
-      "Independence has never been simply a question of freedom for me, but also one of responsibility. Choosing your own path, not allowing yourself to be swayed by outside pressure, and remaining calm when it matters most – these are values I still stand for today.",
-      "That makes me a natural fit for Tellian Capital – a wealth management firm whose name carries an echo of my own. The financial markets, too, call for a clear view, a steady hand and the conviction not to follow every trend. And throughout, one should never lose sight of the goal.",
-      "The Swiss mountains are my home. To me, they represent stability, foresight and staying grounded – values that, even after more than 700 years, remain remarkably relevant today.",
+      "For me, independence has always come with responsibility. I chose my own path, didn’t bow to outside pressure and kept calm when it counted. That hasn’t changed.",
+      "Which is why Tellian Capital suits me. My name is part of theirs. Markets also call for a clear view and a steady hand, and you don’t have to chase every trend. What matters is keeping your eye on the target.",
+      "My home is the Swiss mountains. Up there you learn to be steady and to look far ahead, and to keep both feet on the ground. That was true more than 700 years ago, and it still is.",
     ],
-    /* TODO-FR: Übersetzung folgt — DE-Text als Platzhalter. */
+    /* TODO-FR: Übersetzung folgt, DE-Text als Platzhalter. */
     FR: [
-      "Unabhängigkeit war für mich nie nur eine Frage der Freiheit, sondern immer auch der Verantwortung. Den eigenen Weg zu wählen, sich nicht von äusserem Druck leiten zu lassen und im entscheidenden Moment ruhig zu bleiben – dafür stehe ich bis heute.",
-      "Damit passe ich ganz gut zu Tellian Capital – einer Vermögensverwaltung, in deren Namen sich auch meiner wiederfindet. Auch an den Finanzmärkten braucht es einen klaren Blick, eine ruhige Hand und die Überzeugung, nicht jedem Trend folgen zu müssen. Das Ziel sollte man dabei nie aus den Augen verlieren.",
-      "Meine Heimat sind die Schweizer Berge. Sie stehen für mich für Beständigkeit, Weitsicht und Bodenhaftung – Werte, die auch nach mehr als 700 Jahren erstaunlich aktuell geblieben sind.",
+      "Unabhängig sein hiess für mich immer auch, Verantwortung zu tragen. Ich bin meinen eigenen Weg gegangen, habe mich nicht unter Druck setzen lassen und bin ruhig geblieben, als es darauf ankam. Daran hat sich nichts geändert.",
+      "Deshalb passe ich gut zu Tellian Capital. In ihrem Namen steckt auch meiner. An den Finanzmärkten braucht man ebenfalls einen klaren Blick und eine ruhige Hand, und man muss nicht jedem Trend nachlaufen. Wichtig ist, dass man das Ziel im Auge behält.",
+      "Zu Hause bin ich in den Schweizer Bergen. Dort lernt man, beständig zu sein und weit vorauszuschauen. Und mit beiden Beinen auf dem Boden zu bleiben. Das war vor über 700 Jahren so und ist heute nicht anders.",
     ],
   },
   bryan: {
@@ -499,9 +500,12 @@ export function Station5Team({
                  passt auf jede Kachel ab 166px. Schmal hält das Feld
                  unter 360px zwei Zeilen frei — dort ist die Kachel
                  138px schmal. */
+              /* Schmal ohne reservierte Leerzeile (12.10.): die
+                 zweite Namenszeile stand bei einzeiligen Namen als
+                 Lücke über der Rolle. */
               minHeight: breit
                 ? "calc(var(--tellian-t5-name-size) * var(--tellian-t5-name-leading))"
-                : "calc(var(--tellian-t5-name-zeilen) * var(--tellian-t5-name-size-schmal) * var(--tellian-t5-name-leading))",
+                : undefined,
             }}
           >
             {person.name}
@@ -527,12 +531,8 @@ export function Station5Team({
                    reservierten zweiten Zeile zielte es ins Leere.
                    Der Platz für zwei Zeilen steckt dort in
                    --tellian-t5-label-row. */
-                ...(breit
-                  ? null
-                  : {
-                      minHeight:
-                        "calc(2 * var(--tellian-t5-role-size) * var(--tellian-t5-role-leading))",
-                    }),
+                /* Schmal ebenfalls ohne reservierte zweite Zeile (12.10.),
+                   sonst stand sie als Lücke über «Mehr lesen». */
               }}
             >
               {rolleText}
@@ -543,20 +543,31 @@ export function Station5Team({
               mehr hier — die Kachel führt dorthin, sonst nichts.
               Nur wo es etwas zu lesen gibt. */}
           {hatText && (
+            /* Variante B «Kreis-Affordanz» (12.10.): Pfeil in einem feinen
+               Kreis, dieselbe Kreisform wie in der Dreiecksgrafik. Beim
+               Zeigen auf die Kachel füllt sich der Kreis mit dem
+               Akzentton. Grössere Zielfläche für Touch. */
             <span
               className="tellian-t5-mehr"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "6px",
+                gap: "10px",
                 marginTop: "var(--tellian-t5-cta-gap)",
                 fontFamily: sans,
                 fontSize: "var(--tellian-t5-cta-size)",
+                fontWeight: 500,
                 letterSpacing: "var(--tellian-ls-cta-klein)",
                 color: C.ink,
               }}
             >
-              {UI[sprache].mehr} <span aria-hidden>→</span>
+              <span className="tellian-t5-pfeil" aria-hidden>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" focusable="false">
+                  <path d="M5 12h14" /><path d="m13 6 6 6-6 6" />
+                </svg>
+              </span>
+              {UI[sprache].mehr}
             </span>
           )}
           </span>
@@ -636,7 +647,25 @@ export function Station5Team({
         outline: 2px solid var(--tellian-accent);
         outline-offset: 2px;
       }
-      .tellian-t5-mehr { text-decoration: underline; text-underline-offset: 4px; }
+      .tellian-t5-pfeil {
+        display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+        width: var(--tellian-t5-cta-kreis); height: var(--tellian-t5-cta-kreis);
+        border-radius: 50%; border: 1px solid var(--tellian-stone); color: var(--tellian-ink);
+        transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+      }
+      .tellian-t5-pfeil svg { transition: transform 200ms ease; }
+      .tellian-t5-kachel:hover .tellian-t5-pfeil,
+      .tellian-t5-kachel:focus-visible .tellian-t5-pfeil {
+        background-color: var(--tellian-accent-gold);
+        border-color: var(--tellian-accent-gold);
+        color: var(--tellian-accent-gold-text);
+      }
+      .tellian-t5-kachel:hover .tellian-t5-pfeil svg,
+      .tellian-t5-kachel:focus-visible .tellian-t5-pfeil svg { transform: translateX(2px); }
+      @media (prefers-reduced-motion: reduce) {
+        .tellian-t5-pfeil, .tellian-t5-pfeil svg { transition: none; }
+        .tellian-t5-kachel:hover .tellian-t5-pfeil svg { transform: none; }
+      }
       .tellian-t5-bild picture { display: block; width: 100%; height: 100%; }
       .tellian-t5-bild img { width: 100%; height: 100%; object-fit: cover; }
     `}</style>
