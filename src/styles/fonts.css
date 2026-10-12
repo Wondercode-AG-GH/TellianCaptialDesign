@@ -1,5 +1,7 @@
-/* ── Cormorant Garamond — Editorial/Values display font ── */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600&display=swap');
+/* ── Cormorant Garamond — Editorial/Values display font ──
+   Mit Kursivschnitten (12.10.): ohne sie hat der Browser die kursiven
+   Stellen («Sprechen wir», Dreieck, Prozess) künstlich schräg gestellt. */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&display=swap');
 
 /* ── Lustria — Display/Title font (Brand Guidelines 2026) ── */
 @font-face {
@@ -8,6 +10,24 @@
   font-weight: 400;
   font-style: normal;
   font-display: swap;
+}
+
+/* ── Lustria kursiv → Cormorant Garamond Italic (12.10., Variante B) ──
+   Lustria hat keinen Kursivschnitt; der Browser stellte die Akzentwörter
+   (Das «Team», «Ihre Vorteile» …) bisher nur schräg. Diese Fläche gibt
+   der Familie Lustria eine echte Kursive: alle kursiven Lustria-Stellen
+   zeichnen automatisch in Cormorant Garamond Italic, ohne Änderung in den
+   Komponenten. size-adjust gleicht die kleinere x-Höhe von Cormorant an
+   (x-Höhe 0.386 gegen 0.504, Versalhöhe 0.625 gegen 0.704 der Lustria);
+   Gewicht 500 trifft die Strichstärke der Lustria. Quelle: Google Fonts,
+   SIL Open Font License, Latin-Subset. */
+@font-face {
+  font-family: 'Lustria';
+  src: url('../fonts/CormorantGaramond-Italic-latin.woff2') format('woff2');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+  size-adjust: 118%;
 }
 
 /* ── Inter — Body font (Variable, all weights) ── */

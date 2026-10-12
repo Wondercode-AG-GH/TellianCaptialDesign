@@ -610,7 +610,7 @@ function Section3Vermoegensverwaltung({
             background: "transparent", border: "none", cursor: "pointer",
             padding: "10px 4px", minHeight: "44px",
             display: "inline-flex", alignItems: "center", gap: "6px",
-            fontFamily: sans, fontSize: "11px", letterSpacing: "0.15em",
+            fontFamily: sans, fontSize: "12px", letterSpacing: "0.15em",
             textTransform: "uppercase", color: C.stone,
             transition: "color 300ms ease-out",
           }}
@@ -1315,7 +1315,8 @@ export default function App() {
     const key = SECTIONS[activeIndex]?.key;
     if (!key) return;
 
-    const hash = activeIndex === 0 ? "" : `#${key}`;
+    const anker = SECTIONS[activeIndex]?.anker ?? key;
+    const hash = activeIndex === 0 ? "" : `#${anker}`;
     const { pathname, search } = window.location;
     const next = `${pathname}${search}${hash}`;
     if (next !== `${pathname}${search}${window.location.hash}`) {

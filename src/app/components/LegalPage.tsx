@@ -121,7 +121,7 @@ export function LegalPage({ activePath, onClose }: LegalPageProps) {
           }}
           style={{
             fontFamily: sans,
-            fontSize: "11px",
+            fontSize: "12px",
             letterSpacing: "var(--tellian-ls-marker)",
             textTransform: "uppercase",
             color: C.stone,

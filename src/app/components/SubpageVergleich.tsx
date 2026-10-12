@@ -58,7 +58,7 @@ export function SubpageVergleich({
   };
   const labelStil: React.CSSProperties = {
     fontFamily: sans,
-    fontSize: "11px",
+    fontSize: "12px",
     letterSpacing: "0.12em",
     textTransform: "uppercase",
     color: C.accent,
@@ -102,7 +102,9 @@ export function SubpageVergleich({
         }}
       >
         {name}
-        <span aria-hidden>→</span>
+        {/* Lustria hat keinen Pfeil; ohne Inter sprang der Browser auf
+            eine Systemschrift (Lucida Grande). */}
+        <span aria-hidden style={{ fontFamily: sans }}>→</span>
       </button>
     );
   };
@@ -155,7 +157,7 @@ export function SubpageVergleich({
                       style={{
                         margin: 0,
                         fontFamily: sans,
-                        fontSize: "10px",
+                        fontSize: "12px",
                         letterSpacing: "0.14em",
                         textTransform: "uppercase",
                         color: pfad === seite ? C.ink : C.accent,

@@ -91,12 +91,18 @@ export function Station2WealthManagement({
         ` transform ${DURATION}ms cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
   });
 
+  /* Höchstens zwei Zeilen (12.10.): «Geschäftsbeziehungen» ist ein
+     einziges Wort und darf nicht getrennt werden. Die Schrift folgt
+     deshalb auch der Spaltenbreite (cqi): das Wort misst in der
+     kursiven Cormorant rund 8.8em, 10.8cqi lässt es mit Reserve auf
+     eine Zeile passen. Auf breiten Fenstern greift die normale Grösse. */
   const titel = (
+    <div style={{ containerType: "inline-size" }}>
     <h2
       style={{
         margin: 0,
         fontFamily: serif,
-        fontSize: "var(--tellian-s2-title-size)",
+        fontSize: "min(var(--tellian-s2-title-size), 10.8cqi)",
         fontWeight: 400,
         lineHeight: "var(--tellian-titel-lh)" as unknown as number,
         letterSpacing: "var(--tellian-titel-ls)",
@@ -115,6 +121,7 @@ export function Station2WealthManagement({
         {inhalt.titel[1]}
       </em>
     </h2>
+    </div>
   );
 
   const absaetze = (
